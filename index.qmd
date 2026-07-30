@@ -1,0 +1,57 @@
+---
+title: "Econometria Interativa"
+subtitle: "Laboratórios e curso de R que rodam no seu navegador — UNEMAT, Campus de Sinop"
+toc: false
+number-sections: false
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+Bem-vindo! Nesta página estão os **laboratórios interativos** de Econometria I e II e o **curso de R** da disciplina. Em todas as páginas o R roda **no seu navegador** — nada precisa ser instalado.
+
+## Econometria I — Laboratórios
+
+| # | Laboratório | Tema |
+|---|---|---|
+| 1 | [Explorando dados](econ1-lab01.qmd) | Primeiro contato com dados e correlação |
+| 2 | [Analisando e visualizando dados](econ1-lab02.qmd) | Gráficos e tabelas dinâmicas |
+| 3 | [Introdução à estatística](econ1-lab03.qmd) | Descritivas, intervalos e testes |
+| 4 | [Regressão linear](econ1-lab04.qmd) | Regressão simples e múltipla |
+| 5 | [Formas funcionais](econ1-lab05.qmd) | Log-linear, log-lin, lin-log |
+| 6 | [Variáveis qualitativas](econ1-lab06.qmd) | Dummies, sazonalidade e mudança estrutural |
+| 7 | [Séries temporais](econ1-lab07.qmd) | Decomposição, estacionariedade e cointegração |
+| 8 | [Modelos de volatilidade](econ1-lab08.qmd) | ARCH e GARCH |
+| 9 | [Previsão econômica](econ1-lab09.qmd) | Box-Jenkins e VAR |
+
+## Econometria II — Diagnóstico de regressão
+
+| # | Laboratório | Tema |
+|---|---|---|
+| 7 | [Multicolinearidade](econ2-lab07.qmd) | Detecção e correção |
+| 8 | [Heterocedasticidade e autocorrelação](econ2-lab08.qmd) | Testes e erros-padrão robustos |
+| 9 | [Especificação do modelo](econ2-lab09.qmd) | RESET, variáveis omitidas e proxies |
+
+## Curso de R — Unidade 7
+
+| # | Aula |
+|---|---|
+| 1 | [Introdução ao R](r-aula01.qmd) |
+| 2 | [Estrutura dos dados](r-aula02.qmd) |
+| 3 | [Regressão linear simples](r-aula03.qmd) |
+| 4 | [Regressão múltipla](r-aula04.qmd) |
+| 5 | [Formas funcionais](r-aula05.qmd) |
+| 6 | [Variáveis qualitativas](r-aula06.qmd) |
+| 7 | [Heterocedasticidade](r-aula07.qmd) |
+| 8 | [Autocorrelação](r-aula08.qmd) |
+| 9 | [Especificação da regressão](r-aula09.qmd) |
+| 10 | [Séries de tempo](r-aula10.qmd) |
+| 11 | [Machine Learning](r-aula11.qmd) |
+
+::: {.callout-note}
+## Como usar
+
+Cada página tem blocos de código com o botão **Run Code**. Rode os blocos **na ordem**: os primeiros carregam os dados usados pelos seguintes. Exercícios têm **Dica** e **Solução** — tente antes de abrir a solução.
+:::

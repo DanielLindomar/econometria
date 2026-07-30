@@ -1,0 +1,168 @@
+---
+title: "Aula 11 — Machine Learning no R"
+subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - tidyr
+    - glmnet
+    - randomForest
+    - Metrics
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- entender a lógica **treino/teste** e a avaliação por RMSE;
+- estimar um **LASSO** e ler a seleção de variáveis;
+- estimar uma **random forest** e comparar com a regressão linear.
+:::
+
+Econometria pergunta "qual o efeito de x sobre y?"; *machine learning* pergunta "**qual a melhor previsão de y?**". Nesta aula, os dois mundos competem para prever o preço do boi gordo a partir de soja (BR e EUA) e PETR4.
+
+## Treino e teste
+
+A regra de ouro do ML: avaliar o modelo em dados que ele **não viu**. `sample()` sorteia 80% das linhas para treino.
+
+```{webr}
+library(dplyr); library(tidyr)
+precos <- read.csv("dados/series_tempo.csv")
+ml <- precos |> select(boi, soja_br, soja_us, petr4) |> drop_na()
+set.seed(123)
+idx    <- sample(seq_len(nrow(ml)), size = 0.8 * nrow(ml))
+treino <- ml[idx, ]
+teste  <- ml[-idx, ]
+c(treino = nrow(treino), teste = nrow(teste))
+```
+
+## O ponto de partida: regressão linear
+
+```{webr}
+library(Metrics)
+rl <- lm(boi ~ soja_br + soja_us + petr4, data = treino)
+pred_rl <- predict(rl, teste)
+rmse(teste$boi, pred_rl)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`rmse()` (pacote Metrics) mede o erro de previsão **fora da amostra** — a métrica que importa em ML. Este número é a régua: os modelos seguintes precisam batê-lo.
+:::
+
+## LASSO: regressão com seleção automática
+
+O LASSO penaliza coeficientes grandes e pode **zerá-los** — seleção de variáveis embutida. `cv.glmnet()` escolhe a penalidade por validação cruzada; a entrada é uma **matriz** (`as.matrix`).
+
+```{webr}
+library(glmnet)
+x_tr <- as.matrix(treino |> select(-boi)); y_tr <- treino$boi
+x_te <- as.matrix(teste  |> select(-boi))
+lasso <- cv.glmnet(x_tr, y_tr, alpha = 1)
+coef(lasso, s = "lambda.min")
+rmse(teste$boi, as.numeric(predict(lasso, x_te, s = "lambda.min")))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Na tabela de coeficientes, um ponto (`.`) significa variável **zerada** — descartada pelo LASSO. Com poucas explicativas o LASSO tende a manter todas; seu brilho aparece com dezenas ou centenas de candidatas, onde o MQO tropeça.
+:::
+
+## Random forest: o comitê de árvores
+
+A floresta aleatória tira a média de centenas de árvores de decisão — captura **não linearidades e interações** sem que ninguém as especifique.
+
+```{webr}
+library(randomForest)
+set.seed(123)
+rf <- randomForest(boi ~ soja_br + soja_us + petr4, data = treino, ntree = 500)
+varImpPlot(rf)
+rmse(teste$boi, predict(rf, teste))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`varImpPlot()` ranqueia a **importância** de cada variável para a previsão (quanto o erro aumentaria sem ela) — o análogo em ML da significância. Compare o RMSE dos três modelos: em relações suaves, o linear compete bem; quando há não linearidade escondida, a floresta dispara na frente.
+:::
+
+### Exercício 1 — placar final
+
+Monte o quadro comparativo dos três RMSE.
+
+```{webr}
+#| exercise: a11_ex1
+c(linear = rmse(teste$boi, pred_rl),
+  lasso  = rmse(teste$boi, as.numeric(predict(lasso, x_te, s = "lambda.min"))),
+  floresta = rmse(teste$boi, ______(rf, teste)))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `predict`. Menor RMSE vence.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+c(linear = rmse(teste$boi, pred_rl),
+  lasso  = rmse(teste$boi, as.numeric(predict(lasso, x_te, s = "lambda.min"))),
+  floresta = rmse(teste$boi, predict(rf, teste)))
+```
+:::
+
+### Exercício 2 — outra semente
+
+Troque `set.seed(123)` por outra semente, refaça o sorteio e o placar. As conclusões mudam?
+
+```{webr}
+#| exercise: a11_ex2
+set.seed(______)
+idx2 <- sample(seq_len(nrow(ml)), size = 0.8 * nrow(ml))
+tr2 <- ml[idx2, ]; te2 <- ml[-idx2, ]
+rl2 <- lm(boi ~ ., data = tr2)
+rf2 <- randomForest(boi ~ ., data = tr2, ntree = 500)
+c(linear = rmse(te2$boi, predict(rl2, te2)),
+  floresta = rmse(te2$boi, predict(rf2, te2)))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Qualquer número serve (ex.: 2026). O `boi ~ .` usa **todas** as demais colunas como explicativas. Resultados que dependem muito da semente pedem validação cruzada.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+set.seed(2026)
+idx2 <- sample(seq_len(nrow(ml)), size = 0.8 * nrow(ml))
+tr2 <- ml[idx2, ]; te2 <- ml[-idx2, ]
+rl2 <- lm(boi ~ ., data = tr2)
+rf2 <- randomForest(boi ~ ., data = tr2, ntree = 500)
+c(linear = rmse(te2$boi, predict(rl2, te2)),
+  floresta = rmse(te2$boi, predict(rf2, te2)))
+```
+:::
+
+## Econometria × Machine Learning
+
+| | Econometria | Machine Learning |
+|---|---|---|
+| Pergunta | Efeito causal de x sobre y | Melhor previsão de y |
+| Validação | Testes de hipóteses, diagnóstico | Erro fora da amostra (RMSE) |
+| Modelo | Especificado pela teoria | Aprendido dos dados |
+| Quando usar | Políticas, interpretação | Previsão, triagem, dados largos |
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `sample()` | Sorteio de índices (divisão treino/teste). |
+| `drop_na()` (tidyr) | Remove linhas com ausentes. |
+| `rmse()` (Metrics) | Erro quadrático médio de previsão. |
+| `cv.glmnet(alpha = 1)` | LASSO com validação cruzada. |
+| `randomForest()` / `varImpPlot()` | Floresta aleatória / importância. |
+| `y ~ .` | Fórmula com todas as demais variáveis. |

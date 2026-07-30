@@ -1,0 +1,259 @@
+---
+title: "Laboratório 7 — Econometria de séries temporais"
+subtitle: "Econometria I · Unidade 4 — Séries estacionárias e não estacionárias"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - dynlm
+    - aTSA
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos de aprendizagem
+
+Ao final deste laboratório você será capaz de:
+
+- criar objetos de série temporal e **decompor** uma série em tendência, sazonalidade e resto;
+- calcular **retornos** (log-diferenças) e ler a função de autocorrelação;
+- testar **estacionariedade** com o teste de Dickey-Fuller aumentado;
+- diagnosticar **regressão espúria** e testar **cointegração** (Engle-Granger);
+- estimar um **mecanismo de correção de erro** (MCE).
+:::
+
+A base `series_tempo.csv` traz preços mensais desde março de 2006: **boi gordo** e **soja** (CEPEA), a soja em Chicago e a ação **PETR4**. Preços de commodities são o laboratório perfeito para séries temporais: têm tendência, sazonalidade e choques.
+
+::: {.callout-important}
+## Comece por aqui
+
+A função nova central é `ts()`: transforma um vetor em **série temporal**, informando o início (`start = c(2006, 3)` = março de 2006) e a frequência (12 = mensal). É ela que permite ao R entender o calendário da série.
+:::
+
+```{webr}
+library(dplyr)
+precos <- read.csv("dados/series_tempo.csv")
+boi  <- ts(precos$boi,     start = c(2006, 3), frequency = 12)
+soja <- ts(precos$soja_br, start = c(2006, 3), frequency = 12)
+str(boi)
+```
+
+## Decompondo a série
+
+`decompose()` separa a série em três componentes: tendência-ciclo, sazonalidade e resto (irregular). `plot()` aplicado ao resultado desenha os quatro painéis.
+
+```{webr}
+componentes <- decompose(boi)
+plot(componentes)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+De cima para baixo: a série observada; a **tendência** (o movimento de longo prazo, claramente crescente); a **sazonalidade** (o padrão que se repete todo ano — a entressafra); e o **resto**. Se o resto se parece com ruído, a decomposição capturou a estrutura da série.
+:::
+
+## Tendência por regressão
+
+Alternativa à decomposição: estimar a tendência com `dynlm()` (nova), o `lm` para séries temporais — aceita `trend(x)` (tendência linear) direto na fórmula.
+
+```{webr}
+library(dynlm)
+tend1 <- dynlm(boi ~ trend(boi))
+tend2 <- dynlm(boi ~ trend(boi) + I(trend(boi)^2))
+summary(tend2)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O termo quadrático testa se a tendência **acelera**: significativo, indica curvatura. Compare os R² dos dois modelos — e lembre do Lab 5: é a mesma lógica da tendência quadrática do PIB, agora em versão de série temporal.
+:::
+
+## Retornos e autocorrelação
+
+Duas funções novas: `diff()` calcula a diferença entre observações consecutivas — aplicada ao log, produz o **retorno** aproximado — e `acf()` desenha a **função de autocorrelação**: a correlação da série com ela mesma defasada.
+
+```{webr}
+ret_boi <- diff(log(boi))
+par(mfrow = c(1, 2))
+acf(boi,     main = "Preço (nível)")
+acf(ret_boi, main = "Retorno (log-diferença)")
+par(mfrow = c(1, 1))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+No **nível**, as barras decaem lentamente e ficam fora da faixa azul por muitas defasagens: memória longa, típica de série **não estacionária**. No **retorno**, quase todas as barras caem dentro da faixa: a transformação removeu a tendência. Essa dupla de gráficos é o diagnóstico visual de estacionariedade.
+:::
+
+## O teste de Dickey-Fuller aumentado
+
+Formalizamos com `adf.test()` do pacote **aTSA**: H0 = a série tem **raiz unitária** (não estacionária). A saída traz três variantes (sem constante, com constante, com tendência) e vários lags — olhe o valor-p da variante com constante (type 2) nos primeiros lags.
+
+```{webr}
+library(aTSA)
+adf.test(boi)
+```
+
+```{webr}
+adf.test(ret_boi)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Para o **preço**: valores-p altos (> 0,05) — não rejeitamos a raiz unitária; o preço do boi é **I(1)**. Para o **retorno**: valores-p ≈ 0,01 — estacionário. Conclusão-padrão em finanças: preços são I(1), retornos são I(0). Regressões devem usar séries estacionárias — ou pares cointegrados, como veremos já.
+:::
+
+### Exercício 1 — a PETR4 é estacionária?
+
+Teste o preço e o retorno da PETR4.
+
+```{webr}
+#| exercise: l7_ex1
+petr4 <- ts(precos$petr4, start = c(2006, 3), frequency = 12)
+adf.test(______)
+adf.test(diff(log(______)))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Teste `petr4` no nível e `diff(log(petr4))` para o retorno.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+petr4 <- ts(precos$petr4, start = c(2006, 3), frequency = 12)
+adf.test(petr4)
+adf.test(diff(log(petr4)))
+```
+:::
+
+## Regressão espúria e cointegração
+
+Duas séries I(1) podem mostrar R² alto **sem relação real** — a regressão espúria. Mas se uma combinação delas for estacionária, as séries são **cointegradas**: andam juntas no longo prazo. O teste de Engle-Granger tem dois passos: regredir uma na outra e testar os **resíduos** com ADF.
+
+```{webr}
+boi <- ts(precos$boi, start = c(2006, 3), frequency = 12)
+eq_lp <- dynlm(log(boi) ~ log(soja))
+summary(eq_lp)
+```
+
+```{webr}
+adf.test(resid(eq_lp))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A regressão de longo prazo liga o preço do boi ao da soja — faz sentido econômico, porque a soja é insumo da ração. A elasticidade fica em torno de **0,41** e o R² em **0,77**. O veredicto, porém, está no **ADF dos resíduos**: o valor-p fica abaixo de 0,05, o resíduo é estacionário e as séries são **cointegradas** — os preços não se afastam de forma permanente. Se o resíduo fosse I(1), a regressão seria espúria e deveríamos trabalhar só com as diferenças.
+:::
+
+## O mecanismo de correção de erro
+
+Se há cointegração, o teorema de representação de Granger garante um **MCE**: o curto prazo corrige desvios do equilíbrio de longo prazo. No `dynlm`, `d(x)` é a diferença e `L(x, 1)` a defasagem.
+
+```{webr}
+res_lp <- resid(eq_lp)
+mce <- dynlm(d(log(boi)) ~ L(res_lp, 1) + d(log(soja)))
+summary(mce)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O coeficiente de `L(res_lp, 1)` é a **velocidade de ajuste**: sai em torno de **−0,056 com t ≈ −2,3**, negativo e significativo. Ele diz que cerca de 5,6% do desvio do equilíbrio de longo prazo é corrigido a cada mês — um ajuste lento, que leva pouco mais de um ano para eliminar metade de um choque. O coeficiente de `d(log(soja))` é o repasse de **curto prazo** do grão para a carne.
+:::
+
+### Exercício 2 — a soja brasileira cointegra com a de Chicago?
+
+O par boi × soja cointegrou. Agora teste um par que parece ainda mais óbvio: a soja brasileira e a soja de Chicago, o mesmo produto em duas praças.
+
+```{webr}
+#| exercise: l7_ex2
+soja_us <- ts(precos$soja_us, start = c(2006, 3), frequency = 12)
+eq2 <- dynlm(log(______) ~ log(______))
+adf.test(resid(eq2))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Regrida `log(soja)` em `log(soja_us)` e aplique `adf.test()` aos resíduos. Compare o valor-p com o do exemplo do boi.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+soja_us <- ts(precos$soja_us, start = c(2006, 3), frequency = 12)
+eq2 <- dynlm(log(soja) ~ log(soja_us))
+adf.test(resid(eq2))
+```
+:::
+
+::: {.callout-important}
+## O resultado que surpreende
+
+O ADF **não** rejeita a raiz unitária nos resíduos: as duas sojas **não cointegram** nesta amostra, apesar de serem o mesmo grão. O motivo é o câmbio — a série brasileira está em reais e a de Chicago em dólares, e o real se desvalorizou de forma persistente no período. O desvio entre as duas não é transitório, e por isso a regressão de longo prazo em nível (R² de apenas 0,33) é **espúria**: para relacionar as duas séries é preciso trabalhar com os retornos, como fizemos na primeira parte do laboratório, ou incluir o câmbio no modelo.
+
+Guarde a lição: cointegração é uma propriedade estatística que se testa, não uma consequência automática de as séries serem "parecidas" ou economicamente relacionadas.
+:::
+
+## Glossário — funções novas deste laboratório
+
+| Função | O que faz |
+|---|---|
+| `ts(x, start, frequency)` | Converte vetor em série temporal. |
+| `decompose()` | Separa tendência, sazonalidade e resto. |
+| `dynlm()` | Regressão para séries: aceita `trend()`, `d()`, `L()`. |
+| `diff()` | Diferença; com `log()`, o retorno. |
+| `acf()` | Função de autocorrelação. |
+| `adf.test()` (aTSA) | Teste de raiz unitária (H0: não estacionária). |
+| `par(mfrow)` | Divide a janela gráfica em painéis. |
+
+## Exercícios avaliativos
+
+::: {.callout-important}
+## Vale nota
+
+As respostas destes exercícios são cobradas no **questionário da disciplina, no SIGAA**. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — **sem a solução**. Anote os valores obtidos antes de responder no SIGAA.
+:::
+
+### Questão 1
+
+Calcule os retornos (diff(log(x))) das quatro séries e compare seus DESVIOS-PADRÃO. Qual ativo é o mais volátil e qual o menos volátil?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Calcule sd(diff(log(x))) para cada série. Quanto maior o desvio-padrão dos retornos, maior a volatilidade.
+:::
+
+### Questão 2
+
+Estime a regressão de longo prazo log(soja_br) ~ log(soja_us) e informe a ELASTICIDADE estimada e o R².
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Rode a regressão em logs e leia o coeficiente e o R². Cuidado: 0,75 é a correlação entre os RETORNOS das duas séries.
+:::
+
+### Questão 3
+
+Calcule a CORRELAÇÃO entre os retornos da soja brasileira e da soja de Chicago, e entre os retornos do boi gordo e da PETR4. O que se conclui?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Use cor() sobre os vetores de retornos. Correlação alta entre retornos indica mercados integrados.
+:::

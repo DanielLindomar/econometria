@@ -1,0 +1,15 @@
+/*-- scss:defaults --*/
+$primary:        #1E2761;
+$link-color:     #1E2761;
+$body-color:     #1f2937;
+$font-size-root: 17px;
+$headings-font-weight: 600;
+
+/*-- scss:rules --*/
+h1, h2, h3, h4 { color: #1E2761; }
+.quarto-title-block .quarto-title-banner { background-color: #1E2761; }
+a { text-decoration: none; }
+a:hover { text-decoration: underline; }
+.callout { border-radius: 8px; }
+div.sourceCode { border-radius: 8px; }
+.logo-topo { text-align: right; margin: -0.5rem 0 1rem 0; }

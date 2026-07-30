@@ -1,0 +1,99 @@
+---
+title: "Aula 7 — Heterocedasticidade"
+subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - lmtest
+    - sandwich
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- diagnosticar heterocedasticidade no gráfico e nos testes BP/White;
+- corrigir com erros-padrão robustos;
+- estimar por **mínimos quadrados ponderados** (MQP).
+:::
+
+## O diagnóstico
+
+```{webr}
+library(dplyr); library(ggplot2)
+salario <- read.csv("dados/salario_hora2.csv")
+modelo <- lm(salhora ~ esc + exp, data = salario)
+ggplot(data.frame(aj = fitted(modelo), re = resid(modelo)), aes(aj, re)) +
+  geom_point(alpha = .5, color = "#1E2761") +
+  geom_hline(yintercept = 0, linetype = 2, color = "#B85042") +
+  labs(x = "Ajustados", y = "Resíduos") + theme_minimal(base_size = 13)
+```
+
+```{webr}
+library(lmtest)
+bptest(modelo)
+bptest(modelo, ~ fitted(modelo) + I(fitted(modelo)^2))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O funil no gráfico e o valor-p pequeno nos dois testes (BP e White simplificado) apontam o mesmo: a variância do erro **cresce com o salário previsto**. Os coeficientes de MQO seguem não viesados; os erros-padrão, não confiáveis.
+:::
+
+## Correção 1: erros-padrão robustos
+
+```{webr}
+library(sandwich)
+coeftest(modelo, vcov = vcovHC(modelo, type = "HC1"))
+```
+
+## Correção 2: mínimos quadrados ponderados
+
+Se conhecemos a forma da variância, o MQP pesa cada observação pelo inverso dela — observações "barulhentas" pesam menos. O argumento novo é `weights`.
+
+```{webr}
+mqp <- lm(salhora ~ esc + exp, data = salario,
+          weights = 1 / fitted(modelo)^2)
+summary(mqp)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Compare com o MQO: os coeficientes mudam pouco, mas os erros-padrão sim. O robusto (HC1) é a rota "não sei a forma da variância"; o MQP, a rota "modelo a variância" — mais eficiente quando o palpite é bom. Na prática moderna, os robustos dominam pela simplicidade.
+:::
+
+### Exercício — o log resolve?
+
+A forma log frequentemente **atenua** a heterocedasticidade. Reestime em log e rode o BP.
+
+```{webr}
+#| exercise: a7_ex1
+modelo_log <- lm(______(salhora) ~ esc + exp, data = salario)
+______(modelo_log)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Use `log(salhora)` e `bptest(modelo_log)`. O BP deve enfraquecer bastante.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+modelo_log <- lm(log(salhora) ~ esc + exp, data = salario)
+bptest(modelo_log)
+```
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `bptest()` / `vcovHC` / `coeftest` | Diagnóstico e correção robustos. |
+| `lm(..., weights = w)` | Mínimos quadrados ponderados. |

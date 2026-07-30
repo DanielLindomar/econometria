@@ -1,0 +1,121 @@
+---
+title: "Aula 6 — Variáveis qualitativas"
+subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- incluir dummies e **fatores** com vários níveis na regressão;
+- mudar a categoria de referência com `relevel()`;
+- estimar interações e ler diferenciais por grupo.
+:::
+
+## Dummies simples
+
+```{webr}
+library(dplyr)
+salario <- read.csv("dados/salario_hora2.csv")
+m1 <- lm(log(salhora) ~ esc + exp + genero, data = salario)
+summary(m1)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com y em log, o coeficiente da dummy `genero` × 100 é o **diferencial percentual** entre os grupos, mantidos escolaridade e experiência. (Para dummies grandes, o exato é `exp(b) − 1`.)
+:::
+
+## Transformando uma variável em fator
+
+Em `salario_hora2.csv` a variável `regiao` é binária (1 = Sul, 0 = demais). `factor()` transforma a variável em **fator**: o R cria automaticamente uma dummy por nível, omitindo o primeiro como referência. Com dois níveis sai uma única dummy; com três ou mais, sairia uma linha para cada nível além da referência.
+
+```{webr}
+salario <- salario |> mutate(regiao_f = factor(regiao))
+m2 <- lm(log(salhora) ~ esc + exp + regiao_f, data = salario)
+summary(m2)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A linha `regiao_f1` compara a região 1 (Sul) com a **referência** (o nível 0, ausente da tabela). O coeficiente é o diferencial regional de salário, controladas educação e experiência.
+:::
+
+### Exercício 1 — trocando a referência
+
+`relevel()` (nova) muda a categoria-base do fator. Refaça tomando o nível 1 como referência e veja o coeficiente trocar de sinal.
+
+```{webr}
+#| exercise: a6_ex1
+salario <- salario |> mutate(regiao_f = relevel(regiao_f, ref = ______))
+m2b <- lm(log(salhora) ~ esc + exp + regiao_f, data = salario)
+summary(m2b)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Veja os níveis com `levels(salario$regiao_f)`. Aqui eles são `"0"` e `"1"`, então use `ref = "1"` (entre aspas, porque o nível é texto).
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+levels(salario$regiao_f)
+salario <- salario |> mutate(regiao_f = relevel(regiao_f, ref = levels(regiao_f)[2]))
+m2b <- lm(log(salhora) ~ esc + exp + regiao_f, data = salario)
+summary(m2b)
+```
+:::
+
+## Interações
+
+O retorno da educação difere por gênero? A interação `esc:genero` responde.
+
+```{webr}
+m3 <- lm(log(salhora) ~ esc + exp + genero + esc:genero, data = salario)
+summary(m3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`esc` é o retorno do grupo-base; `esc:genero`, a **diferença** de retorno do outro grupo. Interação significativa = retas com inclinações distintas — o diferencial cresce (ou encolhe) com a escolaridade, em vez de ser constante.
+:::
+
+### Exercício 2 — sindicato e experiência
+
+Teste se o prêmio sindical (`sind`) varia com a experiência.
+
+```{webr}
+#| exercise: a6_ex2
+m4 <- lm(log(salhora) ~ esc + exp + sind + ______:______, data = salario)
+summary(m4)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A interação é `sind:exp` (ou `exp:sind` — a ordem não importa).
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+m4 <- lm(log(salhora) ~ esc + exp + sind + sind:exp, data = salario)
+summary(m4)
+```
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `factor()` | Converte em fator (uma dummy por nível). |
+| `levels()` / `relevel(ref =)` | Lista níveis / muda a referência. |
+| `a:b` | Interação na fórmula. |

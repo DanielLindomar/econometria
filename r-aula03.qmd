@@ -1,0 +1,121 @@
+---
+title: "Aula 3 — Regressão linear simples"
+subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- estimar a regressão simples com `lm()` e ler a saída completa;
+- interpretar intercepto, inclinação, R² e os testes t;
+- visualizar o ajuste e usar o modelo para prever.
+:::
+
+A base da unidade: `salario_hora2.csv` — 528 trabalhadores com salário-hora (`salhora`), escolaridade (`esc`), experiência (`exp`) e características pessoais.
+
+## Estimando
+
+```{webr}
+library(dplyr)
+salario <- read.csv("dados/salario_hora2.csv")
+modelo <- lm(salhora ~ esc, data = salario)
+summary(modelo)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+De cima para baixo: a fórmula; os **resíduos** (o erro de ajuste); a tabela de **coeficientes** — estimativa, erro-padrão, t e valor-p; e o rodapé com **R²** e o teste **F**. O coeficiente de `esc` diz quantos dólares o salário-hora sobe por ano de estudo; os asteriscos resumem a significância.
+:::
+
+## Visualizando o ajuste
+
+```{webr}
+library(ggplot2)
+ggplot(salario, aes(esc, salhora)) +
+  geom_point(alpha = 0.5, color = "#1E2761") +
+  geom_smooth(method = "lm", se = TRUE, color = "#B85042") +
+  labs(x = "Escolaridade (anos)", y = "Salário por hora (US$)") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com `se = TRUE`, a faixa cinza é o **intervalo de confiança da reta** — mais estreito no centro dos dados, mais largo nas pontas. Note a dispersão crescendo com a escolaridade: guarde essa imagem para a Aula 7 (heterocedasticidade).
+:::
+
+### Exercício 1 — outra explicativa
+
+Estime o salário em função da **experiência** e compare o R² com o do modelo da escolaridade.
+
+```{webr}
+#| exercise: a3_ex1
+modelo_exp <- lm(______ ~ ______, data = salario)
+summary(modelo_exp)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A fórmula é `salhora ~ exp`. Qual das duas variáveis explica mais?
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+modelo_exp <- lm(salhora ~ exp, data = salario)
+summary(modelo_exp)
+```
+:::
+
+## Extraindo e prevendo
+
+```{webr}
+coef(modelo)
+confint(modelo)
+predict(modelo, newdata = data.frame(esc = c(8, 12, 16)))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Salários previstos para o fundamental (8), o médio (12) e o superior (16). A diferença entre 12 e 16 anos é o "prêmio universitário" implícito na reta — quatro vezes o coeficiente.
+:::
+
+### Exercício 2 — resíduos
+
+Guarde os resíduos e ache o trabalhador **mais subestimado** pelo modelo (maior resíduo positivo).
+
+```{webr}
+#| exercise: a3_ex2
+salario <- salario |> mutate(residuo = ______(modelo))
+salario |> arrange(desc(______)) |> head(3)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `resid` e `residuo`. `desc()` ordena do maior para o menor.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+salario <- salario |> mutate(residuo = resid(modelo))
+salario |> arrange(desc(residuo)) |> head(3)
+```
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `lm(y ~ x, data)` | Estima a regressão por MQO. |
+| `summary(modelo)` | Tabela completa da regressão. |
+| `coef` / `confint` / `resid` / `predict` | Extraem partes do modelo. |
+| `desc()` | Ordena decrescente dentro de `arrange()`. |

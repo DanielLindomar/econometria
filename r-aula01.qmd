@@ -1,0 +1,152 @@
+---
+title: "Aula 1 — Introdução ao R"
+subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- entender objetos, funções e a lógica do R;
+- importar uma base e inspecioná-la (`str`, `head`, `names`);
+- calcular estatísticas básicas e tabelas de frequência.
+:::
+
+Este é um curso **autocontido**: começamos do zero. O R funciona guardando resultados em **objetos** e aplicando **funções** a eles. Nesta página o R roda no navegador — clique em **Run Code** e experimente alterar cada bloco.
+
+## O R como calculadora e a criação de objetos
+
+O operador `<-` guarda um valor num objeto. `c()` combina valores num **vetor** — a estrutura mais básica do R.
+
+```{webr}
+2 + 2 * 10
+precos <- c(1.20, 1.50, 2.00)
+precos
+precos * 10
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O R respeita a ordem das operações (22, não 40). O vetor `precos` guarda três valores, e a multiplicação age **elemento a elemento** — essa "vetorização" é a alma do R: raramente precisamos de laços.
+:::
+
+## Importando dados
+
+`read.csv()` lê arquivos com separador vírgula. O resultado é um **data frame** — a tabela do R, com uma variável por coluna.
+
+```{webr}
+limonada <- read.csv("dados/limonada.csv")
+str(limonada)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`str()` (*structure*) é o primeiro comando após importar qualquer base: mostra o número de observações, o de variáveis e o **tipo** de cada uma — `num` (número), `int` (inteiro), `chr` (texto). Aqui: 365 observações e 7 variáveis.
+:::
+
+## Inspecionando a base
+
+```{webr}
+names(limonada)
+head(limonada)
+tail(limonada, 3)
+limonada[1:5, c("dia", "vendas")]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`names()` lista as colunas; `head()`/`tail()` mostram o começo e o fim; e a notação `[linhas, colunas]` recorta qualquer pedaço — `1:5` são as linhas 1 a 5. Duas formas de acessar uma coluna: `limonada$vendas` ou o recorte por nome.
+:::
+
+### Exercício 1 — primeiros passos
+
+Mostre as 10 primeiras linhas apenas das colunas `temperatura`, `chuva` e `vendas`.
+
+```{webr}
+#| exercise: a1_ex1
+limonada[1:______, c("______", "chuva", "vendas")]
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `10` e `"temperatura"`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+limonada[1:10, c("temperatura", "chuva", "vendas")]
+```
+:::
+
+## Estatísticas básicas
+
+```{webr}
+mean(limonada$vendas)
+median(limonada$vendas)
+sd(limonada$vendas)
+summary(limonada$vendas)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Média de 25,3 vendas, mediana de 25, desvio-padrão de 6,9. `summary()` entrega o resumo de cinco números + média — aplicado à base inteira (`summary(limonada)`), resume todas as colunas de uma vez.
+:::
+
+## Tabelas de frequência
+
+`table()` conta ocorrências; `prop.table()` transforma em proporções.
+
+```{webr}
+table(limonada$preco)
+prop.table(table(limonada$preco))
+table(limonada$dia, limonada$preco)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O preço 1,20 vigorou em 303 dias (83%) e o 2,00 em 62 (17%). Com dois argumentos, `table()` cruza as variáveis — a tabela de contingência. É a ferramenta para variáveis **qualitativas**, das quais trataremos na Aula 6.
+:::
+
+### Exercício 2 — frequências
+
+Monte a tabela de frequência **e** a de proporções dos dias da semana.
+
+```{webr}
+#| exercise: a1_ex2
+table(limonada$______)
+prop.table(______(limonada$dia))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A coluna é `dia`; a segunda linha aninha `table()` dentro de `prop.table()`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+table(limonada$dia)
+prop.table(table(limonada$dia))
+```
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `<-`, `c()` | Cria objetos e vetores. |
+| `read.csv()` | Importa dados. |
+| `str()` / `names()` | Estrutura e nomes das colunas. |
+| `head()` / `tail()` / `[ , ]` | Inspeção e recortes. |
+| `mean` / `median` / `sd` / `summary` | Estatísticas básicas. |
+| `table()` / `prop.table()` | Frequências e proporções. |

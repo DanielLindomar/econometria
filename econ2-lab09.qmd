@@ -1,0 +1,230 @@
+---
+title: "Laboratório 9 — Especificação do modelo"
+subtitle: "Econometria II · Unidade 6 — Diagnóstico de regressão III"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - lmtest
+    - moments
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos de aprendizagem
+
+Ao final deste laboratório você será capaz de:
+
+- entender as consequências de **omitir** variável relevante e de **incluir** irrelevante;
+- aplicar o teste **RESET** de Ramsey para erro de forma funcional;
+- testar a **normalidade** dos resíduos (Jarque-Bera);
+- reunir os diagnósticos num protocolo único de validação do modelo.
+:::
+
+Último diagnóstico: a premissa 2 (erro com média zero) cai quando o **modelo está mal especificado** — variável omitida, forma funcional errada. Já vimos o problema em ação (o paradoxo do preço, no Lab 1 da Econometria I); agora, os testes formais.
+
+::: {.callout-important}
+## Comece por aqui
+:::
+
+```{webr}
+library(dplyr)
+salario <- read.csv("dados/salario_hora.csv")
+aborto  <- read.csv("dados/aborto.csv")   # usada nos exercícios avaliativos
+base    <- lm(salario ~ escolaridade + experiencia, data = salario)
+summary(base)
+```
+
+## Omissão de variável relevante: o experimento
+
+A base permite um experimento direto: omitir `feminino` (que sabemos relevante, Lab 6) e observar o que acontece com os demais coeficientes.
+
+```{webr}
+completo <- lm(salario ~ escolaridade + experiencia + feminino, data = salario)
+rbind(sem_feminino = coef(base)[2:3], com_feminino = coef(completo)[2:3])
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Os coeficientes de escolaridade e experiência **mudam** quando `feminino` entra — a variável omitida estava correlacionada com elas e seu efeito "vazava" para os coeficientes restantes. Esse é o **viés de variável omitida**: estimadores viesados e inconsistentes. Incluir irrelevante, ao contrário, não viesa — só infla variâncias. Na dúvida entre omitir e incluir, o pecado menor é incluir.
+:::
+
+## O teste RESET de Ramsey
+
+O RESET pergunta: potências dos valores ajustados (ŷ², ŷ³) ajudam a explicar y? Se sim, a forma funcional está errada (falta curvatura, log, interação…). `resettest()` do lmtest.
+
+```{webr}
+library(lmtest)
+resettest(base)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O F do RESET (na casa de 18, para este modelo) com valor-p < 0,05 **rejeita a especificação linear simples**: há não linearidade não capturada. O remédio típico para salários é a forma log-lin — a equação minceriana usa `log(salario)`.
+:::
+
+### Exercício 1 — a forma correta
+
+Reestime em **log-lin** e rode o RESET de novo.
+
+```{webr}
+#| exercise: e2l9_ex1
+minceriana <- lm(______(salario) ~ escolaridade + experiencia, data = salario)
+resettest(______)
+summary(minceriana)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Use `log(salario)` e aplique `resettest(minceriana)`. O F deve cair bastante — a forma log é mais adequada.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+minceriana <- lm(log(salario) ~ escolaridade + experiencia, data = salario)
+resettest(minceriana)
+summary(minceriana)
+# Em log-lin, escolaridade ≈ retorno percentual por ano de estudo.
+```
+:::
+
+## Normalidade dos resíduos: Jarque-Bera
+
+A inferência em amostras pequenas apoia-se na normalidade do erro. `jarque.test()` (pacote **moments**) combina assimetria e curtose: H0 = resíduos normais.
+
+```{webr}
+library(moments)
+jarque.test(resid(base))
+```
+
+```{webr}
+ggplot2::ggplot(data.frame(r = resid(base)), ggplot2::aes(r)) +
+  ggplot2::geom_histogram(bins = 40, fill = "#1E2761", color = "white") +
+  ggplot2::labs(x = "Resíduos", y = "Frequência") +
+  ggplot2::theme_minimal(base_size = 13)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Valor-p minúsculo: **rejeitamos a normalidade** — o histograma mostra assimetria à direita (salários!). Em amostra grande (n = 1.289) a inferência sobrevive pelo teorema central do limite, mas o resultado reforça a forma log: refaça o teste com os resíduos da minceriana e compare.
+:::
+
+## O protocolo completo: a taxa de natalidade
+
+A base `natalidade.csv` (20 países) traz a questão do questionário: mudança na taxa de natalidade explicada pelo ambiente e pelo esforço em planejamento familiar. Rode o protocolo inteiro: estimar → RESET → Jarque-Bera → BP.
+
+```{webr}
+natalidade <- read.csv("dados/natalidade.csv")
+mod_nat <- lm(mudanca ~ ambiente + esforco, data = natalidade)
+summary(mod_nat)
+```
+
+```{webr}
+resettest(mod_nat)
+jarque.test(resid(mod_nat))
+bptest(mod_nat)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Três vereditos de uma vez: forma funcional (RESET), normalidade (JB) e homocedasticidade (BP). Com n = 20, os testes têm pouca potência — não rejeitar H0 aqui é conforto limitado. É o protocolo que você aplicará no **projeto final** da disciplina, base por base.
+:::
+
+### Exercício 2 — protocolo na função pulmonar
+
+Aplique o protocolo completo ao modelo `vef ~ idade + fumante` (Lab 4 da Econometria I).
+
+```{webr}
+#| exercise: e2l9_ex2
+pulmonar <- read.csv("dados/funcao_pulmonar.csv")
+mod_pul <- lm(vef ~ idade + fumante, data = pulmonar)
+______(mod_pul)
+jarque.test(______(mod_pul))
+bptest(mod_pul)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `resettest` e `resid`. Que conclusões tira de cada teste?
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+pulmonar <- read.csv("dados/funcao_pulmonar.csv")
+mod_pul <- lm(vef ~ idade + fumante, data = pulmonar)
+resettest(mod_pul)
+jarque.test(resid(mod_pul))
+bptest(mod_pul)
+```
+:::
+
+## Glossário — funções novas deste laboratório
+
+| Função | O que faz |
+|---|---|
+| `resettest()` (lmtest) | RESET de Ramsey: H0 = forma funcional correta. |
+| `jarque.test()` (moments) | Normalidade dos resíduos (Jarque-Bera). |
+| `rbind()` | Empilha vetores em linhas (comparar coeficientes). |
+
+## Exercícios avaliativos
+
+::: {.callout-important}
+## Vale nota
+
+As respostas destes exercícios são cobradas no **questionário da disciplina, no SIGAA**. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — **sem a solução**. Anote os valores obtidos antes de responder no SIGAA.
+:::
+
+### Questão 1
+
+Compare o teste RESET do modelo LINEAR (salario ~ escolaridade + experiencia) com o da forma LOG-LIN. Quais os valores de F?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Rode resettest() nos dois modelos e compare os F. A queda acentuada é o argumento a favor da equação minceriana.
+:::
+
+### Questão 2
+
+Na equação minceriana log(salario) ~ escolaridade + experiencia, qual o RETORNO PERCENTUAL de um ano adicional de estudo?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Em log-lin, multiplique o coeficiente por 100. Cuidado: 1,42 é o coeficiente em NÍVEL (dólares por hora), não o percentual.
+:::
+
+### Questão 3
+
+Aplique o teste de Jarque-Bera aos resíduos da equação minceriana (log). Qual a conclusão a 5%?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Cuidado: JB aprox. 1,14 é o resultado do modelo de NATALIDADE (n = 20), visto na página.
+:::
+
+### Questão 4
+
+Compare o R² do modelo COMPLETO da taxa de aborto (7 explicativas) com o de um modelo REDUZIDO (religiao, preco, esc, renda). Qual a diferença?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Estime os dois modelos e compare os R². O R² sempre cai ao remover variáveis - o que importa é a magnitude da queda.
+:::

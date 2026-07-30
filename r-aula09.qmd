@@ -1,0 +1,115 @@
+---
+title: "Aula 9 — Especificação da regressão"
+subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - lmtest
+    - wooldridge
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- ver o viés de variável omitida num experimento com dados reais;
+- aplicar o teste **RESET** de forma funcional;
+- usar uma **proxy** (QI) para habilidade não observada.
+:::
+
+Usamos as bases clássicas de Wooldridge — `wage1` e `wage2` — direto do pacote **wooldridge**, sem precisar de arquivo externo.
+
+## O experimento da variável omitida
+
+Em `wage2` há uma medida rara: o **QI** do trabalhador. O que acontece com o retorno da educação quando a "habilidade" entra no modelo?
+
+```{webr}
+library(dplyr); library(wooldridge)
+data(wage2)
+sem_qi <- lm(log(wage) ~ educ, data = wage2)
+com_qi <- lm(log(wage) ~ educ + IQ, data = wage2)
+rbind(sem_QI = coef(sem_qi)["educ"], com_QI = coef(com_qi)["educ"])
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O retorno da educação **cai** quando o QI entra: parte do que parecia efeito da escola era habilidade prévia — pessoas de QI alto estudam mais *e* ganham mais. Omitir habilidade **superestima** o retorno da educação: o viés de variável omitida com direção previsível (correlações positivas → viés para cima).
+:::
+
+## RESET: a forma funcional
+
+```{webr}
+library(lmtest)
+data(wage1)
+linear <- lm(wage ~ educ + exper, data = wage1)
+loglin <- lm(log(wage) ~ educ + exper, data = wage1)
+resettest(linear)
+resettest(loglin)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O RESET rejeita com força a forma **linear** e é bem mais brando com a **log-lin** — os dados pedem log. Teste de especificação não escolhe o modelo por você, mas elimina os claramente errados.
+:::
+
+### Exercício 1 — quadrático ajuda?
+
+Adicione `I(exper^2)` à forma log e rode o RESET de novo.
+
+```{webr}
+#| exercise: a9_ex1
+mod3 <- lm(log(wage) ~ educ + exper + I(______), data = wage1)
+resettest(______)
+summary(mod3)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `exper^2` e `mod3` — a minceriana completa da Aula 5.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+mod3 <- lm(log(wage) ~ educ + exper + I(exper^2), data = wage1)
+resettest(mod3)
+summary(mod3)
+```
+:::
+
+### Exercício 2 — a proxy em ação
+
+Em `wage2`, acrescente também a educação dos pais (`meduc`) como segunda proxy de background e compare o retorno de `educ`.
+
+```{webr}
+#| exercise: a9_ex2
+com_tudo <- lm(log(wage) ~ educ + IQ + ______, data = wage2)
+rbind(so_educ = coef(sem_qi)["educ"],
+      com_QI  = coef(com_qi)["educ"],
+      com_QI_meduc = coef(______)["educ"])
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A variável é `meduc`; o modelo final é `com_tudo`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+com_tudo <- lm(log(wage) ~ educ + IQ + meduc, data = wage2)
+rbind(so_educ = coef(sem_qi)["educ"],
+      com_QI  = coef(com_qi)["educ"],
+      com_QI_meduc = coef(com_tudo)["educ"])
+```
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `resettest()` | RESET de Ramsey (forma funcional). |
+| Proxy | Variável observável que substitui uma não observável. |

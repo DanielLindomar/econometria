@@ -1,0 +1,254 @@
+---
+title: "Laboratório 8 — Heterocedasticidade e autocorrelação"
+subtitle: "Econometria II · Unidade 5 — Diagnóstico de regressão II"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - lmtest
+    - sandwich
+    - prais
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos de aprendizagem
+
+Ao final deste laboratório você será capaz de:
+
+- diagnosticar **heterocedasticidade** no gráfico de resíduos e nos testes de Breusch-Pagan e White;
+- corrigir com **erros-padrão robustos** (White/HC);
+- diagnosticar **autocorrelação** com Durbin-Watson e Breusch-Godfrey;
+- corrigir com **Prais-Winsten** e erros-padrão de **Newey-West**.
+:::
+
+Premissas 3 e 4 do MCRL: variância constante do erro e ausência de autocorrelação. A primeira cai com frequência em **corte transversal** (a base das taxas de aborto nos 50 estados americanos); a segunda, em **séries de tempo** (o consumo agregado dos EUA).
+
+::: {.callout-important}
+## Comece por aqui
+:::
+
+```{webr}
+library(dplyr)
+aborto      <- read.csv("dados/aborto.csv")
+consumo     <- read.csv("dados/consumo.csv")
+crescimento <- read.csv("dados/crescimento.csv")   # para os exercícios avaliativos
+industria   <- read.csv("dados/industria.csv")     # para os exercícios avaliativos
+names(crescimento); names(industria)
+mod_ab <- lm(aborto ~ religiao + preco + lei + fundos + esc + renda + protesto,
+             data = aborto)
+summary(mod_ab)
+```
+
+## Diagnóstico visual
+
+O gráfico de resíduos contra valores ajustados é o primeiro exame: sob homocedasticidade, uma nuvem sem padrão; sob heterocedasticidade, um **funil**.
+
+```{webr}
+library(ggplot2)
+ggplot(data.frame(ajustado = fitted(mod_ab), residuo = resid(mod_ab)),
+       aes(ajustado, residuo)) +
+  geom_point(color = "#1E2761", alpha = 0.7) +
+  geom_hline(yintercept = 0, linetype = 2, color = "#B85042") +
+  labs(x = "Valores ajustados", y = "Resíduos") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A dispersão dos resíduos **cresce** com o valor ajustado — estados com taxas maiores erram mais. `geom_hline()` (nova) traça a linha de referência no zero. O funil sugere heterocedasticidade; os testes formais confirmam.
+:::
+
+## Os testes de Breusch-Pagan e White
+
+`bptest()` do pacote **lmtest**: H0 = homocedasticidade. Na forma padrão é o Breusch-Pagan; com os quadrados e produtos cruzados dos regressores, vira o **teste de White** — a versão mais geral.
+
+```{webr}
+library(lmtest)
+bptest(mod_ab)
+```
+
+```{webr}
+bptest(mod_ab, ~ fitted(mod_ab) + I(fitted(mod_ab)^2))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O BP entrega uma estatística qui-quadrado (aqui na casa de 16, com 7 graus de liberdade) e o valor-p correspondente: abaixo de 0,05, **rejeitamos a homocedasticidade**. A segunda chamada é a versão de White simplificada (nos ajustados e seus quadrados) — a "versão alternativa" pedida no questionário.
+:::
+
+## A correção: erros-padrão robustos
+
+Sob heterocedasticidade o MQO continua **não viesado** — o que quebra são os erros-padrão. A correção de White recalcula-os: `coeftest()` (lmtest) com a matriz `vcovHC` (sandwich).
+
+```{webr}
+library(sandwich)
+coeftest(mod_ab, vcov = vcovHC(mod_ab, type = "HC1"))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Compare com o `summary()` original: os **coeficientes são idênticos**; mudam os erros-padrão, t e valores-p. Variáveis que pareciam significativas podem deixar de ser (e vice-versa). `type = "HC1"` replica o ajuste padrão do Stata — é a prática corrente em corte transversal.
+:::
+
+### Exercício 1 — salário por hora
+
+Na base salarial (1.289 trabalhadores), teste BP e White e reestime com erros robustos.
+
+```{webr}
+#| exercise: e2l8_ex1
+salario <- read.csv("dados/salario_hora.csv")
+mod_sal <- lm(salario ~ escolaridade + experiencia, data = salario)
+______(mod_sal)
+coeftest(mod_sal, vcov = ______(mod_sal, type = "HC1"))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `bptest` e `vcovHC`. Salários quase sempre são heterocedásticos: a dispersão cresce com a escolaridade.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+salario <- read.csv("dados/salario_hora.csv")
+mod_sal <- lm(salario ~ escolaridade + experiencia, data = salario)
+bptest(mod_sal)
+coeftest(mod_sal, vcov = vcovHC(mod_sal, type = "HC1"))
+```
+:::
+
+## Autocorrelação: o modelo de consumo
+
+Série anual: consumo explicado por renda, riqueza e juros. Em séries de tempo, o erro de um ano tende a "transbordar" para o seguinte.
+
+```{webr}
+mod_co <- lm(consumo ~ renda + riqueza + juros, data = consumo)
+summary(mod_co)
+```
+
+## Durbin-Watson e Breusch-Godfrey
+
+`dwtest()`: a estatística DW vale ≈ 2 sem autocorrelação, aproxima-se de 0 com autocorrelação positiva. `bgtest()` é o teste mais geral (vale com defasagens da dependente e ordens maiores).
+
+```{webr}
+dwtest(mod_co)
+```
+
+```{webr}
+bgtest(mod_co, order = 2)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+DW ≈ **1,31**, bem abaixo de 2, com valor-p < 0,05: **autocorrelação positiva** — resíduo alto num ano tende a repetir-se no seguinte. O BG confirma (e testa ordem 2). Consequência: os erros-padrão do MQO ficam subestimados e os t, inflados — significâncias enganosas.
+:::
+
+## As correções
+
+Duas rotas: **Prais-Winsten** (pacote prais) reestima por mínimos quadrados generalizados, modelando o erro AR(1); **Newey-West** (sandwich) mantém o MQO e corrige os erros-padrão para autocorrelação *e* heterocedasticidade.
+
+```{webr}
+library(prais)
+pw <- prais_winsten(consumo ~ renda + riqueza + juros,
+                    data = consumo, index = "year")
+summary(pw)
+```
+
+```{webr}
+coeftest(mod_co, vcov = NeweyWest(mod_co))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+No Prais-Winsten, o **rho** estimado mede a autocorrelação do erro (da ordem de 0,3–0,4 aqui); os coeficientes são reestimados já "limpos". No Newey-West, como na correção de White, os coeficientes ficam e os erros-padrão mudam. Regra prática: Prais-Winsten quando o AR(1) descreve bem o erro; Newey-West como proteção geral.
+:::
+
+### Exercício 2 — construções habitacionais
+
+Série de construções: teste a autocorrelação e corrija com Newey-West.
+
+```{webr}
+#| exercise: e2l8_ex2
+constr <- read.csv("dados/construcoes.csv")
+mod_con <- lm(construcoes ~ hipoteca + pibr, data = constr)
+______(mod_con)
+coeftest(mod_con, vcov = ______(mod_con))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `dwtest` e `NeweyWest`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+constr <- read.csv("dados/construcoes.csv")
+mod_con <- lm(construcoes ~ hipoteca + pibr, data = constr)
+dwtest(mod_con)
+coeftest(mod_con, vcov = NeweyWest(mod_con))
+```
+:::
+
+## Glossário — funções novas deste laboratório
+
+| Função | O que faz |
+|---|---|
+| `geom_hline()` | Linha horizontal de referência no gráfico. |
+| `bptest()` (lmtest) | Breusch-Pagan (e White, com termos extras). |
+| `coeftest(m, vcov = ...)` | Tabela de coeficientes com outra matriz de variância. |
+| `vcovHC(type = "HC1")` (sandwich) | Erros-padrão robustos de White. |
+| `dwtest()` / `bgtest()` | Durbin-Watson / Breusch-Godfrey. |
+| `prais_winsten()` (prais) | Correção AR(1) por MQG. |
+| `NeweyWest()` (sandwich) | Erros-padrão robustos a autocorrelação. |
+
+## Exercícios avaliativos
+
+::: {.callout-important}
+## Vale nota
+
+As respostas destes exercícios são cobradas no **questionário da disciplina, no SIGAA**. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — **sem a solução**. Anote os valores obtidos antes de responder no SIGAA.
+:::
+
+### Questão 1
+
+No modelo de crescimento (tx_cresc_renda ~ ln_renda_eua + inv_nao_equip + inv_equip + tx_cresc_trab), informe a estatística BP e a conclusão a 5%.
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Cuidado: 147,8 é o BP do modelo da INDÚSTRIA e 16,0 o da taxa de ABORTO. Aqui é o modelo de crescimento entre países.
+:::
+
+### Questão 2
+
+No modelo carregamentos ~ materiais + capital + estoques + trabalhadores (industria.csv), informe o R², a estatística BP e a conclusão.
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Rode bptest() no modelo. R² alto não protege contra heterocedasticidade - são diagnósticos independentes.
+:::
+
+### Questão 3
+
+No modelo consumo ~ renda + riqueza + juros, informe os coeficientes da RENDA e da RIQUEZA.
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Leia os coeficientes no summary(). Lembre: com DW aprox. 1,31, os erros-padrão precisam de correção, mas os coeficientes seguem não viesados.
+:::

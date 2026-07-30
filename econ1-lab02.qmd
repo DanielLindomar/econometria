@@ -1,0 +1,316 @@
+---
+title: "Laboratório 2 — Analisando e visualizando dados"
+subtitle: "Econometria I · Unidade 1 — Introdução ao modelo de regressão linear"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - tidyr
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos de aprendizagem
+
+Ao final deste laboratório você será capaz de:
+
+- agregar dados por uma ou mais dimensões (a "tabela dinâmica" do R);
+- alternar o nível de agregação entre soma e média;
+- construir gráficos de colunas e de linhas para comparar categorias e acompanhar o tempo;
+- extrair conclusões de tabelas e gráficos para responder a perguntas concretas.
+:::
+
+No Laboratório 1 você explorou a base da limonada da Rosie. Agora vamos **resumir** e **visualizar** esses dados — o equivalente, no R, às tabelas dinâmicas e aos gráficos do Excel. Este laboratório usa as funções já vistas (`group_by()`, `summarise()`, `mutate()`, `ggplot()`); as poucas funções novas são apresentadas quando aparecem. Em caso de dúvida, consulte o [glossário do Lab 1](econ1-lab01.qmd#glossário-as-funções-deste-laboratório).
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega os dados e cria as colunas de mês e receita. A função nova é `as.Date()`, que converte o texto da data para o formato de data do R; com `format(data, "%m")` extraímos o número do mês.
+:::
+
+```{webr}
+library(dplyr)
+limonada <- read.csv("dados/limonada.csv") |>
+  mutate(data    = as.Date(data),
+         mes     = as.integer(format(data, "%m")),
+         receita = preco * vendas)
+head(limonada, 3)
+```
+
+## A "tabela dinâmica" do R
+
+No Excel, a Tabela Dinâmica resume uma medida por dimensões. No R, o mesmo resultado vem de `group_by()` + `summarise()`. Somando as vendas por mês:
+
+```{webr}
+limonada |>
+  group_by(mes) |>
+  summarise(vendas_total = sum(vendas))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Junho é o pico do ano: **1.056 limonadas** vendidas — exatamente o valor que a Tabela Dinâmica do Excel mostra. Repare no formato da tabela: uma linha por mês, uma coluna por medida. É o "resumo por dimensão" que usaremos o tempo todo.
+:::
+
+### Exercício 1 — total por dia da semana
+
+Monte a tabela com a **soma de panfletos** distribuídos por dia da semana.
+
+```{webr}
+#| exercise: l2_ex1
+limonada |>
+  group_by(______) |>
+  summarise(panfletos_total = sum(______))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As colunas são `dia` e `panfletos`. Para ordenar do menor para o maior, acrescente `|> arrange(panfletos_total)`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+limonada |>
+  group_by(dia) |>
+  summarise(panfletos_total = sum(panfletos)) |>
+  arrange(panfletos_total)
+```
+:::
+
+## Duas dimensões: mês × dia da semana
+
+A Tabela Dinâmica ganha força com duas dimensões. No R, agrupamos pelas duas colunas e, para espalhar uma delas nas colunas da tabela (como no Excel), usamos a função nova `pivot_wider()`, do pacote **tidyr**: `names_from` diz qual variável vira colunas e `values_from`, qual medida preenche as células. `round(x, 1)` arredonda para 1 casa decimal.
+
+```{webr}
+library(tidyr)
+limonada |>
+  group_by(mes, dia) |>
+  summarise(vendas_media = round(mean(vendas), 1), .groups = "drop") |>
+  pivot_wider(names_from = dia, values_from = vendas_media)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Cada célula é a **venda média** daquele dia da semana naquele mês — a quarta-feira de fevereiro, por exemplo, tem média de **19,75** (o mesmo valor do laboratório em Excel). Trocamos a soma pela média com uma única mudança: `mean()` no lugar de `sum()` — o "Configurações do Campo de Valor" do Excel, aqui, é só a escolha da função.
+:::
+
+### Exercício 2 — receita por mês e dia
+
+Monte a tabela de **receita total** (soma) por mês nas linhas e dia da semana nas colunas.
+
+```{webr}
+#| exercise: l2_ex2
+limonada |>
+  group_by(mes, dia) |>
+  summarise(receita_total = ______(receita), .groups = "drop") |>
+  pivot_wider(names_from = ______, values_from = receita_total)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A medida é `sum(receita)`; a dimensão que vira colunas é `dia`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+limonada |>
+  group_by(mes, dia) |>
+  summarise(receita_total = sum(receita), .groups = "drop") |>
+  pivot_wider(names_from = dia, values_from = receita_total)
+```
+:::
+
+## Gráfico de colunas
+
+Para comparar categorias, o gráfico de colunas é o padrão. A função nova é `geom_col()`: desenha uma coluna com a altura dada pela variável do eixo y.
+
+```{webr}
+library(ggplot2)
+limonada |>
+  group_by(mes) |>
+  summarise(vendas_total = sum(vendas)) |>
+  ggplot(aes(x = factor(mes), y = vendas_total)) +
+  geom_col(fill = "#1E2761") +
+  labs(x = "Mês", y = "Vendas (unidades)",
+       title = "Vendas de limonada por mês") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O padrão é claramente **sazonal**: as vendas sobem da primavera para o verão (meses 5–8) e caem no inverno. `factor(mes)` faz o eixo tratar o mês como categoria (1, 2, …, 12), e não como número contínuo — guarde essa função, ela volta no Lab 6.
+:::
+
+## Gráfico de linha: a dimensão do tempo
+
+Para acompanhar uma variável **ao longo do tempo**, usamos `geom_line()`, que liga as observações na ordem do eixo x.
+
+```{webr}
+ggplot(limonada, aes(x = data, y = temperatura)) +
+  geom_line(color = "#B85042") +
+  labs(x = NULL, y = "Temperatura (°C)",
+       title = "Temperatura ao longo de 2017") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A curva desenha as estações do ano — e é o espelho do gráfico de colunas das vendas. Quando duas séries "dançam juntas" assim, a correlação alta (0,99, do Lab 1) deixa de ser surpresa.
+:::
+
+### Exercício 3 — vendas no tempo
+
+Faça o gráfico de **linha das vendas** ao longo do ano.
+
+```{webr}
+#| exercise: l2_ex3
+ggplot(limonada, aes(x = ______, y = ______)) +
+  geom_line(color = "#1E2761") +
+  labs(x = NULL, y = "Vendas") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Eixo x = `data`, eixo y = `vendas` — a mesma estrutura do gráfico da temperatura.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+ggplot(limonada, aes(x = data, y = vendas)) +
+  geom_line(color = "#1E2761") +
+  labs(x = NULL, y = "Vendas") +
+  theme_minimal(base_size = 13)
+```
+:::
+
+### Exercício 4 — colunas da receita
+
+Monte o gráfico de colunas da **receita total por mês**.
+
+```{webr}
+#| exercise: l2_ex4
+limonada |>
+  group_by(mes) |>
+  summarise(receita_total = sum(receita)) |>
+  ggplot(aes(x = factor(mes), y = ______)) +
+  ______(fill = "#1E2761") +
+  labs(x = "Mês", y = "Receita", title = "Receita por mês") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O eixo y é `receita_total` e a camada de colunas é `geom_col()`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+limonada |>
+  group_by(mes) |>
+  summarise(receita_total = sum(receita)) |>
+  ggplot(aes(x = factor(mes), y = receita_total)) +
+  geom_col(fill = "#1E2761") +
+  labs(x = "Mês", y = "Receita", title = "Receita por mês") +
+  theme_minimal(base_size = 13)
+```
+:::
+
+## Glossário — funções novas deste laboratório
+
+O glossário é cumulativo: estas entram na sua lista, somando-se às do [Lab 1](econ1-lab01.qmd#glossário-as-funções-deste-laboratório).
+
+| Função | O que faz |
+|---|---|
+| `as.Date()` | Converte texto em data. |
+| `format(data, "%m")` | Extrai partes da data (mês, ano…). |
+| `round(x, n)` | Arredonda para `n` casas decimais. |
+| `pivot_wider()` | Espalha uma variável nas colunas (tabela dinâmica). |
+| `factor()` | Trata um valor como categoria. |
+| `geom_col()` | Gráfico de colunas. |
+| `geom_line()` | Gráfico de linha (séries no tempo). |
+
+## Exercícios avaliativos
+
+::: {.callout-important}
+## Vale nota
+
+As respostas destes exercícios são cobradas no **questionário da disciplina, no SIGAA**. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — **sem a solução**. Anote os valores obtidos antes de responder no SIGAA.
+:::
+
+### Questão 1
+
+Utilizando a base Limonada, calcule a RECEITA TOTAL (preco x vendas) do mês de AGOSTO.
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Crie `receita = preco * vendas`, extraia o mês da data e some apenas agosto.
+:::
+
+### Questão 2
+
+Qual foi a MAIOR temperatura registrada em um SÁBADO do mês de julho, e em que data?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Filtre por mês e por dia da semana antes de usar `which.max()`.
+:::
+
+### Questão 3
+
+Qual foi o MENOR número de panfletos distribuídos em um dia de NOVEMBRO?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Filtre novembro e use `min()` na coluna `panfletos`.
+:::
+
+### Questão 4
+
+Calcule a MÉDIA de panfletos distribuídos por DIA DA SEMANA. Em qual dia a média é maior?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+`group_by()` no dia da semana e `summarise(mean(panfletos))`.
+:::
+
+### Questão 5
+
+Qual foi o TOTAL de vendas do mês de SETEMBRO?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Filtre setembro e some a coluna `vendas`.
+:::
+
+### Questão 6
+
+Julgue a afirmativa: na base Limonada, a diferença entre a venda média do melhor mês e a do pior mês passa de 20 unidades.
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Calcule a média de vendas por mês, tome o maior e o menor valor e faça a diferença.
+:::
