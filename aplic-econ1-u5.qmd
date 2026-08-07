@@ -1,0 +1,406 @@
+---
+title: "Aplicação 5 — Por que o risco vem em ondas"
+subtitle: "Econometria I · Unidade 5 — modelos de volatilidade em uso"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - moments
+    - FinTS
+    - fGarch
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## O que é uma Aplicação
+
+Nos laboratórios você aprendeu a executar. Aqui você vai **usar** o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.
+
+O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.
+:::
+
+## O problema
+
+Toda a econometria que você viu até aqui trata a variância do erro como uma constante. O símbolo $\sigma^2$ não tem índice de tempo: a incerteza de hoje é a mesma de ontem e será a mesma amanhã.
+
+Quem já acompanhou o preço de uma commodity sabe que isso é falso. Há períodos em que o mercado se move pouco por semanas seguidas, e há períodos em que qualquer notícia produz oscilações de vários por cento ao dia. A incerteza não é constante: ela vem **em ondas**.
+
+Em 1982, Robert Engle publicou *Autoregressive Conditional Heteroscedasticity with Estimates of the Variance of United Kingdom Inflation* e propôs modelar exatamente isso. A ideia central:
+
+$$
+\sigma_t^2 = \omega + \alpha \, u_{t-1}^2
+$$
+
+A variância de hoje depende do quadrado do erro de ontem. Se ontem houve um choque grande — para cima ou para baixo, o quadrado não distingue —, hoje a incerteza é maior. É a *heterocedasticidade condicional*: a variância não é constante, e o que a governa é o próprio passado da série.
+
+Em 1986, Tim Bollerslev generalizou, acrescentando a variância passada:
+
+$$
+\sigma_t^2 = \omega + \alpha \, u_{t-1}^2 + \beta \, \sigma_{t-1}^2
+$$
+
+É o GARCH(1,1), que virou o modelo mais usado da economia financeira aplicada. Engle recebeu o Nobel em 2003.
+
+::: {.callout-tip}
+## O que a Unidade 5 pede que você observe
+
+Duas coisas, e elas são independentes uma da outra:
+
+**A média pode não ter estrutura nenhuma.** Retornos de ativos são quase imprevisíveis — se fossem previsíveis, alguém já teria lucrado com isso e a previsibilidade teria sumido.
+
+**A variância pode ter muita estrutura.** Não dá para prever se amanhã o preço sobe ou cai, mas dá para prever se amanhã será um dia agitado ou calmo.
+
+Essa separação — média imprevisível, variância previsível — é o que o modelo ARCH captura, e é o que o MQO simples ignora por completo.
+:::
+
+## Nossa versão
+
+Vamos trabalhar com **1.000 pregões** de retornos diários de um contrato futuro de soja, cerca de quatro anos de negociação.
+
+::: {.callout-important}
+## Estes dados foram gerados por simulação
+
+Não são cotações reais. Foram construídos por um processo que **eu conheço** — e é justamente por isso que esta aplicação existe.
+
+No fim da página eu mostro os parâmetros verdadeiros de $\omega$, $\alpha$ e $\beta$ que usei para gerar a volatilidade. Você vai poder comparar a sua estimativa com a resposta certa — algo impossível com séries reais, em que ninguém conhece o processo gerador.
+
+Não role até lá antes de estimar.
+:::
+
+## Os dados
+
+```{webr}
+soja <- read.csv("dados/retornos_soja.csv")
+head(soja)
+summary(soja$retorno)
+```
+
+::: {.callout-tip}
+## O dicionário das variáveis
+
+| Variável | O que é |
+|---|---|
+| `dia` | Número do pregão, de 1 a 1000 |
+| `retorno` | Retorno diário do contrato, em % |
+
+O retorno médio fica perto de **0,02% ao dia** — praticamente zero, como se espera de um ativo negociado. O desvio-padrão é de cerca de **2,70%**, e os extremos vão de aproximadamente −10,7% a +16,3%.
+
+Repare na assimetria dos extremos em relação ao desvio-padrão: uma queda de 10,7% é quatro desvios-padrão; uma alta de 16,3% é seis. Numa distribuição normal, eventos de seis desvios são raríssimos. Este é o primeiro indício de que a normal não descreve bem esta série.
+:::
+
+## Primeiro olhar: a série de retornos
+
+```{webr}
+library(ggplot2)
+ggplot(soja, aes(dia, retorno)) +
+  geom_line(colour = "#1E2761", linewidth = 0.4) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey40") +
+  labs(title = "Retornos diários da soja — 1.000 pregões",
+       x = "Pregão", y = "Retorno (%)") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Olhe a **espessura** da faixa, não a direção dos movimentos.
+
+Há trechos em que a série oscila numa faixa estreita, com variações de 1% a 2%. E há trechos em que ela se agita, com movimentos de 5%, 8%, 10%. Os trechos agitados aparecem em blocos: um dia turbulento raramente vem sozinho.
+
+Isso tem nome — **agrupamento de volatilidade**, ou *volatility clustering*. Mandelbrot já havia notado o fenômeno em 1963. O que faltava era um modelo que o descrevesse, e foi isso que Engle entregou em 1982.
+:::
+
+## A média não tem estrutura
+
+Antes de modelar a variância, verifique se sobrou alguma coisa na média. Se os retornos fossem previsíveis, seria preciso modelar isso primeiro.
+
+```{webr}
+acf(soja$retorno, lag.max = 20, main = "Autocorrelação dos retornos")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Quase todas as barras ficam dentro das linhas tracejadas, que marcam o intervalo de não significância. A autocorrelação de primeira ordem é de cerca de **0,025** — desprezível.
+
+Conclusão: o retorno de ontem não ajuda a prever o de hoje. A média é essencialmente imprevisível, exatamente como a teoria de mercados eficientes prevê.
+
+Se você parasse aqui, concluiria que não há nada a modelar. Seria um engano.
+:::
+
+## A variância tem muita estrutura
+
+Repita o mesmo gráfico com os retornos **ao quadrado** — que é uma medida de magnitude, independente do sinal.
+
+```{webr}
+acf(soja$retorno^2, lag.max = 20, main = "Autocorrelação dos retornos ao quadrado")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O quadro muda completamente. As primeiras autocorrelações ficam em torno de **0,18**, **0,25** e **0,22**, bem acima das bandas de significância, e a estrutura persiste por vários períodos.
+
+Aqui está a descoberta de Engle, num par de gráficos: **o sinal do retorno é imprevisível, mas a magnitude não é**. Dias grandes seguem dias grandes. É essa regularidade que o modelo ARCH transforma em equação.
+:::
+
+## O teste formal
+
+```{webr}
+library(FinTS)
+ArchTest(soja$retorno, lags = 12)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O teste ARCH-LM tem como hipótese nula a **ausência** de efeitos ARCH — ou seja, variância condicional constante.
+
+A estatística passa de **145** com 12 defasagens, e o valor-p é da ordem de $10^{-25}$. Rejeitamos a nula sem hesitação: há heterocedasticidade condicional na série.
+
+Vale entender o que o teste faz por baixo do capô, porque é simples: ele regride $u_t^2$ contra suas próprias defasagens e testa se os coeficientes são conjuntamente nulos. É o mesmo raciocínio do teste de Breusch-Pagan, aplicado ao tempo em vez de a um regressor.
+:::
+
+```{webr}
+library(moments)
+kurtosis(soja$retorno)
+jarque.test(soja$retorno)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A curtose fica em torno de **5,3**. Numa distribuição normal ela vale 3. Valores acima disso indicam **caudas pesadas**: eventos extremos acontecem com frequência muito maior do que a normal prevê.
+
+O teste de Jarque-Bera rejeita a normalidade com folga.
+
+E aqui está uma consequência elegante do modelo: um processo GARCH com choques **normais** gera uma distribuição incondicional **leptocúrtica**. As caudas pesadas que você observa não precisam ser postuladas — elas emergem da variância que muda ao longo do tempo. Modelar a volatilidade explica, de quebra, por que as caudas são gordas.
+:::
+
+## O modelo GARCH(1,1)
+
+```{webr}
+library(fGarch)
+modelo <- garchFit(~ garch(1, 1), data = soja$retorno, trace = FALSE)
+summary(modelo)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Procure os quatro parâmetros na tabela de coeficientes:
+
+**`mu`** ≈ 0,02 — o retorno médio. Insignificante, como esperado.
+
+**`omega`** ≈ 0,27 — o piso da variância, a parte que não depende do passado.
+
+**`alpha1`** ≈ 0,10 — quanto do choque de ontem entra na variância de hoje. É a **reação** do mercado a novidades.
+
+**`beta1`** ≈ 0,86 — quanto da variância de ontem persiste hoje. É a **memória** da volatilidade.
+
+Os dois últimos são altamente significativos, o que confirma o resultado do teste ARCH-LM por outro caminho.
+:::
+
+::: {.callout-important}
+## A soma $\alpha + \beta$ é o número que importa
+
+Some os dois: aproximadamente **0,96**. Essa soma mede a **persistência** da volatilidade, e sua leitura é direta:
+
+- Se $\alpha + \beta$ está perto de 1, um choque na volatilidade demora muitíssimo para se dissipar. Um período turbulento contamina semanas seguintes.
+- Se estivesse perto de 0, a volatilidade voltaria ao normal no dia seguinte.
+- Se fosse **igual ou maior que 1**, a variância incondicional não existiria — o processo seria explosivo, e o modelo, inválido.
+
+Com 0,96, estamos no território típico das séries financeiras: alta persistência, mas ainda estacionária. A variância incondicional implícita é $\omega/(1-\alpha-\beta) \approx 0{,}27/0{,}037 \approx 7{,}2$, ou seja, desvio-padrão de longo prazo em torno de **2,68%** — muito próximo do desvio-padrão amostral de 2,70% que você viu no `summary`.
+:::
+
+## A volatilidade estimada
+
+```{webr}
+soja$volatilidade <- volatility(modelo)
+ggplot(soja, aes(dia, volatilidade)) +
+  geom_line(colour = "#C0392B", linewidth = 0.6) +
+  labs(title = "Volatilidade condicional estimada pelo GARCH(1,1)",
+       x = "Pregão", y = "Desvio-padrão condicional (%)") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Esta é a série que o modelo entrega e que o MQO jamais produziria: a **incerteza dia a dia**. Os picos coincidem com os trechos agitados do primeiro gráfico, e os vales com os trechos calmos.
+
+É por isso que o GARCH saiu da academia e foi para as mesas de operação: ele transforma "o mercado está nervoso" numa medida com número, atualizada todo dia, que alimenta cálculos de risco, margens de garantia e precificação de opções.
+:::
+
+## Exercícios
+
+Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.
+
+### Exercício 1 — a persistência e a meia-vida
+
+Calcule $\alpha + \beta$ e, a partir dela, a **meia-vida** de um choque de volatilidade: quantos dias até que metade do efeito tenha se dissipado.
+
+```{webr}
+#| exercise: ap5_ex1
+p <- coef(modelo)
+persistencia <- p["alpha1"] + p["______"]
+persistencia
+meia_vida <- log(0.5) / log(______)
+meia_vida
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A primeira lacuna é `beta1`. A segunda é `persistencia` — a fórmula da meia-vida de um processo com decaimento geométrico é $\ln(0{,}5)/\ln(\alpha+\beta)$.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+p <- coef(modelo)
+persistencia <- p["alpha1"] + p["beta1"]
+persistencia
+meia_vida <- log(0.5) / log(persistencia)
+meia_vida
+```
+
+A persistência fica em torno de 0,96 e a meia-vida em cerca de **18 pregões** — quase um mês de calendário. Um susto no mercado leva quase um mês para ter metade do seu efeito dissipado.
+
+Compare com uma persistência de 0,80: a meia-vida cairia para 3 dias. A diferença entre 0,80 e 0,96 parece pequena no papel e é enorme na prática.
+:::
+
+### Exercício 2 — a variância de longo prazo
+
+Calcule a variância incondicional implícita pelo modelo e compare com a variância amostral dos retornos.
+
+```{webr}
+#| exercise: ap5_ex2
+p <- coef(modelo)
+var_longo_prazo <- p["omega"] / (1 - p["alpha1"] - p["______"])
+c(implicita = as.numeric(var_longo_prazo),
+  amostral  = var(soja$______))
+sqrt(var_longo_prazo)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As lacunas são `beta1` e `retorno`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+p <- coef(modelo)
+var_longo_prazo <- p["omega"] / (1 - p["alpha1"] - p["beta1"])
+c(implicita = as.numeric(var_longo_prazo),
+  amostral  = var(soja$retorno))
+sqrt(var_longo_prazo)
+```
+
+As duas ficam próximas de 7,2 e 7,3. O modelo, que nunca "viu" a variância total da amostra, a reconstrói a partir de três parâmetros estimados da dinâmica diária. É um bom teste de coerência interna.
+:::
+
+### Exercício 3 — o teste ARCH depois do modelo
+
+Um modelo GARCH bem especificado deve **eliminar** a estrutura na variância. Aplique o teste ARCH aos resíduos padronizados e veja se ainda sobra alguma coisa.
+
+```{webr}
+#| exercise: ap5_ex3
+residuos_padronizados <- residuals(modelo, standardize = TRUE)
+ArchTest(______, lags = 12)
+acf(residuos_padronizados^2, lag.max = 20, main = "Quadrados dos resíduos padronizados")
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `residuos_padronizados`. Compare o valor-p com o do teste feito na série original.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+residuos_padronizados <- residuals(modelo, standardize = TRUE)
+ArchTest(residuos_padronizados, lags = 12)
+acf(residuos_padronizados^2, lag.max = 20, main = "Quadrados dos resíduos padronizados")
+```
+
+Agora o valor-p fica bem acima de 0,05 e as barras do correlograma caem dentro das bandas. **Não rejeitamos** a ausência de efeitos ARCH — o modelo absorveu a estrutura.
+
+Esta é a etapa de diagnóstico que separa um modelo estimado de um modelo validado. Um GARCH cujos resíduos padronizados ainda apresentam efeito ARCH está mal especificado, e a saída seria aumentar a ordem ou mudar a família do modelo.
+:::
+
+### Exercício 4 — prevendo a volatilidade da próxima semana
+
+Use o modelo para prever a volatilidade dos próximos 5 pregões.
+
+```{webr}
+#| exercise: ap5_ex4
+previsao <- predict(modelo, n.ahead = ______)
+previsao
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `5`. Olhe a coluna `standardDeviation` e compare os cinco valores entre si.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+previsao <- predict(modelo, n.ahead = 5)
+previsao
+```
+
+A coluna `meanForecast` é praticamente constante e próxima de zero — o modelo não pretende prever direção, e não deveria mesmo.
+
+A coluna `standardDeviation` é a previsão útil. Repare que os valores caminham lentamente na direção do desvio-padrão de longo prazo (cerca de 2,68%): se o último dia foi turbulento, a previsão parte alta e vai cedendo; se foi calmo, parte baixa e vai subindo. Essa convergência gradual é a marca do GARCH estacionário.
+:::
+
+### Exercício 5 — escrevendo o resultado
+
+Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: a evidência de efeito ARCH com o teste e seu valor-p, os parâmetros estimados, a persistência com sua interpretação, e o diagnóstico dos resíduos.
+
+::: {.callout-note collapse="true" title="Um parágrafo possível"}
+A série de 1.000 retornos diários apresenta média não distinguível de zero e ausência de autocorrelação nos níveis, mas forte dependência nos quadrados. O teste ARCH-LM rejeita a hipótese de variância condicional constante (LM = 145,7 com 12 defasagens; p < 0,001), e a curtose amostral de 5,26 evidencia caudas mais pesadas que as da normal. A estimação de um GARCH(1,1) fornece $\hat{\omega} = 0{,}268$, $\hat{\alpha} = 0{,}100$ e $\hat{\beta} = 0{,}863$, ambos os parâmetros de dinâmica significativos a 1%. A persistência $\alpha + \beta = 0{,}963$ implica meia-vida de aproximadamente 18 pregões para um choque de volatilidade. O teste ARCH aplicado aos resíduos padronizados não rejeita a hipótese nula, indicando especificação adequada.
+
+Repare no que o parágrafo faz: documenta o diagnóstico que motivou o modelo, reporta os parâmetros, traduz a persistência em unidade compreensível (dias) e fecha com a validação. É a sequência esperada num artigo de econometria financeira.
+:::
+
+## O que estava por trás dos dados
+
+Chegou a hora. Os retornos desta amostra foram gerados por este processo:
+
+$$
+r_t = 0{,}05 + u_t, \qquad u_t = \sigma_t z_t, \qquad z_t \sim N(0,1)
+$$
+
+$$
+\sigma_t^2 = 0{,}30 + 0{,}12\, u_{t-1}^2 + 0{,}84\, \sigma_{t-1}^2
+$$
+
+| Parâmetro | Valor verdadeiro | Você estimou |
+|---|---|---|
+| $\mu$ | 0,050 | 0,025 |
+| $\omega$ | 0,300 | 0,268 |
+| $\alpha$ | **0,120** | **0,100** |
+| $\beta$ | **0,840** | **0,863** |
+| $\alpha + \beta$ | **0,960** | **0,963** |
+| Desvio-padrão de longo prazo | 2,739 | 2,679 |
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. A persistência foi recuperada quase exatamente.** O verdadeiro $\alpha + \beta$ era 0,960 e a estimativa deu 0,963. Repare que $\alpha$ e $\beta$ individualmente erraram um pouco mais — 0,100 contra 0,120, e 0,863 contra 0,840 —, mas **na direção oposta**, de modo que a soma acertou. Isso não é acaso: os dois parâmetros são difíceis de separar entre si e fáceis de identificar em conjunto. Por isso a literatura reporta a soma, e não apenas os componentes.
+
+**2. As caudas pesadas não foram postuladas — apareceram.** Os choques $z_t$ que geraram esta série são **normais**, sorteados de uma normal padrão. Ainda assim, a curtose amostral deu 5,26, e o teste de Jarque-Bera rejeitou a normalidade com folga. É o GARCH gerando leptocurtose sozinho. Quem observasse apenas o histograma poderia concluir que "os choques têm distribuição t"; a verdade é que os choques eram normais e a **variância variável** produziu as caudas.
+
+**3. O MQO teria dado a resposta certa para a pergunta errada.** Uma regressão do retorno contra uma constante estimaria a média com precisão e reportaria um $\sigma$ único de 2,70% — que é o desvio-padrão médio correto. Só que em nenhum dia a volatilidade **é** 2,70%: ela vai de menos de 1,5% a mais de 6%. O número médio existe e é inútil para quem precisa calibrar risco amanhã.
+:::
+
+## Voltando ao artigo
+
+Engle estimou seu ARCH original com a inflação do Reino Unido entre 1958 e 1977 — dados macroeconômicos, não financeiros. A pergunta dele era sobre a **incerteza inflacionária**: em períodos de inflação instável, os agentes enfrentam mais risco ao fixar contratos, e essa incerteza tem custo econômico próprio, independente do nível da inflação.
+
+A aplicação financeira veio depois e foi tão dominante que hoje quase se esquece a motivação original. Vale lembrar dela, sobretudo num país com a história inflacionária do Brasil: o modelo nasceu para medir a incerteza sobre preços, não para precificar opções.
+
+Duas ressalvas que valem para o que você acabou de estimar:
+
+- **GARCH prevê variância, não direção.** Nenhum parâmetro deste modelo ajuda a decidir se o preço sobe ou cai amanhã. Quem promete isso está vendendo outra coisa.
+- **A escolha da ordem (1,1) foi assumida, não testada.** Existem GARCH(2,1), GARCH(1,2), e variantes assimétricas — EGARCH, GJR-GARCH — que permitem que quedas aumentem mais a volatilidade do que altas de mesma magnitude, o chamado efeito alavanca. Nesta série não há assimetria porque não a coloquei; em dados reais de ações, quase sempre há.

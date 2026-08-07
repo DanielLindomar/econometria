@@ -1,0 +1,353 @@
+---
+title: "Aplicação 2 — Quanto rende uma máquina a mais? E um trabalhador a mais?"
+subtitle: "Econometria I · Unidade 2 — formas funcionais em uso"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## O que é uma Aplicação
+
+Nos laboratórios você aprendeu a executar. Aqui você vai **usar** o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.
+
+O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.
+:::
+
+## O problema
+
+Em 1928, Charles Cobb e Paul Douglas publicaram *A Theory of Production* com uma pergunta simples e uma solução que atravessou o século: **quanto da produção de uma economia se deve ao capital e quanto se deve ao trabalho?**
+
+A resposta deles foi uma equação:
+
+$$
+Q = A \, K^{\alpha} L^{\beta}
+$$
+
+Nela, $\alpha$ e $\beta$ não são inclinações no sentido usual — são **elasticidades**. Se $\alpha$ vale 0,30, aumentar o capital em 10% aumenta a produção em 3%, seja a empresa grande ou pequena. Essa é a propriedade que tornou a função tão útil: ela fala em percentuais, e percentuais são comparáveis entre empresas de tamanhos muito diferentes.
+
+Só que a equação não é linear, e o MQO estima modelos lineares. Foi aí que Cobb e Douglas fizeram a jogada que interessa a esta unidade: **tiraram o logaritmo dos dois lados.**
+
+$$
+\ln Q = \ln A + \alpha \ln K + \beta \ln L + u
+$$
+
+O que era multiplicativo virou aditivo. O que era não-linear nos parâmetros virou linear. É exatamente o assunto da Unidade 2 — mudar a forma funcional para que o modelo caiba no MQO, e ainda ganhar uma interpretação melhor no caminho.
+
+::: {.callout-tip}
+## A pergunta que a soma responde
+
+Repare no que $\alpha + \beta$ significa. Se a soma der 1, dobrar capital **e** trabalho dobra a produção: são **retornos constantes de escala**. Se der mais que 1, a empresa ganha ao crescer; se der menos, perde. Cobb e Douglas encontraram algo muito próximo de 1 na indústria americana — e essa foi a parte do artigo que gerou meio século de debate.
+:::
+
+## Nossa versão
+
+Vamos estimar a mesma função para **180 estabelecimentos industriais de Mato Grosso**, com dados de produção anual, capital instalado e pessoal ocupado.
+
+::: {.callout-important}
+## Estes dados foram gerados por simulação
+
+Não são uma pesquisa de campo. Foram construídos por um processo que **eu conheço** — e é justamente por isso que esta aplicação existe.
+
+No fim da página eu mostro os valores verdadeiros de $\alpha$ e $\beta$. Você vai poder comparar a sua estimativa com a resposta certa, e verificar se o teste de retornos de escala acertou.
+
+Não role até lá antes de estimar.
+:::
+
+## Os dados
+
+```{webr}
+industria <- read.csv("dados/industria_mt.csv")
+head(industria)
+summary(industria)
+```
+
+::: {.callout-tip}
+## O dicionário das variáveis
+
+| Variável | O que é |
+|---|---|
+| `producao` | Valor da produção anual, em R\$ mil |
+| `capital` | Capital instalado (máquinas, instalações), em R\$ mil |
+| `trabalho` | Pessoal ocupado, em número de empregados |
+
+São 180 estabelecimentos. Repare na **amplitude**: a produção vai de R\$ 36 mil a R\$ 903 mil, e o capital de R\$ 53 mil a R\$ 6,4 milhões — o maior tem mais de cem vezes o capital do menor. Guardar isso ajuda a entender por que o log vai aparecer.
+:::
+
+## Primeiro olhar: por que o log
+
+Veja a mesma relação — capital e produção — desenhada de duas maneiras.
+
+```{webr}
+library(ggplot2)
+ggplot(industria, aes(capital, producao)) +
+  geom_point(alpha = 0.5, colour = "#1E2761") +
+  labs(title = "Em nível", x = "Capital (R$ mil)", y = "Produção (R$ mil)") +
+  theme_minimal()
+```
+
+```{webr}
+ggplot(industria, aes(log(capital), log(producao))) +
+  geom_point(alpha = 0.5, colour = "#C0392B") +
+  geom_smooth(method = "lm", se = FALSE, colour = "#1E2761") +
+  labs(title = "Em logaritmo", x = "ln(Capital)", y = "ln(Produção)") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+No primeiro gráfico os pontos se amontoam no canto inferior esquerdo e se espalham cada vez mais à direita: é o formato típico de quem tem poucas observações grandes puxando a escala. Uma reta ajustada aí seria dominada por meia dúzia de estabelecimentos.
+
+No segundo, a nuvem fica **equilibrada** e a relação vira aproximadamente uma reta. O logaritmo comprimiu os grandes e esticou os pequenos. Não é um truque estético: é o que a teoria já previa, porque a Cobb-Douglas é linear nos logs.
+:::
+
+## Tentativa 1: o modelo em nível
+
+Antes de aceitar o log, faça o teste honesto — estime em nível e veja o que sai.
+
+```{webr}
+nivel <- lm(producao ~ capital + trabalho, data = industria)
+summary(nivel)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O R² fica em torno de **0,87** — nada desprezível. O coeficiente do capital é cerca de **0,064**: cada R\$ 1 mil a mais de capital estaria associado a R\$ 64 a mais de produção. O do trabalho fica perto de **4,94**: cada empregado a mais, R\$ 4,9 mil de produção.
+
+O problema não é o ajuste. É que esses números só valem se o efeito for **o mesmo** para o estabelecimento de R\$ 53 mil e para o de R\$ 6,4 milhões de capital — e não há razão econômica para acreditar nisso. A hipótese embutida na forma linear é forte demais.
+:::
+
+## Tentativa 2: o modelo log-log
+
+```{webr}
+cobbdouglas <- lm(log(producao) ~ log(capital) + log(trabalho), data = industria)
+summary(cobbdouglas)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Três coisas a observar:
+
+O coeficiente de `log(capital)` fica em torno de **0,29** e o de `log(trabalho)` em torno de **0,73**. Agora eles são elasticidades: **10% mais capital → cerca de 2,9% mais produção**; **10% mais trabalho → cerca de 7,3% mais produção**. O trabalho pesa mais que o dobro do capital nesta indústria.
+
+O R² sobe para cerca de **0,93**, contra 0,87 do modelo em nível.
+
+E o intercepto, aproximadamente **1,02**, é $\ln A$ — o parâmetro de produtividade total. Para lê-lo na escala original, exponencie: $A \approx e^{1,02} \approx 2,8$.
+:::
+
+::: {.callout-important}
+## Uma armadilha ao comparar R²
+
+Você acabou de ver 0,87 contra 0,93 e provavelmente concluiu que o log-log é melhor. A conclusão está certa, mas o argumento não: **esses dois R² não são comparáveis**, porque a variável dependente é diferente em cada um (`producao` num, `log(producao)` no outro). O R² mede a fração explicada da variação *daquela* variável.
+
+Para comparar os dois modelos com honestidade, o caminho é outro — inspecionar os resíduos, ou usar critérios como o AIC sobre a mesma variável dependente. A escolha aqui se justifica pela teoria (Cobb-Douglas é multiplicativa) e pelo comportamento dos resíduos, não pelo R².
+:::
+
+## Retornos de escala
+
+Agora a pergunta que Cobb e Douglas deixaram para a literatura. A soma das duas elasticidades é estatisticamente igual a 1?
+
+```{webr}
+library(car)
+linearHypothesis(cobbdouglas, "log(capital) + log(trabalho) = 1")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A soma estimada é cerca de **1,019** — acima de 1, mas por pouco. O teste F dá aproximadamente **0,74**, com valor-p em torno de **0,39**.
+
+Bem acima de 0,05: **não rejeitamos** a hipótese de retornos constantes de escala. Ou seja, os dados são compatíveis com a ideia de que dobrar capital e trabalho dobra a produção.
+
+Cuidado com a redação, porém. Não rejeitar não é provar. O correto é dizer que *os dados não fornecem evidência contra* os retornos constantes — a soma verdadeira pode ser 1, mas também 0,98 ou 1,04, e esta amostra não conseguiria distinguir esses casos.
+:::
+
+## Exercícios
+
+Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.
+
+### Exercício 1 — a tabela de resultados
+
+Monte a tabela que iria num artigo, com coeficiente, erro-padrão e intervalo de confiança de 95%.
+
+```{webr}
+#| exercise: ap2_ex1
+tabela <- data.frame(
+  variavel     = names(coef(cobbdouglas)),
+  elasticidade = round(coef(______), 4),
+  erro_padrao  = round(summary(______)$coefficients[, 2], 4),
+  ic_inferior  = round(confint(______)[, 1], 4),
+  ic_superior  = round(confint(______)[, 2], 4)
+)
+tabela
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O objeto se chama `cobbdouglas`. A função `confint()` devolve uma matriz com duas colunas: limite inferior e superior.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+tabela <- data.frame(
+  variavel     = names(coef(cobbdouglas)),
+  elasticidade = round(coef(cobbdouglas), 4),
+  erro_padrao  = round(summary(cobbdouglas)$coefficients[, 2], 4),
+  ic_inferior  = round(confint(cobbdouglas)[, 1], 4),
+  ic_superior  = round(confint(cobbdouglas)[, 2], 4)
+)
+tabela
+```
+:::
+
+### Exercício 2 — retornos de escala sem o pacote `car`
+
+Há um jeito de testar a mesma hipótese usando apenas `lm()` e o teste t que você já conhece. Divida tudo por $L$ antes de tomar o log:
+
+$$
+\ln\!\left(\frac{Q}{L}\right) = \ln A + \alpha \ln\!\left(\frac{K}{L}\right) + (\alpha + \beta - 1)\ln L + u
+$$
+
+Se os retornos forem constantes, o coeficiente de $\ln L$ é **zero**. Estime e olhe o valor-p dele.
+
+```{webr}
+#| exercise: ap2_ex2
+reparam <- lm(log(producao / ______) ~ log(capital / ______) + log(______),
+              data = industria)
+summary(reparam)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As três lacunas são a mesma variável: `trabalho`. Compare o valor-p do coeficiente de `log(trabalho)` com o valor-p do teste F da seção anterior.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+reparam <- lm(log(producao / trabalho) ~ log(capital / trabalho) + log(trabalho),
+              data = industria)
+summary(reparam)
+```
+
+O valor-p do coeficiente de `log(trabalho)` é praticamente o mesmo do teste F — cerca de 0,39. Não é coincidência: com uma única restrição, $F = t^2$, e os dois testes são o mesmo teste escrito de duas maneiras.
+:::
+
+### Exercício 3 — prevendo a produção de um estabelecimento novo
+
+Uma indústria vai se instalar em Sinop com R\$ 1.200 mil de capital e 40 empregados. Quanto o modelo prevê de produção anual?
+
+Atenção: o modelo prevê o **logaritmo** da produção. Para voltar à escala de reais, exponencie.
+
+```{webr}
+#| exercise: ap2_ex3
+nova <- data.frame(capital = ______, trabalho = ______)
+log_previsto <- predict(cobbdouglas, newdata = nova)
+exp(______)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+`capital = 1200` e `trabalho = 40`. Na última linha, exponencie o objeto que você acabou de criar.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+nova <- data.frame(capital = 1200, trabalho = 40)
+log_previsto <- predict(cobbdouglas, newdata = nova)
+exp(log_previsto)
+```
+
+Dá cerca de R\$ 319 mil. Uma observação técnica que vale registrar: exponenciar a previsão do log devolve a **mediana** prevista, não a média. Corrigir isso exige um fator de ajuste — assunto para outra unidade, mas bom saber que a diferença existe.
+:::
+
+### Exercício 4 — o que explica a produtividade do trabalho
+
+Calcule a produção por empregado de cada estabelecimento e descubra com o que ela anda junto: com o **tamanho** da empresa ou com a **intensidade de capital** (capital por empregado)?
+
+```{webr}
+#| exercise: ap2_ex4
+industria$produtividade <- industria$producao / industria$______
+industria$intensidade   <- industria$capital  / industria$______
+cor(industria$produtividade, industria$trabalho)
+cor(industria$produtividade, industria$intensidade)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As duas lacunas são `trabalho`. Compare as duas correlações antes de concluir.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+industria$produtividade <- industria$producao / industria$trabalho
+industria$intensidade   <- industria$capital  / industria$trabalho
+cor(industria$produtividade, industria$trabalho)
+cor(industria$produtividade, industria$intensidade)
+```
+
+Com o tamanho, a correlação é **negativa** e moderada (cerca de −0,33). Com a intensidade de capital, é **positiva e forte** (cerca de 0,77).
+
+Isso é exatamente o que a Cobb-Douglas com retornos constantes prevê. Dividindo a função por $L$:
+
+$$
+\frac{Q}{L} = A\left(\frac{K}{L}\right)^{\alpha}
+$$
+
+A produção por empregado depende do capital por empregado — e **não** do tamanho da empresa. A correlação negativa com o tamanho é um efeito indireto: nesta amostra, os estabelecimentos que empregam mais gente não aumentaram o capital na mesma proporção, então operam com menos máquina por trabalhador.
+:::
+
+### Exercício 5 — escrevendo o resultado
+
+Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: as duas elasticidades com seus intervalos, a conclusão sobre retornos de escala e uma frase sobre o que a comparação entre trabalho e capital sugere para esta indústria.
+
+::: {.callout-note collapse="true" title="Um parágrafo possível"}
+A estimação da função de produção Cobb-Douglas em sua forma logarítmica, para 180 estabelecimentos industriais de Mato Grosso, indica elasticidade-produto do capital de 0,290 (IC 95%: 0,255 a 0,325) e elasticidade-produto do trabalho de 0,729 (IC 95%: 0,688 a 0,770). O teste da restrição $\alpha + \beta = 1$ não rejeita a hipótese de retornos constantes de escala (F = 0,74; p = 0,390). A elasticidade do trabalho supera a do capital em mais de duas vezes, sugerindo que, na margem, a expansão da produção nesta indústria responde mais à contratação de pessoal do que ao investimento em capital fixo.
+
+Repare no que o parágrafo faz: reporta o número, o intervalo, o teste com sua estatística e seu valor-p, e só então uma interpretação econômica — cautelosa, com "sugere".
+:::
+
+## O que estava por trás dos dados
+
+Chegou a hora. A produção desta amostra foi gerada por esta equação:
+
+$$
+\ln Q = 1{,}05 + 0{,}30 \ln K + 0{,}70 \ln L + u
+$$
+
+com $u$ sorteado de uma normal de média zero e desvio-padrão 0,18. Note que $\alpha + \beta = 1$ **exatamente** — os retornos são constantes por construção.
+
+| Parâmetro | Valor verdadeiro | Você estimou | Intervalo de 95% |
+|---|---|---|---|
+| $\ln A$ | 1,05 | 1,023 | [0,804 ; 1,242] |
+| $\alpha$ (capital) | **0,30** | **0,290** | [0,255 ; 0,325] |
+| $\beta$ (trabalho) | **0,70** | **0,729** | [0,688 ; 0,770] |
+| $\alpha + \beta$ | **1,00** | 1,019 | — |
+| $\sigma$ | 0,18 | 0,178 | — |
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. A forma funcional certa recupera os parâmetros.** As duas elasticidades caíram dentro dos intervalos, e o desvio-padrão residual estimado (0,178) praticamente coincide com o verdadeiro (0,18). O modelo log-log não foi apenas o que ajustou melhor: foi o que corresponde ao processo que gerou os dados.
+
+**2. O teste acertou — e podia ter errado.** A soma verdadeira era 1, e o teste não rejeitou. Mas repare que a soma estimada foi 1,019, não 1,000. Se a amostra fosse muito maior, esse mesmo desvio de 0,019 poderia produzir um valor-p abaixo de 0,05 e levar à rejeição de uma hipótese verdadeira. Testes não medem a verdade; medem a compatibilidade entre uma hipótese e uma amostra de tamanho finito.
+
+**3. O modelo em nível não era "errado" — era mal especificado.** Ele deu R² de 0,87 e coeficientes significativos. Nada nele gritava. Se você não conhecesse a teoria de Cobb e Douglas, poderia ter parado ali e reportado que "cada empregado a mais gera R\$ 4,9 mil de produção" — uma frase que não tem sentido para uma indústria que emprega 6 pessoas nem para uma que emprega 147.
+:::
+
+## Voltando ao artigo
+
+Cobb e Douglas estimaram, para a indústria de transformação dos Estados Unidos entre 1899 e 1922, $\alpha \approx 0{,}25$ e $\beta \approx 0{,}75$ — soma igual a 1 por imposição, já que eles fixaram $\beta = 1 - \alpha$ na estimação original. Foram criticados exatamente por isso: impuseram os retornos constantes em vez de testá-los. Trabalhos posteriores relaxaram a restrição, e o resultado costuma ficar perto de 1 sem ser exatamente 1.
+
+Nós fizemos a versão moderna: estimamos os dois parâmetros livremente e **testamos** a restrição. É a diferença entre supor e verificar.
+
+Duas ressalvas que valem para o que você acabou de estimar:
+
+- **Elasticidade não é causalidade.** Estabelecimentos com mais capital podem diferir em gestão, acesso a crédito e mercado — fatores que também afetam a produção e não estão no modelo. O coeficiente mede associação condicional.
+- **A forma funcional é uma escolha, não um dado.** A Cobb-Douglas impõe elasticidade de substituição igual a 1 entre capital e trabalho. Existem formas mais flexíveis (CES, translog) que relaxam essa hipótese — e que às vezes rejeitam a Cobb-Douglas.

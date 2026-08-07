@@ -1,0 +1,380 @@
+---
+title: "Aplicação 9 — A reta que recomendaria adubar até a falência"
+subtitle: "Econometria II · Especificação do modelo em uso"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - lmtest
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## O que é uma Aplicação
+
+Nos laboratórios você aprendeu a executar. Aqui você vai **usar** o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.
+
+O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.
+:::
+
+## O problema
+
+As hipóteses do modelo clássico costumam ser apresentadas como uma lista: linearidade, exogeneidade, homocedasticidade, ausência de autocorrelação, normalidade. Há testes conhecidos para quase todas.
+
+A primeira dessas hipóteses é a mais fácil de esquecer e a mais cara quando falha. Ela afirma que o modelo é **linear nos parâmetros e corretamente especificado** — que as variáveis certas estão presentes, na forma funcional certa.
+
+Em 1969, James Ramsey publicou *Tests for Specification Errors in Classical Linear Least-Squares Regression Analysis* e propôs um teste com uma ideia que impressiona pela economia de meios.
+
+Se o modelo estiver corretamente especificado, os valores ajustados $\hat{y}$ contêm toda a informação sistemática que as explicativas conseguem oferecer. Então **potências de $\hat{y}$ não deveriam acrescentar nada**. Basta acrescentá-las ao modelo e testar se são conjuntamente nulas. Se forem significativas, sobrou estrutura que o modelo não capturou.
+
+É o RESET — *Regression Specification Error Test*. Ele não diz o que está errado; diz que algo está.
+
+::: {.callout-tip}
+## Por que isso é diferente dos outros diagnósticos
+
+A heterocedasticidade estraga os erros-padrão e deixa o coeficiente intacto. A multicolinearidade infla a variância e deixa o modelo não-viesado.
+
+O erro de especificação é de outra natureza: ele **enviesa os coeficientes**. Não há correção de erro-padrão que resolva, não há ponderação que ajude. O modelo está estimando os parâmetros de uma equação que não é a equação certa. A única saída é mudar o modelo.
+:::
+
+## Nossa versão
+
+Vamos estimar a resposta da **produtividade da soja** à **adubação nitrogenada**, com dados de 250 talhões experimentais.
+
+A questão é de interesse direto para qualquer produtor: quanto adubo aplicar por hectare. E a agronomia tem uma resposta bem estabelecida — a **lei dos rendimentos decrescentes**. As primeiras doses trazem ganhos grandes; as seguintes, ganhos menores; e a partir de certo ponto o excesso passa a prejudicar a planta.
+
+::: {.callout-important}
+## Estes dados foram gerados por simulação
+
+Não são um experimento de campo. Foram construídos por um processo que **eu conheço** — inclusive a dose exata em que a produtividade para de crescer.
+
+No fim da página eu mostro a equação verdadeira. Você vai poder comparar a recomendação técnica que cada modelo produz com a resposta certa — e calcular quanto custaria seguir a recomendação errada.
+
+Não role até lá antes de estimar.
+:::
+
+## Os dados
+
+```{webr}
+talhoes <- read.csv("dados/adubo_produtividade.csv")
+head(talhoes)
+summary(talhoes)
+```
+
+::: {.callout-tip}
+## O dicionário das variáveis
+
+| Variável | O que é |
+|---|---|
+| `adubo` | Dose de adubo nitrogenado aplicada, em kg/ha |
+| `produtividade` | Produtividade da soja, em sacas/ha |
+
+São 250 talhões, com doses distribuídas entre 20 e 320 kg/ha. A produtividade varia de cerca de 39 a 132 sacas por hectare.
+:::
+
+## O modelo linear
+
+Comece pelo mais direto: produtividade explicada linearmente pela dose.
+
+```{webr}
+linear <- lm(produtividade ~ adubo, data = talhoes)
+summary(linear)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O coeficiente do adubo é cerca de **0,181**: cada quilo a mais de nitrogênio por hectare estaria associado a 0,18 saca a mais de produtividade.
+
+A estatística t passa de **16**, com valor-p praticamente zero. O R² fica em torno de **0,54**.
+
+Uma relação positiva, forte, estatisticamente inquestionável. E a recomendação técnica que sai daqui é simples: **quanto mais adubo, mais produtividade**. Como o coeficiente é constante e positivo, o modelo afirma que a dose 400 rende mais que a 300, que rende mais que a 200, sem limite.
+
+Nenhum agrônomo assinaria essa frase. Vamos ver se a econometria consegue detectá-la sozinha.
+:::
+
+## Os resíduos denunciam
+
+```{webr}
+library(ggplot2)
+talhoes$residuo <- resid(linear)
+ggplot(talhoes, aes(adubo, residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_smooth(se = FALSE, colour = "#1E2761") +
+  labs(title = "Resíduos do modelo linear contra a dose",
+       x = "Adubo (kg/ha)", y = "Resíduo") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Aqui não há aleatoriedade nenhuma. Os resíduos desenham um **arco**: negativos nas doses baixas, positivos nas doses intermediárias, negativos de novo nas doses altas.
+
+Um resíduo é o que o modelo não explicou. Quando ele tem forma tão marcada, a mensagem é direta: existe estrutura sistemática nos dados que o modelo deixou de fora.
+
+E a forma do arco identifica a estrutura ausente. Uma curvatura côncava nos resíduos indica que faltou uma curvatura côncava no modelo.
+:::
+
+## O teste RESET
+
+```{webr}
+library(lmtest)
+resettest(linear, power = 2:3, type = "fitted")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A hipótese nula do RESET é a de **especificação correta**.
+
+A estatística F passa de **1.100**, com valor-p da ordem de $10^{-93}$. Rejeitamos a especificação linear de forma esmagadora.
+
+Vale entender o que o teste fez, porque a mecânica é simples e vale mais que a saída: ele estimou o modelo original, guardou os valores ajustados $\hat{y}$, acrescentou $\hat{y}^2$ e $\hat{y}^3$ como regressores adicionais e testou se os coeficientes desses dois termos são conjuntamente nulos. Como não são, há informação sistemática que o modelo linear não capturou.
+
+Repare no que o teste **não** diz. Ele não indica que a forma correta é quadrática, nem qual variável está faltando, nem se o problema é a escala. Ele aponta que há um problema. Diagnosticar qual exige olhar os resíduos e pensar no fenômeno.
+:::
+
+## A correção
+
+A teoria agronômica sugere rendimentos decrescentes, e os resíduos mostram um arco. As duas coisas apontam para um termo quadrático.
+
+```{webr}
+quadratico <- lm(produtividade ~ adubo + I(adubo^2), data = talhoes)
+summary(quadratico)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Tudo muda:
+
+O coeficiente linear sobe de 0,181 para cerca de **0,864** — quase cinco vezes maior.
+
+O coeficiente quadrático fica em torno de **−0,00195**, com t de aproximadamente **−33**. O sinal negativo é a curvatura côncava: os retornos decrescem, exatamente como a agronomia previa.
+
+O R² sobe de 0,54 para cerca de **0,92**, e o desvio-padrão residual cai de 14,8 para 6,3 sacas — o erro típico de previsão caiu pela metade.
+:::
+
+```{webr}
+resettest(quadratico, power = 2:3, type = "fitted")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Agora o valor-p fica em torno de **0,09** — acima de 0,05. Não rejeitamos a especificação.
+
+Honestidade obriga a registrar que a folga é pequena: a 10% de significância, o teste rejeitaria. Isso é normal com 250 observações e um modelo que, embora correto na forma, é uma aproximação simples de um fenômeno biológico. O RESET é um teste sensível, e "não rejeitar" nunca significa "está provado que está certo".
+:::
+
+## A pergunta que o produtor faz
+
+Modelos econométricos existem para responder perguntas práticas. A daqui é: **qual a dose que maximiza a produtividade?**
+
+```{webr}
+b <- coef(quadratico)
+dose_otima <- -b[2] / (2 * b[3])
+dose_otima
+```
+
+::: {.callout-important}
+## Duas recomendações técnicas incompatíveis
+
+O modelo quadrático responde: **cerca de 221 kg/ha**. Acima disso, cada quilo adicional de nitrogênio **reduz** a produtividade.
+
+O modelo linear não tem resposta para essa pergunta — e é aí que mora o perigo. Ele não diz "não sei"; ele diz, implicitamente, que a dose ótima é infinita. Um técnico que confiasse nele recomendaria aumentar a adubação indefinidamente, e cada quilo acima de 221 seria dinheiro gasto para **perder** produtividade.
+
+O erro de especificação não ficou nos números da tabela. Ele saiu do computador e virou uma recomendação de campo que custa caro.
+:::
+
+## Exercícios
+
+Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.
+
+### Exercício 1 — o RESET na mão
+
+Reproduza o teste RESET manualmente, com um `lm()` e um `anova()`.
+
+```{webr}
+#| exercise: ap9_ex1
+talhoes$ajustado <- fitted(______)
+aumentado <- lm(produtividade ~ adubo + I(ajustado^2) + I(ajustado^3), data = talhoes)
+anova(linear, ______)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As lacunas são `linear` e `aumentado`. O `anova()` compara os dois modelos aninhados e devolve o teste F.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+talhoes$ajustado <- fitted(linear)
+aumentado <- lm(produtividade ~ adubo + I(ajustado^2) + I(ajustado^3), data = talhoes)
+anova(linear, aumentado)
+```
+
+O F bate com o do `resettest()`. Todo o teste de Ramsey cabe em três linhas: ajuste o modelo, acrescente potências do ajustado, compare.
+
+A elegância está em não precisar saber **qual** variável ou forma está faltando. Como $\hat{y}$ é uma combinação linear de todas as explicativas, suas potências geram automaticamente quadrados e produtos cruzados de todas elas. O teste procura em muitas direções ao mesmo tempo.
+:::
+
+### Exercício 2 — comparando por critério de informação
+
+O R² sempre sobe quando se acrescenta variável. Use um critério que penalize a complexidade.
+
+```{webr}
+#| exercise: ap9_ex2
+AIC(linear, ______)
+BIC(linear, ______)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As duas lacunas são `quadratico`. Nos dois critérios, menor é melhor.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+AIC(linear, quadratico)
+BIC(linear, quadratico)
+```
+
+O AIC cai de cerca de 2.059 para 1.634 — uma diferença de mais de 400 pontos. Em comparação de modelos, diferenças acima de 10 já são consideradas decisivas.
+
+O quadrático vence por larga margem mesmo pagando a penalidade de um parâmetro extra. Quando um termo adicional é realmente necessário, os critérios de informação o aprovam sem hesitação. É a diferença entre acrescentar estrutura e acrescentar ruído — compare com o que aconteceu no polinômio de grau 8 da Aplicação 6.
+:::
+
+### Exercício 3 — o custo do erro, em sacas
+
+Compare o que cada modelo prevê em três doses e meça a diferença.
+
+```{webr}
+#| exercise: ap9_ex3
+doses <- data.frame(adubo = c(50, 150, 300))
+prev_linear <- predict(linear, newdata = ______)
+prev_quad   <- predict(quadratico, newdata = ______)
+data.frame(
+  adubo       = doses$adubo,
+  linear      = round(prev_linear, 1),
+  quadratico  = round(prev_quad, 1),
+  diferenca   = round(prev_linear - prev_quad, 1)
+)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As duas lacunas são `doses`. Olhe o **sinal** da diferença em cada linha.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+doses <- data.frame(adubo = c(50, 150, 300))
+prev_linear <- predict(linear, newdata = doses)
+prev_quad   <- predict(quadratico, newdata = doses)
+data.frame(
+  adubo       = doses$adubo,
+  linear      = round(prev_linear, 1),
+  quadratico  = round(prev_quad, 1),
+  diferenca   = round(prev_linear - prev_quad, 1)
+)
+```
+
+Na dose 50, o linear **superestima** em cerca de 15 sacas. Na dose 150, **subestima** em cerca de 14. Na dose 300, superestima de novo em cerca de 16.
+
+O padrão dos erros — mais, menos, mais — é o arco dos resíduos aparecendo nas previsões. Erro de especificação não produz erro aleatório: produz erro **sistemático**, com direção previsível conforme a região dos dados. É por isso que ele é mais perigoso que ruído.
+:::
+
+### Exercício 4 — a curva completa
+
+Coloque num gráfico os dados e as duas curvas ajustadas.
+
+```{webr}
+#| exercise: ap9_ex4
+ggplot(talhoes, aes(adubo, produtividade)) +
+  geom_point(alpha = 0.4, colour = "grey40") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, colour = "#C0392B") +
+  geom_smooth(method = "lm", formula = y ~ x + I(x^______), se = FALSE, colour = "#1E2761") +
+  geom_vline(xintercept = dose_otima, linetype = "dashed") +
+  labs(title = "Reta (vermelho) e parábola (azul)",
+       subtitle = "A linha tracejada marca a dose ótima estimada",
+       x = "Adubo (kg/ha)", y = "Produtividade (sacas/ha)") +
+  theme_minimal()
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `2`. Observe onde as duas curvas mais se afastam.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+ggplot(talhoes, aes(adubo, produtividade)) +
+  geom_point(alpha = 0.4, colour = "grey40") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, colour = "#C0392B") +
+  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = FALSE, colour = "#1E2761") +
+  geom_vline(xintercept = dose_otima, linetype = "dashed") +
+  labs(title = "Reta (vermelho) e parábola (azul)",
+       subtitle = "A linha tracejada marca a dose ótima estimada",
+       x = "Adubo (kg/ha)", y = "Produtividade (sacas/ha)") +
+  theme_minimal()
+```
+
+A parábola acompanha a nuvem de pontos; a reta a corta em diagonal, passando por baixo nas extremidades e por cima no meio.
+
+O gráfico deixa claro o que o teste apenas indicava. Vale a lição de método: com um único regressor, olhar o gráfico teria resolvido em segundos. Com cinco ou dez regressores, não há gráfico que mostre a superfície — e é aí que o RESET se torna indispensável.
+:::
+
+### Exercício 5 — escrevendo o resultado
+
+Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: a rejeição da especificação linear com o teste, os coeficientes do modelo corrigido, a dose ótima, e uma frase sobre a implicação prática.
+
+::: {.callout-note collapse="true" title="Um parágrafo possível"}
+A especificação linear da função de resposta da soja à adubação nitrogenada, estimada em 250 talhões, é rejeitada pelo teste RESET de Ramsey (F = 1.114,8; p < 0,001), com resíduos exibindo padrão côncavo sistemático em relação à dose. A especificação quadrática — compatível com a lei dos rendimentos decrescentes — fornece coeficientes de 0,864 para a dose (IC 95%: 0,823 a 0,906) e −0,00195 para seu quadrado (IC 95%: −0,00207 a −0,00184), elevando o R² de 0,536 para 0,916 e reduzindo o desvio-padrão residual de 14,8 para 6,3 sacas/ha. O RESET aplicado ao modelo corrigido não rejeita a especificação a 5% (p = 0,089). A dose maximizadora estimada é de 221,3 kg/ha, acima da qual a produtividade decresce — resultado que a especificação linear seria incapaz de identificar.
+
+Repare no que o parágrafo faz: rejeita a especificação com o teste e com a evidência gráfica, justifica a alternativa pela teoria antes de estimá-la, reporta a melhora do ajuste e fecha com a implicação prática que só o modelo correto permite.
+:::
+
+## O que estava por trás dos dados
+
+Chegou a hora. A produtividade desta amostra foi gerada por esta equação:
+
+$$
+\text{produtividade} = 28{,}00 + 0{,}850\,\text{adubo} - 0{,}00190\,\text{adubo}^2 + u
+$$
+
+com $u$ sorteado de uma normal de média zero e desvio-padrão 6,20. A dose que maximiza a produtividade verdadeira é $-0{,}850/(2 \times -0{,}00190) = 223{,}7$ kg/ha.
+
+| Parâmetro | Valor verdadeiro | Modelo quadrático | Intervalo de 95% | Modelo linear |
+|---|---|---|---|---|
+| Intercepto | 28,00 | 27,42 | [24,25 ; 30,58] | 72,22 |
+| adubo | **0,850** | **0,864** | [0,823 ; 0,906] | 0,181 |
+| adubo² | **−0,00190** | **−0,00195** | [−0,00207 ; −0,00184] | ausente |
+| $\sigma$ | 6,20 | 6,32 | — | 14,81 |
+| **Dose ótima** | **223,7 kg/ha** | **221,3 kg/ha** | — | **infinita** |
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. O modelo correto recuperou tudo.** Os três coeficientes caíram dentro dos intervalos, o desvio-padrão residual estimado (6,32) praticamente coincide com o verdadeiro (6,20), e a dose ótima estimada (221,3) errou a verdadeira (223,7) por pouco mais de 1%. Quando a especificação corresponde ao processo gerador, o MQO faz o que promete.
+
+**2. O modelo linear não errou "um pouco" — ele respondeu outra coisa.** O coeficiente do adubo saiu 0,181 contra 0,850 verdadeiro: menos de um quarto. O intercepto saiu 72,2 contra 28,0. Não é imprecisão; é que os parâmetros de uma reta ajustada a uma parábola **não têm interpretação** nos termos do modelo verdadeiro. Eles são o que são: a melhor reta possível para dados que não são uma reta.
+
+**3. Todos os outros diagnósticos teriam passado.** Os resíduos do modelo linear são aproximadamente homocedásticos, não têm autocorrelação (DW ≈ 2,05), e o coeficiente é significativo com t de 17. Se você tivesse aplicado a bateria completa da Econometria II **exceto** o RESET, o modelo linear passaria em tudo. O erro de especificação não se manifesta nos testes que procuram outra coisa — ele exige o teste que procura por ele.
+:::
+
+## Voltando ao artigo
+
+Ramsey propôs o RESET num contexto em que os testes de especificação disponíveis exigiam que o pesquisador dissesse **contra qual alternativa** estava testando. Se você suspeitava de um termo quadrático, testava o termo quadrático; se suspeitava de uma variável omitida, precisava tê-la em mãos para incluir.
+
+A contribuição foi construir um teste que não exige a alternativa. Ele detecta uma classe ampla de erros — forma funcional errada, variável relevante omitida, correlação entre regressores e erro — usando apenas o que o próprio modelo produziu.
+
+Essa generalidade é também a sua limitação, e Ramsey era explícito quanto a isso. Um RESET significativo informa que há problema, não qual é. O passo seguinte é sempre trabalho de economista, não de software: olhar os resíduos, revisitar a teoria do fenômeno e propor uma especificação melhor. Foi exatamente o que fizemos aqui — a agronomia sugeriu rendimentos decrescentes muito antes de o termo quadrático entrar no `lm()`.
+
+Duas ressalvas que valem para o que você acabou de estimar:
+
+- **Não rejeitar não é validar.** O modelo quadrático passou no RESET com p de 0,089 — uma folga estreita. Pode existir uma especificação melhor que este teste, com esta amostra, não consegue distinguir. Passar num teste de especificação significa apenas que aquele teste não encontrou problema.
+- **Cuidado ao extrapolar a parábola.** A dose ótima de 221 kg/ha vem de um modelo estimado com doses entre 20 e 320. Fora dessa faixa, a parábola prevê produtividades negativas para doses muito altas — o que é matematicamente inevitável e biologicamente absurdo. Modelos valem no domínio dos dados que os geraram.

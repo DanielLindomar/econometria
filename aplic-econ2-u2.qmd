@@ -1,0 +1,404 @@
+---
+title: "Aplicação 8 — O coeficiente está certo, o erro-padrão está errado"
+subtitle: "Econometria II · Heterocedasticidade em uso"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - lmtest
+    - sandwich
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## O que é uma Aplicação
+
+Nos laboratórios você aprendeu a executar. Aqui você vai **usar** o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.
+
+O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.
+:::
+
+## O problema
+
+Uma das hipóteses do modelo clássico é a homocedasticidade: a variância do erro é a mesma para todas as observações. Em dados de empresas, de famílias ou de municípios, essa hipótese quase nunca se sustenta. Unidades maiores variam mais, em termos absolutos, do que unidades pequenas — e não há nada de estranho nisso.
+
+A pergunta é o que fazer a respeito. Até o final dos anos 1970, a resposta padrão exigia **saber a forma** da heterocedasticidade: supunha-se que $\sigma_i^2$ era proporcional a alguma variável, estimava-se por mínimos quadrados ponderados e seguia-se em frente. Se a suposição sobre a forma estivesse errada, o remédio podia ser pior que a doença.
+
+Em 1980, Halbert White publicou *A Heteroskedasticity-Consistent Covariance Matrix Estimator and a Direct Test for Heteroskedasticity* e resolveu o problema de um jeito que hoje parece óbvio e na época não era: mostrou que é possível corrigir os erros-padrão **sem saber nada** sobre a forma da heterocedasticidade. Basta usar os resíduos observados para estimar a matriz de covariância.
+
+O artigo é um dos mais citados da história da economia. A expressão "erros-padrão robustos", que você vê em quase toda tabela de resultados publicada hoje, vem daqui.
+
+::: {.callout-tip}
+## O que exatamente a heterocedasticidade estraga
+
+Esta é a parte que costuma se embaralhar na cabeça de quem está aprendendo, então vale fixar:
+
+**O que continua certo:** o estimador MQO permanece **não-viesado** e **consistente**. O coeficiente estimado continua sendo, em média, o valor verdadeiro. Nada de errado com o número que aparece na coluna `Estimate`.
+
+**O que fica errado:** a fórmula do **erro-padrão**. E, por consequência, a estatística t, o valor-p, o intervalo de confiança e o teste F. Ou seja: todo o aparato de inferência.
+
+**O que se perde:** a eficiência. O MQO deixa de ser o de menor variância entre os não-viesados — o teorema de Gauss-Markov depende da homocedasticidade.
+
+Então o problema não é o que você estimou. É o quanto você acha que confia nisso.
+:::
+
+## Nossa versão
+
+Vamos estimar quanto as empresas gastam em **pesquisa e desenvolvimento** em função do seu **faturamento**, com dados de 300 empresas industriais.
+
+A expectativa é que empresas maiores gastem mais em P&D — e também que **variem mais**: uma empresa de R\$ 20 milhões pode gastar R\$ 2 milhões ou R\$ 3,5 milhões conforme a estratégia, enquanto uma de R\$ 800 mil não tem essa margem de manobra.
+
+::: {.callout-important}
+## Estes dados foram gerados por simulação
+
+Não são uma pesquisa de campo. Foram construídos por um processo que **eu conheço** — inclusive a forma exata da heterocedasticidade.
+
+No fim da página eu mostro o coeficiente verdadeiro e a regra que governa a variância do erro. Você vai poder verificar qual dos três procedimentos — MQO simples, MQO com erros robustos, mínimos quadrados ponderados — chegou mais perto, e por quanto.
+
+Não role até lá antes de estimar.
+:::
+
+## Os dados
+
+```{webr}
+empresas <- read.csv("dados/pd_empresas.csv")
+head(empresas)
+summary(empresas)
+```
+
+::: {.callout-tip}
+## O dicionário das variáveis
+
+| Variável | O que é |
+|---|---|
+| `faturamento` | Receita bruta anual, em R\$ mil |
+| `gasto_pd` | Dispêndio anual em pesquisa e desenvolvimento, em R\$ mil |
+
+São 300 empresas. O faturamento vai de R\$ 600 mil a cerca de R\$ 17 milhões — uma amplitude de quase trinta vezes. É nesse tipo de amostra que a heterocedasticidade costuma aparecer.
+:::
+
+## Primeiro olhar: o cone
+
+```{webr}
+library(ggplot2)
+ggplot(empresas, aes(faturamento, gasto_pd)) +
+  geom_point(alpha = 0.5, colour = "#1E2761") +
+  geom_smooth(method = "lm", se = FALSE, colour = "#C0392B") +
+  labs(title = "Gasto em P&D e faturamento",
+       x = "Faturamento (R$ mil)", y = "Gasto em P&D (R$ mil)") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A relação positiva é evidente. Mas o que interessa aqui não é a inclinação, é a **abertura**.
+
+À esquerda, perto da origem, os pontos se apertam contra a reta. À direita, eles se espalham numa faixa cada vez mais larga. A nuvem tem forma de cone.
+
+Esse cone é a assinatura visual da heterocedasticidade. Uma nuvem homocedástica teria espessura constante do começo ao fim.
+:::
+
+## O modelo por MQO
+
+```{webr}
+mqo <- lm(gasto_pd ~ faturamento, data = empresas)
+summary(mqo)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O coeficiente do faturamento é cerca de **0,1318**: cada R\$ 1 mil de faturamento a mais está associado a R\$ 132 a mais de gasto em P&D — pouco mais de 13% da receita marginal.
+
+O erro-padrão é **0,00431**, o t passa de **30** e o R² fica em torno de **0,76**.
+
+Uma tabela impecável. Se a heterocedasticidade não fosse verificada, esses seriam os números reportados — e o intervalo de confiança de 95%, de 0,1233 a 0,1403, seria estreito demais.
+:::
+
+## Os resíduos denunciam
+
+```{webr}
+empresas$residuo <- resid(mqo)
+ggplot(empresas, aes(faturamento, residuo)) +
+  geom_point(alpha = 0.5, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Resíduos contra o faturamento",
+       x = "Faturamento (R$ mil)", y = "Resíduo") +
+  theme_minimal()
+```
+
+```{webr}
+empresas$quartil <- cut(empresas$faturamento,
+                        breaks = quantile(empresas$faturamento, probs = seq(0, 1, 0.25)),
+                        labels = c("Q1", "Q2", "Q3", "Q4"), include.lowest = TRUE)
+aggregate(residuo ~ quartil, data = empresas, FUN = sd)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O gráfico mostra o mesmo cone, agora sem a inclinação atrapalhando: os resíduos se abrem à medida que o faturamento cresce.
+
+A tabela quantifica. O desvio-padrão dos resíduos vai de cerca de **57** no primeiro quartil de faturamento a cerca de **355** no quarto. Um aumento de **seis vezes**.
+
+O MQO calculou o erro-padrão dos coeficientes supondo que esse número fosse **o mesmo** para as 300 empresas — cerca de 200, a média. Para as empresas pequenas ele superestima a incerteza; para as grandes, subestima grosseiramente. E são justamente as grandes que mais influenciam a inclinação da reta.
+:::
+
+## Os testes formais
+
+```{webr}
+library(lmtest)
+bptest(mqo)
+```
+
+```{webr}
+bptest(mqo, ~ faturamento + I(faturamento^2), data = empresas)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Os dois testes têm como hipótese nula a **homocedasticidade**.
+
+O **Breusch-Pagan** dá estatística em torno de 72,6 com valor-p da ordem de $10^{-17}$. O **teste de White** — que é o mesmo teste com os quadrados incluídos — dá cerca de 87,3, com valor-p ainda menor.
+
+Rejeitamos a homocedasticidade sem margem para dúvida.
+
+A diferença entre os dois vale registrar: o Breusch-Pagan procura heterocedasticidade que seja **linear** nas explicativas; o de White inclui quadrados e produtos cruzados e detecta formas mais gerais. Por isso o de White é o mais usado como teste de propósito geral — ele não exige que você adivinhe a forma do problema.
+:::
+
+## A solução de White
+
+```{webr}
+library(sandwich)
+coeftest(mqo, vcov = vcovHC(mqo, type = "HC1"))
+```
+
+::: {.callout-important}
+## Compare as duas tabelas linha por linha
+
+| | MQO clássico | MQO robusto |
+|---|---|---|
+| Coeficiente | 0,13182 | **0,13182** |
+| Erro-padrão | 0,00431 | **0,00850** |
+| Estatística t | 30,60 | 15,51 |
+| IC 95% | [0,1233 ; 0,1403] | [0,1151 ; 0,1486] |
+
+O **coeficiente não mudou nada** — nem na quinta casa decimal. Era de se esperar: a correção de White não toca no estimador dos parâmetros, apenas na matriz de covariância.
+
+O **erro-padrão praticamente dobrou**: de 0,0043 para 0,0085, uma razão de 1,97. O erro-padrão clássico estava subestimando a incerteza em quase 50%.
+
+O **intervalo de confiança ficou o dobro de largo**. Esta é a informação que estava sendo escondida.
+
+Neste caso a conclusão qualitativa não muda — o coeficiente continua altamente significativo com t de 15,5. Mas imagine um coeficiente com t clássico de 2,3: robustecido, ele cairia para 1,2 e deixaria de ser significativo. É assim que resultados publicados desaparecem quando alguém refaz as contas.
+:::
+
+## A alternativa: ponderar
+
+White resolveu o problema da inferência. Existe outro caminho, que resolve também o problema da **eficiência** — mas cobra um preço.
+
+Se soubermos como a variância se comporta, podemos dar menos peso às observações mais ruidosas. É o método dos mínimos quadrados ponderados.
+
+```{webr}
+mqp <- lm(gasto_pd ~ faturamento, data = empresas,
+          weights = 1 / faturamento^2.3)
+summary(mqp)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O coeficiente muda para cerca de **0,1251**, e o erro-padrão cai para aproximadamente **0,00286** — menor que o do MQO clássico e um terço do robusto.
+
+Isso é ganho de eficiência real: ao dar mais peso às empresas pequenas, cujos dados são mais informativos por serem menos ruidosos, o estimador extrai mais informação da mesma amostra.
+
+O preço está no expoente `2.3`. De onde ele saiu? Eu sabia a resposta porque gerei os dados. Com dados reais, esse expoente é um chute — e um chute errado produz um estimador que não é nem eficiente nem confiável.
+
+É por isso que a prática dominante hoje é a de White: aceita-se perder eficiência em troca de não precisar supor nada. Robustez vale mais que eficiência quando não se sabe a forma do problema — e quase nunca se sabe.
+:::
+
+## Exercícios
+
+Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.
+
+### Exercício 1 — a tabela que um artigo publicaria
+
+Monte uma tabela comparando os erros-padrão clássico e robusto.
+
+```{webr}
+#| exercise: ap8_ex1
+se_classico <- summary(mqo)$coefficients[, 2]
+se_robusto  <- sqrt(diag(vcovHC(______, type = "HC1")))
+data.frame(
+  coeficiente = round(coef(mqo), 5),
+  se_classico = round(se_classico, 5),
+  se_robusto  = round(______, 5),
+  razao       = round(se_robusto / se_classico, 3)
+)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As lacunas são `mqo` e `se_robusto`. A função `diag()` extrai a diagonal da matriz de covariância; a raiz quadrada dela são os erros-padrão.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+se_classico <- summary(mqo)$coefficients[, 2]
+se_robusto  <- sqrt(diag(vcovHC(mqo, type = "HC1")))
+data.frame(
+  coeficiente = round(coef(mqo), 5),
+  se_classico = round(se_classico, 5),
+  se_robusto  = round(se_robusto, 5),
+  razao       = round(se_robusto / se_classico, 3)
+)
+```
+
+A razão fica em torno de 1,97 para o coeficiente do faturamento e de 1,39 para o intercepto.
+
+Repare que a correção não é uniforme: cada coeficiente é afetado de maneira diferente, dependendo de como a variância do erro se relaciona com aquela variável. Não existe um fator único de ajuste — é por isso que a correção precisa ser calculada, e não estimada de cabeça.
+:::
+
+### Exercício 2 — o teste de White na mão
+
+O teste de White é uma regressão auxiliar. Faça-a passo a passo.
+
+```{webr}
+#| exercise: ap8_ex2
+empresas$res2 <- resid(mqo)^2
+auxiliar <- lm(res2 ~ faturamento + I(faturamento^______), data = empresas)
+r2_aux <- summary(auxiliar)$r.squared
+LM <- nrow(empresas) * ______
+LM
+pchisq(LM, df = 2, lower.tail = FALSE)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A primeira lacuna é `2` (o termo quadrático) e a segunda é `r2_aux`. A estatística é $LM = n \cdot R^2_{aux}$.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+empresas$res2 <- resid(mqo)^2
+auxiliar <- lm(res2 ~ faturamento + I(faturamento^2), data = empresas)
+r2_aux <- summary(auxiliar)$r.squared
+LM <- nrow(empresas) * r2_aux
+LM
+pchisq(LM, df = 2, lower.tail = FALSE)
+```
+
+O valor bate com a saída do `bptest()` na versão de White.
+
+Vale entender a lógica, que é elegante: sob homocedasticidade, o quadrado do resíduo não deveria ter relação nenhuma com as explicativas. Se a regressão auxiliar consegue explicar alguma coisa — $R^2$ maior que zero por uma margem estatisticamente relevante —, há heterocedasticidade. O teste todo cabe em três linhas.
+:::
+
+### Exercício 3 — o que acontece com o teste F
+
+A heterocedasticidade também contamina o teste F. Compare a versão clássica com a robusta.
+
+```{webr}
+#| exercise: ap8_ex3
+summary(mqo)$fstatistic
+waldtest(mqo, vcov = vcovHC(______, type = "HC1"))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `mqo`. O `waldtest()` do pacote `lmtest` aceita uma matriz de covariância alternativa.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+summary(mqo)$fstatistic
+waldtest(mqo, vcov = vcovHC(mqo, type = "HC1"))
+```
+
+O F clássico fica em torno de 936; o robusto cai para cerca de 241. Os dois rejeitam a nula com folga neste caso, mas a diferença de magnitude mostra que o problema não se restringe aos testes t individuais.
+
+A regra prática: se você corrigiu os erros-padrão, corrija também os testes conjuntos. Reportar t robusto e F clássico na mesma tabela é uma inconsistência comum e fácil de evitar.
+:::
+
+### Exercício 4 — heterocedasticidade e forma funcional
+
+Existe uma terceira saída: mudar a escala das variáveis. Estime o modelo em logaritmos e reteste.
+
+```{webr}
+#| exercise: ap8_ex4
+log_modelo <- lm(log(gasto_pd) ~ log(______), data = empresas)
+bptest(log_modelo)
+summary(log_modelo)$coefficients
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `faturamento`. Compare o valor-p do teste com o obtido no modelo em nível.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+log_modelo <- lm(log(gasto_pd) ~ log(faturamento), data = empresas)
+bptest(log_modelo)
+summary(log_modelo)$coefficients
+```
+
+O valor-p do Breusch-Pagan sai de cerca de $10^{-17}$ no modelo em nível para aproximadamente **0,005** no modelo em log. É uma melhora de quinze ordens de grandeza — mas repare: **ainda rejeita** a homocedasticidade a 5%.
+
+Guarde esse resultado, porque ele é mais instrutivo que um "problema resolvido". O logaritmo comprime a escala e reduz muito a dispersão dos erros das empresas grandes, sem eliminá-la. A conduta correta continua sendo usar erros robustos, agora no modelo em log.
+
+Note também que a elasticidade estimada fica em torno de **0,99** — praticamente 1, o que significa gasto em P&D aproximadamente proporcional ao faturamento. Mas atenção: o modelo em log responde a outra pergunta. O coeficiente é uma variação percentual, não um valor em reais. A escolha entre nível e log deve vir da pergunta de pesquisa; reduzir heterocedasticidade é efeito colateral bem-vindo, não justificativa.
+:::
+
+### Exercício 5 — escrevendo o resultado
+
+Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: a evidência de heterocedasticidade com os testes, o coeficiente estimado, os erros-padrão nas duas versões, e a explicitação de qual foi adotado.
+
+::: {.callout-note collapse="true" title="Um parágrafo possível"}
+A estimação por MQO da relação entre dispêndio em P&D e faturamento, para 300 empresas industriais, fornece coeficiente de 0,1318 (R² = 0,759), indicando que aproximadamente 13,2% do faturamento marginal se converte em gasto com pesquisa. Os testes de Breusch-Pagan (LM = 72,6; p < 0,001) e de White (LM = 87,3; p < 0,001) rejeitam a hipótese de homocedasticidade, e o desvio-padrão dos resíduos varia de 57,3 no primeiro quartil de faturamento a 355,0 no quarto. Adotam-se erros-padrão consistentes na presença de heterocedasticidade (White, 1980; HC1), que elevam o erro-padrão do coeficiente de 0,0043 para 0,0085 e ampliam o intervalo de 95% para 0,1151 a 0,1486. A significância do coeficiente é preservada (t = 15,5).
+
+Repare no que o parágrafo faz: apresenta a evidência antes do remédio, nomeia a variante usada (HC1), quantifica o efeito da correção e informa que a conclusão sobreviveu a ela.
+:::
+
+## O que estava por trás dos dados
+
+Chegou a hora. O gasto em P&D desta amostra foi gerado por esta equação:
+
+$$
+\text{gasto}_i = 4{,}80 + 0{,}128\,\text{faturamento}_i + u_i
+$$
+
+com o erro sorteado de uma normal de média zero e **desvio-padrão que depende do faturamento**:
+
+$$
+\sigma_i = 0{,}0085 \times \text{faturamento}_i^{1{,}15}
+$$
+
+| Procedimento | Coeficiente | Erro-padrão | O que ele acerta |
+|---|---|---|---|
+| **Verdade** | **0,1280** | — | — |
+| MQO clássico | 0,1318 | 0,0043 | coeficiente sim, inferência não |
+| MQO robusto | 0,1318 | 0,0085 | coeficiente sim, inferência sim |
+| Ponderado | 0,1251 | 0,0029 | os dois, se a forma estiver certa |
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. O MQO não errou o coeficiente.** O verdadeiro é 0,1280 e a estimativa deu 0,1318 — diferença de 3%, dentro do intervalo. A heterocedasticidade não introduziu viés algum, exatamente como a teoria promete. Quem "corrige" heterocedasticidade esperando que o coeficiente mude não entendeu o problema.
+
+**2. O erro-padrão clássico estava errado por um fator de dois — e nada na saída avisava.** O `summary()` reportou 0,0043 com toda a confiança do mundo. Não há asterisco, aviso ou nota de rodapé indicando que aquele número pressupõe uma hipótese que os dados rejeitam. O único jeito de descobrir é testar.
+
+**3. O ponderado ganhou porque eu contei o segredo.** Com peso $1/\text{faturamento}^{2{,}3}$ — que é aproximadamente $1/\sigma_i^2$, já que $2 \times 1{,}15 = 2{,}3$ —, o estimador chegou a 0,1251, mais perto do verdadeiro, e com o menor erro-padrão dos três. Foi o melhor procedimento **porque eu usei a resposta**. Num trabalho real, essa informação não existe, e um expoente chutado errado destrói a vantagem. É a razão de a correção de White ter vencido a disputa na prática: ela não pede nada em troca.
+:::
+
+## Voltando ao artigo
+
+O artigo de White tem duas contribuições, e o título anuncia as duas: um **estimador** consistente da matriz de covariância e um **teste direto** de heterocedasticidade. As duas se tornaram padrão, e é curioso que a segunda seja hoje menos usada que a primeira — a prática dominante em muitas áreas é reportar erros robustos direto, sem testar antes, já que a correção não custa nada quando não há heterocedasticidade.
+
+A ideia foi estendida para outros contextos com a mesma lógica: Newey e West (1987) construíram erros-padrão robustos simultaneamente a heterocedasticidade **e autocorrelação**, para séries temporais; a literatura de dados agrupados desenvolveu os erros-padrão *clusterizados*, que hoje são obrigatórios em qualquer trabalho com dados de painel ou com tratamento aplicado por grupo. Todos partem do mesmo insight de White: não modele a estrutura do erro, estime-a a partir dos resíduos.
+
+Duas ressalvas que valem para o que você acabou de estimar:
+
+- **Robusto não é mágico.** A propriedade de White é assintótica — vale para amostras grandes. Com 30 observações, os erros-padrão robustos podem ser piores que os clássicos. As variantes HC2 e HC3 existem justamente para melhorar o desempenho em amostras pequenas, e HC3 é a recomendação usual abaixo de umas 250 observações.
+- **Heterocedasticidade pode ser sintoma, não doença.** Às vezes o cone nos resíduos indica forma funcional errada, e não variância variável. Se o modelo em log resolve o problema, vale perguntar se a especificação em nível fazia sentido econômico desde o início — assunto da próxima aplicação.

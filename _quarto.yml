@@ -29,6 +29,14 @@ website:
       - text: "Aplicações"
         menu:
           - aplic-econ1-u1.qmd
+          - aplic-econ1-u2.qmd
+          - aplic-econ1-u3.qmd
+          - aplic-econ1-u4.qmd
+          - aplic-econ1-u5.qmd
+          - aplic-econ1-u6.qmd
+          - aplic-econ2-u1.qmd
+          - aplic-econ2-u2.qmd
+          - aplic-econ2-u3.qmd
       - text: "Curso de R"
         menu:
           - r-aula01.qmd

@@ -10,7 +10,15 @@ engine: knitr
 ![](logo-unemat.png){width="110"}
 :::
 
-Bem-vindo! Nesta página estão os **laboratórios interativos** de Econometria I e II e o **curso de R** da disciplina. Em todas as páginas o R roda **no seu navegador** — nada precisa ser instalado.
+Bem-vindo! Nesta página estão os **laboratórios interativos** de Econometria I e II, as **aplicações** por unidade e o **curso de R** da disciplina. Em todas as páginas o R roda **no seu navegador** — nada precisa ser instalado.
+
+::: {.callout-tip}
+## Laboratórios e Aplicações — qual é a diferença
+
+Os **laboratórios** ensinam a ferramenta: como carregar dados, estimar, testar, interpretar cada saída.
+
+As **aplicações** usam a ferramenta para responder a uma pergunta de pesquisa. Cada uma parte de um artigo que marcou a literatura econômica e o reconstrói com dados simulados — o que permite, no fim da página, revelar os valores verdadeiros dos parâmetros e comparar com o que você estimou. É a única circunstância em que se pode verificar se o método acertou.
+:::
 
 ## Econometria I — Laboratórios
 
@@ -33,6 +41,29 @@ Bem-vindo! Nesta página estão os **laboratórios interativos** de Econometria 
 | 7 | [Multicolinearidade](econ2-lab07.qmd) | Detecção e correção |
 | 8 | [Heterocedasticidade e autocorrelação](econ2-lab08.qmd) | Testes e erros-padrão robustos |
 | 9 | [Especificação do modelo](econ2-lab09.qmd) | RESET, variáveis omitidas e proxies |
+
+## Aplicações — um artigo por unidade
+
+Cada aplicação replica a **ideia** de um artigo de referência com dados simulados. Estimação quase pronta; o trabalho é organizar e interpretar os resultados.
+
+### Econometria I
+
+| Unidade | Aplicação | Artigo de origem |
+|---|---|---|
+| 1 | [Quanto vale um ano a mais de estudo?](aplic-econ1-u1.qmd) | Mincer (1974) — equação de rendimentos |
+| 2 | [Quanto rende uma máquina a mais?](aplic-econ1-u2.qmd) | Cobb e Douglas (1928) — função de produção |
+| 3 | [O piso salarial destrói empregos?](aplic-econ1-u3.qmd) | Card e Krueger (1994) — salário mínimo |
+| 4 | [Uma regressão perfeita entre coisas sem relação](aplic-econ1-u4.qmd) | Granger e Newbold (1974) — regressão espúria |
+| 5 | [Por que o risco vem em ondas](aplic-econ1-u5.qmd) | Engle (1982) — modelos ARCH |
+| 6 | [O modelo que ajusta melhor prevê pior](aplic-econ1-u6.qmd) | Makridakis e Hibon (2000) — competição M3 |
+
+### Econometria II
+
+| Tema | Aplicação | Artigo de origem |
+|---|---|---|
+| Multicolinearidade | [O modelo é ótimo, mas nenhuma variável presta](aplic-econ2-u1.qmd) | Farrar e Glauber (1967) |
+| Heterocedasticidade | [O coeficiente está certo, o erro-padrão está errado](aplic-econ2-u2.qmd) | White (1980) |
+| Especificação | [A reta que recomendaria adubar até a falência](aplic-econ2-u3.qmd) | Ramsey (1969) — teste RESET |
 
 ## Curso de R — Unidade 7
 

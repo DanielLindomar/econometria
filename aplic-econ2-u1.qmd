@@ -1,0 +1,388 @@
+---
+title: "Aplicação 7 — O modelo é ótimo, mas nenhuma variável presta"
+subtitle: "Econometria II · Multicolinearidade em uso"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## O que é uma Aplicação
+
+Nos laboratórios você aprendeu a executar. Aqui você vai **usar** o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.
+
+O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.
+:::
+
+## O problema
+
+Você estima uma regressão múltipla. O teste F rejeita a nula com folga, o R² passa de 0,85, tudo indica um modelo excelente. Aí você olha a tabela de coeficientes e nenhum deles é significativo. Um chega a aparecer com o sinal trocado.
+
+Não há erro de cálculo. Você encontrou **multicolinearidade**.
+
+Em 1967, Donald Farrar e Robert Glauber publicaram *Multicollinearity in Regression Analysis: The Problem Revisited* e fizeram uma distinção que organizou o assunto. A multicolinearidade, argumentaram, não é uma violação das hipóteses do modelo clássico — o MQO continua não-viesado, continua sendo o melhor estimador linear não-viesado, os testes continuam válidos. O problema é de **informação**: quando duas variáveis andam quase sempre juntas, os dados não contêm o que seria necessário para separar o efeito de uma do efeito da outra.
+
+::: {.callout-tip}
+## A distinção que muda a conduta
+
+Um viés de variável omitida é um erro de especificação: o modelo está errado e precisa ser corrigido.
+
+A multicolinearidade é uma limitação amostral: o modelo pode estar perfeitamente certo, e ainda assim a amostra não tem informação para estimar cada parâmetro separadamente.
+
+A diferença importa na hora de agir. Contra viés, muda-se o modelo. Contra multicolinearidade, ou se consegue mais dados (com variação independente), ou se aceita estimar menos coisas do que se gostaria.
+:::
+
+## Nossa versão
+
+O exemplo clássico dos manuais — e Gujarati usa uma variante dele — é a função consumo com **renda** e **riqueza** como explicativas. Faz todo sentido econômico incluir as duas: renda financia o consumo corrente, riqueza dá segurança e permite gastar mais.
+
+O problema é que famílias com renda alta tendem a ter riqueza alta. As duas variáveis carregam quase a mesma informação.
+
+Temos **150 famílias**, com consumo, renda e riqueza em milhares de reais por ano.
+
+::: {.callout-important}
+## Estes dados foram gerados por simulação
+
+Não são uma pesquisa de campo. Foram construídos por um processo que **eu conheço** — e é justamente por isso que esta aplicação existe.
+
+No fim da página eu mostro os coeficientes verdadeiros de renda e de riqueza. Você vai poder verificar exatamente o quanto a multicolinearidade distorceu cada estimativa — e descobrir o que, apesar de tudo, ela **não** distorceu.
+
+Não role até lá antes de estimar.
+:::
+
+## Os dados
+
+```{webr}
+familias <- read.csv("dados/consumo_familias.csv")
+head(familias)
+summary(familias)
+```
+
+::: {.callout-tip}
+## O dicionário das variáveis
+
+| Variável | O que é |
+|---|---|
+| `consumo` | Consumo anual da família, em R\$ mil |
+| `renda` | Renda anual disponível, em R\$ mil |
+| `riqueza` | Patrimônio acumulado, em R\$ mil |
+
+São 150 famílias. A renda média fica em torno de R\$ 58 mil e a riqueza média perto de R\$ 579 mil — cerca de dez vezes a renda, o que é plausível.
+:::
+
+## Primeiro olhar: o tamanho do problema
+
+```{webr}
+cor(familias$renda, familias$riqueza)
+```
+
+```{webr}
+library(ggplot2)
+ggplot(familias, aes(renda, riqueza)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(title = "Renda e riqueza andam praticamente juntas",
+       x = "Renda (R$ mil)", y = "Riqueza (R$ mil)") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A correlação é **0,998**. Os pontos formam uma reta quase perfeita.
+
+Pare um momento sobre o que isso significa para a estimação. Para identificar o efeito da riqueza mantendo a renda constante, o MQO precisa encontrar, nos dados, famílias com a **mesma renda** e riquezas diferentes. Aqui elas praticamente não existem: quem tem renda de R\$ 60 mil tem riqueza de aproximadamente R\$ 600 mil, sempre.
+
+A informação que o modelo precisaria não está na amostra. Nenhum método consegue extrair o que não foi observado.
+:::
+
+## O sintoma clássico
+
+```{webr}
+completo <- lm(consumo ~ renda + riqueza, data = familias)
+summary(completo)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Leia de cima para baixo e observe a contradição se formando:
+
+O **R² é 0,853** e a **estatística F passa de 426**, com valor-p da ordem de $10^{-62}$. O teste F rejeita, com força enorme, a hipótese de que renda e riqueza sejam **conjuntamente** irrelevantes.
+
+Agora a tabela de coeficientes. A **renda** tem coeficiente 0,926 com t de apenas 2,07. A **riqueza** aparece com coeficiente **−0,008** — negativo, o que significaria que ficar mais rico reduz o consumo — e t de −0,17, completamente insignificante.
+
+Repare também nos erros-padrão: 0,4476 para a renda. Compare com a próxima seção e veja o que acontece com esse número.
+
+Este é o retrato de manual da multicolinearidade: **modelo conjuntamente significativo, coeficientes individualmente frágeis, e ao menos um sinal contrariando a teoria.**
+:::
+
+## Cada variável, sozinha
+
+```{webr}
+so_renda <- lm(consumo ~ renda, data = familias)
+summary(so_renda)
+```
+
+```{webr}
+so_riqueza <- lm(consumo ~ riqueza, data = familias)
+summary(so_riqueza)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Sozinha, a renda tem coeficiente 0,848 com t de **29,3**. Sozinha, a riqueza tem coeficiente 0,084 com t de **28,8**.
+
+Duas variáveis que, isoladas, estão entre as mais significativas que você vai encontrar numa regressão. Juntas, nenhuma passa com folga.
+
+E olhe o erro-padrão da renda: **0,029** sozinha, contra **0,448** no modelo completo. Quinze vezes maior. Não é que a renda tenha deixado de importar — é que, na presença da riqueza, os dados não conseguem dizer quanto do efeito pertence a cada uma. A incerteza sobre a divisão explode, e o erro-padrão a registra.
+:::
+
+## O diagnóstico formal
+
+```{webr}
+library(car)
+vif(completo)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O VIF — fator de inflação da variância — fica em torno de **237** para as duas variáveis.
+
+A leitura é direta. O VIF de uma variável é $1/(1-R_j^2)$, onde $R_j^2$ vem da regressão dessa variável contra todas as outras explicativas. Aqui, a regressão de `riqueza` contra `renda` tem $R^2 = 0{,}996$: quase toda a variação da riqueza é explicada pela renda.
+
+E o nome "inflação da variância" é literal: a variância do coeficiente estimado é 237 vezes maior do que seria se as duas variáveis fossem ortogonais. O erro-padrão, que é a raiz disso, fica $\sqrt{237} \approx 15$ vezes maior — exatamente o fator que você observou na seção anterior.
+
+A regra prática mais difundida trata VIF acima de 10 como sinal de alerta. Duzentos e trinta e sete não é alerta; é a variável dizendo que não tem informação própria.
+:::
+
+## A instabilidade
+
+O sintoma mais perigoso da multicolinearidade não aparece em nenhuma tabela: os coeficientes ficam **instáveis**. Pequenas mudanças na amostra produzem estimativas muito diferentes.
+
+```{webr}
+set.seed(10)
+for (i in 1:4) {
+  amostra <- familias[sample(1:150, 100), ]
+  m <- lm(consumo ~ renda + riqueza, data = amostra)
+  cat("Subamostra", i, "— renda:", round(coef(m)[2], 4),
+      "| riqueza:", round(coef(m)[3], 4), "\n")
+}
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Retire 50 famílias ao acaso e reestime. Depois repita. O coeficiente da renda passeia por uma faixa larga, e o da riqueza **troca de sinal** de uma subamostra para outra.
+
+Um resultado que muda de sinal quando se retira um terço da amostra não sustenta conclusão nenhuma. Se este fosse um trabalho aplicado, seria aqui que a análise teria de parar e admitir a limitação.
+:::
+
+## O que a multicolinearidade não estraga
+
+Antes de condenar o modelo, faça um teste que quase nunca é feito: use-o para prever.
+
+```{webr}
+nova_familia <- data.frame(renda = 60, riqueza = 600)
+predict(completo, newdata = nova_familia, interval = "confidence")
+predict(so_renda, newdata = nova_familia, interval = "confidence")
+```
+
+::: {.callout-important}
+## O resultado que surpreende
+
+As duas previsões dão praticamente o mesmo valor — cerca de **53,5** —, e os intervalos de confiança são quase idênticos.
+
+O modelo cheio de multicolinearidade **prevê tão bem quanto** o modelo enxuto. Os dois R² são iguais até a quarta casa decimal.
+
+Isso não é acidente. A multicolinearidade prejudica a estimação de **coeficientes individuais**, porque a divisão do efeito entre as variáveis correlacionadas é indeterminada. Mas o **efeito combinado** — que é o que a previsão usa — permanece bem estimado.
+
+A conduta prática que sai daí depende inteiramente do objetivo:
+
+- Se o objetivo é **prever** o consumo de uma família, a multicolinearidade não atrapalha. Deixe as duas variáveis lá.
+- Se o objetivo é **medir o efeito da riqueza mantida a renda constante**, os dados não têm resposta. Nenhuma técnica vai criar informação que não foi observada.
+
+Farrar e Glauber insistiram nesse ponto: a pergunta "há multicolinearidade?" é menos útil que a pergunta "ela impede o que eu quero fazer?".
+:::
+
+## Exercícios
+
+Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.
+
+### Exercício 1 — o VIF na mão
+
+Reconstrua o VIF a partir da regressão auxiliar, sem usar o pacote `car`.
+
+```{webr}
+#| exercise: ap7_ex1
+auxiliar <- lm(riqueza ~ ______, data = familias)
+r2_aux <- summary(auxiliar)$r.squared
+r2_aux
+vif_calculado <- 1 / (1 - ______)
+vif_calculado
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A primeira lacuna é `renda`; a segunda é `r2_aux`. Compare o resultado com a saída de `vif()`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+auxiliar <- lm(riqueza ~ renda, data = familias)
+r2_aux <- summary(auxiliar)$r.squared
+r2_aux
+vif_calculado <- 1 / (1 - r2_aux)
+vif_calculado
+```
+
+O $R^2$ auxiliar é 0,9958 e o VIF calculado bate com o do pacote: cerca de 237.
+
+Fazer essa conta uma vez ajuda a lembrar o que o VIF é. Ele não mede correlação entre pares — mede o quanto **todas as outras** explicativas juntas conseguem reproduzir uma delas. Com três ou mais regressores, duas variáveis podem ter correlação baixa entre si e ainda assim gerar VIF alto.
+:::
+
+### Exercício 2 — o intervalo de confiança do que não se sabe
+
+Extraia os intervalos de 95% do modelo completo e do modelo só com renda, e compare a amplitude.
+
+```{webr}
+#| exercise: ap7_ex2
+confint(______)
+confint(______)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Os objetos são `completo` e `so_renda`. Meça a largura do intervalo da renda em cada um.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+confint(completo)
+confint(so_renda)
+```
+
+No modelo completo, o intervalo da renda vai de cerca de 0,04 a 1,81 — quase dois pontos de amplitude, incluindo valores que iriam de "quase nada" a "quase tudo". No modelo só com renda, vai de aproximadamente 0,79 a 0,91.
+
+O intervalo largo não é defeito do método; é o método sendo honesto. Ele está informando que, com estes dados, o coeficiente da renda mantida a riqueza constante simplesmente não pode ser determinado com precisão.
+:::
+
+### Exercício 3 — o teste F conjunto
+
+O F da regressão testa as duas variáveis juntas. Confirme que a conclusão conjunta contradiz as conclusões individuais.
+
+```{webr}
+#| exercise: ap7_ex3
+so_intercepto <- lm(consumo ~ 1, data = familias)
+anova(______, completo)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `so_intercepto`. O `anova()` compara dois modelos aninhados.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+so_intercepto <- lm(consumo ~ 1, data = familias)
+anova(so_intercepto, completo)
+```
+
+O F conjunto é enorme e o valor-p, praticamente zero: rejeitamos com folga que renda e riqueza sejam ambas irrelevantes.
+
+Guarde a formulação exata das duas conclusões, porque elas parecem contraditórias e não são:
+
+- Teste F: "pelo menos uma das duas importa" — verdadeiro.
+- Testes t: "não consigo afirmar, para nenhuma delas individualmente, que ela importa **dado que a outra está no modelo**" — também verdadeiro.
+
+As duas afirmações convivem porque respondem a perguntas diferentes. É a marca registrada da multicolinearidade.
+:::
+
+### Exercício 4 — uma saída possível
+
+Uma solução prática é combinar as variáveis colineares numa só. Crie a razão riqueza/renda — que mede quantos anos de renda a família acumulou — e use-a no lugar da riqueza.
+
+```{webr}
+#| exercise: ap7_ex4
+familias$anos_de_renda <- familias$riqueza / familias$______
+combinado <- lm(consumo ~ renda + anos_de_renda, data = familias)
+summary(combinado)
+vif(______)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As lacunas são `renda` e `combinado`. Compare os VIF com os do modelo original.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+familias$anos_de_renda <- familias$riqueza / familias$renda
+combinado <- lm(consumo ~ renda + anos_de_renda, data = familias)
+summary(combinado)
+vif(combinado)
+```
+
+Os VIF caem para perto de 1 e a renda volta a ser fortemente significativa. Parece que o problema foi resolvido — e em parte foi.
+
+Mas leia com atenção o que você ganhou e o que perdeu. O coeficiente de `anos_de_renda` responde a uma pergunta **diferente** da original: mede o efeito de acumular mais patrimônio *relativamente* à renda. Não é o efeito da riqueza mantida a renda constante. A pergunta inicial continua sem resposta; o que houve foi a troca dela por outra que os dados conseguem responder.
+
+Essa é a solução honesta para multicolinearidade severa, e vale para todas as outras — componentes principais, regressão de crista, remoção de variável. Nenhuma delas recupera a informação ausente. Todas mudam a pergunta.
+:::
+
+### Exercício 5 — escrevendo o resultado
+
+Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo que um artigo apresentaria. Ele precisa conter: o diagnóstico com o VIF, o padrão F-versus-t, o que se pode e o que não se pode concluir, e a conduta adotada.
+
+::: {.callout-note collapse="true" title="Um parágrafo possível"}
+A estimação da função consumo com renda e riqueza como explicativas apresenta ajuste elevado (R² = 0,853) e teste F conjunto altamente significativo (F = 426,3; p < 0,001), mas nenhum coeficiente individualmente robusto: renda com t = 2,07 e riqueza com t = −0,17 e sinal contrário ao esperado pela teoria. O diagnóstico confirma multicolinearidade severa — correlação de 0,998 entre as explicativas e VIF de 237,3 —, com erro-padrão da renda quinze vezes superior ao obtido em especificação univariada. A instabilidade dos coeficientes em subamostras aleatórias, incluindo inversão de sinal da riqueza, desaconselha qualquer interpretação estrutural dos parâmetros individuais. Como a capacidade preditiva permanece inalterada, o modelo é mantido para fins de projeção, sem inferência sobre efeitos parciais.
+
+Repare no que o parágrafo faz: documenta o diagnóstico com números, é explícito sobre o que não pode ser concluído, e mesmo assim indica um uso legítimo para o modelo.
+:::
+
+## O que estava por trás dos dados
+
+Chegou a hora. O consumo desta amostra foi gerado por esta equação:
+
+$$
+\text{consumo} = 3{,}20 + 0{,}620\,\text{renda} + 0{,}021\,\text{riqueza} + u
+$$
+
+com $u$ sorteado de uma normal de média zero e desvio-padrão 4,50. A riqueza, por sua vez, foi construída como aproximadamente dez vezes a renda mais um ruído pequeno.
+
+| Parâmetro | Valor verdadeiro | Modelo completo | Só renda |
+|---|---|---|---|
+| Intercepto | 3,200 | 2,612 | — |
+| renda | **0,620** | **0,926** | 0,848 |
+| riqueza | **+0,021** | **−0,008** | — |
+| Efeito total de R\$ 1 mil de renda | **0,830** | 0,848 | **0,848** |
+
+A última linha merece atenção. Como a riqueza acompanha a renda numa proporção de dez para um, um aumento de mil reais na renda vem acompanhado de dez mil na riqueza. O efeito total sobre o consumo é $0{,}620 + 10 \times 0{,}021 = 0{,}830$.
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. Os coeficientes individuais erraram feio.** O da renda saiu 0,926 quando o verdadeiro era 0,620 — mais de 40% acima. O da riqueza saiu −0,008 quando o verdadeiro era +0,021, com o **sinal invertido**. Quem interpretasse esses números como efeitos econômicos estaria contando uma história falsa sobre o comportamento das famílias.
+
+**2. O efeito combinado acertou.** O verdadeiro é 0,830 e a estimativa deu 0,848 — erro inferior a 2,2%. Toda a informação que a amostra possui está nessa soma, e o MQO a extraiu com precisão. O que a amostra não possui é a **divisão** dessa soma entre as duas variáveis, e é exatamente aí que as estimativas falharam.
+
+**3. Nada foi violado.** As hipóteses do modelo clássico estão todas de pé nesta simulação: o modelo é linear, os erros são normais, independentes e homocedásticos, e as duas variáveis relevantes estão incluídas. O MQO permanece não-viesado — se repetíssemos a amostragem milhares de vezes, a média das estimativas convergiria para 0,620 e 0,021. O que a multicolinearidade produz é **variância enorme** em torno desses valores. Numa amostra só, o resultado é o que você viu.
+:::
+
+## Voltando ao artigo
+
+Farrar e Glauber propuseram uma bateria de testes formais para detectar multicolinearidade, e essa parte do artigo envelheceu — a literatura posterior mostrou que os testes deles têm problemas, e o VIF acabou prevalecendo por ser mais simples e mais transparente.
+
+O que não envelheceu foi o enquadramento conceitual: tratar multicolinearidade como **deficiência de informação amostral**, e não como erro de modelagem. Belsley, Kuh e Welsch (1980) refinariam o diagnóstico com números de condição, mas partindo da mesma premissa.
+
+Há uma consequência dessa leitura que vale reter, e que Farrar e Glauber já apontavam: como o problema está nos dados e não no modelo, a solução mais direta é **coletar dados melhores** — uma amostra em que renda e riqueza variem de forma mais independente, como famílias que sofreram choques patrimoniais não relacionados à renda. Não é conselho prático na maioria das situações, mas é a única solução que de fato responde à pergunta original em vez de substituí-la.
+
+Duas ressalvas que valem para o que você acabou de estimar:
+
+- **VIF alto não é motivo automático para excluir variável.** Retirar a riqueza faria os erros-padrão despencarem e produziria uma tabela bonita — ao custo de omitir uma variável que a teoria diz ser relevante. Trocar multicolinearidade por viés de variável omitida raramente é bom negócio.
+- **O limiar de 10 é convenção, não teorema.** Não há nada de especial no número. Com amostra muito grande, um VIF de 30 pode deixar erros-padrão perfeitamente utilizáveis; com amostra pequena, um VIF de 6 já pode inviabilizar a inferência. O que importa é a precisão que sobra, não o valor do índice.

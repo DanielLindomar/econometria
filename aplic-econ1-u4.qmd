@@ -1,0 +1,394 @@
+---
+title: "Aplicação 4 — Uma regressão perfeita entre duas coisas sem relação"
+subtitle: "Econometria I · Unidade 4 — séries temporais em uso"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - aTSA
+    - lmtest
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## O que é uma Aplicação
+
+Nos laboratórios você aprendeu a executar. Aqui você vai **usar** o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.
+
+O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.
+:::
+
+## O problema
+
+Em 1974, Clive Granger e Paul Newbold publicaram um artigo curto e devastador: *Spurious Regressions in Econometrics*. A tese era simples e desconfortável.
+
+Eles pegaram pares de séries temporais **geradas por computador, sem nenhuma relação entre si**, e regrediram uma contra a outra. O resultado deveria ser um coeficiente próximo de zero e um teste t insignificante. Não foi isso que apareceu. Na maioria das simulações, o coeficiente saiu **grande e altamente significativo**, com R² respeitável.
+
+A conclusão que eles tiraram e que mudou a prática da econometria aplicada: boa parte das regressões publicadas com séries econômicas em nível — PIB contra consumo, moeda contra preços, importações contra renda — podia não estar medindo relação econômica nenhuma. Podia estar medindo apenas o fato de que as duas séries **sobem ao longo do tempo**.
+
+::: {.callout-tip}
+## O sinal que eles propuseram
+
+Granger e Newbold deram uma regra prática que virou folclore da profissão: **desconfie quando $R^2 >$ Durbin-Watson**. Num modelo bem especificado, o DW fica perto de 2 e o R² fica abaixo de 1 — a desigualdade nunca aparece. Quando ela aparece, quase sempre há raiz unitária não tratada.
+
+É uma regra grosseira, e os autores sabiam disso. Mas ela detecta o problema com um olhar, antes de qualquer teste formal.
+:::
+
+## Nossa versão
+
+Vamos repetir o experimento com duas séries mensais brasileiras plausíveis, de janeiro de 2005 a dezembro de 2024: o **consumo de energia elétrica** de uma região e o **preço do frango**. São 240 meses.
+
+Não há teoria econômica que ligue as duas coisas de forma direta. Se aparecer relação, ela precisa vir de outro lugar.
+
+::: {.callout-important}
+## Estes dados foram gerados por simulação
+
+Não são séries reais. Foram construídos por um processo que **eu conheço** — e neste caso o processo é o próprio conteúdo da aula.
+
+No fim da página eu revelo como as duas séries foram geradas. Adianto uma coisa para você não perder tempo procurando: **não existe nenhuma ligação entre elas**. Nenhuma. O que você vai encontrar na regressão é inteiramente artefato.
+
+Não role até lá antes de estimar.
+:::
+
+## Os dados
+
+```{webr}
+espuria <- read.csv("dados/espuria.csv")
+head(espuria)
+summary(espuria)
+```
+
+::: {.callout-tip}
+## O dicionário das variáveis
+
+| Variável | O que é |
+|---|---|
+| `mes` | Mês de referência, de 2005-01 a 2024-12 |
+| `consumo_energia` | Consumo residencial de energia elétrica, em GWh |
+| `preco_frango` | Preço médio do frango no atacado, em R\$/arroba |
+
+São 240 observações mensais. O consumo vai de cerca de 98 a 284; o preço do frango, de 42 a 66. Ambas terminam bem acima de onde começaram.
+:::
+
+## Primeiro olhar: as duas séries no tempo
+
+```{webr}
+library(ggplot2)
+espuria$tempo <- 1:nrow(espuria)
+ggplot(espuria, aes(tempo)) +
+  geom_line(aes(y = consumo_energia), colour = "#1E2761", linewidth = 0.8) +
+  geom_line(aes(y = preco_frango), colour = "#C0392B", linewidth = 0.8) +
+  labs(title = "Consumo de energia (azul) e preço do frango (vermelho)",
+       x = "Meses desde jan/2005", y = "") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+As duas linhas sobem. Não sobem juntas mês a mês — cada uma tem seus solavancos —, mas ambas terminam num patamar muito acima do inicial.
+
+É só isso. E, como você vai ver, "é só isso" basta para produzir uma regressão que qualquer software reportaria como excelente.
+:::
+
+## A regressão que parece boa
+
+```{webr}
+modelo_nivel <- lm(consumo_energia ~ preco_frango, data = espuria)
+summary(modelo_nivel)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Olhe os números como um leitor desavisado olharia:
+
+O coeficiente do preço do frango é cerca de **2,60**: cada real a mais na arroba estaria associado a 2,6 GWh a mais de consumo de energia.
+
+A estatística t passa de **15**. O valor-p é da ordem de $10^{-36}$ — não é "significativo a 1%", é significativo a qualquer nível que alguém queira propor.
+
+O R² fica em torno de **0,49**: metade da variação do consumo de energia "explicada" pelo preço do frango.
+
+Se este resultado aparecesse numa monografia, com uma justificativa teórica bem escrita na introdução, passaria por muitas bancas. E está inteiramente errado.
+:::
+
+## Os sinais de alarme
+
+Antes de aceitar qualquer regressão com séries temporais, olhe três coisas.
+
+```{webr}
+library(lmtest)
+dwtest(modelo_nivel)
+```
+
+::: {.callout-tip}
+## Sinal nº 1 — Durbin-Watson
+
+O DW fica em torno de **0,018**. O valor de referência é 2. Um DW próximo de zero significa autocorrelação positiva quase perfeita nos resíduos: cada erro é praticamente igual ao anterior.
+
+E aqui aparece a regra de Granger e Newbold: $R^2 = 0{,}49$ é maior que $DW = 0{,}018$. Alarme disparado.
+:::
+
+```{webr}
+espuria$residuo <- resid(modelo_nivel)
+ggplot(espuria, aes(tempo, residuo)) +
+  geom_line(colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Resíduos da regressão em nível", x = "Meses desde jan/2005", y = "Resíduo") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Sinal nº 2 — o gráfico dos resíduos
+
+Resíduos de um modelo bem especificado parecem ruído: oscilam em torno de zero sem memória. Estes fazem **excursões longas** — ficam meses seguidos acima de zero, depois meses seguidos abaixo.
+
+Isso é a assinatura visual de um modelo que não capturou a dinâmica dos dados. O resíduo não é erro aleatório: é uma série com vida própria.
+:::
+
+```{webr}
+adf.test(espuria$consumo_energia)
+```
+
+```{webr}
+adf.test(espuria$preco_frango)
+```
+
+::: {.callout-tip}
+## Sinal nº 3 — o teste de raiz unitária
+
+Olhe o bloco **Type 2 (with drift)** de cada saída. Os valores-p ficam em torno de **0,96** e **0,95** — muito acima de 0,05.
+
+Não rejeitamos a hipótese nula do teste ADF, que é a de **existência de raiz unitária**. Traduzindo: as duas séries são não estacionárias. Elas não têm média para a qual voltar; vagam.
+
+E é exatamente esse o mecanismo da regressão espúria. Duas séries que vagam, ambas com deriva positiva, vão parecer relacionadas simplesmente porque as duas foram para cima.
+:::
+
+## O tratamento: diferenciar
+
+Se o problema é a raiz unitária, a solução é trabalhar com a **variação** em vez do nível. Comece testando se as diferenças são estacionárias.
+
+```{webr}
+d_energia <- diff(espuria$consumo_energia)
+d_frango  <- diff(espuria$preco_frango)
+adf.test(d_energia)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Agora o valor-p é praticamente zero: **rejeitamos** a raiz unitária. A primeira diferença é estacionária, o que faz da série original uma $I(1)$ — integrada de ordem 1.
+
+O mesmo vale para o preço do frango. É a situação mais comum em séries econômicas.
+:::
+
+```{webr}
+modelo_dif <- lm(d_energia ~ d_frango)
+summary(modelo_dif)
+dwtest(modelo_dif)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O quadro muda por completo:
+
+O coeficiente cai para cerca de **−0,09**, com valor-p em torno de **0,33**. Insignificante.
+
+O R² despenca para cerca de **0,004** — quatro décimos de um por cento.
+
+O DW sobe para aproximadamente **2,03**, exatamente onde deveria estar.
+
+Esta é a resposta correta: **não há relação entre as duas séries**. Toda a "relação" da primeira regressão era o encontro de duas tendências.
+:::
+
+::: {.callout-note}
+## Um aviso: diferenciar não é sempre a resposta
+
+Duas séries $I(1)$ podem ter uma relação de longo prazo genuína — quando existe uma combinação linear delas que é estacionária. Nesse caso elas são **cointegradas**, diferenciar joga fora a informação de longo prazo, e o modelo correto é o de correção de erros. Esse é o assunto do Laboratório 7.
+
+A diferença entre os dois casos está nos resíduos da regressão em nível: se forem estacionários, há cointegração; se vagarem, como os desta página, é espúria. Aqui, o gráfico dos resíduos já mostrou qual é o caso.
+:::
+
+## Exercícios
+
+Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.
+
+### Exercício 1 — a correlação em nível e em diferenças
+
+Calcule a correlação entre as duas séries em nível e depois entre suas primeiras diferenças.
+
+```{webr}
+#| exercise: ap4_ex1
+cor(espuria$consumo_energia, espuria$______)
+cor(diff(espuria$consumo_energia), diff(espuria$______))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As duas lacunas são `preco_frango`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+cor(espuria$consumo_energia, espuria$preco_frango)
+cor(diff(espuria$consumo_energia), diff(espuria$preco_frango))
+```
+
+Em nível, cerca de **0,70** — uma correlação que qualquer um chamaria de forte. Em diferenças, cerca de **−0,06** — indistinguível de zero.
+
+O mesmo par de séries, dois retratos opostos. A correlação em nível entre séries não estacionárias não mede associação econômica; mede coincidência de tendência.
+:::
+
+### Exercício 2 — a tendência como terceira variável
+
+Acrescente o tempo como regressor no modelo em nível e veja o que acontece com o coeficiente do frango.
+
+```{webr}
+#| exercise: ap4_ex2
+com_tendencia <- lm(consumo_energia ~ preco_frango + ______, data = espuria)
+summary(com_tendencia)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A variável `tempo` já foi criada lá no gráfico. Compare o coeficiente e o valor-p do `preco_frango` com os da regressão original.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+com_tendencia <- lm(consumo_energia ~ preco_frango + tempo, data = espuria)
+summary(com_tendencia)
+```
+
+O coeficiente do frango encolhe e perde significância, enquanto a tendência absorve quase tudo. Isso confirma o diagnóstico: o que a primeira regressão media era tendência, não frango.
+
+Uma ressalva importante: incluir tendência **não** resolve o problema de raiz unitária. Funciona quando a série é estacionária em torno de uma tendência determinística; não funciona quando ela tem raiz unitária, que é o caso aqui. O DW continuará baixo. Diferenciar é o tratamento; a tendência aqui serve de diagnóstico, não de cura.
+:::
+
+### Exercício 3 — repetindo o experimento de Granger e Newbold
+
+Gere você mesmo dois passeios aleatórios independentes e regrida um contra o outro. Rode várias vezes e veja com que frequência aparece um resultado "significativo".
+
+```{webr}
+#| exercise: ap4_ex3
+set.seed(______)
+x <- cumsum(rnorm(240))
+y <- cumsum(rnorm(240))
+teste <- lm(y ~ x)
+summary(teste)$coefficients
+summary(teste)$r.squared
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Ponha qualquer número na semente — `1`, `7`, `2026`. Depois troque por outro e rode de novo. E de novo.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+set.seed(1)
+x <- cumsum(rnorm(240))
+y <- cumsum(rnorm(240))
+teste <- lm(y ~ x)
+summary(teste)$coefficients
+summary(teste)$r.squared
+```
+
+Troque a semente algumas vezes. Você vai encontrar valores-p abaixo de 0,05 numa fração enorme das tentativas — Granger e Newbold reportaram cerca de **75%**, contra os 5% que a teoria prometeria.
+
+Você acabou de reproduzir, em cinco linhas, o experimento que reorientou a econometria de séries temporais.
+:::
+
+### Exercício 4 — quando a resposta certa é "nada"
+
+Monte a tabela comparando os dois modelos e verifique se a mensagem de cada um é a mesma.
+
+```{webr}
+#| exercise: ap4_ex4
+comparacao <- data.frame(
+  modelo   = c("Em nível", "Em diferenças"),
+  coef     = c(coef(modelo_nivel)[2], coef(______)[2]),
+  valor_p  = c(summary(modelo_nivel)$coefficients[2, 4],
+               summary(______)$coefficients[2, 4]),
+  r2       = c(summary(modelo_nivel)$r.squared, summary(______)$r.squared)
+)
+round_df <- data.frame(comparacao[1], round(comparacao[-1], 4))
+round_df
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As três lacunas são `modelo_dif`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+comparacao <- data.frame(
+  modelo   = c("Em nível", "Em diferenças"),
+  coef     = c(coef(modelo_nivel)[2], coef(modelo_dif)[2]),
+  valor_p  = c(summary(modelo_nivel)$coefficients[2, 4],
+               summary(modelo_dif)$coefficients[2, 4]),
+  r2       = c(summary(modelo_nivel)$r.squared, summary(modelo_dif)$r.squared)
+)
+round_df <- data.frame(comparacao[1], round(comparacao[-1], 4))
+round_df
+```
+
+Um modelo diz 2,60 com p quase zero; o outro diz −0,09 com p de 0,33. Só um deles está certo, e não é o que tem o R² maior.
+:::
+
+### Exercício 5 — escrevendo o resultado
+
+Este exercício não tem código. Imagine que um colega lhe mostrou a primeira regressão como evidência de que o preço do frango afeta o consumo de energia. Escreva, em até cinco linhas, o parecer que você daria — com os números que sustentam sua objeção e a recomendação do que fazer.
+
+::: {.callout-note collapse="true" title="Um parecer possível"}
+A regressão apresentada estima coeficiente de 2,604 para o preço do frango (t = 15,10; R² = 0,489), mas os diagnósticos indicam regressão espúria. A estatística de Durbin-Watson é de 0,018, muito inferior ao R², configurando o sinal proposto por Granger e Newbold (1974). Os testes ADF não rejeitam a presença de raiz unitária em nenhuma das séries (p = 0,960 e p = 0,958), e os resíduos apresentam excursões persistentes incompatíveis com ruído branco. Reestimado em primeiras diferenças — ambas estacionárias —, o coeficiente passa a −0,091 (p = 0,327; R² = 0,004) e o DW a 2,03. Conclui-se que não há evidência de relação entre as séries; recomenda-se, antes de qualquer regressão em nível, verificar a ordem de integração e testar cointegração.
+
+Repare no que o parecer faz: não diz "seu modelo está errado". Diz qual diagnóstico falhou, com qual número, e o que a reestimação correta mostrou.
+:::
+
+## O que estava por trás dos dados
+
+Chegou a hora. As duas séries foram geradas assim:
+
+$$
+\text{consumo}_t = \text{consumo}_{t-1} + 0{,}60 + \varepsilon_t, \qquad \varepsilon_t \sim N(0{;}\ 2{,}2^2)
+$$
+
+$$
+\text{frango}_t = \text{frango}_{t-1} + 0{,}35 + \eta_t, \qquad \eta_t \sim N(0{;}\ 1{,}5^2)
+$$
+
+Dois passeios aleatórios com deriva. E o mais importante: $\varepsilon_t$ e $\eta_t$ foram sorteados **de forma completamente independente**. Não há um único parâmetro ligando uma série à outra.
+
+| O que você encontrou | Modelo em nível | Modelo em diferenças | Verdade |
+|---|---|---|---|
+| Coeficiente | 2,604 | −0,091 | **0** |
+| Valor-p | $1{,}4 \times 10^{-36}$ | 0,327 | — |
+| R² | 0,489 | 0,004 | — |
+| Durbin-Watson | 0,018 | 2,031 | — |
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. Significância estatística não é evidência de relação.** O t de 15 e o valor-p de $10^{-36}$ estavam corretos do ponto de vista aritmético — o software não errou nada. O que falhou foi a hipótese que dá sentido a esses números: com séries não estacionárias, a distribuição do estimador não é a que a tabela t supõe. O teste continua sendo calculado; deixa é de significar o que se pensa que significa.
+
+**2. O R² pode subir justamente quando o modelo piora.** O modelo em nível, que é o errado, tem R² cem vezes maior que o modelo em diferenças, que é o certo. Qualquer critério de escolha baseado em ajuste teria escolhido o pior. Os diagnósticos — DW, resíduos, raiz unitária — foram os únicos a apontar o problema.
+
+**3. Você nunca teria descoberto isso com dados reais.** Se consumo de energia e preço do frango fossem séries de verdade, não haveria como saber que o coeficiente verdadeiro é zero. Você teria o resultado, uma justificativa teórica inventada depois e nenhum jeito de verificar. É por isso que, em séries temporais, o teste de raiz unitária vem **antes** da regressão, não depois.
+:::
+
+## Voltando ao artigo
+
+Granger e Newbold fizeram, em 1974, o que você fez no Exercício 3 — só que com os computadores da época e sem saber de antemão o que iam encontrar. Regrediram passeios aleatórios independentes e obtiveram rejeição da hipótese nula em cerca de três quartos das simulações, quando o esperado eram 5%.
+
+O impacto foi profundo. A recomendação prática que saiu dali — testar estacionariedade antes de estimar, e trabalhar em diferenças quando houver raiz unitária — reorganizou a econometria aplicada de séries temporais. A teoria assintótica que explica por que isso acontece veio depois, com Phillips (1986), e Granger recebeu o Nobel em 2003 pelo trabalho que se seguiu, sobre cointegração.
+
+Vale notar a sequência: o problema foi descoberto **por simulação**, antes de haver teoria para explicá-lo. É um bom lembrete de que gerar dados de um processo conhecido não é só recurso didático — é método de pesquisa.
+
+Duas ressalvas que valem para o que você acabou de estimar:
+
+- **Diferenciar tem custo.** A regressão em diferenças descarta a informação de longo prazo. Quando as séries são cointegradas, isso é um erro — e o modelo de correção de erros existe justamente para não ter que escolher entre curto e longo prazo.
+- **Nem toda tendência é raiz unitária.** Uma série pode ser estacionária em torno de uma tendência determinística, e nesse caso o tratamento correto é incluir a tendência, não diferenciar. Distinguir os dois casos é papel do teste ADF na versão com tendência — o `Type 3` da saída.

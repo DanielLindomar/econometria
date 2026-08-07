@@ -1,0 +1,436 @@
+---
+title: "Aplicação 6 — O modelo que ajusta melhor é o que prevê pior"
+subtitle: "Econometria I · Unidade 6 — previsão econômica em uso"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - Metrics
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## O que é uma Aplicação
+
+Nos laboratórios você aprendeu a executar. Aqui você vai **usar** o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.
+
+O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.
+:::
+
+## O problema
+
+Entre 1982 e 2000, Spyros Makridakis e Michèle Hibon organizaram três competições de previsão que ficaram conhecidas como M, M2 e M3. A regra era simples: centenas de séries reais eram distribuídas aos participantes, cada um previa o que quisesse com o método que preferisse, e os organizadores comparavam as previsões com o que de fato aconteceu.
+
+A M3, publicada em *The M3-Competition: results, conclusions and implications*, usou **3.003 séries**. O resultado incomodou boa parte da profissão:
+
+**Métodos estatisticamente sofisticados não previram melhor que métodos simples.** Em várias categorias, previram pior. E a combinação de métodos simples costumava bater qualquer método individual, por mais elaborado que fosse.
+
+Makridakis e Hibon já haviam encontrado isso nas competições anteriores e enfrentado resistência considerável. A explicação que ofereceram é a que interessa a esta unidade: modelos complexos **ajustam melhor o passado** porque têm mais parâmetros para acomodar o que já aconteceu. Só que parte do que aconteceu é ruído, e ruído não se repete. Ao ajustar o ruído, o modelo carrega para o futuro uma estrutura que nunca existiu.
+
+::: {.callout-tip}
+## A mudança de mentalidade que a unidade exige
+
+Nas unidades anteriores, você julgou modelos pelo R², pelos testes t e F, pelos diagnósticos de resíduos — tudo calculado **dentro** da amostra usada para estimar.
+
+Em previsão, esse critério não vale. O modelo será usado em dados que ele nunca viu, e o único teste honesto é escondê-los dele. Separa-se a série em duas partes, estima-se numa e mede-se o erro na outra. É o mais próximo de honestidade que a estatística oferece.
+:::
+
+## Nossa versão
+
+Vamos prever as **vendas mensais de máquinas agrícolas** de uma revenda regional, com 132 meses observados — de janeiro de 2015 a dezembro de 2025.
+
+O plano: usar os **120 primeiros meses** para estimar e guardar os **12 últimos** como se ainda não tivessem acontecido. Quatro métodos vão competir. No fim, comparamos as previsões com o que realmente foi vendido.
+
+::: {.callout-important}
+## Estes dados foram gerados por simulação
+
+Não são vendas reais. Foram construídos por um processo que **eu conheço** — e é justamente por isso que esta aplicação existe.
+
+No fim da página eu mostro a equação que gerou a série. Você vai poder verificar qual dos quatro métodos chegou mais perto do processo verdadeiro — e se foi o mesmo que venceu o torneio de previsão.
+
+Não role até lá antes de estimar.
+:::
+
+## Os dados
+
+```{webr}
+vendas <- read.csv("dados/vendas_maquinas.csv")
+vendas$tempo <- 1:nrow(vendas)
+vendas$mes_ano <- factor(((vendas$tempo - 1) %% 12) + 1)
+head(vendas)
+summary(vendas$vendas)
+```
+
+::: {.callout-tip}
+## O dicionário das variáveis
+
+| Variável | O que é |
+|---|---|
+| `mes` | Mês de referência, de 2015-01 a 2025-12 |
+| `vendas` | Unidades vendidas no mês |
+| `tempo` | Contador de 1 a 132, criado agora |
+| `mes_ano` | Mês do calendário (1 a 12), criado agora como fator |
+
+As duas últimas colunas não vieram do arquivo — foram construídas. `tempo` serve para a tendência, e `mes_ano` vai virar as onze dummies sazonais.
+:::
+
+## Primeiro olhar
+
+```{webr}
+library(ggplot2)
+ggplot(vendas, aes(tempo, vendas)) +
+  geom_line(colour = "#1E2761", linewidth = 0.7) +
+  geom_vline(xintercept = 120.5, linetype = "dashed", colour = "#C0392B") +
+  labs(title = "Vendas mensais de máquinas agrícolas",
+       subtitle = "À direita da linha vermelha: os 12 meses que os modelos não vão ver",
+       x = "Meses desde jan/2015", y = "Unidades") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Duas regularidades saltam à vista.
+
+Uma **tendência de alta**: a série termina bem acima de onde começou.
+
+Uma **oscilação regular dentro de cada ano**: picos e vales que se repetem no mesmo ponto do calendário. É sazonalidade, e faz sentido econômico — venda de máquina agrícola acompanha o calendário de safra e as linhas de crédito rural.
+
+Qualquer modelo que se proponha a prever esta série precisa dar conta das duas coisas.
+:::
+
+## A regra de ouro: separar antes de estimar
+
+```{webr}
+treino <- subset(vendas, tempo <= 120)
+teste  <- subset(vendas, tempo > 120)
+nrow(treino)
+nrow(teste)
+```
+
+::: {.callout-important}
+## Por que essa linha é a mais importante da página
+
+A partir daqui, **nada** do que os modelos fizerem pode usar as 12 observações de `teste`. Nem para estimar, nem para escolher o número de parâmetros, nem para decidir qual método usar.
+
+O erro mais comum em trabalhos de previsão é violar isso sem perceber — testar vários modelos, ver qual acerta melhor os últimos 12 meses e reportar esse como "o modelo escolhido". A avaliação deixa de ser honesta, porque o teste participou da escolha. Em aprendizado de máquina isso se chama vazamento de dados, e o efeito é sempre o mesmo: erro reportado menor do que o erro real.
+:::
+
+## Quatro candidatos
+
+### Candidato 1 — o ingênuo
+
+A previsão mais simples possível: os próximos 12 meses serão iguais ao último mês observado.
+
+```{webr}
+prev_ingenuo <- rep(treino$vendas[120], 12)
+prev_ingenuo
+```
+
+### Candidato 2 — o ingênuo sazonal
+
+Um passo além: cada mês do próximo ano será igual ao mesmo mês do ano anterior.
+
+```{webr}
+prev_sazonal <- treino$vendas[109:120]
+prev_sazonal
+```
+
+::: {.callout-tip}
+## Não subestime estes dois
+
+Eles não têm parâmetro nenhum a estimar e parecem quase uma piada ao lado de um modelo econométrico. Mas nas competições M eles serviram de **referência obrigatória**: um método sofisticado que não bate o ingênuo sazonal não está entregando nada além de complexidade.
+:::
+
+### Candidato 3 — tendência linear com sazonalidade
+
+Uma regressão com o tempo e onze dummies mensais. Treze parâmetros ao todo.
+
+```{webr}
+modelo_simples <- lm(vendas ~ tempo + mes_ano, data = treino)
+summary(modelo_simples)$r.squared
+prev_simples <- predict(modelo_simples, newdata = teste)
+round(prev_simples, 1)
+```
+
+### Candidato 4 — o sofisticado
+
+Uma tendência polinomial de grau 8, com as mesmas dummies sazonais. Vinte parâmetros. Ele consegue acompanhar curvaturas que a reta não alcança.
+
+```{webr}
+modelo_complexo <- lm(vendas ~ poly(tempo, 8) + mes_ano, data = treino)
+summary(modelo_complexo)$r.squared
+prev_complexo <- predict(modelo_complexo, newdata = teste)
+round(prev_complexo, 1)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Compare os dois R². O modelo complexo ajusta o passado **melhor** — como não poderia deixar de ser, já que tem sete parâmetros a mais para trabalhar. Acrescentar regressores nunca reduz o R².
+
+Olhe agora as previsões que ele produziu. Alguns valores fogem completamente da escala da série. Guarde essa observação; ela vai reaparecer.
+:::
+
+## O torneio
+
+Agora a comparação que importa: os quatro métodos contra os 12 meses que nenhum deles viu.
+
+```{webr}
+library(Metrics)
+resultado <- data.frame(
+  metodo = c("Ingênuo", "Ingênuo sazonal", "Tendência + sazonal", "Polinômio grau 8"),
+  RMSE = c(rmse(teste$vendas, prev_ingenuo),
+           rmse(teste$vendas, prev_sazonal),
+           rmse(teste$vendas, prev_simples),
+           rmse(teste$vendas, prev_complexo)),
+  MAPE = c(mape(teste$vendas, prev_ingenuo),
+           mape(teste$vendas, prev_sazonal),
+           mape(teste$vendas, prev_simples),
+           mape(teste$vendas, prev_complexo)) * 100
+)
+resultado$RMSE <- round(resultado$RMSE, 2)
+resultado$MAPE <- round(resultado$MAPE, 2)
+resultado[order(resultado$RMSE), ]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A ordem de chegada:
+
+| Método | RMSE | MAPE |
+|---|---|---|
+| Tendência + sazonal | ≈ 42 | ≈ 2,5% |
+| Ingênuo sazonal | ≈ 68 | ≈ 4,5% |
+| Ingênuo | ≈ 97 | ≈ 6,4% |
+| **Polinômio grau 8** | **≈ 388** | **≈ 26%** |
+
+O modelo com mais parâmetros, melhor R² e maior sofisticação técnica ficou em **último lugar** — e não por pouco: erra cerca de nove vezes mais que o modelo simples, e cinco vezes mais que a previsão ingênua de repetir o último mês.
+
+Repare também que o ingênuo sazonal, que não estima parâmetro algum, deixou o polinômio para trás com folga.
+:::
+
+## O paradoxo, em um gráfico
+
+```{webr}
+comparacao <- data.frame(
+  ajuste_dentro   = c(rmse(treino$vendas, fitted(modelo_simples)),
+                      rmse(treino$vendas, fitted(modelo_complexo))),
+  erro_fora       = c(rmse(teste$vendas, prev_simples),
+                      rmse(teste$vendas, prev_complexo)),
+  row.names = c("Tendência + sazonal (13 par.)", "Polinômio grau 8 (20 par.)")
+)
+round(comparacao, 2)
+```
+
+::: {.callout-important}
+## O que estes quatro números dizem
+
+Dentro da amostra, o polinômio erra **menos** — RMSE de cerca de 36 contra 37. Ele venceu na única comparação que a maioria dos trabalhos apresenta.
+
+Fora da amostra, ele erra **dez vezes mais**.
+
+Este é o resultado central de Makridakis e Hibon, reproduzido numa tela. O ajuste ao passado e a capacidade de prever o futuro não são a mesma coisa — e, a partir de certo ponto, são objetivos em conflito. Cada parâmetro extra melhora um pouco o ajuste e piora bastante a extrapolação.
+
+O nome disso é **sobreajuste**. O polinômio de grau 8 não aprendeu o padrão da série; ele decorou os solavancos dos 120 meses de treino. Quando teve que se pronunciar sobre o mês 121, projetou para fora curvaturas que existiam apenas no ruído.
+:::
+
+## Exercícios
+
+Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.
+
+### Exercício 1 — vendo o desastre
+
+Coloque num gráfico os 12 meses reais e as previsões dos dois modelos de regressão.
+
+```{webr}
+#| exercise: ap6_ex1
+grafico <- data.frame(
+  tempo = rep(teste$tempo, 3),
+  valor = c(teste$vendas, prev_simples, ______),
+  serie = rep(c("Real", "Tendência + sazonal", "Polinômio grau 8"), each = 12)
+)
+ggplot(grafico, aes(tempo, valor, colour = serie)) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 2) +
+  labs(title = "Previsões contra a realidade", x = "Mês", y = "Unidades") +
+  theme_minimal()
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `prev_complexo`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+grafico <- data.frame(
+  tempo = rep(teste$tempo, 3),
+  valor = c(teste$vendas, prev_simples, prev_complexo),
+  serie = rep(c("Real", "Tendência + sazonal", "Polinômio grau 8"), each = 12)
+)
+ggplot(grafico, aes(tempo, valor, colour = serie)) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 2) +
+  labs(title = "Previsões contra a realidade", x = "Mês", y = "Unidades") +
+  theme_minimal()
+```
+
+A linha do modelo simples acompanha a real de perto. A do polinômio dispara para longe — e o desvio **cresce** a cada mês à frente, porque a extrapolação polinomial se afasta cada vez mais rápido.
+
+O gráfico também mostra por que o RMSE puniu tanto: ele eleva os erros ao quadrado, e alguns erros aqui são gigantes.
+:::
+
+### Exercício 2 — o erro mês a mês
+
+Calcule o erro percentual de cada mês para o modelo simples e identifique o pior.
+
+```{webr}
+#| exercise: ap6_ex2
+erros <- data.frame(
+  mes      = teste$mes,
+  real     = teste$vendas,
+  previsto = round(prev_simples, 1),
+  erro_pct = round(100 * (teste$vendas - prev_simples) / teste$______, 2)
+)
+erros
+erros[which.max(abs(erros$erro_pct)), ]
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `vendas`. `which.max()` devolve a posição do maior valor.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+erros <- data.frame(
+  mes      = teste$mes,
+  real     = teste$vendas,
+  previsto = round(prev_simples, 1),
+  erro_pct = round(100 * (teste$vendas - prev_simples) / teste$vendas, 2)
+)
+erros
+erros[which.max(abs(erros$erro_pct)), ]
+```
+
+Quase todos os erros ficam abaixo de 5%, e não há sinal claro de viés — erros positivos e negativos se alternam. É o comportamento que se espera de um modelo bem especificado: o que sobra é ruído, e ruído não tem direção preferida.
+:::
+
+### Exercício 3 — o preço de cada parâmetro
+
+Estime versões com polinômios de graus intermediários e monte a curva do erro fora da amostra contra a complexidade.
+
+```{webr}
+#| exercise: ap6_ex3
+graus <- c(1, 2, 3, 5, 8)
+erros_fora <- sapply(graus, function(g) {
+  m <- lm(vendas ~ poly(tempo, g) + mes_ano, data = ______)
+  rmse(teste$vendas, predict(m, newdata = ______))
+})
+data.frame(grau = graus, rmse_fora = round(erros_fora, 2))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A primeira lacuna é `treino` (onde se estima) e a segunda é `teste` (onde se avalia). Nunca o contrário.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+graus <- c(1, 2, 3, 5, 8)
+erros_fora <- sapply(graus, function(g) {
+  m <- lm(vendas ~ poly(tempo, g) + mes_ano, data = treino)
+  rmse(teste$vendas, predict(m, newdata = teste))
+})
+data.frame(grau = graus, rmse_fora = round(erros_fora, 2))
+```
+
+O erro fica baixo e estável nos graus 1 a 3 e depois **explode**. Não há uma degradação suave: passado certo ponto, a extrapolação polinomial perde o controle.
+
+Se você fizesse a mesma tabela com o R² dentro da amostra, ela subiria monotonicamente com o grau. Duas curvas, sentidos opostos — a que interessa para previsão é esta.
+:::
+
+### Exercício 4 — combinando previsões
+
+Uma das conclusões mais robustas das competições M: a média de vários métodos costuma bater cada um deles isoladamente. Teste com os três métodos razoáveis.
+
+```{webr}
+#| exercise: ap6_ex4
+prev_combinada <- (prev_ingenuo + prev_sazonal + ______) / 3
+c(ingenuo   = rmse(teste$vendas, prev_ingenuo),
+  sazonal   = rmse(teste$vendas, prev_sazonal),
+  simples   = rmse(teste$vendas, prev_simples),
+  combinada = rmse(teste$vendas, ______))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As duas lacunas são `prev_simples` e `prev_combinada`. Deixe o polinômio de fora — ele estragaria a média.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+prev_combinada <- (prev_ingenuo + prev_sazonal + prev_simples) / 3
+c(ingenuo   = rmse(teste$vendas, prev_ingenuo),
+  sazonal   = rmse(teste$vendas, prev_sazonal),
+  simples   = rmse(teste$vendas, prev_simples),
+  combinada = rmse(teste$vendas, prev_combinada))
+```
+
+A combinação fica melhor que o ingênuo e que o ingênuo sazonal, mas **não** supera o modelo simples sozinho. Isso é honesto e vale registrar: combinar ajuda quando os métodos erram em direções diferentes e têm qualidade parecida. Aqui, um dos componentes é bem melhor que os outros dois, e a média o puxa para baixo.
+
+A lição prática das competições M é mais sutil do que "combinar é sempre melhor": combinar reduz o risco de escolher mal, e essa proteção vale mais quando não se sabe de antemão qual método é o bom.
+:::
+
+### Exercício 5 — escrevendo o resultado
+
+Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num relatório de previsão. Ele precisa conter: o desenho da avaliação, as métricas dos métodos comparados, o método escolhido e uma frase sobre por que o R² não foi o critério.
+
+::: {.callout-note collapse="true" title="Um parágrafo possível"}
+A avaliação empregou divisão temporal da série de 132 observações mensais, com estimação nos 120 primeiros meses e validação nos 12 finais, mantidos fora do processo de estimação e de seleção. Entre os quatro métodos comparados, o modelo de tendência linear com dummies sazonais apresentou o menor erro de previsão (RMSE = 42,4; MAPE = 2,50%), seguido pela previsão ingênua sazonal (RMSE = 67,7; MAPE = 4,45%). A especificação com tendência polinomial de oitava ordem, embora superior no ajuste amostral (R² = 0,932 contra 0,928), registrou o pior desempenho preditivo (RMSE = 388,1; MAPE = 26,00%), caracterizando sobreajuste. Adota-se, portanto, a especificação simples, e registra-se que o critério de seleção foi o erro fora da amostra, e não a qualidade do ajuste.
+
+Repare no que o parágrafo faz: descreve o desenho antes dos resultados, reporta duas métricas, e explicita o critério de escolha — porque é justamente aí que trabalhos de previsão costumam falhar.
+:::
+
+## O que estava por trás dos dados
+
+Chegou a hora. As vendas desta série foram geradas por esta equação:
+
+$$
+\text{vendas}_t = 820 + 3{,}4\,t + 95 \operatorname{sen}\!\left(\frac{2\pi t}{12}\right) + 42{,}75 \cos\!\left(\frac{2\pi t}{6}\right) + u_t
+$$
+
+com $u_t$ sorteado de uma normal de média zero e desvio-padrão 38,0.
+
+Ou seja: uma **tendência linear** e um **padrão sazonal fixo**, mais ruído. Não há curvatura alguma na tendência — o coeficiente de qualquer termo quadrático ou superior é **exatamente zero**.
+
+| | Verdade | Tendência + sazonal | Polinômio grau 8 |
+|---|---|---|---|
+| Tendência mensal | **3,40** | 3,25 | — (8 termos) |
+| Parâmetros | 14 | 13 | 20 |
+| RMSE dentro | — | 36,8 | **35,7** |
+| RMSE fora | — | **42,4** | 388,1 |
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. O modelo vencedor era o modelo certo.** A série foi gerada com tendência linear e sazonalidade fixa — exatamente a especificação do candidato 3. Ele estimou a tendência em 3,25 contra 3,40 verdadeiro, e previu com erro médio de 2,5%. Quando a especificação corresponde ao processo gerador, a previsão funciona. O problema, com dados reais, é que ninguém sabe qual é o processo gerador.
+
+**2. Os sete parâmetros extras estavam medindo ruído.** O polinômio de grau 8 estimou coeficientes não nulos para termos cujo valor verdadeiro é zero. Ele não errou por acaso: ele fez exatamente o que o método manda, que é minimizar a soma dos quadrados dentro da amostra. O ruído dos 120 meses de treino ganhou curvatura, e a curvatura foi projetada para frente.
+
+**3. Nenhum diagnóstico de dentro da amostra teria denunciado o problema.** R² maior, resíduos menores, coeficientes que passam no teste t. Todo o instrumental das unidades anteriores aprovaria o modelo complexo. Só a separação treino/teste revelou o desastre — e é por isso que ela não é opcional em trabalhos de previsão.
+:::
+
+## Voltando ao artigo
+
+Makridakis e Hibon esperavam, nas primeiras competições, que os métodos mais elaborados vencessem. Não venceram, e a reação inicial da comunidade foi questionar as competições, não os métodos. Levou quase duas décadas e três edições para que o resultado fosse aceito como regularidade e não como artefato.
+
+As competições continuam. A M4 (2018) e a M5 (2020) incorporaram aprendizado de máquina, e o retrato ficou mais matizado: métodos modernos passaram a vencer, mas os vencedores costumam ser **combinações** que incluem componentes estatísticos simples, e o ganho sobre um bom benchmark permanece modesto. A lição de fundo sobreviveu.
+
+Duas ressalvas que valem para o que você acabou de fazer:
+
+- **Uma janela de teste é uma amostra.** Doze meses é pouco. Um método pode vencer por sorte numa janela específica. A prática recomendada é a validação em janelas móveis — repetir o exercício deslizando o ponto de corte ao longo da série e comparar o desempenho médio.
+- **Simples não significa melhor por princípio.** Significa que a complexidade precisa se pagar. Se o polinômio tivesse vencido fora da amostra, seria ele o escolhido. O critério não é a elegância nem a modéstia do modelo: é o erro em dados que ele não viu.
