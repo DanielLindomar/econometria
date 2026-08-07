@@ -1,0 +1,364 @@
+---
+title: "Aplicação 1 — Quanto vale um ano a mais de estudo?"
+subtitle: "Econometria I · Unidade 1 — o modelo de regressão linear em uso"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## O que é uma Aplicação
+
+Nos laboratórios você aprendeu a executar. Aqui você vai **usar** o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.
+
+O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.
+:::
+
+## O problema
+
+Poucas perguntas atravessaram tanto a economia do trabalho quanto esta: **quanto vale, em dinheiro, um ano a mais de escolaridade?**
+
+A formulação que se tornou padrão é de Jacob Mincer, em *Schooling, Experience and Earnings* (1974). A ideia é simples e poderosa: os rendimentos de uma pessoa dependem do quanto ela estudou e do quanto já trabalhou. Estudar é um investimento — abre-se mão de renda hoje para ganhar mais depois —, e a regressão permite medir o retorno desse investimento.
+
+Desde então, a equação de Mincer foi estimada para praticamente todo país e período com dados disponíveis. No Brasil, ela é o instrumento por trás de boa parte do que se afirma sobre desigualdade, política educacional e diferencial de gênero no mercado de trabalho.
+
+::: {.callout-tip}
+## Leitura recomendada
+
+Além do trabalho de Mincer, vale ler um estudo brasileiro recente sobre retornos da educação, indicado no Conteúdo Programado da unidade. Compare o que os autores encontraram com o que você vai estimar aqui.
+:::
+
+## Nossa versão
+
+Vamos responder à mesma pergunta com dados de **720 trabalhadores da região de Sinop**, com informações de salário-hora, escolaridade, experiência e sexo.
+
+::: {.callout-important}
+## Estes dados foram gerados por simulação
+
+Não são uma pesquisa de campo. Foram construídos por um processo que **eu conheço** — e é justamente por isso que esta aplicação existe.
+
+Com dados reais, você estima um coeficiente e nunca descobre se acertou. Aqui, no fim da página, eu mostro os valores verdadeiros que usei para gerar os salários. Você vai poder comparar a sua estimativa com a resposta certa — coisa que nenhum economista consegue fazer na vida real.
+
+Não role até lá antes de estimar. A graça está em descobrir depois.
+:::
+
+## Os dados
+
+```{webr}
+salarios <- read.csv("dados/salario_sinop.csv")
+head(salarios)
+summary(salarios)
+```
+
+::: {.callout-tip}
+## O dicionário das variáveis
+
+| Variável | O que é |
+|---|---|
+| `salario_hora` | Rendimento por hora trabalhada, em reais |
+| `escolaridade` | Anos completos de estudo (4 a 20) |
+| `experiencia` | Anos de experiência no mercado de trabalho |
+| `feminino` | 1 se mulher, 0 se homem |
+
+São 720 trabalhadores. O salário-hora médio fica em torno de R$ 21,60 e a escolaridade média em quase 11 anos — o ensino médio completo.
+:::
+
+## Primeiro olhar: escolaridade e salário
+
+Antes de estimar qualquer coisa, veja a relação que você quer medir.
+
+```{webr}
+library(ggplot2)
+ggplot(salarios, aes(escolaridade, salario_hora)) +
+  geom_point(alpha = 0.35, colour = "#1E2761") +
+  geom_smooth(method = "lm", se = FALSE, colour = "#C0392B") +
+  labs(title = "Escolaridade e salário-hora — região de Sinop",
+       x = "Anos de estudo", y = "Salário por hora (R$)") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A nuvem sobe da esquerda para a direita: quem estudou mais ganha mais. A reta vermelha resume essa tendência, e a inclinação dela é exatamente o número que queremos — quantos reais a mais por ano de estudo.
+
+Repare também na **dispersão**: para 11 anos de estudo há gente ganhando R$ 15 e gente ganhando R$ 28. A escolaridade explica parte do salário, não tudo. Guardar isso evita a leitura ingênua do R² mais adiante.
+:::
+
+## O modelo simples
+
+Comece pela versão mais direta: salário explicado só pela escolaridade.
+
+```{webr}
+simples <- lm(salario_hora ~ escolaridade, data = salarios)
+summary(simples)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O coeficiente de `escolaridade` fica em torno de **1,18**: cada ano adicional de estudo está associado a R$ 1,18 a mais por hora. Com 40 horas semanais, isso são cerca de R$ 190 por mês — por ano de estudo.
+
+O R² fica próximo de **0,47**: a escolaridade sozinha explica 47% da variação dos salários nesta amostra.
+
+Guarde o número 1,18. Ele vai mudar.
+:::
+
+## O modelo completo
+
+Duas coisas ficaram de fora. A primeira é a **experiência** — quem trabalha há mais tempo tende a ganhar mais. A segunda é o **sexo** — e a literatura é farta em mostrar que o mercado remunera homens e mulheres de forma diferente, com a mesma qualificação.
+
+```{webr}
+completo <- lm(salario_hora ~ escolaridade + experiencia + feminino, data = salarios)
+summary(completo)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Três coisas mudaram, e todas importam:
+
+O coeficiente da escolaridade **subiu de 1,18 para cerca de 1,35**. Ao incluir a experiência, o retorno da educação aumentou — o que é, no mínimo, curioso. Por quê?
+
+A **experiência** vale cerca de R$ 0,28 por ano: menos de um quarto do que vale um ano de estudo.
+
+A dummy **feminino** fica em torno de **−2,57**: mantidas escolaridade e experiência constantes, as mulheres desta amostra ganham cerca de R$ 2,57 a menos por hora. É o diferencial que não se explica por qualificação.
+
+E o R² sobe para cerca de **0,64**.
+:::
+
+## Por que o retorno da educação aumentou?
+
+Esta é a pergunta central da aplicação, e ela tem uma resposta precisa.
+
+```{webr}
+cor(salarios$escolaridade, salarios$experiencia)
+lm(experiencia ~ escolaridade, data = salarios)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A correlação entre escolaridade e experiência é **negativa**, em torno de −0,25: quem estuda mais entra mais tarde no mercado e, na mesma idade, acumulou menos tempo de trabalho.
+
+Agora junte as duas peças. A experiência tem efeito **positivo** sobre o salário (+0,28) e é **negativamente** correlacionada com a escolaridade (−0,56 anos de experiência por ano de estudo). Ao deixar a experiência de fora, o coeficiente da escolaridade absorve esse efeito pela porta dos fundos — e absorve com sinal negativo, puxando a estimativa para baixo.
+
+É o **viés de variável omitida**, o mesmo fenômeno que produziu o paradoxo do preço no Laboratório 1. Aqui dá para medi-lo: 0,28 × (−0,56) ≈ **−0,16** — quase exatamente a diferença entre 1,18 e 1,35.
+:::
+
+## Exercícios
+
+Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.
+
+### Exercício 1 — a tabela de resultados
+
+Artigos não publicam a saída bruta do R. Publicam uma tabela com coeficiente, erro-padrão e significância. Monte a sua.
+
+```{webr}
+#| exercise: ap1_ex1
+tabela <- data.frame(
+  variavel = names(coef(completo)),
+  coeficiente = round(coef(______), 3),
+  erro_padrao = round(summary(______)$coefficients[, 2], 3),
+  valor_p     = round(summary(______)$coefficients[, 4], 4)
+)
+tabela
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O objeto do modelo completo se chama `completo`. A matriz `summary(modelo)$coefficients` tem quatro colunas: estimativa, erro-padrão, t e valor-p.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+tabela <- data.frame(
+  variavel = names(coef(completo)),
+  coeficiente = round(coef(completo), 3),
+  erro_padrao = round(summary(completo)$coefficients[, 2], 3),
+  valor_p     = round(summary(completo)$coefficients[, 4], 4)
+)
+tabela
+```
+:::
+
+### Exercício 2 — o intervalo de confiança
+
+Um coeficiente sem intervalo é uma informação incompleta. Calcule os intervalos de 95%.
+
+```{webr}
+#| exercise: ap1_ex2
+confint(______, level = ______)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+`confint(modelo, level = 0.95)`. Guarde o intervalo da escolaridade — você vai precisar dele no fim da página.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+confint(completo, level = 0.95)
+```
+:::
+
+### Exercício 3 — previsão para três perfis
+
+Quanto o modelo prevê para cada um destes trabalhadores?
+
+- 11 anos de estudo, 10 de experiência, homem
+- 16 anos de estudo, 5 de experiência, mulher
+- 8 anos de estudo, 20 de experiência, homem
+
+```{webr}
+#| exercise: ap1_ex3
+perfis <- data.frame(
+  escolaridade = c(11, ______, ______),
+  experiencia  = c(10, ______, ______),
+  feminino     = c(0,  ______, ______)
+)
+predict(completo, newdata = perfis)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Cada vetor tem os três valores da respectiva variável, na ordem dos perfis.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+perfis <- data.frame(
+  escolaridade = c(11, 16, 8),
+  experiencia  = c(10, 5, 20),
+  feminino     = c(0, 1, 0)
+)
+predict(completo, newdata = perfis)
+```
+:::
+
+### Exercício 4 — o diferencial de gênero, bruto e ajustado
+
+Compare o salário médio de homens e mulheres **sem** controlar por nada. Depois compare com o coeficiente da dummy no modelo completo. Os dois números são diferentes — e a diferença tem significado.
+
+```{webr}
+#| exercise: ap1_ex4
+salarios |>
+  group_by(______) |>
+  summarise(salario_medio = mean(______), escolaridade_media = mean(______))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Agrupe por `feminino`. Carregue `dplyr` antes com `library(dplyr)`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+library(dplyr)
+salarios |>
+  group_by(feminino) |>
+  summarise(salario_medio = mean(salario_hora), escolaridade_media = mean(escolaridade))
+```
+
+A diferença bruta de salário é de cerca de R$ 2,43, enquanto o coeficiente da dummy é de cerca de −R$ 2,57. As escolaridades médias dos dois grupos são praticamente iguais, então o controle muda pouco — mas repare que o diferencial *ajustado* é **maior** que o bruto. Em amostras reais isso costuma se inverter.
+:::
+
+### Exercício 5 — escrevendo o resultado
+
+Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: o retorno estimado de um ano de estudo, o intervalo de confiança, o diferencial de gênero e uma frase sobre o poder explicativo do modelo.
+
+::: {.callout-note collapse="true" title="Um parágrafo possível"}
+A estimação por MQO de uma equação de rendimentos para 720 trabalhadores da região de Sinop indica que cada ano adicional de escolaridade está associado a um acréscimo de R$ 1,35 no salário-hora (IC 95%: R$ 1,27 a R$ 1,43), mantidas constantes a experiência e o sexo. A experiência apresenta retorno positivo, porém bem menor, de R$ 0,28 por ano. Verifica-se ainda um diferencial de gênero de R$ 2,57 por hora desfavorável às mulheres, não explicado por diferenças de escolaridade ou de experiência entre os grupos. O modelo explica 64% da variação dos salários na amostra.
+
+Repare no que o parágrafo faz: reporta o número, o intervalo, a condição (*mantidas constantes*) e a magnitude relativa. E não afirma causalidade em momento algum.
+:::
+
+## O que estava por trás dos dados
+
+Chegou a hora. Os salários desta amostra foram gerados por esta equação:
+
+$$
+\text{salário} = 4{,}20 + 1{,}35 \times \text{escolaridade} + 0{,}28 \times \text{experiência} - 2{,}10 \times \text{feminino} + u
+$$
+
+com $u$ sorteado de uma normal de média zero e desvio-padrão 3,50.
+
+Compare com o que você estimou:
+
+| Parâmetro | Valor verdadeiro | Você estimou | Intervalo de 95% |
+|---|---|---|---|
+| Intercepto | 4,20 | 4,22 | [3,09 ; 5,34] |
+| Escolaridade | **1,35** | **1,348** | [1,270 ; 1,427] |
+| Experiência | 0,28 | 0,281 | [0,246 ; 0,316] |
+| Feminino | −2,10 | −2,572 | [−3,094 ; −2,050] |
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. O MQO acertou.** Os quatro intervalos de confiança contêm o valor verdadeiro. Não foi sorte: é a propriedade do estimador funcionando. Se repetíssemos a amostragem cem vezes, cerca de 95 dos intervalos conteriam o parâmetro.
+
+**2. Estimativa não é parâmetro.** O coeficiente da dummy saiu em −2,57 quando o verdadeiro era −2,10. A diferença de 0,47 não é erro de cálculo nem de código: é **erro amostral**. Uma amostra é uma amostra. Foi para medir essa incerteza que você calculou o intervalo no Exercício 2 — e é por isso que reportar o coeficiente sem o intervalo esconde metade da informação.
+
+**3. O modelo simples estava enviesado, e dá para provar.** A regressão só com escolaridade deu 1,18 contra o verdadeiro 1,35. O viés de −0,17 é quase idêntico ao previsto pela fórmula do viés de variável omitida: o efeito da variável esquecida (0,28) multiplicado pela relação dela com a variável mantida (−0,56), o que dá −0,16.
+
+Guarde esta última: com dados reais, você nunca saberia que 1,18 estava errado. Aqui você viu.
+:::
+
+## Voltando ao artigo
+
+A literatura brasileira costuma estimar a equação de Mincer em **logaritmo** do salário, e não em nível como fizemos. O motivo é a interpretação: em log, o coeficiente vira o retorno **percentual** de um ano de estudo, comparável entre países e períodos — a ordem de 8% a 10% ao ano que se lê nos artigos.
+
+Nós ficamos em nível de propósito: a Unidade 1 trata do modelo linear, e a transformação logarítmica é o assunto da Unidade 2. Quando chegar ao Laboratório 5, você vai reestimar esta mesma relação em log e obter o número que dialoga diretamente com a literatura.
+
+Duas ressalvas que todo artigo sério faz, e que valem para o que você acabou de estimar:
+
+- **Isto não é causalidade.** Pessoas que estudam mais podem diferir em características não observadas — motivação, origem familiar, acesso a redes — que também afetam o salário. O coeficiente mede associação condicional, não o efeito de mandar alguém estudar mais um ano.
+- **A amostra é o que é.** São 720 trabalhadores de uma região. Nada garante que o retorno seja o mesmo em outro estado, setor ou período.
+
+## Exercícios avaliativos
+
+::: {.callout-important}
+## Vale nota
+
+As respostas destes exercícios são cobradas no **questionário da disciplina, no SIGAA**. Aqui você tem o espaço para rodar seu código e uma dica — **sem a solução**.
+:::
+
+### Questão 1
+
+Reestime o modelo completo apenas para os trabalhadores **com 12 ou mais anos de estudo**. O que acontece com o retorno da escolaridade em relação ao modelo com a amostra toda?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Use `filter(escolaridade >= 12)` antes de estimar. Compare o coeficiente com o 1,348 da amostra completa.
+:::
+
+### Questão 2
+
+Acrescente ao modelo completo o termo `I(experiencia^2)`. O coeficiente do termo quadrático é significativo a 5%? O que o sinal dele diz sobre o formato da relação entre experiência e salário?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+`lm(salario_hora ~ escolaridade + experiencia + I(experiencia^2) + feminino, data = salarios)`. Lembre que a equação verdadeira não tinha termo quadrático.
+:::
+
+### Questão 3
+
+Qual a soma dos quadrados dos resíduos do modelo completo, e qual o desvio-padrão residual? Compare este último com o desvio-padrão de 3,50 usado para gerar os dados.
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+`sum(resid(completo)^2)` e `summary(completo)$sigma`.
+:::
+
