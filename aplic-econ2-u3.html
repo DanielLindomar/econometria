@@ -8,7 +8,7 @@
 
 <meta name="author" content="Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop">
 
-<title>Laboratório 5 — Formas funcionais – Econometria Interativa · UNEMAT</title>
+<title>Aplicação 9 — A reta que recomendaria adubar até a falência – Econometria Interativa · UNEMAT</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -131,6 +131,35 @@ background: #1E2761;
 <script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
 <link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -322,8 +351,8 @@ background: #1E2761;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Laboratório 5 — Formas funcionais</h1>
-            <p class="subtitle lead">Econometria I · Unidade 2 — Formas funcionais dos modelos de regressão</p>
+      <h1 class="title">Aplicação 9 — A reta que recomendaria adubar até a falência</h1>
+            <p class="subtitle lead">Econometria II · Especificação do modelo em uso</p>
                       </div>
   </div>
     
@@ -350,25 +379,24 @@ background: #1E2761;
     <h2 id="toc-title">Nesta página</h2>
    
   <ul>
-  <li><a href="#log-log-a-função-cobb-douglas" id="toc-log-log-a-função-cobb-douglas" class="nav-link active" data-scroll-target="#log-log-a-função-cobb-douglas"><span class="header-section-number">1</span> Log-log: a função Cobb-Douglas</a></li>
-  <li><a href="#log-lin-o-modelo-de-crescimento" id="toc-log-lin-o-modelo-de-crescimento" class="nav-link" data-scroll-target="#log-lin-o-modelo-de-crescimento"><span class="header-section-number">2</span> Log-lin: o modelo de crescimento</a>
+  <li><a href="#o-problema" id="toc-o-problema" class="nav-link active" data-scroll-target="#o-problema"><span class="header-section-number">1</span> O problema</a></li>
+  <li><a href="#nossa-versão" id="toc-nossa-versão" class="nav-link" data-scroll-target="#nossa-versão"><span class="header-section-number">2</span> Nossa versão</a></li>
+  <li><a href="#os-dados" id="toc-os-dados" class="nav-link" data-scroll-target="#os-dados"><span class="header-section-number">3</span> Os dados</a></li>
+  <li><a href="#o-modelo-linear" id="toc-o-modelo-linear" class="nav-link" data-scroll-target="#o-modelo-linear"><span class="header-section-number">4</span> O modelo linear</a></li>
+  <li><a href="#os-resíduos-denunciam" id="toc-os-resíduos-denunciam" class="nav-link" data-scroll-target="#os-resíduos-denunciam"><span class="header-section-number">5</span> Os resíduos denunciam</a></li>
+  <li><a href="#o-teste-reset" id="toc-o-teste-reset" class="nav-link" data-scroll-target="#o-teste-reset"><span class="header-section-number">6</span> O teste RESET</a></li>
+  <li><a href="#a-correção" id="toc-a-correção" class="nav-link" data-scroll-target="#a-correção"><span class="header-section-number">7</span> A correção</a></li>
+  <li><a href="#a-pergunta-que-o-produtor-faz" id="toc-a-pergunta-que-o-produtor-faz" class="nav-link" data-scroll-target="#a-pergunta-que-o-produtor-faz"><span class="header-section-number">8</span> A pergunta que o produtor faz</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">9</span> Exercícios</a>
   <ul class="collapse">
-  <li><a href="#exercício-1-tendência-quadrática" id="toc-exercício-1-tendência-quadrática" class="nav-link" data-scroll-target="#exercício-1-tendência-quadrática"><span class="header-section-number">2.1</span> Exercício 1 — tendência quadrática</a></li>
+  <li><a href="#exercício-1-o-reset-na-mão" id="toc-exercício-1-o-reset-na-mão" class="nav-link" data-scroll-target="#exercício-1-o-reset-na-mão"><span class="header-section-number">9.1</span> Exercício 1 — o RESET na mão</a></li>
+  <li><a href="#exercício-2-comparando-por-critério-de-informação" id="toc-exercício-2-comparando-por-critério-de-informação" class="nav-link" data-scroll-target="#exercício-2-comparando-por-critério-de-informação"><span class="header-section-number">9.2</span> Exercício 2 — comparando por critério de informação</a></li>
+  <li><a href="#exercício-3-o-custo-do-erro-em-sacas" id="toc-exercício-3-o-custo-do-erro-em-sacas" class="nav-link" data-scroll-target="#exercício-3-o-custo-do-erro-em-sacas"><span class="header-section-number">9.3</span> Exercício 3 — o custo do erro, em sacas</a></li>
+  <li><a href="#exercício-4-a-curva-completa" id="toc-exercício-4-a-curva-completa" class="nav-link" data-scroll-target="#exercício-4-a-curva-completa"><span class="header-section-number">9.4</span> Exercício 4 — a curva completa</a></li>
+  <li><a href="#exercício-5-escrevendo-o-resultado" id="toc-exercício-5-escrevendo-o-resultado" class="nav-link" data-scroll-target="#exercício-5-escrevendo-o-resultado"><span class="header-section-number">9.5</span> Exercício 5 — escrevendo o resultado</a></li>
   </ul></li>
-  <li><a href="#lin-log-níveis-explicados-por-percentuais" id="toc-lin-log-níveis-explicados-por-percentuais" class="nav-link" data-scroll-target="#lin-log-níveis-explicados-por-percentuais"><span class="header-section-number">3</span> Lin-log: níveis explicados por percentuais</a></li>
-  <li><a href="#intercepto-zero-o-capm" id="toc-intercepto-zero-o-capm" class="nav-link" data-scroll-target="#intercepto-zero-o-capm"><span class="header-section-number">4</span> Intercepto zero: o CAPM</a>
-  <ul class="collapse">
-  <li><a href="#exercício-2-capm-com-intercepto" id="toc-exercício-2-capm-com-intercepto" class="nav-link" data-scroll-target="#exercício-2-capm-com-intercepto"><span class="header-section-number">4.1</span> Exercício 2 — CAPM com intercepto</a></li>
-  <li><a href="#exercício-3-produção-transcendental" id="toc-exercício-3-produção-transcendental" class="nav-link" data-scroll-target="#exercício-3-produção-transcendental"><span class="header-section-number">4.2</span> Exercício 3 — produção transcendental</a></li>
-  </ul></li>
-  <li><a href="#resumo-das-formas-funcionais" id="toc-resumo-das-formas-funcionais" class="nav-link" data-scroll-target="#resumo-das-formas-funcionais"><span class="header-section-number">5</span> Resumo das formas funcionais</a></li>
-  <li><a href="#glossário-funções-novas-deste-laboratório" id="toc-glossário-funções-novas-deste-laboratório" class="nav-link" data-scroll-target="#glossário-funções-novas-deste-laboratório"><span class="header-section-number">6</span> Glossário — funções novas deste laboratório</a></li>
-  <li><a href="#exercícios-avaliativos" id="toc-exercícios-avaliativos" class="nav-link" data-scroll-target="#exercícios-avaliativos"><span class="header-section-number">7</span> Exercícios avaliativos</a>
-  <ul class="collapse">
-  <li><a href="#questão-1" id="toc-questão-1" class="nav-link" data-scroll-target="#questão-1"><span class="header-section-number">7.1</span> Questão 1</a></li>
-  <li><a href="#questão-2" id="toc-questão-2" class="nav-link" data-scroll-target="#questão-2"><span class="header-section-number">7.2</span> Questão 2</a></li>
-  <li><a href="#questão-3" id="toc-questão-3" class="nav-link" data-scroll-target="#questão-3"><span class="header-section-number">7.3</span> Questão 3</a></li>
-  </ul></li>
+  <li><a href="#o-que-estava-por-trás-dos-dados" id="toc-o-que-estava-por-trás-dos-dados" class="nav-link" data-scroll-target="#o-que-estava-por-trás-dos-dados"><span class="header-section-number">10</span> O que estava por trás dos dados</a></li>
+  <li><a href="#voltando-ao-artigo" id="toc-voltando-ao-artigo" class="nav-link" data-scroll-target="#voltando-ao-artigo"><span class="header-section-number">11</span> Voltando ao artigo</a></li>
   </ul>
 </nav>
     </div>
@@ -388,53 +416,110 @@ background: #1E2761;
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Objetivos de aprendizagem
+<span class="screen-reader-only">Nota</span>O que é uma Aplicação
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Ao final deste laboratório você será capaz de:</p>
-<ul>
-<li>estimar modelos log-log e interpretar coeficientes como <strong>elasticidades</strong>;</li>
-<li>estimar modelos log-lin e ler o coeficiente como <strong>taxa de crescimento</strong>;</li>
-<li>estimar modelos lin-log e o modelo de <strong>intercepto zero</strong> (CAPM);</li>
-<li>escolher a forma funcional adequada a cada pergunta econômica.</li>
-</ul>
+<p>Nos laboratórios você aprendeu a executar. Aqui você vai <strong>usar</strong> o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.</p>
+<p>O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.</p>
 </div>
 </div>
-<p>A regressão é linear <strong>nos parâmetros</strong> — nada impede transformar as variáveis. Cada transformação muda a <strong>pergunta</strong> que o coeficiente responde. Quatro bases: uma função de produção estadual, o PIB real dos EUA, gastos com alimentação de 869 famílias e retornos mensais de ações.</p>
+<section id="o-problema" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="o-problema"><span class="header-section-number">1</span> O problema</h2>
+<p>As hipóteses do modelo clássico costumam ser apresentadas como uma lista: linearidade, exogeneidade, homocedasticidade, ausência de autocorrelação, normalidade. Há testes conhecidos para quase todas.</p>
+<p>A primeira dessas hipóteses é a mais fácil de esquecer e a mais cara quando falha. Ela afirma que o modelo é <strong>linear nos parâmetros e corretamente especificado</strong> — que as variáveis certas estão presentes, na forma funcional certa.</p>
+<p>Em 1969, James Ramsey publicou <em>Tests for Specification Errors in Classical Linear Least-Squares Regression Analysis</em> e propôs um teste com uma ideia que impressiona pela economia de meios.</p>
+<p>Se o modelo estiver corretamente especificado, os valores ajustados <span class="math inline">\(\hat{y}\)</span> contêm toda a informação sistemática que as explicativas conseguem oferecer. Então <strong>potências de <span class="math inline">\(\hat{y}\)</span> não deveriam acrescentar nada</strong>. Basta acrescentá-las ao modelo e testar se são conjuntamente nulas. Se forem significativas, sobrou estrutura que o modelo não capturou.</p>
+<p>É o RESET — <em>Regression Specification Error Test</em>. Ele não diz o que está errado; diz que algo está.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Por que isso é diferente dos outros diagnósticos
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A heterocedasticidade estraga os erros-padrão e deixa o coeficiente intacto. A multicolinearidade infla a variância e deixa o modelo não-viesado.</p>
+<p>O erro de especificação é de outra natureza: ele <strong>enviesa os coeficientes</strong>. Não há correção de erro-padrão que resolva, não há ponderação que ajude. O modelo está estimando os parâmetros de uma equação que não é a equação certa. A única saída é mudar o modelo.</p>
+</div>
+</div>
+</section>
+<section id="nossa-versão" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="nossa-versão"><span class="header-section-number">2</span> Nossa versão</h2>
+<p>Vamos estimar a resposta da <strong>produtividade da soja</strong> à <strong>adubação nitrogenada</strong>, com dados de 250 talhões experimentais.</p>
+<p>A questão é de interesse direto para qualquer produtor: quanto adubo aplicar por hectare. E a agronomia tem uma resposta bem estabelecida — a <strong>lei dos rendimentos decrescentes</strong>. As primeiras doses trazem ganhos grandes; as seguintes, ganhos menores; e a partir de certo ponto o excesso passa a prejudicar a planta.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Comece por aqui
+<span class="screen-reader-only">Importante</span>Estes dados foram gerados por simulação
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A função nova é <code>log()</code>, o logaritmo <strong>natural</strong> — usaremos dentro das fórmulas do <code>lm()</code>.</p>
+<p>Não são um experimento de campo. Foram construídos por um processo que <strong>eu conheço</strong> — inclusive a dose exata em que a produtividade para de crescer.</p>
+<p>No fim da página eu mostro a equação verdadeira. Você vai poder comparar a recomendação técnica que cada modelo produz com a resposta certa — e calcular quanto custaria seguir a recomendação errada.</p>
+<p>Não role até lá antes de estimar.</p>
 </div>
 </div>
+</section>
+<section id="os-dados" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="os-dados"><span class="header-section-number">3</span> Os dados</h2>
 <div class="cell">
 <div>
 <div id="webr-1" class="exercise-cell">
 
 </div>
 <script type="webr-1-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShkcGx5cilcbnByb2R1Y2FvICAgPC0gcmVhZC5jc3YoXCJkYWRvcy9mdW5jYW9fcHJvZHVjYW8uY3N2XCIpXG5waWIgICAgICAgIDwtIHJlYWQuY3N2KFwiZGFkb3MvcGliX3JlYWwuY3N2XCIpXG5hbGltZW50b3MgIDwtIHJlYWQuY3N2KFwiZGFkb3MvZ2FzdG9fYWxpbWVudGFjYW8uY3N2XCIpXG5hY29lcyAgICAgIDwtIHJlYWQuY3N2KFwiZGFkb3MvcmV0b3Jub19hY29lcy5jc3ZcIilcbmhlYWQocHJvZHVjYW8sIDMpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoidGFsaG9lcyA8LSByZWFkLmNzdihcImRhZG9zL2FkdWJvX3Byb2R1dGl2aWRhZGUuY3N2XCIpXG5oZWFkKHRhbGhvZXMpXG5zdW1tYXJ5KHRhbGhvZXMpIn0=
 </script>
 </div>
 </div>
-<section id="log-log-a-função-cobb-douglas" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="log-log-a-função-cobb-douglas"><span class="header-section-number">1</span> Log-log: a função Cobb-Douglas</h2>
-<p>Com <code>log()</code> dos dois lados, cada coeficiente vira uma <strong>elasticidade</strong>: a variação percentual de y quando x varia 1%.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>O dicionário das variáveis
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variável</th>
+<th>O que é</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>adubo</code></td>
+<td>Dose de adubo nitrogenado aplicada, em kg/ha</td>
+</tr>
+<tr class="even">
+<td><code>produtividade</code></td>
+<td>Produtividade da soja, em sacas/ha</td>
+</tr>
+</tbody>
+</table>
+<p>São 250 talhões, com doses distribuídas entre 20 e 320 kg/ha. A produtividade varia de cerca de 39 a 132 sacas por hectare.</p>
+</div>
+</div>
+</section>
+<section id="o-modelo-linear" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="o-modelo-linear"><span class="header-section-number">4</span> O modelo linear</h2>
+<p>Comece pelo mais direto: produtividade explicada linearmente pela dose.</p>
 <div class="cell">
 <div>
 <div id="webr-2" class="exercise-cell">
 
 </div>
 <script type="webr-2-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29iYiA8LSBsbShsb2cocHJvZHV0bykgfiBsb2codHJhYmFsaG8pICsgbG9nKGNhcGl0YWwpLCBkYXRhID0gcHJvZHVjYW8pXG5zdW1tYXJ5KGNvYmIpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGluZWFyIDwtIGxtKHByb2R1dGl2aWRhZGUgfiBhZHVibywgZGF0YSA9IHRhbGhvZXMpXG5zdW1tYXJ5KGxpbmVhcikifQ==
 </script>
 </div>
 </div>
@@ -448,20 +533,22 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29iYiA8LSBsbShsb2cocHJv
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Elasticidade do <strong>trabalho ≈ 0,47</strong>: aumentar o trabalho em 1% eleva o produto em 0,47%. Do <strong>capital ≈ 0,52</strong>. A soma <strong>0,47 + 0,52 ≈ 0,99</strong> é o teste clássico de retornos de escala: praticamente <strong>constantes</strong>. R² de 0,96 — a Cobb-Douglas veste bem estes dados.</p>
+<p>O coeficiente do adubo é cerca de <strong>0,181</strong>: cada quilo a mais de nitrogênio por hectare estaria associado a 0,18 saca a mais de produtividade.</p>
+<p>A estatística t passa de <strong>16</strong>, com valor-p praticamente zero. O R² fica em torno de <strong>0,54</strong>.</p>
+<p>Uma relação positiva, forte, estatisticamente inquestionável. E a recomendação técnica que sai daqui é simples: <strong>quanto mais adubo, mais produtividade</strong>. Como o coeficiente é constante e positivo, o modelo afirma que a dose 400 rende mais que a 300, que rende mais que a 200, sem limite.</p>
+<p>Nenhum agrônomo assinaria essa frase. Vamos ver se a econometria consegue detectá-la sozinha.</p>
 </div>
 </div>
 </section>
-<section id="log-lin-o-modelo-de-crescimento" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="log-lin-o-modelo-de-crescimento"><span class="header-section-number">2</span> Log-lin: o modelo de crescimento</h2>
-<p>Com <code>log()</code> só em y e uma tendência t no lado direito, o coeficiente de t é a <strong>taxa de crescimento</strong> por período. <code>seq_len(n)</code> (nova) gera a sequência 1, 2, …, n usada como tendência.</p>
+<section id="os-resíduos-denunciam" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="os-resíduos-denunciam"><span class="header-section-number">5</span> Os resíduos denunciam</h2>
 <div class="cell">
 <div>
 <div id="webr-3" class="exercise-cell">
 
 </div>
 <script type="webr-3-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicGliIDwtIHBpYiB8PiBtdXRhdGUodCA9IHNlcV9sZW4obigpKSlcbmNyZXNjIDwtIGxtKGxvZyhwaWJfcmVhbCkgfiB0LCBkYXRhID0gcGliKVxuc3VtbWFyeShjcmVzYykifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxudGFsaG9lcyRyZXNpZHVvIDwtIHJlc2lkKGxpbmVhcilcbmdncGxvdCh0YWxob2VzLCBhZXMoYWR1Ym8sIHJlc2lkdW8pKSArXG4gIGdlb21fcG9pbnQoYWxwaGEgPSAwLjYsIGNvbG91ciA9IFwiI0MwMzkyQlwiKSArXG4gIGdlb21faGxpbmUoeWludGVyY2VwdCA9IDAsIGxpbmV0eXBlID0gXCJkYXNoZWRcIikgK1xuICBnZW9tX3Ntb290aChzZSA9IEZBTFNFLCBjb2xvdXIgPSBcIiMxRTI3NjFcIikgK1xuICBsYWJzKHRpdGxlID0gXCJSZXPDrWR1b3MgZG8gbW9kZWxvIGxpbmVhciBjb250cmEgYSBkb3NlXCIsXG4gICAgICAgeCA9IFwiQWR1Ym8gKGtnL2hhKVwiLCB5ID0gXCJSZXPDrWR1b1wiKSArXG4gIHRoZW1lX21pbmltYWwoKSJ9
 </script>
 </div>
 </div>
@@ -475,67 +562,51 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicGliIDwtIHBpYiB8PiBtdXRh
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>O coeficiente de t é <strong>0,0315</strong>: o PIB real cresceu cerca de <strong>3,15% ao ano</strong> no período (para a taxa exata, <code>exp(0,0315) − 1 = 3,20%</code>). O R² de 0,99 mostra crescimento muito estável — é o modelo padrão para séries que crescem a taxa aproximadamente constante.</p>
+<p>Aqui não há aleatoriedade nenhuma. Os resíduos desenham um <strong>arco</strong>: negativos nas doses baixas, positivos nas doses intermediárias, negativos de novo nas doses altas.</p>
+<p>Um resíduo é o que o modelo não explicou. Quando ele tem forma tão marcada, a mensagem é direta: existe estrutura sistemática nos dados que o modelo deixou de fora.</p>
+<p>E a forma do arco identifica a estrutura ausente. Uma curvatura côncava nos resíduos indica que faltou uma curvatura côncava no modelo.</p>
 </div>
 </div>
-<section id="exercício-1-tendência-quadrática" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="exercício-1-tendência-quadrática"><span class="header-section-number">2.1</span> Exercício 1 — tendência quadrática</h3>
-<p>O crescimento acelerou ou desacelerou? Adicione t² com <code>I(t^2)</code> — a função <code>I()</code> (nova) diz ao R para tratar <code>t^2</code> como aritmética, e não como sintaxe de fórmula.</p>
-<div class="cell" data-exercise="l5_ex1">
+</section>
+<section id="o-teste-reset" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="o-teste-reset"><span class="header-section-number">6</span> O teste RESET</h2>
+<div class="cell">
 <div>
 <div id="webr-4" class="exercise-cell">
 
 </div>
 <script type="webr-4-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY3Jlc2MyIDwtIGxtKGxvZyhwaWJfcmVhbCkgfiB0ICsgSShfX19fX18pLCBkYXRhID0gcGliKVxuc3VtbWFyeShjcmVzYzIpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShsbXRlc3QpXG5yZXNldHRlc3QobGluZWFyLCBwb3dlciA9IDI6MywgdHlwZSA9IFwiZml0dGVkXCIpIn0=
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
+<span class="screen-reader-only">Dica</span>Como ler essa saída
 </div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Complete com <code>t^2</code>. Sinal negativo em t² indica desaceleração do crescimento.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>cresc2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(pib_real) <span class="sc">~</span> t <span class="sc">+</span> <span class="fu">I</span>(t<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> pib)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cresc2)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<p>A hipótese nula do RESET é a de <strong>especificação correta</strong>.</p>
+<p>A estatística F passa de <strong>1.100</strong>, com valor-p da ordem de <span class="math inline">\(10^{-93}\)</span>. Rejeitamos a especificação linear de forma esmagadora.</p>
+<p>Vale entender o que o teste fez, porque a mecânica é simples e vale mais que a saída: ele estimou o modelo original, guardou os valores ajustados <span class="math inline">\(\hat{y}\)</span>, acrescentou <span class="math inline">\(\hat{y}^2\)</span> e <span class="math inline">\(\hat{y}^3\)</span> como regressores adicionais e testou se os coeficientes desses dois termos são conjuntamente nulos. Como não são, há informação sistemática que o modelo linear não capturou.</p>
+<p>Repare no que o teste <strong>não</strong> diz. Ele não indica que a forma correta é quadrática, nem qual variável está faltando, nem se o problema é a escala. Ele aponta que há um problema. Diagnosticar qual exige olhar os resíduos e pensar no fenômeno.</p>
 </div>
 </div>
 </section>
-</section>
-<section id="lin-log-níveis-explicados-por-percentuais" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="lin-log-níveis-explicados-por-percentuais"><span class="header-section-number">3</span> Lin-log: níveis explicados por percentuais</h2>
-<p>Com <code>log()</code> só em x, o coeficiente dividido por 100 dá a variação de y (em unidades) quando x sobe <strong>1%</strong> — a forma dos gastos de Engel.</p>
+<section id="a-correção" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="a-correção"><span class="header-section-number">7</span> A correção</h2>
+<p>A teoria agronômica sugere rendimentos decrescentes, e os resíduos mostram um arco. As duas coisas apontam para um termo quadrático.</p>
 <div class="cell">
 <div>
 <div id="webr-5" class="exercise-cell">
 
 </div>
 <script type="webr-5-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZW5nZWwgPC0gbG0oYWxpbWVudGFjYW8gfiBsb2coZ2FzdG9fdG90YWwpLCBkYXRhID0gYWxpbWVudG9zKVxuc3VtbWFyeShlbmdlbCkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicXVhZHJhdGljbyA8LSBsbShwcm9kdXRpdmlkYWRlIH4gYWR1Ym8gKyBJKGFkdWJvXjIpLCBkYXRhID0gdGFsaG9lcylcbnN1bW1hcnkocXVhZHJhdGljbykifQ==
 </script>
 </div>
 </div>
@@ -549,20 +620,19 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZW5nZWwgPC0gbG0oYWxpbWVu
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Coeficiente ≈ <strong>1.593</strong>: quando o gasto total da família sobe 1%, o gasto com alimentação sobe ≈ <strong>US$ 15,93</strong> (1.593/100). O R² baixo (0,31) é típico de dados de família — e não invalida o coeficiente, fortemente significativo.</p>
+<p>Tudo muda:</p>
+<p>O coeficiente linear sobe de 0,181 para cerca de <strong>0,864</strong> — quase cinco vezes maior.</p>
+<p>O coeficiente quadrático fica em torno de <strong>−0,00195</strong>, com t de aproximadamente <strong>−33</strong>. O sinal negativo é a curvatura côncava: os retornos decrescem, exatamente como a agronomia previa.</p>
+<p>O R² sobe de 0,54 para cerca de <strong>0,92</strong>, e o desvio-padrão residual cai de 14,8 para 6,3 sacas — o erro típico de previsão caiu pela metade.</p>
 </div>
 </div>
-</section>
-<section id="intercepto-zero-o-capm" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="intercepto-zero-o-capm"><span class="header-section-number">4</span> Intercepto zero: o CAPM</h2>
-<p>O CAPM prevê que o retorno excedente da carteira responde ao do mercado <strong>sem</strong> intercepto. Na fórmula do R, o intercepto sai com <code>- 1</code>. Na base, <code>y</code> é o retorno excedente do setor e <code>x</code>, o do mercado.</p>
 <div class="cell">
 <div>
 <div id="webr-6" class="exercise-cell">
 
 </div>
 <script type="webr-6-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY2FwbSA8LSBsbSh5IH4geCAtIDEsIGRhdGEgPSBhY29lcylcbnN1bW1hcnkoY2FwbSkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmVzZXR0ZXN0KHF1YWRyYXRpY28sIHBvd2VyID0gMjozLCB0eXBlID0gXCJmaXR0ZWRcIikifQ==
 </script>
 </div>
 </div>
@@ -576,66 +646,53 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY2FwbSA8LSBsbSh5IH4geCAt
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>O <strong>beta ≈ 1,16</strong>: o setor amplifica o mercado — quando o mercado sobe 1 ponto, o setor sobe 1,16 em média. Beta &gt; 1 = ativo <strong>agressivo</strong>. Cuidado: sem intercepto o R² muda de definição; compare modelos com e sem intercepto pelos coeficientes e pela teoria, não pelo R².</p>
+<p>Agora o valor-p fica em torno de <strong>0,09</strong> — acima de 0,05. Não rejeitamos a especificação.</p>
+<p>Honestidade obriga a registrar que a folga é pequena: a 10% de significância, o teste rejeitaria. Isso é normal com 250 observações e um modelo que, embora correto na forma, é uma aproximação simples de um fenômeno biológico. O RESET é um teste sensível, e “não rejeitar” nunca significa “está provado que está certo”.</p>
 </div>
 </div>
-<section id="exercício-2-capm-com-intercepto" class="level3" data-number="4.1">
-<h3 data-number="4.1" class="anchored" data-anchor-id="exercício-2-capm-com-intercepto"><span class="header-section-number">4.1</span> Exercício 2 — CAPM com intercepto</h3>
-<p>Reestime o CAPM <strong>com</strong> intercepto e verifique o “alfa de Jensen”: ele é significativo?</p>
-<div class="cell" data-exercise="l5_ex2">
+</section>
+<section id="a-pergunta-que-o-produtor-faz" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="a-pergunta-que-o-produtor-faz"><span class="header-section-number">8</span> A pergunta que o produtor faz</h2>
+<p>Modelos econométricos existem para responder perguntas práticas. A daqui é: <strong>qual a dose que maximiza a produtividade?</strong></p>
+<div class="cell">
 <div>
 <div id="webr-7" class="exercise-cell">
 
 </div>
 <script type="webr-7-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY2FwbTIgPC0gbG0oX19fX19fIH4gX19fX19fLCBkYXRhID0gYWNvZXMpXG5zdW1tYXJ5KGNhcG0yKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiYiA8LSBjb2VmKHF1YWRyYXRpY28pXG5kb3NlX290aW1hIDwtIC1iWzJdIC8gKDIgKiBiWzNdKVxuZG9zZV9vdGltYSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
+<span class="screen-reader-only">Importante</span>Duas recomendações técnicas incompatíveis
 </div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-9" class="callout-9-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Basta a fórmula padrão <code>y ~ x</code> (sem o <code>- 1</code>). Um alfa não significativo apoia a versão teórica sem intercepto.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-10" class="callout-10-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>capm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> acoes)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(capm2)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<p>O modelo quadrático responde: <strong>cerca de 221 kg/ha</strong>. Acima disso, cada quilo adicional de nitrogênio <strong>reduz</strong> a produtividade.</p>
+<p>O modelo linear não tem resposta para essa pergunta — e é aí que mora o perigo. Ele não diz “não sei”; ele diz, implicitamente, que a dose ótima é infinita. Um técnico que confiasse nele recomendaria aumentar a adubação indefinidamente, e cada quilo acima de 221 seria dinheiro gasto para <strong>perder</strong> produtividade.</p>
+<p>O erro de especificação não ficou nos números da tabela. Ele saiu do computador e virou uma recomendação de campo que custa caro.</p>
 </div>
 </div>
 </section>
-<section id="exercício-3-produção-transcendental" class="level3" data-number="4.2">
-<h3 data-number="4.2" class="anchored" data-anchor-id="exercício-3-produção-transcendental"><span class="header-section-number">4.2</span> Exercício 3 — produção transcendental</h3>
-<p>Estime a <strong>função de produção transcendental</strong>: log-log acrescido dos níveis de trabalho e capital (é o modelo do questionário).</p>
-<div class="cell" data-exercise="l5_ex3">
+<section id="exercícios" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">9</span> Exercícios</h2>
+<p>Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.</p>
+<section id="exercício-1-o-reset-na-mão" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="exercício-1-o-reset-na-mão"><span class="header-section-number">9.1</span> Exercício 1 — o RESET na mão</h3>
+<p>Reproduza o teste RESET manualmente, com um <code>lm()</code> e um <code>anova()</code>.</p>
+<div class="cell" data-exercise="ap9_ex1">
 <div>
 <div id="webr-8" class="exercise-cell">
 
 </div>
 <script type="webr-8-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZnB0IDwtIGxtKGxvZyhwcm9kdXRvKSB+IGxvZyh0cmFiYWxobykgKyBsb2coY2FwaXRhbCkgKyBfX19fX18gKyBfX19fX18sXG4gICAgICAgICAgZGF0YSA9IHByb2R1Y2FvKVxuc3VtbWFyeShmcHQpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoidGFsaG9lcyRhanVzdGFkbyA8LSBmaXR0ZWQoX19fX19fKVxuYXVtZW50YWRvIDwtIGxtKHByb2R1dGl2aWRhZGUgfiBhZHVibyArIEkoYWp1c3RhZG9eMikgKyBJKGFqdXN0YWRvXjMpLCBkYXRhID0gdGFsaG9lcylcbmFub3ZhKGxpbmVhciwgX19fX19fKSJ9
 </script>
 </div>
 </div>
@@ -651,7 +708,7 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZnB0IDwtIGxtKGxvZyhwcm9k
 </div>
 <div id="callout-11" class="callout-11-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Acrescente <code>trabalho</code> e <code>capital</code> (sem log). Compare os R² e a significância com a Cobb-Douglas pura.</p>
+<p>As lacunas são <code>linear</code> e <code>aumentado</code>. O <code>anova()</code> compara os dois modelos aninhados e devolve o teste F.</p>
 </div>
 </div>
 </div>
@@ -667,113 +724,30 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZnB0IDwtIGxtKGxvZyhwcm9k
 </div>
 <div id="callout-12" class="callout-12-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fpt <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(produto) <span class="sc">~</span> <span class="fu">log</span>(trabalho) <span class="sc">+</span> <span class="fu">log</span>(capital) <span class="sc">+</span> trabalho <span class="sc">+</span> capital,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> producao)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fpt)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>talhoes<span class="sc">$</span>ajustado <span class="ot">&lt;-</span> <span class="fu">fitted</span>(linear)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>aumentado <span class="ot">&lt;-</span> <span class="fu">lm</span>(produtividade <span class="sc">~</span> adubo <span class="sc">+</span> <span class="fu">I</span>(ajustado<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> <span class="fu">I</span>(ajustado<span class="sc">^</span><span class="dv">3</span>), <span class="at">data =</span> talhoes)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(linear, aumentado)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>O F bate com o do <code>resettest()</code>. Todo o teste de Ramsey cabe em três linhas: ajuste o modelo, acrescente potências do ajustado, compare.</p>
+<p>A elegância está em não precisar saber <strong>qual</strong> variável ou forma está faltando. Como <span class="math inline">\(\hat{y}\)</span> é uma combinação linear de todas as explicativas, suas potências geram automaticamente quadrados e produtos cruzados de todas elas. O teste procura em muitas direções ao mesmo tempo.</p>
 </div>
 </div>
 </div>
 </section>
-</section>
-<section id="resumo-das-formas-funcionais" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="resumo-das-formas-funcionais"><span class="header-section-number">5</span> Resumo das formas funcionais</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Modelo</th>
-<th>Fórmula no R</th>
-<th>O coeficiente mede</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Linear</td>
-<td><code>y ~ x</code></td>
-<td>Δy (unidades) por Δx de 1 unidade</td>
-</tr>
-<tr class="even">
-<td>Log-log</td>
-<td><code>log(y) ~ log(x)</code></td>
-<td><strong>Elasticidade</strong>: %Δy por 1% em x</td>
-</tr>
-<tr class="odd">
-<td>Log-lin</td>
-<td><code>log(y) ~ t</code></td>
-<td><strong>Taxa de crescimento</strong> por período</td>
-</tr>
-<tr class="even">
-<td>Lin-log</td>
-<td><code>y ~ log(x)</code></td>
-<td>Δy (unidades) por 1% em x (÷100)</td>
-</tr>
-<tr class="odd">
-<td>Intercepto zero</td>
-<td><code>y ~ x - 1</code></td>
-<td>Inclinação pela origem (beta)</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="glossário-funções-novas-deste-laboratório" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="glossário-funções-novas-deste-laboratório"><span class="header-section-number">6</span> Glossário — funções novas deste laboratório</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Função</th>
-<th>O que faz</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>log()</code> / <code>exp()</code></td>
-<td>Logaritmo natural / exponencial.</td>
-</tr>
-<tr class="even">
-<td><code>seq_len(n)</code></td>
-<td>Sequência 1, 2, …, n (tendência temporal).</td>
-</tr>
-<tr class="odd">
-<td><code>I()</code></td>
-<td>Protege aritmética dentro de fórmulas (<code>I(t^2)</code>).</td>
-</tr>
-<tr class="even">
-<td><code>~ x - 1</code></td>
-<td>Remove o intercepto da regressão.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="exercícios-avaliativos" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="exercícios-avaliativos"><span class="header-section-number">7</span> Exercícios avaliativos</h2>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Vale nota
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>As respostas destes exercícios são cobradas no <strong>questionário da disciplina, no SIGAA</strong>. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — <strong>sem a solução</strong>. Anote os valores obtidos antes de responder no SIGAA.</p>
-</div>
-</div>
-<section id="questão-1" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="questão-1"><span class="header-section-number">7.1</span> Questão 1</h3>
-<p>Estime o modelo LOG-LOG log(alimentacao) ~ log(gasto_total) (base gasto_alimentacao.csv). Qual a ELASTICIDADE-RENDA estimada e sua interpretação?</p>
-<p>A base tem uma família com gasto zero em alimentação, e log(0) não existe: filtre com <code>filter(alimentacao &gt; 0)</code> antes de estimar, ou o <code>lm()</code> retorna erro.</p>
-<div class="cell">
+<section id="exercício-2-comparando-por-critério-de-informação" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="exercício-2-comparando-por-critério-de-informação"><span class="header-section-number">9.2</span> Exercício 2 — comparando por critério de informação</h3>
+<p>O R² sempre sobe quando se acrescenta variável. Use um critério que penalize a complexidade.</p>
+<div class="cell" data-exercise="ap9_ex2">
 <div>
 <div id="webr-9" class="exercise-cell">
 
 </div>
 <script type="webr-9-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiQUlDKGxpbmVhciwgX19fX19fKVxuQklDKGxpbmVhciwgX19fX19fKSJ9
 </script>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -782,23 +756,42 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7Nk
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As duas lacunas são <code>quadratico</code>. Nos dois critérios, menor é melhor.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
 <div id="callout-14" class="callout-14-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Atenção: 1.593 é o coeficiente do modelo LIN-LOG (feito na página). Aqui o modelo é log-log, e o coeficiente já é a elasticidade.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(linear, quadratico)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">BIC</span>(linear, quadratico)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>O AIC cai de cerca de 2.059 para 1.634 — uma diferença de mais de 400 pontos. Em comparação de modelos, diferenças acima de 10 já são consideradas decisivas.</p>
+<p>O quadrático vence por larga margem mesmo pagando a penalidade de um parâmetro extra. Quando um termo adicional é realmente necessário, os critérios de informação o aprovam sem hesitação. É a diferença entre acrescentar estrutura e acrescentar ruído — compare com o que aconteceu no polinômio de grau 8 da Aplicação 6.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="questão-2" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="questão-2"><span class="header-section-number">7.2</span> Questão 2</h3>
-<p>A soma das elasticidades ficou perto de 1, mas isso basta para afirmar que os retornos são constantes? Teste formalmente a hipótese H0: elasticidade do trabalho + elasticidade do capital = 1, com linearHypothesis() do pacote car. Informe a estatística F e a conclusão a 5%.</p>
-<div class="cell">
+<section id="exercício-3-o-custo-do-erro-em-sacas" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="exercício-3-o-custo-do-erro-em-sacas"><span class="header-section-number">9.3</span> Exercício 3 — o custo do erro, em sacas</h3>
+<p>Compare o que cada modelo prevê em três doses e meça a diferença.</p>
+<div class="cell" data-exercise="ap9_ex3">
 <div>
 <div id="webr-10" class="exercise-cell">
 
 </div>
 <script type="webr-10-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZG9zZXMgPC0gZGF0YS5mcmFtZShhZHVibyA9IGMoNTAsIDE1MCwgMzAwKSlcbnByZXZfbGluZWFyIDwtIHByZWRpY3QobGluZWFyLCBuZXdkYXRhID0gX19fX19fKVxucHJldl9xdWFkICAgPC0gcHJlZGljdChxdWFkcmF0aWNvLCBuZXdkYXRhID0gX19fX19fKVxuZGF0YS5mcmFtZShcbiAgYWR1Ym8gICAgICAgPSBkb3NlcyRhZHVibyxcbiAgbGluZWFyICAgICAgPSByb3VuZChwcmV2X2xpbmVhciwgMSksXG4gIHF1YWRyYXRpY28gID0gcm91bmQocHJldl9xdWFkLCAxKSxcbiAgZGlmZXJlbmNhICAgPSByb3VuZChwcmV2X2xpbmVhciAtIHByZXZfcXVhZCwgMSlcbikifQ==
 </script>
 </div>
 </div>
@@ -814,26 +807,52 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7Nk
 </div>
 <div id="callout-15" class="callout-15-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Use <code>linearHypothesis(modelo, "trabalho + capital = 1")</code> sobre o modelo em logs. Uma soma próxima de 1 na amostra não implica, por si só, que a restrição não seja rejeitada — é o teste que decide.</p>
+<p>As duas lacunas são <code>doses</code>. Olhe o <strong>sinal</strong> da diferença em cada linha.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-16-contents" aria-controls="callout-16" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-16" class="callout-16-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>doses <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">adubo =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="dv">150</span>, <span class="dv">300</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>prev_linear <span class="ot">&lt;-</span> <span class="fu">predict</span>(linear, <span class="at">newdata =</span> doses)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>prev_quad   <span class="ot">&lt;-</span> <span class="fu">predict</span>(quadratico, <span class="at">newdata =</span> doses)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">adubo       =</span> doses<span class="sc">$</span>adubo,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">linear      =</span> <span class="fu">round</span>(prev_linear, <span class="dv">1</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">quadratico  =</span> <span class="fu">round</span>(prev_quad, <span class="dv">1</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">diferenca   =</span> <span class="fu">round</span>(prev_linear <span class="sc">-</span> prev_quad, <span class="dv">1</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Na dose 50, o linear <strong>superestima</strong> em cerca de 15 sacas. Na dose 150, <strong>subestima</strong> em cerca de 14. Na dose 300, superestima de novo em cerca de 16.</p>
+<p>O padrão dos erros — mais, menos, mais — é o arco dos resíduos aparecendo nas previsões. Erro de especificação não produz erro aleatório: produz erro <strong>sistemático</strong>, com direção previsível conforme a região dos dados. É por isso que ele é mais perigoso que ruído.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="questão-3" class="level3" data-number="7.3">
-<h3 data-number="7.3" class="anchored" data-anchor-id="questão-3"><span class="header-section-number">7.3</span> Questão 3</h3>
-<p>Reestime o modelo log-lin do PIB real usando SÓ os anos a partir de 1980 e informe a TAXA DE CRESCIMENTO ANUAL EXATA (composta) desse subperíodo.</p>
-<div class="cell">
+<section id="exercício-4-a-curva-completa" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="exercício-4-a-curva-completa"><span class="header-section-number">9.4</span> Exercício 4 — a curva completa</h3>
+<p>Coloque num gráfico os dados e as duas curvas ajustadas.</p>
+<div class="cell" data-exercise="ap9_ex4">
 <div>
 <div id="webr-11" class="exercise-cell">
 
 </div>
 <script type="webr-11-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZ2dwbG90KHRhbGhvZXMsIGFlcyhhZHVibywgcHJvZHV0aXZpZGFkZSkpICtcbiAgZ2VvbV9wb2ludChhbHBoYSA9IDAuNCwgY29sb3VyID0gXCJncmV5NDBcIikgK1xuICBnZW9tX3Ntb290aChtZXRob2QgPSBcImxtXCIsIGZvcm11bGEgPSB5IH4geCwgc2UgPSBGQUxTRSwgY29sb3VyID0gXCIjQzAzOTJCXCIpICtcbiAgZ2VvbV9zbW9vdGgobWV0aG9kID0gXCJsbVwiLCBmb3JtdWxhID0geSB+IHggKyBJKHheX19fX19fKSwgc2UgPSBGQUxTRSwgY29sb3VyID0gXCIjMUUyNzYxXCIpICtcbiAgZ2VvbV92bGluZSh4aW50ZXJjZXB0ID0gZG9zZV9vdGltYSwgbGluZXR5cGUgPSBcImRhc2hlZFwiKSArXG4gIGxhYnModGl0bGUgPSBcIlJldGEgKHZlcm1lbGhvKSBlIHBhcsOhYm9sYSAoYXp1bClcIixcbiAgICAgICBzdWJ0aXRsZSA9IFwiQSBsaW5oYSB0cmFjZWphZGEgbWFyY2EgYSBkb3NlIMOzdGltYSBlc3RpbWFkYVwiLFxuICAgICAgIHggPSBcIkFkdWJvIChrZy9oYSlcIiwgeSA9IFwiUHJvZHV0aXZpZGFkZSAoc2FjYXMvaGEpXCIpICtcbiAgdGhlbWVfbWluaW1hbCgpIn0=
 </script>
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-16-contents" aria-controls="callout-16" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -842,16 +861,153 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7Nk
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-16" class="callout-16-contents callout-collapse collapse">
+<div id="callout-17" class="callout-17-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Filtre <code>ano &gt;= 1980</code>, recrie a tendência começando em zero e use <code>exp(coef) - 1</code>. O coeficiente bruto não é a taxa composta.</p>
+<p>A lacuna é <code>2</code>. Observe onde as duas curvas mais se afastam.</p>
 </div>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-18-contents" aria-controls="callout-18" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-18" class="callout-18-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(talhoes, <span class="fu">aes</span>(adubo, produtividade)) <span class="sc">+</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">formula =</span> y <span class="sc">~</span> x, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">colour =</span> <span class="st">"#C0392B"</span>) <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">formula =</span> y <span class="sc">~</span> x <span class="sc">+</span> <span class="fu">I</span>(x<span class="sc">^</span><span class="dv">2</span>), <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">colour =</span> <span class="st">"#1E2761"</span>) <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> dose_otima, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Reta (vermelho) e parábola (azul)"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"A linha tracejada marca a dose ótima estimada"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Adubo (kg/ha)"</span>, <span class="at">y =</span> <span class="st">"Produtividade (sacas/ha)"</span>) <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A parábola acompanha a nuvem de pontos; a reta a corta em diagonal, passando por baixo nas extremidades e por cima no meio.</p>
+<p>O gráfico deixa claro o que o teste apenas indicava. Vale a lição de método: com um único regressor, olhar o gráfico teria resolvido em segundos. Com cinco ou dez regressores, não há gráfico que mostre a superfície — e é aí que o RESET se torna indispensável.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-5-escrevendo-o-resultado" class="level3" data-number="9.5">
+<h3 data-number="9.5" class="anchored" data-anchor-id="exercício-5-escrevendo-o-resultado"><span class="header-section-number">9.5</span> Exercício 5 — escrevendo o resultado</h3>
+<p>Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: a rejeição da especificação linear com o teste, os coeficientes do modelo corrigido, a dose ótima, e uma frase sobre a implicação prática.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Um parágrafo possível">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Um parágrafo possível
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-19" class="callout-19-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A especificação linear da função de resposta da soja à adubação nitrogenada, estimada em 250 talhões, é rejeitada pelo teste RESET de Ramsey (F = 1.114,8; p &lt; 0,001), com resíduos exibindo padrão côncavo sistemático em relação à dose. A especificação quadrática — compatível com a lei dos rendimentos decrescentes — fornece coeficientes de 0,864 para a dose (IC 95%: 0,823 a 0,906) e −0,00195 para seu quadrado (IC 95%: −0,00207 a −0,00184), elevando o R² de 0,536 para 0,916 e reduzindo o desvio-padrão residual de 14,8 para 6,3 sacas/ha. O RESET aplicado ao modelo corrigido não rejeita a especificação a 5% (p = 0,089). A dose maximizadora estimada é de 221,3 kg/ha, acima da qual a produtividade decresce — resultado que a especificação linear seria incapaz de identificar.</p>
+<p>Repare no que o parágrafo faz: rejeita a especificação com o teste e com a evidência gráfica, justifica a alternativa pela teoria antes de estimá-la, reporta a melhora do ajuste e fecha com a implicação prática que só o modelo correto permite.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="o-que-estava-por-trás-dos-dados" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="o-que-estava-por-trás-dos-dados"><span class="header-section-number">10</span> O que estava por trás dos dados</h2>
+<p>Chegou a hora. A produtividade desta amostra foi gerada por esta equação:</p>
+<p><span class="math display">\[
+\text{produtividade} = 28{,}00 + 0{,}850\,\text{adubo} - 0{,}00190\,\text{adubo}^2 + u
+\]</span></p>
+<p>com <span class="math inline">\(u\)</span> sorteado de uma normal de média zero e desvio-padrão 6,20. A dose que maximiza a produtividade verdadeira é <span class="math inline">\(-0{,}850/(2 \times -0{,}00190) = 223{,}7\)</span> kg/ha.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parâmetro</th>
+<th>Valor verdadeiro</th>
+<th>Modelo quadrático</th>
+<th>Intervalo de 95%</th>
+<th>Modelo linear</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Intercepto</td>
+<td>28,00</td>
+<td>27,42</td>
+<td>[24,25 ; 30,58]</td>
+<td>72,22</td>
+</tr>
+<tr class="even">
+<td>adubo</td>
+<td><strong>0,850</strong></td>
+<td><strong>0,864</strong></td>
+<td>[0,823 ; 0,906]</td>
+<td>0,181</td>
+</tr>
+<tr class="odd">
+<td>adubo²</td>
+<td><strong>−0,00190</strong></td>
+<td><strong>−0,00195</strong></td>
+<td>[−0,00207 ; −0,00184]</td>
+<td>ausente</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\sigma\)</span></td>
+<td>6,20</td>
+<td>6,32</td>
+<td>—</td>
+<td>14,81</td>
+</tr>
+<tr class="odd">
+<td><strong>Dose ótima</strong></td>
+<td><strong>223,7 kg/ha</strong></td>
+<td><strong>221,3 kg/ha</strong></td>
+<td>—</td>
+<td><strong>infinita</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Três lições que só a simulação permite
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>1. O modelo correto recuperou tudo.</strong> Os três coeficientes caíram dentro dos intervalos, o desvio-padrão residual estimado (6,32) praticamente coincide com o verdadeiro (6,20), e a dose ótima estimada (221,3) errou a verdadeira (223,7) por pouco mais de 1%. Quando a especificação corresponde ao processo gerador, o MQO faz o que promete.</p>
+<p><strong>2. O modelo linear não errou “um pouco” — ele respondeu outra coisa.</strong> O coeficiente do adubo saiu 0,181 contra 0,850 verdadeiro: menos de um quarto. O intercepto saiu 72,2 contra 28,0. Não é imprecisão; é que os parâmetros de uma reta ajustada a uma parábola <strong>não têm interpretação</strong> nos termos do modelo verdadeiro. Eles são o que são: a melhor reta possível para dados que não são uma reta.</p>
+<p><strong>3. Todos os outros diagnósticos teriam passado.</strong> Os resíduos do modelo linear são aproximadamente homocedásticos, não têm autocorrelação (DW ≈ 2,05), e o coeficiente é significativo com t de 17. Se você tivesse aplicado a bateria completa da Econometria II <strong>exceto</strong> o RESET, o modelo linear passaria em tudo. O erro de especificação não se manifesta nos testes que procuram outra coisa — ele exige o teste que procura por ele.</p>
+</div>
+</div>
+</section>
+<section id="voltando-ao-artigo" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="voltando-ao-artigo"><span class="header-section-number">11</span> Voltando ao artigo</h2>
+<p>Ramsey propôs o RESET num contexto em que os testes de especificação disponíveis exigiam que o pesquisador dissesse <strong>contra qual alternativa</strong> estava testando. Se você suspeitava de um termo quadrático, testava o termo quadrático; se suspeitava de uma variável omitida, precisava tê-la em mãos para incluir.</p>
+<p>A contribuição foi construir um teste que não exige a alternativa. Ele detecta uma classe ampla de erros — forma funcional errada, variável relevante omitida, correlação entre regressores e erro — usando apenas o que o próprio modelo produziu.</p>
+<p>Essa generalidade é também a sua limitação, e Ramsey era explícito quanto a isso. Um RESET significativo informa que há problema, não qual é. O passo seguinte é sempre trabalho de economista, não de software: olhar os resíduos, revisitar a teoria do fenômeno e propor uma especificação melhor. Foi exatamente o que fizemos aqui — a agronomia sugeriu rendimentos decrescentes muito antes de o termo quadrático entrar no <code>lm()</code>.</p>
+<p>Duas ressalvas que valem para o que você acabou de estimar:</p>
+<ul>
+<li><strong>Não rejeitar não é validar.</strong> O modelo quadrático passou no RESET com p de 0,089 — uma folga estreita. Pode existir uma especificação melhor que este teste, com esta amostra, não consegue distinguir. Passar num teste de especificação significa apenas que aquele teste não encontrou problema.</li>
+<li><strong>Cuidado ao extrapolar a parábola.</strong> A dose ótima de 221 kg/ha vem de um modelo estimado com doses entre 20 e 320. Fora dessa faixa, a parábola prevê produtividades negativas para doses muito altas — o que é matematicamente inevitável e biologicamente absurdo. Modelos valem no domínio dos dados que os geraram.</li>
+</ul>
 
 
 <script type="webr-data">
-eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiIsImNhciJdLCJyZXBvcyI6W119LCJyZW5kZXJfZGYiOiJkZWZhdWx0In0=
+eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiIsImxtdGVzdCJdLCJyZXBvcyI6W119LCJyZW5kZXJfZGYiOiJkZWZhdWx0In0=
 </script>
 <script type="ojs-module-contents">
 eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzExID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTA7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEwID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTAtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTAsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC05IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV85O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItOSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzkgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici05LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItOS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV85ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl85LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfODtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTgiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl84ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItOC1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTgtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfOCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfOCwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTciLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzc7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici03IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNyA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTctY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici03LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzcgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzcsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC02IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV82O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzYgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici02LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItNi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV82ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl82LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfNTtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl81ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItNS1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTUtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfNSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfNSwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTQiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzQ7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici00IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNCA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTQtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici00LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzQgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzQsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0zIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV8zO1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzMgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici0zLWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8zID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8zLCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMjtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTIiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl8yID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMi1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTItY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMiwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTEiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfMSA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xLWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzEgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXByZWx1ZGUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ3ZWJST2pzID0ge1xuICBjb25zdCB7IFdlYlIsIENoYW5uZWxUeXBlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lLldlYlI7XG4gIGNvbnN0IHtcbiAgICBXZWJSRXZhbHVhdG9yLFxuICAgIFdlYlJFbnZpcm9ubWVudE1hbmFnZXIsXG4gICAgc2V0dXBSLFxuICAgIGI2NERlY29kZSxcbiAgICBjb2xsYXBzZVBhdGhcbiAgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG5cbiAgY29uc3Qgc3RhdHVzQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLXN0YXR1c1wiKTtcbiAgY29uc3QgaW5kaWNhdG9yQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLWluZGljYXRvclwiKTtcbiAgaW5kaWNhdG9yQ29udGFpbmVyLmNsYXNzTGlzdC5yZW1vdmUoXCJkLW5vbmVcIik7XG5cbiAgbGV0IHN0YXR1c1RleHQgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIHN0YXR1c1RleHQuY2xhc3NMaXN0ID0gXCJleGVyY2lzZS1sb2FkaW5nLWRldGFpbHNcIjtcbiAgc3RhdHVzVGV4dCA9IHN0YXR1c0NvbnRhaW5lci5hcHBlbmRDaGlsZChzdGF0dXNUZXh0KTtcbiAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBJbml0aWFsaXNlYDtcblxuICAvLyBIb2lzdCBpbmRpY2F0b3Igb3V0IGZyb20gZmluYWwgc2xpZGUgd2hlbiBydW5uaW5nIHVuZGVyIHJldmVhbFxuICBjb25zdCByZXZlYWxTdGF0dXMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKFwiLnJldmVhbCAuZXhlcmNpc2UtbG9hZGluZy1pbmRpY2F0b3JcIik7XG4gIGlmIChyZXZlYWxTdGF0dXMpIHtcbiAgICByZXZlYWxTdGF0dXMucmVtb3ZlKCk7XG4gICAgZG9jdW1lbnQucXVlcnlTZWxlY3RvcihcIi5yZXZlYWwgPiAuc2xpZGVzXCIpLmFwcGVuZENoaWxkKHJldmVhbFN0YXR1cyk7XG4gIH1cblxuICAvLyBNYWtlIGFueSByZXZlYWwgc2xpZGVzIHdpdGggbGl2ZSBjZWxscyBzY3JvbGxhYmxlXG4gIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoXCIucmV2ZWFsIC5leGVyY2lzZS1jZWxsXCIpLmZvckVhY2goKGVsKSA9PiB7XG4gICAgZWwuY2xvc2VzdCgnc2VjdGlvbi5zbGlkZScpLmNsYXNzTGlzdC5hZGQoXCJzY3JvbGxhYmxlXCIpO1xuICB9KVxuXG4gIC8vIHdlYlIgc3VwcGxlbWVudGFsIGRhdGEgYW5kIG9wdGlvbnNcbiAgY29uc3QgZGF0YUNvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici1kYXRhXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgZGF0YSA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKGRhdGFDb250ZW50KSk7XG5cbiAgLy8gR3JhYiBsaXN0IG9mIHJlc291cmNlcyB0byBiZSBkb3dubG9hZGVkXG4gIGNvbnN0IGZpbGVzQ29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ2ZnMtZmlsZVxcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGZpbGVzID0gSlNPTi5wYXJzZShiNjREZWNvZGUoZmlsZXNDb250ZW50KSk7XG5cbiAgLy8gSW5pdGlhbGlzZSB3ZWJSIGFuZCBzZXR1cCBmb3IgUiBjb2RlIGV2YWx1YXRpb25cbiAgbGV0IHdlYlJQcm9taXNlID0gKGFzeW5jICh3ZWJSKSA9PiB7XG4gICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyB3ZWJSYDtcbiAgICBhd2FpdCB3ZWJSLmluaXQoKTtcblxuICAgIC8vIEluc3RhbGwgcHJvdmlkZWQgbGlzdCBvZiBwYWNrYWdlc1xuICAgIC8vIEVuc3VyZSB3ZWJSIGRlZmF1bHQgcmVwbyBpcyBpbmNsdWRlZFxuICAgIGRhdGEucGFja2FnZXMucmVwb3MucHVzaChcImh0dHBzOi8vcmVwby5yLXdhc20ub3JnXCIpXG4gICAgYXdhaXQgZGF0YS5wYWNrYWdlcy5wa2dzLm1hcCgocGtnKSA9PiAoKSA9PiB7XG4gICAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYERvd25sb2FkaW5nIHBhY2thZ2U6ICR7cGtnfWA7XG4gICAgICByZXR1cm4gd2ViUi5ldmFsUlZvaWQoYFxuICAgICAgICB3ZWJyOjppbnN0YWxsKHBrZywgcmVwb3MgPSByZXBvcylcbiAgICAgICAgbGlicmFyeShwa2csIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSlcbiAgICAgIGAsIHsgZW52OiB7XG4gICAgICAgIHBrZzogcGtnLFxuICAgICAgICByZXBvczogZGF0YS5wYWNrYWdlcy5yZXBvcyxcbiAgICAgIH19KTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIC8vIERvd25sb2FkIGFuZCBpbnN0YWxsIHJlc291cmNlc1xuICAgIGF3YWl0IGZpbGVzLm1hcCgoZmlsZSkgPT4gYXN5bmMgKCkgPT4ge1xuICAgICAgY29uc3QgbmFtZSA9IGZpbGUuc3Vic3RyaW5nKGZpbGUubGFzdEluZGV4T2YoJy8nKSArIDEpO1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyByZXNvdXJjZTogJHtuYW1lfWA7XG4gICAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKGZpbGUpO1xuICAgICAgaWYgKCFyZXNwb25zZS5vaykge1xuICAgICAgICB0aHJvdyBuZXcgRXJyb3IoYENhbid0IGRvd25sb2FkIFxcYCR7ZmlsZX1cXGAuIEVycm9yICR7cmVzcG9uc2Uuc3RhdHVzfTogXCIke3Jlc3BvbnNlLnN0YXR1c1RleHR9XCIuYCk7XG4gICAgICB9XG4gICAgICBjb25zdCBkYXRhID0gYXdhaXQgcmVzcG9uc2UuYXJyYXlCdWZmZXIoKTtcblxuICAgICAgLy8gU3RvcmUgVVJMcyBpbiB0aGUgY3dkIHdpdGhvdXQgYW55IHN1YmRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGlmIChmaWxlLmluY2x1ZGVzKFwiOi8vXCIpKSB7XG4gICAgICAgIGZpbGUgPSBuYW1lO1xuICAgICAgfVxuXG4gICAgICAvLyBDb2xsYXBzZSBoaWdoZXIgZGlyZWN0b3J5IHN0cnVjdHVyZVxuICAgICAgZmlsZSA9IGNvbGxhcHNlUGF0aChmaWxlKTtcblxuICAgICAgLy8gQ3JlYXRlIGRpcmVjdG9yeSB0cmVlLCBpZ25vcmluZyBcImRpcmVjdG9yeSBleGlzdHNcIiBWRlMgZXJyb3JzXG4gICAgICBjb25zdCBwYXJ0cyA9IGZpbGUuc3BsaXQoJy8nKS5zbGljZSgwLCAtMSk7XG4gICAgICBsZXQgcGF0aCA9ICcnO1xuICAgICAgd2hpbGUgKHBhcnRzLmxlbmd0aCA+IDApIHtcbiAgICAgICAgcGF0aCArPSBwYXJ0cy5zaGlmdCgpICsgJy8nO1xuICAgICAgICBjb25zdCBhbmFseXNpcyA9IGF3YWl0IHdlYlIuRlMuYW5hbHl6ZVBhdGgocGF0aCk7XG4gICAgICAgIGlmICghYW5hbHlzaXMuZXhpc3RzKSB7XG4gICAgICAgICAgdHJ5IHtcbiAgICAgICAgICAgIGF3YWl0IHdlYlIuRlMubWtkaXIocGF0aCk7XG4gICAgICAgICAgfSBjYXRjaCAoZSkge1xuICAgICAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBGaWxlc3lzdGVtIEVycm9yOiBcIiR7ZS5tZXNzYWdlfVwiLmApO1xuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgfVxuXG4gICAgICAvLyBXcml0ZSB0aGlzIGZpbGUgdG8gdGhlIFZGU1xuICAgICAgcmV0dXJuIGF3YWl0IHdlYlIuRlMud3JpdGVGaWxlKGZpbGUsIG5ldyBVaW50OEFycmF5KGRhdGEpKTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgSW5zdGFsbGluZyB3ZWJSIHNoaW1zYDtcbiAgICBhd2FpdCB3ZWJSLmV2YWxSVm9pZChgd2Vicjo6c2hpbV9pbnN0YWxsKClgKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgV2ViUiBlbnZpcm9ubWVudCBzZXR1cGA7XG4gICAgYXdhaXQgc2V0dXBSKHdlYlIsIGRhdGEpO1xuXG4gICAgc3RhdHVzVGV4dC5yZW1vdmUoKTtcbiAgICBpZiAoc3RhdHVzQ29udGFpbmVyLmNoaWxkcmVuLmxlbmd0aCA9PSAwKSB7XG4gICAgICBzdGF0dXNDb250YWluZXIucGFyZW50Tm9kZS5yZW1vdmUoKTtcbiAgICB9XG4gICAgcmV0dXJuIHdlYlI7XG4gIH0pKG5ldyBXZWJSKGRhdGEub3B0aW9ucykpO1xuXG4gIC8vIEtlZXAgdHJhY2sgb2YgaW5pdGlhbCBPSlMgYmxvY2sgcmVuZGVyXG4gIGNvbnN0IHJlbmRlcmVkT2pzID0ge307XG5cbiAgY29uc3QgcHJvY2VzcyA9IGFzeW5jIChjb250ZXh0LCBpbnB1dHMpID0+IHtcbiAgICBjb25zdCB3ZWJSID0gYXdhaXQgd2ViUlByb21pc2U7XG4gICAgY29uc3QgZXZhbHVhdG9yID0gbmV3IFdlYlJFdmFsdWF0b3Iod2ViUiwgY29udGV4dClcbiAgICBhd2FpdCBldmFsdWF0b3IucHJvY2VzcyhpbnB1dHMpO1xuICAgIHJldHVybiBldmFsdWF0b3IuY29udGFpbmVyO1xuICB9XG5cbiAgcmV0dXJuIHtcbiAgICBwcm9jZXNzLFxuICAgIHdlYlJQcm9taXNlLFxuICAgIHJlbmRlcmVkT2pzLFxuICB9O1xufVxuIn1dfQ==
@@ -867,7 +1023,6 @@ eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMSIsImlubGluZSI6ZmFsc2UsIm1l
 <script type="vfs-file">
 WyJkYWRvcy8vbGltb25hZGEuY3N2IiwiZGFkb3MvL2RpYW1hbnRlcy5jc3YiLCJkYWRvcy8vY3Jlc2NpbWVudG8uY3N2IiwiZGFkb3MvL2VtcHJlZ28uY3N2IiwiZGFkb3MvL2FkdWJvX3Byb2R1dGl2aWRhZGUuY3N2IiwiZGFkb3MvL3NhbGFyaW9faG9yYS5jc3YiLCJkYWRvcy8vcHJlc3Nhb19hcnRlcmlhbC5jc3YiLCJkYWRvcy8vc2VyaWVzX3RlbXBvLmNzdiIsImRhZG9zLy9yZXRvcm5vX2Fjb2VzLmNzdiIsImRhZG9zLy9kY3AuY3N2IiwiZGFkb3MvL2NvbnN0cnVjb2VzLmNzdiIsImRhZG9zLy9yZXRvcm5vc19zb2phLmNzdiIsImRhZG9zLy9jb25zdW1vX2ZhbWlsaWFzLmNzdiIsImRhZG9zLy9tYXJpbmhhLmNzdiIsImRhZG9zLy9jb25zdW1vLmNzdiIsImRhZG9zLy9zYWxhcmlvX3Npbm9wLmNzdiIsImRhZG9zLy9zYWxhcmlvX2hvcmEyLmNzdiIsImRhZG9zLy9lc3B1cmlhLmNzdiIsImRhZG9zLy9sYW5jaG9uZXRlcy5jc3YiLCJkYWRvcy8vZ2FzdG9fYWxpbWVudGFjYW8uY3N2IiwiZGFkb3MvL3ZlbmRhc19tYXF1aW5hcy5jc3YiLCJkYWRvcy8vdGVtcGVyYXR1cmFfY29ycG9yYWwuY3N2IiwiZGFkb3MvL3BpYl9yZWFsLmNzdiIsImRhZG9zLy9ob3Jhc190cmFiYWxoby5jc3YiLCJkYWRvcy8vY29ycnVwY2FvLmNzdiIsImRhZG9zLy9pbmR1c3RyaWEuY3N2IiwiZGFkb3MvL2Z1bmNhb19wdWxtb25hci5jc3YiLCJkYWRvcy8vbmF0YWxpZGFkZS5jc3YiLCJkYWRvcy8vYWJvcnRvLmNzdiIsImRhZG9zLy92ZW5kYXNfcm91cGFzLmNzdiIsImRhZG9zLy9mZXJ0aWxpZGFkZS5jc3YiLCJkYWRvcy8vZnVuY2FvX3Byb2R1Y2FvLmNzdiIsImRhZG9zLy9pbnZlc3RpbWVudG8uY3N2IiwiZGFkb3MvL3BkX2VtcHJlc2FzLmNzdiIsImRhZG9zLy9kaWFiZXRlcy5jc3YiLCJkYWRvcy8vY3VzdG9fbWVkaW8uY3N2IiwiZGFkb3MvL2luZHVzdHJpYV9tdC5jc3YiLCJsb2dvLXVuZW1hdC5wbmciXQ==
 </script>
-</section>
 </section>
 
 </main> <!-- /main -->

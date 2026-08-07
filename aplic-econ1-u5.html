@@ -8,7 +8,7 @@
 
 <meta name="author" content="Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop">
 
-<title>Laboratório 4 — Análise de regressão – Econometria Interativa · UNEMAT</title>
+<title>Aplicação 5 — Por que o risco vem em ondas – Econometria Interativa · UNEMAT</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -131,6 +131,35 @@ background: #1E2761;
 <script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
 <link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -322,8 +351,8 @@ background: #1E2761;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Laboratório 4 — Análise de regressão</h1>
-            <p class="subtitle lead">Econometria I · Unidade 1 — Introdução ao modelo de regressão linear</p>
+      <h1 class="title">Aplicação 5 — Por que o risco vem em ondas</h1>
+            <p class="subtitle lead">Econometria I · Unidade 5 — modelos de volatilidade em uso</p>
                       </div>
   </div>
     
@@ -350,25 +379,25 @@ background: #1E2761;
     <h2 id="toc-title">Nesta página</h2>
    
   <ul>
-  <li><a href="#a-regressão-simples" id="toc-a-regressão-simples" class="nav-link active" data-scroll-target="#a-regressão-simples"><span class="header-section-number">1</span> A regressão simples</a></li>
-  <li><a href="#a-saída-completa-summary" id="toc-a-saída-completa-summary" class="nav-link" data-scroll-target="#a-saída-completa-summary"><span class="header-section-number">2</span> A saída completa: summary()</a>
+  <li><a href="#o-problema" id="toc-o-problema" class="nav-link active" data-scroll-target="#o-problema"><span class="header-section-number">1</span> O problema</a></li>
+  <li><a href="#nossa-versão" id="toc-nossa-versão" class="nav-link" data-scroll-target="#nossa-versão"><span class="header-section-number">2</span> Nossa versão</a></li>
+  <li><a href="#os-dados" id="toc-os-dados" class="nav-link" data-scroll-target="#os-dados"><span class="header-section-number">3</span> Os dados</a></li>
+  <li><a href="#primeiro-olhar-a-série-de-retornos" id="toc-primeiro-olhar-a-série-de-retornos" class="nav-link" data-scroll-target="#primeiro-olhar-a-série-de-retornos"><span class="header-section-number">4</span> Primeiro olhar: a série de retornos</a></li>
+  <li><a href="#a-média-não-tem-estrutura" id="toc-a-média-não-tem-estrutura" class="nav-link" data-scroll-target="#a-média-não-tem-estrutura"><span class="header-section-number">5</span> A média não tem estrutura</a></li>
+  <li><a href="#a-variância-tem-muita-estrutura" id="toc-a-variância-tem-muita-estrutura" class="nav-link" data-scroll-target="#a-variância-tem-muita-estrutura"><span class="header-section-number">6</span> A variância tem muita estrutura</a></li>
+  <li><a href="#o-teste-formal" id="toc-o-teste-formal" class="nav-link" data-scroll-target="#o-teste-formal"><span class="header-section-number">7</span> O teste formal</a></li>
+  <li><a href="#o-modelo-garch11" id="toc-o-modelo-garch11" class="nav-link" data-scroll-target="#o-modelo-garch11"><span class="header-section-number">8</span> O modelo GARCH(1,1)</a></li>
+  <li><a href="#a-volatilidade-estimada" id="toc-a-volatilidade-estimada" class="nav-link" data-scroll-target="#a-volatilidade-estimada"><span class="header-section-number">9</span> A volatilidade estimada</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">10</span> Exercícios</a>
   <ul class="collapse">
-  <li><a href="#exercício-1-salário-e-escolaridade" id="toc-exercício-1-salário-e-escolaridade" class="nav-link" data-scroll-target="#exercício-1-salário-e-escolaridade"><span class="header-section-number">2.1</span> Exercício 1 — salário e escolaridade</a></li>
+  <li><a href="#exercício-1-a-persistência-e-a-meia-vida" id="toc-exercício-1-a-persistência-e-a-meia-vida" class="nav-link" data-scroll-target="#exercício-1-a-persistência-e-a-meia-vida"><span class="header-section-number">10.1</span> Exercício 1 — a persistência e a meia-vida</a></li>
+  <li><a href="#exercício-2-a-variância-de-longo-prazo" id="toc-exercício-2-a-variância-de-longo-prazo" class="nav-link" data-scroll-target="#exercício-2-a-variância-de-longo-prazo"><span class="header-section-number">10.2</span> Exercício 2 — a variância de longo prazo</a></li>
+  <li><a href="#exercício-3-o-teste-arch-depois-do-modelo" id="toc-exercício-3-o-teste-arch-depois-do-modelo" class="nav-link" data-scroll-target="#exercício-3-o-teste-arch-depois-do-modelo"><span class="header-section-number">10.3</span> Exercício 3 — o teste ARCH depois do modelo</a></li>
+  <li><a href="#exercício-4-prevendo-a-volatilidade-da-próxima-semana" id="toc-exercício-4-prevendo-a-volatilidade-da-próxima-semana" class="nav-link" data-scroll-target="#exercício-4-prevendo-a-volatilidade-da-próxima-semana"><span class="header-section-number">10.4</span> Exercício 4 — prevendo a volatilidade da próxima semana</a></li>
+  <li><a href="#exercício-5-escrevendo-o-resultado" id="toc-exercício-5-escrevendo-o-resultado" class="nav-link" data-scroll-target="#exercício-5-escrevendo-o-resultado"><span class="header-section-number">10.5</span> Exercício 5 — escrevendo o resultado</a></li>
   </ul></li>
-  <li><a href="#extraindo-partes-do-modelo" id="toc-extraindo-partes-do-modelo" class="nav-link" data-scroll-target="#extraindo-partes-do-modelo"><span class="header-section-number">3</span> Extraindo partes do modelo</a></li>
-  <li><a href="#previsão" id="toc-previsão" class="nav-link" data-scroll-target="#previsão"><span class="header-section-number">4</span> Previsão</a></li>
-  <li><a href="#regressão-múltipla" id="toc-regressão-múltipla" class="nav-link" data-scroll-target="#regressão-múltipla"><span class="header-section-number">5</span> Regressão múltipla</a>
-  <ul class="collapse">
-  <li><a href="#exercício-2-prevendo-salários" id="toc-exercício-2-prevendo-salários" class="nav-link" data-scroll-target="#exercício-2-prevendo-salários"><span class="header-section-number">5.1</span> Exercício 2 — prevendo salários</a></li>
-  <li><a href="#exercício-3-a-função-pulmonar" id="toc-exercício-3-a-função-pulmonar" class="nav-link" data-scroll-target="#exercício-3-a-função-pulmonar"><span class="header-section-number">5.2</span> Exercício 3 — a função pulmonar</a></li>
-  </ul></li>
-  <li><a href="#glossário-funções-novas-deste-laboratório" id="toc-glossário-funções-novas-deste-laboratório" class="nav-link" data-scroll-target="#glossário-funções-novas-deste-laboratório"><span class="header-section-number">6</span> Glossário — funções novas deste laboratório</a></li>
-  <li><a href="#exercícios-avaliativos" id="toc-exercícios-avaliativos" class="nav-link" data-scroll-target="#exercícios-avaliativos"><span class="header-section-number">7</span> Exercícios avaliativos</a>
-  <ul class="collapse">
-  <li><a href="#questão-1" id="toc-questão-1" class="nav-link" data-scroll-target="#questão-1"><span class="header-section-number">7.1</span> Questão 1</a></li>
-  <li><a href="#questão-2" id="toc-questão-2" class="nav-link" data-scroll-target="#questão-2"><span class="header-section-number">7.2</span> Questão 2</a></li>
-  <li><a href="#questão-3" id="toc-questão-3" class="nav-link" data-scroll-target="#questão-3"><span class="header-section-number">7.3</span> Questão 3</a></li>
-  </ul></li>
+  <li><a href="#o-que-estava-por-trás-dos-dados" id="toc-o-que-estava-por-trás-dos-dados" class="nav-link" data-scroll-target="#o-que-estava-por-trás-dos-dados"><span class="header-section-number">11</span> O que estava por trás dos dados</a></li>
+  <li><a href="#voltando-ao-artigo" id="toc-voltando-ao-artigo" class="nav-link" data-scroll-target="#voltando-ao-artigo"><span class="header-section-number">12</span> Voltando ao artigo</a></li>
   </ul>
 </nav>
     </div>
@@ -388,53 +417,118 @@ background: #1E2761;
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Objetivos de aprendizagem
+<span class="screen-reader-only">Nota</span>O que é uma Aplicação
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Ao final deste laboratório você será capaz de:</p>
-<ul>
-<li>estimar uma regressão linear simples e interpretar intercepto e inclinação;</li>
-<li>ler a saída completa da regressão: erros-padrão, estatísticas t, valores-p e R²;</li>
-<li>usar o modelo estimado para fazer previsões;</li>
-<li>estimar uma regressão múltipla e interpretar cada coeficiente “mantido o resto constante”.</li>
-</ul>
+<p>Nos laboratórios você aprendeu a executar. Aqui você vai <strong>usar</strong> o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.</p>
+<p>O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.</p>
 </div>
 </div>
-<p>Chegou a hora de estimar o que, até aqui, só desenhamos: a <strong>reta de regressão</strong>. Duas bases nos acompanham: a limonada da Rosie e uma amostra de <strong>1.289 trabalhadores</strong> com salário-hora, escolaridade e experiência — a versão econômica clássica do problema.</p>
+<section id="o-problema" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="o-problema"><span class="header-section-number">1</span> O problema</h2>
+<p>Toda a econometria que você viu até aqui trata a variância do erro como uma constante. O símbolo <span class="math inline">\(\sigma^2\)</span> não tem índice de tempo: a incerteza de hoje é a mesma de ontem e será a mesma amanhã.</p>
+<p>Quem já acompanhou o preço de uma commodity sabe que isso é falso. Há períodos em que o mercado se move pouco por semanas seguidas, e há períodos em que qualquer notícia produz oscilações de vários por cento ao dia. A incerteza não é constante: ela vem <strong>em ondas</strong>.</p>
+<p>Em 1982, Robert Engle publicou <em>Autoregressive Conditional Heteroscedasticity with Estimates of the Variance of United Kingdom Inflation</em> e propôs modelar exatamente isso. A ideia central:</p>
+<p><span class="math display">\[
+\sigma_t^2 = \omega + \alpha \, u_{t-1}^2
+\]</span></p>
+<p>A variância de hoje depende do quadrado do erro de ontem. Se ontem houve um choque grande — para cima ou para baixo, o quadrado não distingue —, hoje a incerteza é maior. É a <em>heterocedasticidade condicional</em>: a variância não é constante, e o que a governa é o próprio passado da série.</p>
+<p>Em 1986, Tim Bollerslev generalizou, acrescentando a variância passada:</p>
+<p><span class="math display">\[
+\sigma_t^2 = \omega + \alpha \, u_{t-1}^2 + \beta \, \sigma_{t-1}^2
+\]</span></p>
+<p>É o GARCH(1,1), que virou o modelo mais usado da economia financeira aplicada. Engle recebeu o Nobel em 2003.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>O que a Unidade 5 pede que você observe
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Duas coisas, e elas são independentes uma da outra:</p>
+<p><strong>A média pode não ter estrutura nenhuma.</strong> Retornos de ativos são quase imprevisíveis — se fossem previsíveis, alguém já teria lucrado com isso e a previsibilidade teria sumido.</p>
+<p><strong>A variância pode ter muita estrutura.</strong> Não dá para prever se amanhã o preço sobe ou cai, mas dá para prever se amanhã será um dia agitado ou calmo.</p>
+<p>Essa separação — média imprevisível, variância previsível — é o que o modelo ARCH captura, e é o que o MQO simples ignora por completo.</p>
+</div>
+</div>
+</section>
+<section id="nossa-versão" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="nossa-versão"><span class="header-section-number">2</span> Nossa versão</h2>
+<p>Vamos trabalhar com <strong>1.000 pregões</strong> de retornos diários de um contrato futuro de soja, cerca de quatro anos de negociação.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Comece por aqui
+<span class="screen-reader-only">Importante</span>Estes dados foram gerados por simulação
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Rode este bloco primeiro para carregar as duas bases.</p>
+<p>Não são cotações reais. Foram construídos por um processo que <strong>eu conheço</strong> — e é justamente por isso que esta aplicação existe.</p>
+<p>No fim da página eu mostro os parâmetros verdadeiros de <span class="math inline">\(\omega\)</span>, <span class="math inline">\(\alpha\)</span> e <span class="math inline">\(\beta\)</span> que usei para gerar a volatilidade. Você vai poder comparar a sua estimativa com a resposta certa — algo impossível com séries reais, em que ninguém conhece o processo gerador.</p>
+<p>Não role até lá antes de estimar.</p>
 </div>
 </div>
+</section>
+<section id="os-dados" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="os-dados"><span class="header-section-number">3</span> Os dados</h2>
 <div class="cell">
 <div>
 <div id="webr-1" class="exercise-cell">
 
 </div>
 <script type="webr-1-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShkcGx5cilcbmxpbW9uYWRhIDwtIHJlYWQuY3N2KFwiZGFkb3MvbGltb25hZGEuY3N2XCIpXG5zYWxhcmlvICA8LSByZWFkLmNzdihcImRhZG9zL3NhbGFyaW9faG9yYS5jc3ZcIilcbmhlYWQoc2FsYXJpbywgMykifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic29qYSA8LSByZWFkLmNzdihcImRhZG9zL3JldG9ybm9zX3NvamEuY3N2XCIpXG5oZWFkKHNvamEpXG5zdW1tYXJ5KHNvamEkcmV0b3JubykifQ==
 </script>
 </div>
 </div>
-<section id="a-regressão-simples" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="a-regressão-simples"><span class="header-section-number">1</span> A regressão simples</h2>
-<p>A função nova é a mais importante do curso: <code>lm()</code> (<em>linear model</em>) estima a regressão por mínimos quadrados ordinários. A sintaxe usa uma <strong>fórmula</strong>: <code>y ~ x</code> lê-se “y explicado por x”. O argumento <code>data =</code> indica a base — por isso não precisamos de <code>attach()</code> nem de <code>$</code>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>O dicionário das variáveis
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variável</th>
+<th>O que é</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>dia</code></td>
+<td>Número do pregão, de 1 a 1000</td>
+</tr>
+<tr class="even">
+<td><code>retorno</code></td>
+<td>Retorno diário do contrato, em %</td>
+</tr>
+</tbody>
+</table>
+<p>O retorno médio fica perto de <strong>0,02% ao dia</strong> — praticamente zero, como se espera de um ativo negociado. O desvio-padrão é de cerca de <strong>2,70%</strong>, e os extremos vão de aproximadamente −10,7% a +16,3%.</p>
+<p>Repare na assimetria dos extremos em relação ao desvio-padrão: uma queda de 10,7% é quatro desvios-padrão; uma alta de 16,3% é seis. Numa distribuição normal, eventos de seis desvios são raríssimos. Este é o primeiro indício de que a normal não descreve bem esta série.</p>
+</div>
+</div>
+</section>
+<section id="primeiro-olhar-a-série-de-retornos" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="primeiro-olhar-a-série-de-retornos"><span class="header-section-number">4</span> Primeiro olhar: a série de retornos</h2>
 <div class="cell">
 <div>
 <div id="webr-2" class="exercise-cell">
 
 </div>
 <script type="webr-2-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmVnMSA8LSBsbSh2ZW5kYXMgfiB0ZW1wZXJhdHVyYSwgZGF0YSA9IGxpbW9uYWRhKVxucmVnMSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxuZ2dwbG90KHNvamEsIGFlcyhkaWEsIHJldG9ybm8pKSArXG4gIGdlb21fbGluZShjb2xvdXIgPSBcIiMxRTI3NjFcIiwgbGluZXdpZHRoID0gMC40KSArXG4gIGdlb21faGxpbmUoeWludGVyY2VwdCA9IDAsIGxpbmV0eXBlID0gXCJkYXNoZWRcIiwgY29sb3VyID0gXCJncmV5NDBcIikgK1xuICBsYWJzKHRpdGxlID0gXCJSZXRvcm5vcyBkacOhcmlvcyBkYSBzb2phIOKAlCAxLjAwMCBwcmVnw7Vlc1wiLFxuICAgICAgIHggPSBcIlByZWfDo29cIiwgeSA9IFwiUmV0b3JubyAoJSlcIikgK1xuICB0aGVtZV9taW5pbWFsKCkifQ==
 </script>
 </div>
 </div>
@@ -448,20 +542,22 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmVnMSA8LSBsbSh2ZW5kYXMg
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>O R devolve os dois coeficientes: intercepto <strong>13,2</strong> e inclinação <strong>0,758</strong>. A equação estimada é <em>vendas = 13,2 + 0,758·temperatura</em>: cada <strong>grau a mais eleva as vendas em ≈ 0,76 unidade</strong>, e a 0 °C o modelo prevê 13 limonadas. É a resposta que a correlação (0,99) não dava: agora sabemos <strong>quanto</strong>.</p>
+<p>Olhe a <strong>espessura</strong> da faixa, não a direção dos movimentos.</p>
+<p>Há trechos em que a série oscila numa faixa estreita, com variações de 1% a 2%. E há trechos em que ela se agita, com movimentos de 5%, 8%, 10%. Os trechos agitados aparecem em blocos: um dia turbulento raramente vem sozinho.</p>
+<p>Isso tem nome — <strong>agrupamento de volatilidade</strong>, ou <em>volatility clustering</em>. Mandelbrot já havia notado o fenômeno em 1963. O que faltava era um modelo que o descrevesse, e foi isso que Engle entregou em 1982.</p>
 </div>
 </div>
 </section>
-<section id="a-saída-completa-summary" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="a-saída-completa-summary"><span class="header-section-number">2</span> A saída completa: summary()</h2>
-<p>Você já usou <code>summary()</code> num <em>data frame</em>; aplicada a um <strong>modelo</strong>, ela devolve a tabela clássica da regressão — coeficientes, erros-padrão, estatísticas t, valores-p, R² e teste F.</p>
+<section id="a-média-não-tem-estrutura" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="a-média-não-tem-estrutura"><span class="header-section-number">5</span> A média não tem estrutura</h2>
+<p>Antes de modelar a variância, verifique se sobrou alguma coisa na média. Se os retornos fossem previsíveis, seria preciso modelar isso primeiro.</p>
 <div class="cell">
 <div>
 <div id="webr-3" class="exercise-cell">
 
 </div>
 <script type="webr-3-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic3VtbWFyeShyZWcxKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiYWNmKHNvamEkcmV0b3JubywgbGFnLm1heCA9IDIwLCBtYWluID0gXCJBdXRvY29ycmVsYcOnw6NvIGRvcyByZXRvcm5vc1wiKSJ9
 </script>
 </div>
 </div>
@@ -475,68 +571,49 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic3VtbWFyeShyZWcxKSJ9
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Quatro pontos: (1) o <strong>erro-padrão</strong> de 0,0057 mede a precisão da inclinação; (2) a <strong>estatística t</strong> de ≈ 133 e o valor-p <code>&lt;2e-16</code> dizem que a relação é fortíssima — rejeitamos a hipótese de coeficiente zero; (3) o <strong>R² de 0,98</strong> indica que a temperatura sozinha explica 98% da variação das vendas; (4) os asteriscos são só um resumo visual dos valores-p.&nbsp;Essa tabela será nossa companheira até o fim do curso.</p>
+<p>Quase todas as barras ficam dentro das linhas tracejadas, que marcam o intervalo de não significância. A autocorrelação de primeira ordem é de cerca de <strong>0,025</strong> — desprezível.</p>
+<p>Conclusão: o retorno de ontem não ajuda a prever o de hoje. A média é essencialmente imprevisível, exatamente como a teoria de mercados eficientes prevê.</p>
+<p>Se você parasse aqui, concluiria que não há nada a modelar. Seria um engano.</p>
 </div>
 </div>
-<section id="exercício-1-salário-e-escolaridade" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="exercício-1-salário-e-escolaridade"><span class="header-section-number">2.1</span> Exercício 1 — salário e escolaridade</h3>
-<p>Estime a regressão do <strong>salário</strong> contra a <strong>escolaridade</strong> e examine a saída completa.</p>
-<div class="cell" data-exercise="l4_ex1">
+</section>
+<section id="a-variância-tem-muita-estrutura" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="a-variância-tem-muita-estrutura"><span class="header-section-number">6</span> A variância tem muita estrutura</h2>
+<p>Repita o mesmo gráfico com os retornos <strong>ao quadrado</strong> — que é uma medida de magnitude, independente do sinal.</p>
+<div class="cell">
 <div>
 <div id="webr-4" class="exercise-cell">
 
 </div>
 <script type="webr-4-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmVnX3NhbCA8LSBsbShfX19fX18gfiBfX19fX18sIGRhdGEgPSBzYWxhcmlvKVxuc3VtbWFyeShyZWdfc2FsKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiYWNmKHNvamEkcmV0b3Jub14yLCBsYWcubWF4ID0gMjAsIG1haW4gPSBcIkF1dG9jb3JyZWxhw6fDo28gZG9zIHJldG9ybm9zIGFvIHF1YWRyYWRvXCIpIn0=
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
+<span class="screen-reader-only">Dica</span>Como ler essa saída
 </div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>A fórmula é <code>salario ~ escolaridade</code>. Na base, salário está em US$ por hora e escolaridade em anos de estudo.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>reg_sal <span class="ot">&lt;-</span> <span class="fu">lm</span>(salario <span class="sc">~</span> escolaridade, <span class="at">data =</span> salario)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(reg_sal)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Cada ano de estudo eleva o salário em ≈ US$ 1,28/hora; R² ≈ 0,21.</span></span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<p>O quadro muda completamente. As primeiras autocorrelações ficam em torno de <strong>0,18</strong>, <strong>0,25</strong> e <strong>0,22</strong>, bem acima das bandas de significância, e a estrutura persiste por vários períodos.</p>
+<p>Aqui está a descoberta de Engle, num par de gráficos: <strong>o sinal do retorno é imprevisível, mas a magnitude não é</strong>. Dias grandes seguem dias grandes. É essa regularidade que o modelo ARCH transforma em equação.</p>
 </div>
 </div>
 </section>
-</section>
-<section id="extraindo-partes-do-modelo" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="extraindo-partes-do-modelo"><span class="header-section-number">3</span> Extraindo partes do modelo</h2>
-<p>Três funções novas, todas aplicadas ao objeto do modelo: <code>coef()</code> extrai só os coeficientes; <code>confint()</code> calcula os intervalos de confiança; <code>fitted()</code> e <code>resid()</code> devolvem, para cada observação, o valor previsto e o resíduo (erro de ajuste).</p>
+<section id="o-teste-formal" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="o-teste-formal"><span class="header-section-number">7</span> O teste formal</h2>
 <div class="cell">
 <div>
 <div id="webr-5" class="exercise-cell">
 
 </div>
 <script type="webr-5-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29lZihyZWcxKVxuY29uZmludChyZWcxKVxuaGVhZChjYmluZChwcmV2aXN0byA9IGZpdHRlZChyZWcxKSwgcmVzaWR1byA9IHJlc2lkKHJlZzEpKSkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShGaW5UUylcbkFyY2hUZXN0KHNvamEkcmV0b3JubywgbGFncyA9IDEyKSJ9
 </script>
 </div>
 </div>
@@ -550,20 +627,18 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29lZihyZWcxKVxuY29uZmlu
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>O intervalo de 95% da inclinação — cerca de <strong>[0,747; 0,769]</strong> — não contém o zero: mais uma forma de ver a significância. Os resíduos são a parte das vendas que a temperatura <strong>não</strong> explica; eles serão a matéria-prima de todos os diagnósticos da Econometria II.</p>
+<p>O teste ARCH-LM tem como hipótese nula a <strong>ausência</strong> de efeitos ARCH — ou seja, variância condicional constante.</p>
+<p>A estatística passa de <strong>145</strong> com 12 defasagens, e o valor-p é da ordem de <span class="math inline">\(10^{-25}\)</span>. Rejeitamos a nula sem hesitação: há heterocedasticidade condicional na série.</p>
+<p>Vale entender o que o teste faz por baixo do capô, porque é simples: ele regride <span class="math inline">\(u_t^2\)</span> contra suas próprias defasagens e testa se os coeficientes são conjuntamente nulos. É o mesmo raciocínio do teste de Breusch-Pagan, aplicado ao tempo em vez de a um regressor.</p>
 </div>
 </div>
-</section>
-<section id="previsão" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="previsão"><span class="header-section-number">4</span> Previsão</h2>
-<p><code>predict()</code> aplica o modelo a dados novos. O detalhe é o argumento <code>newdata</code>, que recebe um <em>data frame</em> — criado com a função nova <code>data.frame()</code> — com as mesmas colunas usadas na fórmula.</p>
 <div class="cell">
 <div>
 <div id="webr-6" class="exercise-cell">
 
 </div>
 <script type="webr-6-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicHJlZGljdChyZWcxLCBuZXdkYXRhID0gZGF0YS5mcmFtZSh0ZW1wZXJhdHVyYSA9IGMoMTAsIDI1LCAzNSkpKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShtb21lbnRzKVxua3VydG9zaXMoc29qYSRyZXRvcm5vKVxuamFycXVlLnRlc3Qoc29qYSRyZXRvcm5vKSJ9
 </script>
 </div>
 </div>
@@ -577,20 +652,21 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicHJlZGljdChyZWcxLCBuZXdk
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A 10 °C o modelo prevê ≈ <strong>20,8</strong> vendas; a 25 °C, ≈ <strong>32,2</strong>; a 35 °C, ≈ <strong>39,8</strong>. Previsões dentro do intervalo observado dos dados (−9 °C a 39 °C) são seguras; fora dele, é extrapolação — use com cautela.</p>
+<p>A curtose fica em torno de <strong>5,3</strong>. Numa distribuição normal ela vale 3. Valores acima disso indicam <strong>caudas pesadas</strong>: eventos extremos acontecem com frequência muito maior do que a normal prevê.</p>
+<p>O teste de Jarque-Bera rejeita a normalidade com folga.</p>
+<p>E aqui está uma consequência elegante do modelo: um processo GARCH com choques <strong>normais</strong> gera uma distribuição incondicional <strong>leptocúrtica</strong>. As caudas pesadas que você observa não precisam ser postuladas — elas emergem da variância que muda ao longo do tempo. Modelar a volatilidade explica, de quebra, por que as caudas são gordas.</p>
 </div>
 </div>
 </section>
-<section id="regressão-múltipla" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="regressão-múltipla"><span class="header-section-number">5</span> Regressão múltipla</h2>
-<p>Para adicionar variáveis, basta somá-las na fórmula: <code>y ~ x1 + x2</code>. Cada coeficiente passa a medir o efeito daquela variável <strong>mantidas as demais constantes</strong> — o <em>ceteris paribus</em> que a correlação simples não garante.</p>
+<section id="o-modelo-garch11" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="o-modelo-garch11"><span class="header-section-number">8</span> O modelo GARCH(1,1)</h2>
 <div class="cell">
 <div>
 <div id="webr-7" class="exercise-cell">
 
 </div>
 <script type="webr-7-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmVnMiA8LSBsbShzYWxhcmlvIH4gZXNjb2xhcmlkYWRlICsgZXhwZXJpZW5jaWEsIGRhdGEgPSBzYWxhcmlvKVxuc3VtbWFyeShyZWcyKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShmR2FyY2gpXG5tb2RlbG8gPC0gZ2FyY2hGaXQofiBnYXJjaCgxLCAxKSwgZGF0YSA9IHNvamEkcmV0b3JubywgdHJhY2UgPSBGQUxTRSlcbnN1bW1hcnkobW9kZWxvKSJ9
 </script>
 </div>
 </div>
@@ -604,176 +680,126 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmVnMiA8LSBsbShzYWxhcmlv
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Agora cada ano de <strong>escolaridade</strong> vale ≈ <strong>US$ 1,42/hora</strong>, <em>para trabalhadores com a mesma experiência</em>; e cada ano de <strong>experiência</strong> vale ≈ <strong>US$ 0,18/hora</strong>, <em>para a mesma escolaridade</em>. Ambos altamente significativos (t de 20,9 e 10,9). O R² sobe para ≈ 0,28 — típico de dados de indivíduos: muita variação salarial vem de fatores não observados. Compare com o modelo simples: o coeficiente da escolaridade <strong>mudou</strong> (1,28 → 1,42) porque antes ele carregava parte do efeito da experiência — é o viés de variável omitida do Lab 1 reaparecendo.</p>
+<p>Procure os quatro parâmetros na tabela de coeficientes:</p>
+<p><strong><code>mu</code></strong> ≈ 0,02 — o retorno médio. Insignificante, como esperado.</p>
+<p><strong><code>omega</code></strong> ≈ 0,27 — o piso da variância, a parte que não depende do passado.</p>
+<p><strong><code>alpha1</code></strong> ≈ 0,10 — quanto do choque de ontem entra na variância de hoje. É a <strong>reação</strong> do mercado a novidades.</p>
+<p><strong><code>beta1</code></strong> ≈ 0,86 — quanto da variância de ontem persiste hoje. É a <strong>memória</strong> da volatilidade.</p>
+<p>Os dois últimos são altamente significativos, o que confirma o resultado do teste ARCH-LM por outro caminho.</p>
 </div>
 </div>
-<section id="exercício-2-prevendo-salários" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="exercício-2-prevendo-salários"><span class="header-section-number">5.1</span> Exercício 2 — prevendo salários</h3>
-<p>Use o modelo múltiplo para prever o salário de alguém com <strong>12 anos de estudo e 10 de experiência</strong>.</p>
-<div class="cell" data-exercise="l4_ex2">
-<div>
-<div id="webr-8" class="exercise-cell">
-
-</div>
-<script type="webr-8-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicHJlZGljdChyZWcyLCBuZXdkYXRhID0gZGF0YS5mcmFtZShlc2NvbGFyaWRhZGUgPSBfX19fX18sIGV4cGVyaWVuY2lhID0gX19fX19fKSkifQ==
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-10" class="callout-10-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Complete com <code>12</code> e <code>10</code>. O resultado deve ficar perto de US$ 9,2/hora.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-11" class="callout-11-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(reg2, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">escolaridade =</span> <span class="dv">12</span>, <span class="at">experiencia =</span> <span class="dv">10</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-<section id="exercício-3-a-função-pulmonar" class="level3" data-number="5.2">
-<h3 data-number="5.2" class="anchored" data-anchor-id="exercício-3-a-função-pulmonar"><span class="header-section-number">5.2</span> Exercício 3 — a função pulmonar</h3>
-<p>Base médica clássica: 654 jovens, capacidade pulmonar (<code>vef</code>, em litros), idade e se fuma. Estime <strong>vef ~ idade + fumante</strong> e interprete o coeficiente de <code>fumante</code>.</p>
-<div class="cell" data-exercise="l4_ex3">
-<div>
-<div id="webr-9" class="exercise-cell">
-
-</div>
-<script type="webr-9-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicHVsbW9uYXIgPC0gcmVhZC5jc3YoXCJkYWRvcy9mdW5jYW9fcHVsbW9uYXIuY3N2XCIpXG5yZWdfcHVsIDwtIGxtKHZlZiB+IF9fX19fXyArIF9fX19fXywgZGF0YSA9IHB1bG1vbmFyKVxuc3VtbWFyeShyZWdfcHVsKSJ9
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-12" class="callout-12-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>As colunas são <code>idade</code> e <code>fumante</code> (1 = fumante). Controlada a idade, qual o sinal do efeito de fumar?</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-13" class="callout-13-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pulmonar <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"dados/funcao_pulmonar.csv"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>reg_pul <span class="ot">&lt;-</span> <span class="fu">lm</span>(vef <span class="sc">~</span> idade <span class="sc">+</span> fumante, <span class="at">data =</span> pulmonar)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(reg_pul)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fumante ≈ -0,21 litro: mantida a idade, fumantes têm capacidade menor.</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Sem controlar a idade o sinal inverte — fumantes são mais velhos. Viés de variável omitida!</span></span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="glossário-funções-novas-deste-laboratório" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="glossário-funções-novas-deste-laboratório"><span class="header-section-number">6</span> Glossário — funções novas deste laboratório</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Função</th>
-<th>O que faz</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>lm(y ~ x, data)</code></td>
-<td>Estima a regressão por MQO (<code>+</code> adiciona variáveis).</td>
-</tr>
-<tr class="even">
-<td><code>summary(modelo)</code></td>
-<td>Tabela completa: coeficientes, t, p, R², F.</td>
-</tr>
-<tr class="odd">
-<td><code>coef()</code> / <code>confint()</code></td>
-<td>Coeficientes / intervalos de confiança.</td>
-</tr>
-<tr class="even">
-<td><code>fitted()</code> / <code>resid()</code></td>
-<td>Valores previstos / resíduos do ajuste.</td>
-</tr>
-<tr class="odd">
-<td><code>predict(modelo, newdata)</code></td>
-<td>Previsão para dados novos.</td>
-</tr>
-<tr class="even">
-<td><code>data.frame()</code></td>
-<td>Cria uma tabela (usada no <code>newdata</code>).</td>
-</tr>
-<tr class="odd">
-<td><code>cbind()</code></td>
-<td>Junta vetores lado a lado em colunas.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="exercícios-avaliativos" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="exercícios-avaliativos"><span class="header-section-number">7</span> Exercícios avaliativos</h2>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Vale nota
+<span class="screen-reader-only">Importante</span>A soma <span class="math inline">\(\alpha + \beta\)</span> é o número que importa
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>As respostas destes exercícios são cobradas no <strong>questionário da disciplina, no SIGAA</strong>. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — <strong>sem a solução</strong>. Anote os valores obtidos antes de responder no SIGAA.</p>
+<p>Some os dois: aproximadamente <strong>0,96</strong>. Essa soma mede a <strong>persistência</strong> da volatilidade, e sua leitura é direta:</p>
+<ul>
+<li>Se <span class="math inline">\(\alpha + \beta\)</span> está perto de 1, um choque na volatilidade demora muitíssimo para se dissipar. Um período turbulento contamina semanas seguintes.</li>
+<li>Se estivesse perto de 0, a volatilidade voltaria ao normal no dia seguinte.</li>
+<li>Se fosse <strong>igual ou maior que 1</strong>, a variância incondicional não existiria — o processo seria explosivo, e o modelo, inválido.</li>
+</ul>
+<p>Com 0,96, estamos no território típico das séries financeiras: alta persistência, mas ainda estacionária. A variância incondicional implícita é <span class="math inline">\(\omega/(1-\alpha-\beta) \approx 0{,}27/0{,}037 \approx 7{,}2\)</span>, ou seja, desvio-padrão de longo prazo em torno de <strong>2,68%</strong> — muito próximo do desvio-padrão amostral de 2,70% que você viu no <code>summary</code>.</p>
 </div>
 </div>
-<section id="questão-1" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="questão-1"><span class="header-section-number">7.1</span> Questão 1</h3>
-<p>Estime salario ~ escolaridade + experiencia + feminino (base salario_hora.csv) e informe o COEFICIENTE da variável feminino e o R² do modelo.</p>
+</section>
+<section id="a-volatilidade-estimada" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="a-volatilidade-estimada"><span class="header-section-number">9</span> A volatilidade estimada</h2>
 <div class="cell">
+<div>
+<div id="webr-8" class="exercise-cell">
+
+</div>
+<script type="webr-8-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic29qYSR2b2xhdGlsaWRhZGUgPC0gdm9sYXRpbGl0eShtb2RlbG8pXG5nZ3Bsb3Qoc29qYSwgYWVzKGRpYSwgdm9sYXRpbGlkYWRlKSkgK1xuICBnZW9tX2xpbmUoY29sb3VyID0gXCIjQzAzOTJCXCIsIGxpbmV3aWR0aCA9IDAuNikgK1xuICBsYWJzKHRpdGxlID0gXCJWb2xhdGlsaWRhZGUgY29uZGljaW9uYWwgZXN0aW1hZGEgcGVsbyBHQVJDSCgxLDEpXCIsXG4gICAgICAgeCA9IFwiUHJlZ8Ojb1wiLCB5ID0gXCJEZXN2aW8tcGFkcsOjbyBjb25kaWNpb25hbCAoJSlcIikgK1xuICB0aGVtZV9taW5pbWFsKCkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Esta é a série que o modelo entrega e que o MQO jamais produziria: a <strong>incerteza dia a dia</strong>. Os picos coincidem com os trechos agitados do primeiro gráfico, e os vales com os trechos calmos.</p>
+<p>É por isso que o GARCH saiu da academia e foi para as mesas de operação: ele transforma “o mercado está nervoso” numa medida com número, atualizada todo dia, que alimenta cálculos de risco, margens de garantia e precificação de opções.</p>
+</div>
+</div>
+</section>
+<section id="exercícios" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">10</span> Exercícios</h2>
+<p>Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.</p>
+<section id="exercício-1-a-persistência-e-a-meia-vida" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="exercício-1-a-persistência-e-a-meia-vida"><span class="header-section-number">10.1</span> Exercício 1 — a persistência e a meia-vida</h3>
+<p>Calcule <span class="math inline">\(\alpha + \beta\)</span> e, a partir dela, a <strong>meia-vida</strong> de um choque de volatilidade: quantos dias até que metade do efeito tenha se dissipado.</p>
+<div class="cell" data-exercise="ap5_ex1">
+<div>
+<div id="webr-9" class="exercise-cell">
+
+</div>
+<script type="webr-9-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicCA8LSBjb2VmKG1vZGVsbylcbnBlcnNpc3RlbmNpYSA8LSBwW1wiYWxwaGExXCJdICsgcFtcIl9fX19fX1wiXVxucGVyc2lzdGVuY2lhXG5tZWlhX3ZpZGEgPC0gbG9nKDAuNSkgLyBsb2coX19fX19fKVxubWVpYV92aWRhIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A primeira lacuna é <code>beta1</code>. A segunda é <code>persistencia</code> — a fórmula da meia-vida de um processo com decaimento geométrico é <span class="math inline">\(\ln(0{,}5)/\ln(\alpha+\beta)\)</span>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-14" class="callout-14-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">coef</span>(modelo)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>persistencia <span class="ot">&lt;-</span> p[<span class="st">"alpha1"</span>] <span class="sc">+</span> p[<span class="st">"beta1"</span>]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>persistencia</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>meia_vida <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="fl">0.5</span>) <span class="sc">/</span> <span class="fu">log</span>(persistencia)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>meia_vida</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A persistência fica em torno de 0,96 e a meia-vida em cerca de <strong>18 pregões</strong> — quase um mês de calendário. Um susto no mercado leva quase um mês para ter metade do seu efeito dissipado.</p>
+<p>Compare com uma persistência de 0,80: a meia-vida cairia para 3 dias. A diferença entre 0,80 e 0,96 parece pequena no papel e é enorme na prática.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-2-a-variância-de-longo-prazo" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="exercício-2-a-variância-de-longo-prazo"><span class="header-section-number">10.2</span> Exercício 2 — a variância de longo prazo</h3>
+<p>Calcule a variância incondicional implícita pelo modelo e compare com a variância amostral dos retornos.</p>
+<div class="cell" data-exercise="ap5_ex2">
 <div>
 <div id="webr-10" class="exercise-cell">
 
 </div>
 <script type="webr-10-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicCA8LSBjb2VmKG1vZGVsbylcbnZhcl9sb25nb19wcmF6byA8LSBwW1wib21lZ2FcIl0gLyAoMSAtIHBbXCJhbHBoYTFcIl0gLSBwW1wiX19fX19fXCJdKVxuYyhpbXBsaWNpdGEgPSBhcy5udW1lcmljKHZhcl9sb25nb19wcmF6byksXG4gIGFtb3N0cmFsICA9IHZhcihzb2phJF9fX19fXykpXG5zcXJ0KHZhcl9sb25nb19wcmF6bykifQ==
 </script>
 </div>
 </div>
@@ -789,51 +815,42 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7Nk
 </div>
 <div id="callout-15" class="callout-15-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Rode lm(salario ~ escolaridade + experiencia + feminino, data = salario) e leia a linha ‘feminino’ e o Multiple R-squared.</p>
+<p>As lacunas são <code>beta1</code> e <code>retorno</code>.</p>
 </div>
 </div>
 </div>
-</section>
-<section id="questão-2" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="questão-2"><span class="header-section-number">7.2</span> Questão 2</h3>
-<p>Com o modelo salario ~ escolaridade + experiencia, qual o salário-hora previsto para um trabalhador com 8 ANOS DE ESTUDO e 20 ANOS DE EXPERIÊNCIA?</p>
-<div class="cell">
-<div>
-<div id="webr-11" class="exercise-cell">
-
-</div>
-<script type="webr-11-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-16-contents" aria-controls="callout-16" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
+<span class="screen-reader-only">Nota</span>Solução
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-16" class="callout-16-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Atenção: 9,18 corresponde a 12 anos de estudo e 10 de experiência (exemplo da página). Refaça com escolaridade = 8 e experiencia = 20.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">coef</span>(modelo)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>var_longo_prazo <span class="ot">&lt;-</span> p[<span class="st">"omega"</span>] <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> p[<span class="st">"alpha1"</span>] <span class="sc">-</span> p[<span class="st">"beta1"</span>])</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">implicita =</span> <span class="fu">as.numeric</span>(var_longo_prazo),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">amostral  =</span> <span class="fu">var</span>(soja<span class="sc">$</span>retorno))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(var_longo_prazo)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>As duas ficam próximas de 7,2 e 7,3. O modelo, que nunca “viu” a variância total da amostra, a reconstrói a partir de três parâmetros estimados da dinâmica diária. É um bom teste de coerência interna.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="questão-3" class="level3" data-number="7.3">
-<h3 data-number="7.3" class="anchored" data-anchor-id="questão-3"><span class="header-section-number">7.3</span> Questão 3</h3>
-<p>Estime vef ~ idade + altura (base funcao_pulmonar.csv) e informe o coeficiente da ALTURA e o R² do modelo.</p>
-<div class="cell">
+<section id="exercício-3-o-teste-arch-depois-do-modelo" class="level3" data-number="10.3">
+<h3 data-number="10.3" class="anchored" data-anchor-id="exercício-3-o-teste-arch-depois-do-modelo"><span class="header-section-number">10.3</span> Exercício 3 — o teste ARCH depois do modelo</h3>
+<p>Um modelo GARCH bem especificado deve <strong>eliminar</strong> a estrutura na variância. Aplique o teste ARCH aos resíduos padronizados e veja se ainda sobra alguma coisa.</p>
+<div class="cell" data-exercise="ap5_ex3">
 <div>
-<div id="webr-12" class="exercise-cell">
+<div id="webr-11" class="exercise-cell">
 
 </div>
-<script type="webr-12-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+<script type="webr-11-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmVzaWR1b3NfcGFkcm9uaXphZG9zIDwtIHJlc2lkdWFscyhtb2RlbG8sIHN0YW5kYXJkaXplID0gVFJVRSlcbkFyY2hUZXN0KF9fX19fXywgbGFncyA9IDEyKVxuYWNmKHJlc2lkdW9zX3BhZHJvbml6YWRvc14yLCBsYWcubWF4ID0gMjAsIG1haW4gPSBcIlF1YWRyYWRvcyBkb3MgcmVzw61kdW9zIHBhZHJvbml6YWRvc1wiKSJ9
 </script>
 </div>
 </div>
@@ -849,14 +866,181 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7Nk
 </div>
 <div id="callout-17" class="callout-17-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Rode lm(vef ~ idade + altura, data = pulmonar). Cuidado: 0,222 é o coeficiente da IDADE no modelo simples vef ~ idade.</p>
+<p>A lacuna é <code>residuos_padronizados</code>. Compare o valor-p com o do teste feito na série original.</p>
 </div>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-18-contents" aria-controls="callout-18" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-18" class="callout-18-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>residuos_padronizados <span class="ot">&lt;-</span> <span class="fu">residuals</span>(modelo, <span class="at">standardize =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ArchTest</span>(residuos_padronizados, <span class="at">lags =</span> <span class="dv">12</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">acf</span>(residuos_padronizados<span class="sc">^</span><span class="dv">2</span>, <span class="at">lag.max =</span> <span class="dv">20</span>, <span class="at">main =</span> <span class="st">"Quadrados dos resíduos padronizados"</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Agora o valor-p fica bem acima de 0,05 e as barras do correlograma caem dentro das bandas. <strong>Não rejeitamos</strong> a ausência de efeitos ARCH — o modelo absorveu a estrutura.</p>
+<p>Esta é a etapa de diagnóstico que separa um modelo estimado de um modelo validado. Um GARCH cujos resíduos padronizados ainda apresentam efeito ARCH está mal especificado, e a saída seria aumentar a ordem ou mudar a família do modelo.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-4-prevendo-a-volatilidade-da-próxima-semana" class="level3" data-number="10.4">
+<h3 data-number="10.4" class="anchored" data-anchor-id="exercício-4-prevendo-a-volatilidade-da-próxima-semana"><span class="header-section-number">10.4</span> Exercício 4 — prevendo a volatilidade da próxima semana</h3>
+<p>Use o modelo para prever a volatilidade dos próximos 5 pregões.</p>
+<div class="cell" data-exercise="ap5_ex4">
+<div>
+<div id="webr-12" class="exercise-cell">
+
+</div>
+<script type="webr-12-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicHJldmlzYW8gPC0gcHJlZGljdChtb2RlbG8sIG4uYWhlYWQgPSBfX19fX18pXG5wcmV2aXNhbyJ9
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-19" class="callout-19-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A lacuna é <code>5</code>. Olhe a coluna <code>standardDeviation</code> e compare os cinco valores entre si.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-20-contents" aria-controls="callout-20" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-20" class="callout-20-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>previsao <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo, <span class="at">n.ahead =</span> <span class="dv">5</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>previsao</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A coluna <code>meanForecast</code> é praticamente constante e próxima de zero — o modelo não pretende prever direção, e não deveria mesmo.</p>
+<p>A coluna <code>standardDeviation</code> é a previsão útil. Repare que os valores caminham lentamente na direção do desvio-padrão de longo prazo (cerca de 2,68%): se o último dia foi turbulento, a previsão parte alta e vai cedendo; se foi calmo, parte baixa e vai subindo. Essa convergência gradual é a marca do GARCH estacionário.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-5-escrevendo-o-resultado" class="level3" data-number="10.5">
+<h3 data-number="10.5" class="anchored" data-anchor-id="exercício-5-escrevendo-o-resultado"><span class="header-section-number">10.5</span> Exercício 5 — escrevendo o resultado</h3>
+<p>Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: a evidência de efeito ARCH com o teste e seu valor-p, os parâmetros estimados, a persistência com sua interpretação, e o diagnóstico dos resíduos.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Um parágrafo possível">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-21-contents" aria-controls="callout-21" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Um parágrafo possível
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-21" class="callout-21-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A série de 1.000 retornos diários apresenta média não distinguível de zero e ausência de autocorrelação nos níveis, mas forte dependência nos quadrados. O teste ARCH-LM rejeita a hipótese de variância condicional constante (LM = 145,7 com 12 defasagens; p &lt; 0,001), e a curtose amostral de 5,26 evidencia caudas mais pesadas que as da normal. A estimação de um GARCH(1,1) fornece <span class="math inline">\(\hat{\omega} = 0{,}268\)</span>, <span class="math inline">\(\hat{\alpha} = 0{,}100\)</span> e <span class="math inline">\(\hat{\beta} = 0{,}863\)</span>, ambos os parâmetros de dinâmica significativos a 1%. A persistência <span class="math inline">\(\alpha + \beta = 0{,}963\)</span> implica meia-vida de aproximadamente 18 pregões para um choque de volatilidade. O teste ARCH aplicado aos resíduos padronizados não rejeita a hipótese nula, indicando especificação adequada.</p>
+<p>Repare no que o parágrafo faz: documenta o diagnóstico que motivou o modelo, reporta os parâmetros, traduz a persistência em unidade compreensível (dias) e fecha com a validação. É a sequência esperada num artigo de econometria financeira.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="o-que-estava-por-trás-dos-dados" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="o-que-estava-por-trás-dos-dados"><span class="header-section-number">11</span> O que estava por trás dos dados</h2>
+<p>Chegou a hora. Os retornos desta amostra foram gerados por este processo:</p>
+<p><span class="math display">\[
+r_t = 0{,}05 + u_t, \qquad u_t = \sigma_t z_t, \qquad z_t \sim N(0,1)
+\]</span></p>
+<p><span class="math display">\[
+\sigma_t^2 = 0{,}30 + 0{,}12\, u_{t-1}^2 + 0{,}84\, \sigma_{t-1}^2
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parâmetro</th>
+<th>Valor verdadeiro</th>
+<th>Você estimou</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\mu\)</span></td>
+<td>0,050</td>
+<td>0,025</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\omega\)</span></td>
+<td>0,300</td>
+<td>0,268</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\alpha\)</span></td>
+<td><strong>0,120</strong></td>
+<td><strong>0,100</strong></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\beta\)</span></td>
+<td><strong>0,840</strong></td>
+<td><strong>0,863</strong></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\alpha + \beta\)</span></td>
+<td><strong>0,960</strong></td>
+<td><strong>0,963</strong></td>
+</tr>
+<tr class="even">
+<td>Desvio-padrão de longo prazo</td>
+<td>2,739</td>
+<td>2,679</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Três lições que só a simulação permite
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>1. A persistência foi recuperada quase exatamente.</strong> O verdadeiro <span class="math inline">\(\alpha + \beta\)</span> era 0,960 e a estimativa deu 0,963. Repare que <span class="math inline">\(\alpha\)</span> e <span class="math inline">\(\beta\)</span> individualmente erraram um pouco mais — 0,100 contra 0,120, e 0,863 contra 0,840 —, mas <strong>na direção oposta</strong>, de modo que a soma acertou. Isso não é acaso: os dois parâmetros são difíceis de separar entre si e fáceis de identificar em conjunto. Por isso a literatura reporta a soma, e não apenas os componentes.</p>
+<p><strong>2. As caudas pesadas não foram postuladas — apareceram.</strong> Os choques <span class="math inline">\(z_t\)</span> que geraram esta série são <strong>normais</strong>, sorteados de uma normal padrão. Ainda assim, a curtose amostral deu 5,26, e o teste de Jarque-Bera rejeitou a normalidade com folga. É o GARCH gerando leptocurtose sozinho. Quem observasse apenas o histograma poderia concluir que “os choques têm distribuição t”; a verdade é que os choques eram normais e a <strong>variância variável</strong> produziu as caudas.</p>
+<p><strong>3. O MQO teria dado a resposta certa para a pergunta errada.</strong> Uma regressão do retorno contra uma constante estimaria a média com precisão e reportaria um <span class="math inline">\(\sigma\)</span> único de 2,70% — que é o desvio-padrão médio correto. Só que em nenhum dia a volatilidade <strong>é</strong> 2,70%: ela vai de menos de 1,5% a mais de 6%. O número médio existe e é inútil para quem precisa calibrar risco amanhã.</p>
+</div>
+</div>
+</section>
+<section id="voltando-ao-artigo" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="voltando-ao-artigo"><span class="header-section-number">12</span> Voltando ao artigo</h2>
+<p>Engle estimou seu ARCH original com a inflação do Reino Unido entre 1958 e 1977 — dados macroeconômicos, não financeiros. A pergunta dele era sobre a <strong>incerteza inflacionária</strong>: em períodos de inflação instável, os agentes enfrentam mais risco ao fixar contratos, e essa incerteza tem custo econômico próprio, independente do nível da inflação.</p>
+<p>A aplicação financeira veio depois e foi tão dominante que hoje quase se esquece a motivação original. Vale lembrar dela, sobretudo num país com a história inflacionária do Brasil: o modelo nasceu para medir a incerteza sobre preços, não para precificar opções.</p>
+<p>Duas ressalvas que valem para o que você acabou de estimar:</p>
+<ul>
+<li><strong>GARCH prevê variância, não direção.</strong> Nenhum parâmetro deste modelo ajuda a decidir se o preço sobe ou cai amanhã. Quem promete isso está vendendo outra coisa.</li>
+<li><strong>A escolha da ordem (1,1) foi assumida, não testada.</strong> Existem GARCH(2,1), GARCH(1,2), e variantes assimétricas — EGARCH, GJR-GARCH — que permitem que quedas aumentem mais a volatilidade do que altas de mesma magnitude, o chamado efeito alavanca. Nesta série não há assimetria porque não a coloquei; em dados reais de ações, quase sempre há.</li>
+</ul>
 
 
 <script type="webr-data">
-eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiJdLCJyZXBvcyI6W119LCJyZW5kZXJfZGYiOiJkZWZhdWx0In0=
+eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiIsIm1vbWVudHMiLCJGaW5UUyIsImZHYXJjaCJdLCJyZXBvcyI6W119LCJyZW5kZXJfZGYiOiJkZWZhdWx0In0=
 </script>
 <script type="ojs-module-contents">
 eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTI7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEyID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTItY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTIsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzExID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTA7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEwID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTAtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTAsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC05IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV85O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItOSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzkgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici05LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItOS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV85ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl85LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfODtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTgiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl84ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItOC1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTgtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfOCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfOCwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTciLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzc7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici03IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNyA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTctY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici03LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzcgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzcsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC02IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV82O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzYgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici02LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItNi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV82ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl82LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfNTtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl81ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItNS1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTUtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfNSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfNSwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTQiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzQ7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici00IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNCA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTQtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici00LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzQgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzQsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0zIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV8zO1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzMgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici0zLWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8zID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8zLCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMjtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTIiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl8yID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMi1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTItY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMiwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTEiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfMSA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xLWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzEgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXByZWx1ZGUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ3ZWJST2pzID0ge1xuICBjb25zdCB7IFdlYlIsIENoYW5uZWxUeXBlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lLldlYlI7XG4gIGNvbnN0IHtcbiAgICBXZWJSRXZhbHVhdG9yLFxuICAgIFdlYlJFbnZpcm9ubWVudE1hbmFnZXIsXG4gICAgc2V0dXBSLFxuICAgIGI2NERlY29kZSxcbiAgICBjb2xsYXBzZVBhdGhcbiAgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG5cbiAgY29uc3Qgc3RhdHVzQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLXN0YXR1c1wiKTtcbiAgY29uc3QgaW5kaWNhdG9yQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLWluZGljYXRvclwiKTtcbiAgaW5kaWNhdG9yQ29udGFpbmVyLmNsYXNzTGlzdC5yZW1vdmUoXCJkLW5vbmVcIik7XG5cbiAgbGV0IHN0YXR1c1RleHQgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIHN0YXR1c1RleHQuY2xhc3NMaXN0ID0gXCJleGVyY2lzZS1sb2FkaW5nLWRldGFpbHNcIjtcbiAgc3RhdHVzVGV4dCA9IHN0YXR1c0NvbnRhaW5lci5hcHBlbmRDaGlsZChzdGF0dXNUZXh0KTtcbiAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBJbml0aWFsaXNlYDtcblxuICAvLyBIb2lzdCBpbmRpY2F0b3Igb3V0IGZyb20gZmluYWwgc2xpZGUgd2hlbiBydW5uaW5nIHVuZGVyIHJldmVhbFxuICBjb25zdCByZXZlYWxTdGF0dXMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKFwiLnJldmVhbCAuZXhlcmNpc2UtbG9hZGluZy1pbmRpY2F0b3JcIik7XG4gIGlmIChyZXZlYWxTdGF0dXMpIHtcbiAgICByZXZlYWxTdGF0dXMucmVtb3ZlKCk7XG4gICAgZG9jdW1lbnQucXVlcnlTZWxlY3RvcihcIi5yZXZlYWwgPiAuc2xpZGVzXCIpLmFwcGVuZENoaWxkKHJldmVhbFN0YXR1cyk7XG4gIH1cblxuICAvLyBNYWtlIGFueSByZXZlYWwgc2xpZGVzIHdpdGggbGl2ZSBjZWxscyBzY3JvbGxhYmxlXG4gIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoXCIucmV2ZWFsIC5leGVyY2lzZS1jZWxsXCIpLmZvckVhY2goKGVsKSA9PiB7XG4gICAgZWwuY2xvc2VzdCgnc2VjdGlvbi5zbGlkZScpLmNsYXNzTGlzdC5hZGQoXCJzY3JvbGxhYmxlXCIpO1xuICB9KVxuXG4gIC8vIHdlYlIgc3VwcGxlbWVudGFsIGRhdGEgYW5kIG9wdGlvbnNcbiAgY29uc3QgZGF0YUNvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici1kYXRhXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgZGF0YSA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKGRhdGFDb250ZW50KSk7XG5cbiAgLy8gR3JhYiBsaXN0IG9mIHJlc291cmNlcyB0byBiZSBkb3dubG9hZGVkXG4gIGNvbnN0IGZpbGVzQ29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ2ZnMtZmlsZVxcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGZpbGVzID0gSlNPTi5wYXJzZShiNjREZWNvZGUoZmlsZXNDb250ZW50KSk7XG5cbiAgLy8gSW5pdGlhbGlzZSB3ZWJSIGFuZCBzZXR1cCBmb3IgUiBjb2RlIGV2YWx1YXRpb25cbiAgbGV0IHdlYlJQcm9taXNlID0gKGFzeW5jICh3ZWJSKSA9PiB7XG4gICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyB3ZWJSYDtcbiAgICBhd2FpdCB3ZWJSLmluaXQoKTtcblxuICAgIC8vIEluc3RhbGwgcHJvdmlkZWQgbGlzdCBvZiBwYWNrYWdlc1xuICAgIC8vIEVuc3VyZSB3ZWJSIGRlZmF1bHQgcmVwbyBpcyBpbmNsdWRlZFxuICAgIGRhdGEucGFja2FnZXMucmVwb3MucHVzaChcImh0dHBzOi8vcmVwby5yLXdhc20ub3JnXCIpXG4gICAgYXdhaXQgZGF0YS5wYWNrYWdlcy5wa2dzLm1hcCgocGtnKSA9PiAoKSA9PiB7XG4gICAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYERvd25sb2FkaW5nIHBhY2thZ2U6ICR7cGtnfWA7XG4gICAgICByZXR1cm4gd2ViUi5ldmFsUlZvaWQoYFxuICAgICAgICB3ZWJyOjppbnN0YWxsKHBrZywgcmVwb3MgPSByZXBvcylcbiAgICAgICAgbGlicmFyeShwa2csIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSlcbiAgICAgIGAsIHsgZW52OiB7XG4gICAgICAgIHBrZzogcGtnLFxuICAgICAgICByZXBvczogZGF0YS5wYWNrYWdlcy5yZXBvcyxcbiAgICAgIH19KTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIC8vIERvd25sb2FkIGFuZCBpbnN0YWxsIHJlc291cmNlc1xuICAgIGF3YWl0IGZpbGVzLm1hcCgoZmlsZSkgPT4gYXN5bmMgKCkgPT4ge1xuICAgICAgY29uc3QgbmFtZSA9IGZpbGUuc3Vic3RyaW5nKGZpbGUubGFzdEluZGV4T2YoJy8nKSArIDEpO1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyByZXNvdXJjZTogJHtuYW1lfWA7XG4gICAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKGZpbGUpO1xuICAgICAgaWYgKCFyZXNwb25zZS5vaykge1xuICAgICAgICB0aHJvdyBuZXcgRXJyb3IoYENhbid0IGRvd25sb2FkIFxcYCR7ZmlsZX1cXGAuIEVycm9yICR7cmVzcG9uc2Uuc3RhdHVzfTogXCIke3Jlc3BvbnNlLnN0YXR1c1RleHR9XCIuYCk7XG4gICAgICB9XG4gICAgICBjb25zdCBkYXRhID0gYXdhaXQgcmVzcG9uc2UuYXJyYXlCdWZmZXIoKTtcblxuICAgICAgLy8gU3RvcmUgVVJMcyBpbiB0aGUgY3dkIHdpdGhvdXQgYW55IHN1YmRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGlmIChmaWxlLmluY2x1ZGVzKFwiOi8vXCIpKSB7XG4gICAgICAgIGZpbGUgPSBuYW1lO1xuICAgICAgfVxuXG4gICAgICAvLyBDb2xsYXBzZSBoaWdoZXIgZGlyZWN0b3J5IHN0cnVjdHVyZVxuICAgICAgZmlsZSA9IGNvbGxhcHNlUGF0aChmaWxlKTtcblxuICAgICAgLy8gQ3JlYXRlIGRpcmVjdG9yeSB0cmVlLCBpZ25vcmluZyBcImRpcmVjdG9yeSBleGlzdHNcIiBWRlMgZXJyb3JzXG4gICAgICBjb25zdCBwYXJ0cyA9IGZpbGUuc3BsaXQoJy8nKS5zbGljZSgwLCAtMSk7XG4gICAgICBsZXQgcGF0aCA9ICcnO1xuICAgICAgd2hpbGUgKHBhcnRzLmxlbmd0aCA+IDApIHtcbiAgICAgICAgcGF0aCArPSBwYXJ0cy5zaGlmdCgpICsgJy8nO1xuICAgICAgICBjb25zdCBhbmFseXNpcyA9IGF3YWl0IHdlYlIuRlMuYW5hbHl6ZVBhdGgocGF0aCk7XG4gICAgICAgIGlmICghYW5hbHlzaXMuZXhpc3RzKSB7XG4gICAgICAgICAgdHJ5IHtcbiAgICAgICAgICAgIGF3YWl0IHdlYlIuRlMubWtkaXIocGF0aCk7XG4gICAgICAgICAgfSBjYXRjaCAoZSkge1xuICAgICAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBGaWxlc3lzdGVtIEVycm9yOiBcIiR7ZS5tZXNzYWdlfVwiLmApO1xuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgfVxuXG4gICAgICAvLyBXcml0ZSB0aGlzIGZpbGUgdG8gdGhlIFZGU1xuICAgICAgcmV0dXJuIGF3YWl0IHdlYlIuRlMud3JpdGVGaWxlKGZpbGUsIG5ldyBVaW50OEFycmF5KGRhdGEpKTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgSW5zdGFsbGluZyB3ZWJSIHNoaW1zYDtcbiAgICBhd2FpdCB3ZWJSLmV2YWxSVm9pZChgd2Vicjo6c2hpbV9pbnN0YWxsKClgKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgV2ViUiBlbnZpcm9ubWVudCBzZXR1cGA7XG4gICAgYXdhaXQgc2V0dXBSKHdlYlIsIGRhdGEpO1xuXG4gICAgc3RhdHVzVGV4dC5yZW1vdmUoKTtcbiAgICBpZiAoc3RhdHVzQ29udGFpbmVyLmNoaWxkcmVuLmxlbmd0aCA9PSAwKSB7XG4gICAgICBzdGF0dXNDb250YWluZXIucGFyZW50Tm9kZS5yZW1vdmUoKTtcbiAgICB9XG4gICAgcmV0dXJuIHdlYlI7XG4gIH0pKG5ldyBXZWJSKGRhdGEub3B0aW9ucykpO1xuXG4gIC8vIEtlZXAgdHJhY2sgb2YgaW5pdGlhbCBPSlMgYmxvY2sgcmVuZGVyXG4gIGNvbnN0IHJlbmRlcmVkT2pzID0ge307XG5cbiAgY29uc3QgcHJvY2VzcyA9IGFzeW5jIChjb250ZXh0LCBpbnB1dHMpID0+IHtcbiAgICBjb25zdCB3ZWJSID0gYXdhaXQgd2ViUlByb21pc2U7XG4gICAgY29uc3QgZXZhbHVhdG9yID0gbmV3IFdlYlJFdmFsdWF0b3Iod2ViUiwgY29udGV4dClcbiAgICBhd2FpdCBldmFsdWF0b3IucHJvY2VzcyhpbnB1dHMpO1xuICAgIHJldHVybiBldmFsdWF0b3IuY29udGFpbmVyO1xuICB9XG5cbiAgcmV0dXJuIHtcbiAgICBwcm9jZXNzLFxuICAgIHdlYlJQcm9taXNlLFxuICAgIHJlbmRlcmVkT2pzLFxuICB9O1xufVxuIn1dfQ==
@@ -872,7 +1056,6 @@ eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMiIsImlubGluZSI6ZmFsc2UsIm1l
 <script type="vfs-file">
 WyJkYWRvcy8vbGltb25hZGEuY3N2IiwiZGFkb3MvL2RpYW1hbnRlcy5jc3YiLCJkYWRvcy8vY3Jlc2NpbWVudG8uY3N2IiwiZGFkb3MvL2VtcHJlZ28uY3N2IiwiZGFkb3MvL2FkdWJvX3Byb2R1dGl2aWRhZGUuY3N2IiwiZGFkb3MvL3NhbGFyaW9faG9yYS5jc3YiLCJkYWRvcy8vcHJlc3Nhb19hcnRlcmlhbC5jc3YiLCJkYWRvcy8vc2VyaWVzX3RlbXBvLmNzdiIsImRhZG9zLy9yZXRvcm5vX2Fjb2VzLmNzdiIsImRhZG9zLy9kY3AuY3N2IiwiZGFkb3MvL2NvbnN0cnVjb2VzLmNzdiIsImRhZG9zLy9yZXRvcm5vc19zb2phLmNzdiIsImRhZG9zLy9jb25zdW1vX2ZhbWlsaWFzLmNzdiIsImRhZG9zLy9tYXJpbmhhLmNzdiIsImRhZG9zLy9jb25zdW1vLmNzdiIsImRhZG9zLy9zYWxhcmlvX3Npbm9wLmNzdiIsImRhZG9zLy9zYWxhcmlvX2hvcmEyLmNzdiIsImRhZG9zLy9lc3B1cmlhLmNzdiIsImRhZG9zLy9sYW5jaG9uZXRlcy5jc3YiLCJkYWRvcy8vZ2FzdG9fYWxpbWVudGFjYW8uY3N2IiwiZGFkb3MvL3ZlbmRhc19tYXF1aW5hcy5jc3YiLCJkYWRvcy8vdGVtcGVyYXR1cmFfY29ycG9yYWwuY3N2IiwiZGFkb3MvL3BpYl9yZWFsLmNzdiIsImRhZG9zLy9ob3Jhc190cmFiYWxoby5jc3YiLCJkYWRvcy8vY29ycnVwY2FvLmNzdiIsImRhZG9zLy9pbmR1c3RyaWEuY3N2IiwiZGFkb3MvL2Z1bmNhb19wdWxtb25hci5jc3YiLCJkYWRvcy8vbmF0YWxpZGFkZS5jc3YiLCJkYWRvcy8vYWJvcnRvLmNzdiIsImRhZG9zLy92ZW5kYXNfcm91cGFzLmNzdiIsImRhZG9zLy9mZXJ0aWxpZGFkZS5jc3YiLCJkYWRvcy8vZnVuY2FvX3Byb2R1Y2FvLmNzdiIsImRhZG9zLy9pbnZlc3RpbWVudG8uY3N2IiwiZGFkb3MvL3BkX2VtcHJlc2FzLmNzdiIsImRhZG9zLy9kaWFiZXRlcy5jc3YiLCJkYWRvcy8vY3VzdG9fbWVkaW8uY3N2IiwiZGFkb3MvL2luZHVzdHJpYV9tdC5jc3YiLCJsb2dvLXVuZW1hdC5wbmciXQ==
 </script>
-</section>
 </section>
 
 </main> <!-- /main -->

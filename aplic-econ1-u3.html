@@ -8,7 +8,7 @@
 
 <meta name="author" content="Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop">
 
-<title>Aplicação 1 — Quanto vale um ano a mais de estudo? – Econometria Interativa · UNEMAT</title>
+<title>Aplicação 3 — O piso salarial destrói empregos? – Econometria Interativa · UNEMAT</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -351,8 +351,8 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Aplicação 1 — Quanto vale um ano a mais de estudo?</h1>
-            <p class="subtitle lead">Econometria I · Unidade 1 — o modelo de regressão linear em uso</p>
+      <h1 class="title">Aplicação 3 — O piso salarial destrói empregos?</h1>
+            <p class="subtitle lead">Econometria I · Unidade 3 — variáveis qualitativas em uso</p>
                       </div>
   </div>
     
@@ -382,16 +382,16 @@ window.Quarto = {
   <li><a href="#o-problema" id="toc-o-problema" class="nav-link active" data-scroll-target="#o-problema"><span class="header-section-number">1</span> O problema</a></li>
   <li><a href="#nossa-versão" id="toc-nossa-versão" class="nav-link" data-scroll-target="#nossa-versão"><span class="header-section-number">2</span> Nossa versão</a></li>
   <li><a href="#os-dados" id="toc-os-dados" class="nav-link" data-scroll-target="#os-dados"><span class="header-section-number">3</span> Os dados</a></li>
-  <li><a href="#primeiro-olhar-escolaridade-e-salário" id="toc-primeiro-olhar-escolaridade-e-salário" class="nav-link" data-scroll-target="#primeiro-olhar-escolaridade-e-salário"><span class="header-section-number">4</span> Primeiro olhar: escolaridade e salário</a></li>
-  <li><a href="#o-modelo-simples" id="toc-o-modelo-simples" class="nav-link" data-scroll-target="#o-modelo-simples"><span class="header-section-number">5</span> O modelo simples</a></li>
-  <li><a href="#o-modelo-completo" id="toc-o-modelo-completo" class="nav-link" data-scroll-target="#o-modelo-completo"><span class="header-section-number">6</span> O modelo completo</a></li>
-  <li><a href="#por-que-o-retorno-da-educação-aumentou" id="toc-por-que-o-retorno-da-educação-aumentou" class="nav-link" data-scroll-target="#por-que-o-retorno-da-educação-aumentou"><span class="header-section-number">7</span> Por que o retorno da educação aumentou?</a></li>
+  <li><a href="#primeiro-olhar-as-quatro-médias" id="toc-primeiro-olhar-as-quatro-médias" class="nav-link" data-scroll-target="#primeiro-olhar-as-quatro-médias"><span class="header-section-number">4</span> Primeiro olhar: as quatro médias</a></li>
+  <li><a href="#a-tentação-nº-1-comparar-os-grupos-depois" id="toc-a-tentação-nº-1-comparar-os-grupos-depois" class="nav-link" data-scroll-target="#a-tentação-nº-1-comparar-os-grupos-depois"><span class="header-section-number">5</span> A tentação nº 1: comparar os grupos depois</a></li>
+  <li><a href="#a-tentação-nº-2-comparar-antes-e-depois-nas-tratadas" id="toc-a-tentação-nº-2-comparar-antes-e-depois-nas-tratadas" class="nav-link" data-scroll-target="#a-tentação-nº-2-comparar-antes-e-depois-nas-tratadas"><span class="header-section-number">6</span> A tentação nº 2: comparar antes e depois nas tratadas</a></li>
+  <li><a href="#o-modelo-duas-dummies-e-a-interação" id="toc-o-modelo-duas-dummies-e-a-interação" class="nav-link" data-scroll-target="#o-modelo-duas-dummies-e-a-interação"><span class="header-section-number">7</span> O modelo: duas dummies e a interação</a></li>
   <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">8</span> Exercícios</a>
   <ul class="collapse">
-  <li><a href="#exercício-1-a-tabela-de-resultados" id="toc-exercício-1-a-tabela-de-resultados" class="nav-link" data-scroll-target="#exercício-1-a-tabela-de-resultados"><span class="header-section-number">8.1</span> Exercício 1 — a tabela de resultados</a></li>
-  <li><a href="#exercício-2-o-intervalo-de-confiança" id="toc-exercício-2-o-intervalo-de-confiança" class="nav-link" data-scroll-target="#exercício-2-o-intervalo-de-confiança"><span class="header-section-number">8.2</span> Exercício 2 — o intervalo de confiança</a></li>
-  <li><a href="#exercício-3-previsão-para-três-perfis" id="toc-exercício-3-previsão-para-três-perfis" class="nav-link" data-scroll-target="#exercício-3-previsão-para-três-perfis"><span class="header-section-number">8.3</span> Exercício 3 — previsão para três perfis</a></li>
-  <li><a href="#exercício-4-o-diferencial-de-gênero-bruto-e-ajustado" id="toc-exercício-4-o-diferencial-de-gênero-bruto-e-ajustado" class="nav-link" data-scroll-target="#exercício-4-o-diferencial-de-gênero-bruto-e-ajustado"><span class="header-section-number">8.4</span> Exercício 4 — o diferencial de gênero, bruto e ajustado</a></li>
+  <li><a href="#exercício-1-reconstruindo-os-coeficientes-na-mão" id="toc-exercício-1-reconstruindo-os-coeficientes-na-mão" class="nav-link" data-scroll-target="#exercício-1-reconstruindo-os-coeficientes-na-mão"><span class="header-section-number">8.1</span> Exercício 1 — reconstruindo os coeficientes na mão</a></li>
+  <li><a href="#exercício-2-o-intervalo-de-confiança-do-efeito" id="toc-exercício-2-o-intervalo-de-confiança-do-efeito" class="nav-link" data-scroll-target="#exercício-2-o-intervalo-de-confiança-do-efeito"><span class="header-section-number">8.2</span> Exercício 2 — o intervalo de confiança do efeito</a></li>
+  <li><a href="#exercício-3-o-modelo-errado-de-propósito" id="toc-exercício-3-o-modelo-errado-de-propósito" class="nav-link" data-scroll-target="#exercício-3-o-modelo-errado-de-propósito"><span class="header-section-number">8.3</span> Exercício 3 — o modelo errado, de propósito</a></li>
+  <li><a href="#exercício-4-a-hipótese-que-sustenta-tudo" id="toc-exercício-4-a-hipótese-que-sustenta-tudo" class="nav-link" data-scroll-target="#exercício-4-a-hipótese-que-sustenta-tudo"><span class="header-section-number">8.4</span> Exercício 4 — a hipótese que sustenta tudo</a></li>
   <li><a href="#exercício-5-escrevendo-o-resultado" id="toc-exercício-5-escrevendo-o-resultado" class="nav-link" data-scroll-target="#exercício-5-escrevendo-o-resultado"><span class="header-section-number">8.5</span> Exercício 5 — escrevendo o resultado</a></li>
   </ul></li>
   <li><a href="#o-que-estava-por-trás-dos-dados" id="toc-o-que-estava-por-trás-dos-dados" class="nav-link" data-scroll-target="#o-que-estava-por-trás-dos-dados"><span class="header-section-number">9</span> O que estava por trás dos dados</a></li>
@@ -425,26 +425,27 @@ window.Quarto = {
 </div>
 <section id="o-problema" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="o-problema"><span class="header-section-number">1</span> O problema</h2>
-<p>Poucas perguntas atravessaram tanto a economia do trabalho quanto esta: <strong>quanto vale, em dinheiro, um ano a mais de escolaridade?</strong></p>
-<p>A formulação que se tornou padrão é de Jacob Mincer, em <em>Schooling, Experience and Earnings</em> (1974). A ideia é simples e poderosa: os rendimentos de uma pessoa dependem do quanto ela estudou e do quanto já trabalhou. Estudar é um investimento — abre-se mão de renda hoje para ganhar mais depois —, e a regressão permite medir o retorno desse investimento.</p>
-<p>Desde então, a equação de Mincer foi estimada para praticamente todo país e período com dados disponíveis. No Brasil, ela é o instrumento por trás de boa parte do que se afirma sobre desigualdade, política educacional e diferencial de gênero no mercado de trabalho.</p>
+<p>Durante décadas, o manual de introdução à economia deu uma resposta única para a pergunta acima: um piso salarial acima do equilíbrio reduz a quantidade demandada de trabalho. Logo, destrói empregos. Ponto.</p>
+<p>Em 1994, David Card e Alan Krueger publicaram <em>Minimum Wages and Employment: A Case Study of the Fast-Food Industry in New Jersey and Pennsylvania</em> e mudaram o tom do debate. Nova Jersey aumentou seu piso salarial em abril de 1992; a Pensilvânia, ali do lado, não aumentou. Os autores entrevistaram lanchonetes dos dois estados antes e depois da mudança e compararam a evolução do emprego.</p>
+<p>O resultado contrariou a previsão do manual: o emprego nas lanchonetes de Nova Jersey <strong>não caiu</strong> em relação às da Pensilvânia — se algo, subiu um pouco. O artigo virou um dos mais debatidos da economia do trabalho, e Card recebeu o Nobel em 2021 em parte por esse tipo de trabalho.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Leitura recomendada
+<span class="screen-reader-only">Dica</span>O que isso tem a ver com a Unidade 3
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Além do trabalho de Mincer, vale ler um estudo brasileiro recente sobre retornos da educação, indicado no Conteúdo Programado da unidade. Compare o que os autores encontraram com o que você vai estimar aqui.</p>
+<p>Tudo. O desenho de Card e Krueger é construído inteiramente com <strong>variáveis qualitativas</strong>: uma dummy que marca quem foi afetado pela lei, uma dummy que marca o período depois da mudança, e — a peça central — o <strong>produto das duas</strong>.</p>
+<p>Esse produto é o termo de interação. É ele que carrega a resposta, e ele só existe porque as duas dummies existem. Estimar esse modelo é aplicar, num problema real, exatamente a mecânica de dummies que você viu no Laboratório 6.</p>
 </div>
 </div>
 </section>
 <section id="nossa-versão" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="nossa-versão"><span class="header-section-number">2</span> Nossa versão</h2>
-<p>Vamos responder à mesma pergunta com dados de <strong>720 trabalhadores da região de Sinop</strong>, com informações de salário-hora, escolaridade, experiência e sexo.</p>
+<p>Suponha que um piso salarial regional tenha sido criado para o setor de alimentação em parte de Mato Grosso. Temos <strong>240 lanchonetes</strong> observadas <strong>duas vezes</strong> — antes e depois da mudança —, sendo 120 em municípios alcançados pela regra (grupo tratado) e 120 em municípios vizinhos não alcançados (grupo de controle). São 480 observações.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -456,8 +457,8 @@ window.Quarto = {
 </div>
 <div class="callout-body-container callout-body">
 <p>Não são uma pesquisa de campo. Foram construídos por um processo que <strong>eu conheço</strong> — e é justamente por isso que esta aplicação existe.</p>
-<p>Com dados reais, você estima um coeficiente e nunca descobre se acertou. Aqui, no fim da página, eu mostro os valores verdadeiros que usei para gerar os salários. Você vai poder comparar a sua estimativa com a resposta certa — coisa que nenhum economista consegue fazer na vida real.</p>
-<p>Não role até lá antes de estimar. A graça está em descobrir depois.</p>
+<p>No fim da página eu mostro o efeito verdadeiro que usei para gerar os dados. Você vai poder comparar a sua estimativa com a resposta certa — e, mais importante, comparar também as estimativas <strong>erradas</strong> que os atalhos produzem.</p>
+<p>Não role até lá antes de estimar.</p>
 </div>
 </div>
 </section>
@@ -469,7 +470,7 @@ window.Quarto = {
 
 </div>
 <script type="webr-1-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgPC0gcmVhZC5jc3YoXCJkYWRvcy9zYWxhcmlvX3Npbm9wLmNzdlwiKVxuaGVhZChzYWxhcmlvcylcbnN1bW1hcnkoc2FsYXJpb3MpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGFuY2hvbmV0ZXMgPC0gcmVhZC5jc3YoXCJkYWRvcy9sYW5jaG9uZXRlcy5jc3ZcIilcbmhlYWQobGFuY2hvbmV0ZXMpXG5zdHIobGFuY2hvbmV0ZXMpIn0=
 </script>
 </div>
 </div>
@@ -484,6 +485,10 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgPC0gcmVhZC5j
 </div>
 <div class="callout-body-container callout-body">
 <table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Variável</th>
@@ -492,37 +497,37 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgPC0gcmVhZC5j
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>salario_hora</code></td>
-<td>Rendimento por hora trabalhada, em reais</td>
+<td><code>loja</code></td>
+<td>Identificador da lanchonete (cada uma aparece duas vezes)</td>
 </tr>
 <tr class="even">
-<td><code>escolaridade</code></td>
-<td>Anos completos de estudo (4 a 20)</td>
+<td><code>tratada</code></td>
+<td>1 se está em município alcançado pelo piso, 0 caso contrário</td>
 </tr>
 <tr class="odd">
-<td><code>experiencia</code></td>
-<td>Anos de experiência no mercado de trabalho</td>
+<td><code>depois</code></td>
+<td>1 se a observação é posterior à mudança, 0 se anterior</td>
 </tr>
 <tr class="even">
-<td><code>feminino</code></td>
-<td>1 se mulher, 0 se homem</td>
+<td><code>empregados</code></td>
+<td>Número de empregados em tempo integral equivalente</td>
 </tr>
 </tbody>
 </table>
-<p>São 720 trabalhadores. O salário-hora médio fica em torno de R$ 21,60 e a escolaridade média em quase 11 anos — o ensino médio completo.</p>
+<p>Duas dummies e uma variável de resposta. Todo o desenho da pesquisa está codificado em <code>tratada</code> e <code>depois</code>.</p>
 </div>
 </div>
 </section>
-<section id="primeiro-olhar-escolaridade-e-salário" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="primeiro-olhar-escolaridade-e-salário"><span class="header-section-number">4</span> Primeiro olhar: escolaridade e salário</h2>
-<p>Antes de estimar qualquer coisa, veja a relação que você quer medir.</p>
+<section id="primeiro-olhar-as-quatro-médias" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="primeiro-olhar-as-quatro-médias"><span class="header-section-number">4</span> Primeiro olhar: as quatro médias</h2>
+<p>Um estudo com duas dummies tem quatro grupos. Comece por eles.</p>
 <div class="cell">
 <div>
 <div id="webr-2" class="exercise-cell">
 
 </div>
 <script type="webr-2-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxuZ2dwbG90KHNhbGFyaW9zLCBhZXMoZXNjb2xhcmlkYWRlLCBzYWxhcmlvX2hvcmEpKSArXG4gIGdlb21fcG9pbnQoYWxwaGEgPSAwLjM1LCBjb2xvdXIgPSBcIiMxRTI3NjFcIikgK1xuICBnZW9tX3Ntb290aChtZXRob2QgPSBcImxtXCIsIHNlID0gRkFMU0UsIGNvbG91ciA9IFwiI0MwMzkyQlwiKSArXG4gIGxhYnModGl0bGUgPSBcIkVzY29sYXJpZGFkZSBlIHNhbMOhcmlvLWhvcmEg4oCUIHJlZ2nDo28gZGUgU2lub3BcIixcbiAgICAgICB4ID0gXCJBbm9zIGRlIGVzdHVkb1wiLCB5ID0gXCJTYWzDoXJpbyBwb3IgaG9yYSAoUiQpXCIpICtcbiAgdGhlbWVfbWluaW1hbCgpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShkcGx5cilcbmxhbmNob25ldGVzIHw+XG4gIGdyb3VwX2J5KHRyYXRhZGEsIGRlcG9pcykgfD5cbiAgc3VtbWFyaXNlKG1lZGlhX2VtcHJlZ2Fkb3MgPSByb3VuZChtZWFuKGVtcHJlZ2Fkb3MpLCAyKSwgbG9qYXMgPSBuKCkpIn0=
 </script>
 </div>
 </div>
@@ -536,21 +541,44 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxu
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A nuvem sobe da esquerda para a direita: quem estudou mais ganha mais. A reta vermelha resume essa tendência, e a inclinação dela é exatamente o número que queremos — quantos reais a mais por ano de estudo.</p>
-<p>Repare também na <strong>dispersão</strong>: para 11 anos de estudo há gente ganhando R$ 15 e gente ganhando R$ 28. A escolaridade explica parte do salário, não tudo. Guardar isso evita a leitura ingênua do R² mais adiante.</p>
+<p>Organize mentalmente numa tabela 2×2:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Antes</th>
+<th>Depois</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Controle</strong> (tratada = 0)</td>
+<td>21,06</td>
+<td>19,74</td>
+</tr>
+<tr class="even">
+<td><strong>Tratadas</strong> (tratada = 1)</td>
+<td>18,42</td>
+<td>18,66</td>
+</tr>
+</tbody>
+</table>
+<p>Duas coisas saltam. Primeiro: as lanchonetes tratadas <strong>já eram menores</strong> antes da mudança — 18,4 contra 21,1 empregados. Elas não são iguais às de controle, e nunca foram.</p>
+<p>Segundo: entre antes e depois, o emprego <strong>caiu</strong> no grupo de controle (de 21,06 para 19,74) e ficou praticamente estável no grupo tratado (de 18,42 para 18,66). Algo empurrou o emprego para baixo no período — recessão, sazonalidade, o que for — e atingiu os dois grupos.</p>
+<p>Guarde essas quatro médias. Toda a análise sai delas.</p>
 </div>
 </div>
 </section>
-<section id="o-modelo-simples" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="o-modelo-simples"><span class="header-section-number">5</span> O modelo simples</h2>
-<p>Comece pela versão mais direta: salário explicado só pela escolaridade.</p>
+<section id="a-tentação-nº-1-comparar-os-grupos-depois" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="a-tentação-nº-1-comparar-os-grupos-depois"><span class="header-section-number">5</span> A tentação nº 1: comparar os grupos depois</h2>
+<p>O caminho mais curto seria olhar só o período posterior à lei e comparar quem foi afetado com quem não foi.</p>
 <div class="cell">
 <div>
 <div id="webr-3" class="exercise-cell">
 
 </div>
 <script type="webr-3-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2ltcGxlcyA8LSBsbShzYWxhcmlvX2hvcmEgfiBlc2NvbGFyaWRhZGUsIGRhdGEgPSBzYWxhcmlvcylcbnN1bW1hcnkoc2ltcGxlcykifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZGVwb2lzX2FwZW5hcyA8LSBzdWJzZXQobGFuY2hvbmV0ZXMsIGRlcG9pcyA9PSAxKVxudC50ZXN0KGVtcHJlZ2Fkb3MgfiB0cmF0YWRhLCBkYXRhID0gZGVwb2lzX2FwZW5hcykifQ==
 </script>
 </div>
 </div>
@@ -564,22 +592,21 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2ltcGxlcyA8LSBsbShzYWxh
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>O coeficiente de <code>escolaridade</code> fica em torno de <strong>1,18</strong>: cada ano adicional de estudo está associado a R$ 1,18 a mais por hora. Com 40 horas semanais, isso são cerca de R$ 190 por mês — por ano de estudo.</p>
-<p>O R² fica próximo de <strong>0,47</strong>: a escolaridade sozinha explica 47% da variação dos salários nesta amostra.</p>
-<p>Guarde o número 1,18. Ele vai mudar.</p>
+<p>A diferença é de cerca de <strong>−1,08 empregado</strong>: depois da lei, as lanchonetes tratadas têm menos gente que as de controle.</p>
+<p>Quem parasse aqui escreveria a manchete: <em>“piso salarial reduz emprego em uma pessoa por estabelecimento”</em>. E estaria errado — porque as tratadas já eram menores <strong>antes</strong> da lei, por 2,6 empregados. A comparação confunde o efeito da política com uma diferença que já existia.</p>
 </div>
 </div>
 </section>
-<section id="o-modelo-completo" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="o-modelo-completo"><span class="header-section-number">6</span> O modelo completo</h2>
-<p>Duas coisas ficaram de fora. A primeira é a <strong>experiência</strong> — quem trabalha há mais tempo tende a ganhar mais. A segunda é o <strong>sexo</strong> — e a literatura é farta em mostrar que o mercado remunera homens e mulheres de forma diferente, com a mesma qualificação.</p>
+<section id="a-tentação-nº-2-comparar-antes-e-depois-nas-tratadas" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="a-tentação-nº-2-comparar-antes-e-depois-nas-tratadas"><span class="header-section-number">6</span> A tentação nº 2: comparar antes e depois nas tratadas</h2>
+<p>O outro atalho é acompanhar só quem foi afetado, antes e depois.</p>
 <div class="cell">
 <div>
 <div id="webr-4" class="exercise-cell">
 
 </div>
 <script type="webr-4-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29tcGxldG8gPC0gbG0oc2FsYXJpb19ob3JhIH4gZXNjb2xhcmlkYWRlICsgZXhwZXJpZW5jaWEgKyBmZW1pbmlubywgZGF0YSA9IHNhbGFyaW9zKVxuc3VtbWFyeShjb21wbGV0bykifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoidHJhdGFkYXNfYXBlbmFzIDwtIHN1YnNldChsYW5jaG9uZXRlcywgdHJhdGFkYSA9PSAxKVxudC50ZXN0KGVtcHJlZ2Fkb3MgfiBkZXBvaXMsIGRhdGEgPSB0cmF0YWRhc19hcGVuYXMpIn0=
 </script>
 </div>
 </div>
@@ -593,24 +620,25 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29tcGxldG8gPC0gbG0oc2Fs
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Três coisas mudaram, e todas importam:</p>
-<p>O coeficiente da escolaridade <strong>subiu de 1,18 para cerca de 1,35</strong>. Ao incluir a experiência, o retorno da educação aumentou — o que é, no mínimo, curioso. Por quê?</p>
-<p>A <strong>experiência</strong> vale cerca de R$ 0,28 por ano: menos de um quarto do que vale um ano de estudo.</p>
-<p>A dummy <strong>feminino</strong> fica em torno de <strong>−2,57</strong>: mantidas escolaridade e experiência constantes, as mulheres desta amostra ganham cerca de R$ 2,57 a menos por hora. É o diferencial que não se explica por qualificação.</p>
-<p>E o R² sobe para cerca de <strong>0,64</strong>.</p>
+<p>A diferença é de cerca de <strong>+0,24 empregado</strong>, e o valor-p é alto: nada de estatisticamente distinguível de zero.</p>
+<p>Quem parasse aqui escreveria outra manchete: <em>“piso salarial não teve efeito algum”</em>. Também errado — porque no mesmo período o emprego <strong>caiu 1,32</strong> nas lanchonetes de controle. Ficar estável enquanto os outros caem não é “nada acontecer”.</p>
+<p>Repare no tamanho do estrago: o primeiro atalho dá −1,08 e o segundo dá +0,24. Os dois usam os mesmos dados e chegam a conclusões opostas.</p>
 </div>
 </div>
 </section>
-<section id="por-que-o-retorno-da-educação-aumentou" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="por-que-o-retorno-da-educação-aumentou"><span class="header-section-number">7</span> Por que o retorno da educação aumentou?</h2>
-<p>Esta é a pergunta central da aplicação, e ela tem uma resposta precisa.</p>
+<section id="o-modelo-duas-dummies-e-a-interação" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="o-modelo-duas-dummies-e-a-interação"><span class="header-section-number">7</span> O modelo: duas dummies e a interação</h2>
+<p>A saída é usar as duas dimensões ao mesmo tempo, e deixar que o <strong>termo de interação</strong> capture o que só acontece com quem foi tratado <strong>e</strong> só depois da lei.</p>
+<p><span class="math display">\[
+\text{empregados} = \beta_0 + \beta_1 \, \text{tratada} + \beta_2 \, \text{depois} + \beta_3 \, (\text{tratada} \times \text{depois}) + u
+\]</span></p>
 <div class="cell">
 <div>
 <div id="webr-5" class="exercise-cell">
 
 </div>
 <script type="webr-5-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29yKHNhbGFyaW9zJGVzY29sYXJpZGFkZSwgc2FsYXJpb3MkZXhwZXJpZW5jaWEpXG5sbShleHBlcmllbmNpYSB+IGVzY29sYXJpZGFkZSwgZGF0YSA9IHNhbGFyaW9zKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZGlkIDwtIGxtKGVtcHJlZ2Fkb3MgfiB0cmF0YWRhICogZGVwb2lzLCBkYXRhID0gbGFuY2hvbmV0ZXMpXG5zdW1tYXJ5KGRpZCkifQ==
 </script>
 </div>
 </div>
@@ -624,77 +652,60 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29yKHNhbGFyaW9zJGVzY29s
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A correlação entre escolaridade e experiência é <strong>negativa</strong>, em torno de −0,25: quem estuda mais entra mais tarde no mercado e, na mesma idade, acumulou menos tempo de trabalho.</p>
-<p>Agora junte as duas peças. A experiência tem efeito <strong>positivo</strong> sobre o salário (+0,28) e é <strong>negativamente</strong> correlacionada com a escolaridade (−0,56 anos de experiência por ano de estudo). Ao deixar a experiência de fora, o coeficiente da escolaridade absorve esse efeito pela porta dos fundos — e absorve com sinal negativo, puxando a estimativa para baixo.</p>
-<p>É o <strong>viés de variável omitida</strong>, o mesmo fenômeno que produziu o paradoxo do preço no Laboratório 1. Aqui dá para medi-lo: 0,28 × (−0,56) ≈ <strong>−0,16</strong> — quase exatamente a diferença entre 1,18 e 1,35.</p>
+<p>Cada coeficiente tem endereço certo numa das quatro células:</p>
+<p><strong><span class="math inline">\(\beta_0 \approx 21{,}06\)</span></strong> — a média do grupo de controle antes da lei. É a célula de referência, aquela em que as duas dummies valem zero.</p>
+<p><strong><span class="math inline">\(\beta_1 \approx -2{,}64\)</span></strong> — o quanto as tratadas já eram menores <strong>antes</strong>. É a diferença permanente entre os grupos, não tem nada a ver com a política.</p>
+<p><strong><span class="math inline">\(\beta_2 \approx -1{,}32\)</span></strong> — o quanto o emprego caiu de um período para o outro <strong>no grupo de controle</strong>. É a tendência comum, o que teria acontecido de qualquer jeito.</p>
+<p><strong><span class="math inline">\(\beta_3 \approx +1{,}56\)</span></strong> — a interação. O quanto as tratadas se saíram <strong>melhor do que a tendência comum previa</strong>. Este é o efeito estimado da política, e é o único coeficiente que responde à pergunta do artigo.</p>
+<p>O valor-p da interação fica em torno de <strong>0,011</strong>, e o intervalo de 95% vai de aproximadamente 0,36 a 2,77 — todo positivo. A conclusão: o piso salarial <strong>não reduziu</strong> o emprego nestas lanchonetes; a estimativa aponta para um efeito positivo de cerca de 1,6 empregado.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>De onde vem o nome “diferenças em diferenças”
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Faça a conta com as quatro médias:</p>
+<ul>
+<li>Variação nas tratadas: <span class="math inline">\(18{,}66 - 18{,}42 = +0{,}24\)</span></li>
+<li>Variação no controle: <span class="math inline">\(19{,}74 - 21{,}06 = -1{,}32\)</span></li>
+<li>Diferença entre as duas variações: <span class="math inline">\(+0{,}24 - (-1{,}32) = +1{,}56\)</span></li>
+</ul>
+<p>É exatamente o coeficiente da interação. A regressão não fez mágica — ela organizou uma aritmética que você poderia ter feito à mão, e de quebra entregou o erro-padrão, o valor-p e o intervalo de confiança, que a aritmética sozinha não dá.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Sobre o R² baixo
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O R² deste modelo é de apenas <strong>0,09</strong>. Isso incomoda quem aprendeu a julgar modelos pelo R², mas aqui não é defeito: o tamanho de uma lanchonete depende de ponto, contrato, gestão e uma porção de coisas que não estão no modelo. Não estamos tentando prever o emprego de uma loja específica — estamos isolando o efeito médio de uma política. São objetivos diferentes, e o R² responde ao primeiro, não ao segundo.</p>
 </div>
 </div>
 </section>
 <section id="exercícios" class="level2" data-number="8">
 <h2 data-number="8" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">8</span> Exercícios</h2>
 <p>Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.</p>
-<section id="exercício-1-a-tabela-de-resultados" class="level3" data-number="8.1">
-<h3 data-number="8.1" class="anchored" data-anchor-id="exercício-1-a-tabela-de-resultados"><span class="header-section-number">8.1</span> Exercício 1 — a tabela de resultados</h3>
-<p>Artigos não publicam a saída bruta do R. Publicam uma tabela com coeficiente, erro-padrão e significância. Monte a sua.</p>
-<div class="cell" data-exercise="ap1_ex1">
+<section id="exercício-1-reconstruindo-os-coeficientes-na-mão" class="level3" data-number="8.1">
+<h3 data-number="8.1" class="anchored" data-anchor-id="exercício-1-reconstruindo-os-coeficientes-na-mão"><span class="header-section-number">8.1</span> Exercício 1 — reconstruindo os coeficientes na mão</h3>
+<p>Calcule as quatro médias, guarde cada uma numa variável e reconstrua os quatro coeficientes por aritmética.</p>
+<div class="cell" data-exercise="ap3_ex1">
 <div>
 <div id="webr-6" class="exercise-cell">
 
 </div>
 <script type="webr-6-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoidGFiZWxhIDwtIGRhdGEuZnJhbWUoXG4gIHZhcmlhdmVsID0gbmFtZXMoY29lZihjb21wbGV0bykpLFxuICBjb2VmaWNpZW50ZSA9IHJvdW5kKGNvZWYoX19fX19fKSwgMyksXG4gIGVycm9fcGFkcmFvID0gcm91bmQoc3VtbWFyeShfX19fX18pJGNvZWZmaWNpZW50c1ssIDJdLCAzKSxcbiAgdmFsb3JfcCAgICAgPSByb3VuZChzdW1tYXJ5KF9fX19fXykkY29lZmZpY2llbnRzWywgNF0sIDQpXG4pXG50YWJlbGEifQ==
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-9" class="callout-9-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>O objeto do modelo completo se chama <code>completo</code>. A matriz <code>summary(modelo)$coefficients</code> tem quatro colunas: estimativa, erro-padrão, t e valor-p.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-10" class="callout-10-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>tabela <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">variavel =</span> <span class="fu">names</span>(<span class="fu">coef</span>(completo)),</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">coeficiente =</span> <span class="fu">round</span>(<span class="fu">coef</span>(completo), <span class="dv">3</span>),</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">erro_padrao =</span> <span class="fu">round</span>(<span class="fu">summary</span>(completo)<span class="sc">$</span>coefficients[, <span class="dv">2</span>], <span class="dv">3</span>),</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">valor_p     =</span> <span class="fu">round</span>(<span class="fu">summary</span>(completo)<span class="sc">$</span>coefficients[, <span class="dv">4</span>], <span class="dv">4</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>tabela</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-<section id="exercício-2-o-intervalo-de-confiança" class="level3" data-number="8.2">
-<h3 data-number="8.2" class="anchored" data-anchor-id="exercício-2-o-intervalo-de-confiança"><span class="header-section-number">8.2</span> Exercício 2 — o intervalo de confiança</h3>
-<p>Um coeficiente sem intervalo é uma informação incompleta. Calcule os intervalos de 95%.</p>
-<div class="cell" data-exercise="ap1_ex2">
-<div>
-<div id="webr-7" class="exercise-cell">
-
-</div>
-<script type="webr-7-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29uZmludChfX19fX18sIGxldmVsID0gX19fX19fKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY19hbnRlcyAgPC0gbWVhbihsYW5jaG9uZXRlcyRlbXByZWdhZG9zW2xhbmNob25ldGVzJHRyYXRhZGEgPT0gMCAmIGxhbmNob25ldGVzJGRlcG9pcyA9PSAwXSlcbmNfZGVwb2lzIDwtIG1lYW4obGFuY2hvbmV0ZXMkZW1wcmVnYWRvc1tsYW5jaG9uZXRlcyR0cmF0YWRhID09IDAgJiBsYW5jaG9uZXRlcyRkZXBvaXMgPT0gMV0pXG50X2FudGVzICA8LSBtZWFuKGxhbmNob25ldGVzJGVtcHJlZ2Fkb3NbbGFuY2hvbmV0ZXMkdHJhdGFkYSA9PSAxICYgbGFuY2hvbmV0ZXMkZGVwb2lzID09IF9fX19fX10pXG50X2RlcG9pcyA8LSBtZWFuKGxhbmNob25ldGVzJGVtcHJlZ2Fkb3NbbGFuY2hvbmV0ZXMkdHJhdGFkYSA9PSAxICYgbGFuY2hvbmV0ZXMkZGVwb2lzID09IF9fX19fX10pXG5cbmJldGEwIDwtIGNfYW50ZXNcbmJldGExIDwtIHRfYW50ZXMgLSBjX2FudGVzXG5iZXRhMiA8LSBjX2RlcG9pcyAtIGNfYW50ZXNcbmJldGEzIDwtICh0X2RlcG9pcyAtIHRfYW50ZXMpIC0gKF9fX19fXyAtIF9fX19fXylcbnJvdW5kKGMoYmV0YTAsIGJldGExLCBiZXRhMiwgYmV0YTMpLCA0KSJ9
 </script>
 </div>
 </div>
@@ -710,7 +721,7 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29uZmludChfX19fX18sIGxl
 </div>
 <div id="callout-11" class="callout-11-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p><code>confint(modelo, level = 0.95)</code>. Guarde o intervalo da escolaridade — você vai precisar dele no fim da página.</p>
+<p>As duas primeiras lacunas são <code>0</code> e <code>1</code>. Na última linha, subtraia a variação do grupo de controle: <code>c_depois - c_antes</code>.</p>
 </div>
 </div>
 </div>
@@ -726,26 +737,31 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29uZmludChfX19fX18sIGxl
 </div>
 <div id="callout-12" class="callout-12-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(completo, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>c_antes  <span class="ot">&lt;-</span> <span class="fu">mean</span>(lanchonetes<span class="sc">$</span>empregados[lanchonetes<span class="sc">$</span>tratada <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> lanchonetes<span class="sc">$</span>depois <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>c_depois <span class="ot">&lt;-</span> <span class="fu">mean</span>(lanchonetes<span class="sc">$</span>empregados[lanchonetes<span class="sc">$</span>tratada <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> lanchonetes<span class="sc">$</span>depois <span class="sc">==</span> <span class="dv">1</span>])</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>t_antes  <span class="ot">&lt;-</span> <span class="fu">mean</span>(lanchonetes<span class="sc">$</span>empregados[lanchonetes<span class="sc">$</span>tratada <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> lanchonetes<span class="sc">$</span>depois <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>t_depois <span class="ot">&lt;-</span> <span class="fu">mean</span>(lanchonetes<span class="sc">$</span>empregados[lanchonetes<span class="sc">$</span>tratada <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> lanchonetes<span class="sc">$</span>depois <span class="sc">==</span> <span class="dv">1</span>])</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>beta0 <span class="ot">&lt;-</span> c_antes</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>beta1 <span class="ot">&lt;-</span> t_antes <span class="sc">-</span> c_antes</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>beta2 <span class="ot">&lt;-</span> c_depois <span class="sc">-</span> c_antes</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>beta3 <span class="ot">&lt;-</span> (t_depois <span class="sc">-</span> t_antes) <span class="sc">-</span> (c_depois <span class="sc">-</span> c_antes)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(beta0, beta1, beta2, beta3), <span class="dv">4</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Os quatro números batem com a saída do <code>lm()</code> até a última casa. Não é aproximação: com duas dummies e sua interação, o MQO é literalmente essa aritmética de médias.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="exercício-3-previsão-para-três-perfis" class="level3" data-number="8.3">
-<h3 data-number="8.3" class="anchored" data-anchor-id="exercício-3-previsão-para-três-perfis"><span class="header-section-number">8.3</span> Exercício 3 — previsão para três perfis</h3>
-<p>Quanto o modelo prevê para cada um destes trabalhadores?</p>
-<ul>
-<li>11 anos de estudo, 10 de experiência, homem</li>
-<li>16 anos de estudo, 5 de experiência, mulher</li>
-<li>8 anos de estudo, 20 de experiência, homem</li>
-</ul>
-<div class="cell" data-exercise="ap1_ex3">
+<section id="exercício-2-o-intervalo-de-confiança-do-efeito" class="level3" data-number="8.2">
+<h3 data-number="8.2" class="anchored" data-anchor-id="exercício-2-o-intervalo-de-confiança-do-efeito"><span class="header-section-number">8.2</span> Exercício 2 — o intervalo de confiança do efeito</h3>
+<p>Um efeito estimado sem intervalo é meia informação. Extraia o intervalo de 95% do termo de interação.</p>
+<div class="cell" data-exercise="ap3_ex2">
 <div>
-<div id="webr-8" class="exercise-cell">
+<div id="webr-7" class="exercise-cell">
 
 </div>
-<script type="webr-8-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicGVyZmlzIDwtIGRhdGEuZnJhbWUoXG4gIGVzY29sYXJpZGFkZSA9IGMoMTEsIF9fX19fXywgX19fX19fKSxcbiAgZXhwZXJpZW5jaWEgID0gYygxMCwgX19fX19fLCBfX19fX18pLFxuICBmZW1pbmlubyAgICAgPSBjKDAsICBfX19fX18sIF9fX19fXylcbilcbnByZWRpY3QoY29tcGxldG8sIG5ld2RhdGEgPSBwZXJmaXMpIn0=
+<script type="webr-7-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29uZmludChfX19fX18sIGxldmVsID0gX19fX19fKSJ9
 </script>
 </div>
 </div>
@@ -761,7 +777,7 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicGVyZmlzIDwtIGRhdGEuZnJh
 </div>
 <div id="callout-13" class="callout-13-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Cada vetor tem os três valores da respectiva variável, na ordem dos perfis.</p>
+<p>O objeto é <code>did</code> e o nível é <code>0.95</code>. Olhe a linha <code>tratada:depois</code> e pergunte: o intervalo inclui o zero?</p>
 </div>
 </div>
 </div>
@@ -777,26 +793,23 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicGVyZmlzIDwtIGRhdGEuZnJh
 </div>
 <div id="callout-14" class="callout-14-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>perfis <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">escolaridade =</span> <span class="fu">c</span>(<span class="dv">11</span>, <span class="dv">16</span>, <span class="dv">8</span>),</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">experiencia  =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">5</span>, <span class="dv">20</span>),</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">feminino     =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(completo, <span class="at">newdata =</span> perfis)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(did, <span class="at">level =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>O intervalo da interação vai de cerca de 0,36 a 2,77. <strong>Não inclui o zero</strong> — por isso o valor-p ficou abaixo de 0,05.</p>
+<p>Mas repare na largura: 2,4 empregados de amplitude. Os dados são compatíveis com um efeito de meio empregado e também com um de quase três. Dizer “o efeito é +1,56” sem essa ressalva transmite uma precisão que a amostra não tem.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="exercício-4-o-diferencial-de-gênero-bruto-e-ajustado" class="level3" data-number="8.4">
-<h3 data-number="8.4" class="anchored" data-anchor-id="exercício-4-o-diferencial-de-gênero-bruto-e-ajustado"><span class="header-section-number">8.4</span> Exercício 4 — o diferencial de gênero, bruto e ajustado</h3>
-<p>Compare o salário médio de homens e mulheres <strong>sem</strong> controlar por nada. Depois compare com o coeficiente da dummy no modelo completo. Os dois números são diferentes — e a diferença tem significado.</p>
-<div class="cell" data-exercise="ap1_ex4">
+<section id="exercício-3-o-modelo-errado-de-propósito" class="level3" data-number="8.3">
+<h3 data-number="8.3" class="anchored" data-anchor-id="exercício-3-o-modelo-errado-de-propósito"><span class="header-section-number">8.3</span> Exercício 3 — o modelo errado, de propósito</h3>
+<p>Estime o modelo <strong>sem</strong> o termo de interação e compare.</p>
+<div class="cell" data-exercise="ap3_ex3">
 <div>
-<div id="webr-9" class="exercise-cell">
+<div id="webr-8" class="exercise-cell">
 
 </div>
-<script type="webr-9-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgfD5cbiAgZ3JvdXBfYnkoX19fX19fKSB8PlxuICBzdW1tYXJpc2Uoc2FsYXJpb19tZWRpbyA9IG1lYW4oX19fX19fKSwgZXNjb2xhcmlkYWRlX21lZGlhID0gbWVhbihfX19fX18pKSJ9
+<script type="webr-8-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2VtX2ludGVyYWNhbyA8LSBsbShlbXByZWdhZG9zIH4gdHJhdGFkYSBfX19fX18gZGVwb2lzLCBkYXRhID0gbGFuY2hvbmV0ZXMpXG5zdW1tYXJ5KHNlbV9pbnRlcmFjYW8pIn0=
 </script>
 </div>
 </div>
@@ -812,7 +825,7 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgfD5cbiAgZ3Jv
 </div>
 <div id="callout-15" class="callout-15-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Agrupe por <code>feminino</code>. Carregue <code>dplyr</code> antes com <code>library(dplyr)</code>.</p>
+<p>Troque o <code>*</code> por <code>+</code>. Depois, procure: onde foi parar a estimativa do efeito da política?</p>
 </div>
 </div>
 </div>
@@ -828,20 +841,73 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgfD5cbiAgZ3Jv
 </div>
 <div id="callout-16" class="callout-16-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>salarios <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(feminino) <span class="sc">|&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">salario_medio =</span> <span class="fu">mean</span>(salario_hora), <span class="at">escolaridade_media =</span> <span class="fu">mean</span>(escolaridade))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A diferença bruta de salário é de cerca de R$ 2,43, enquanto o coeficiente da dummy é de cerca de −R$ 2,57. As escolaridades médias dos dois grupos são praticamente iguais, então o controle muda pouco — mas repare que o diferencial <em>ajustado</em> é <strong>maior</strong> que o bruto. Em amostras reais isso costuma se inverter.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sem_interacao <span class="ot">&lt;-</span> <span class="fu">lm</span>(empregados <span class="sc">~</span> tratada <span class="sc">+</span> depois, <span class="at">data =</span> lanchonetes)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sem_interacao)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Ela simplesmente <strong>não existe</strong> neste modelo. Sobraram uma dummy de grupo e uma dummy de tempo, cada uma deslocando o intercepto por conta própria. O modelo diz que tratadas e controle diferem sempre pela mesma quantia, antes e depois — que é justamente a hipótese de que a política não fez nada.</p>
+<p>Sem a interação, a pergunta do artigo não pode nem ser formulada. Este é o ponto da Unidade 3: dummies isoladas deslocam o nível; é a interação que permite ao efeito de uma variável <strong>depender</strong> de outra.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-4-a-hipótese-que-sustenta-tudo" class="level3" data-number="8.4">
+<h3 data-number="8.4" class="anchored" data-anchor-id="exercício-4-a-hipótese-que-sustenta-tudo"><span class="header-section-number">8.4</span> Exercício 4 — a hipótese que sustenta tudo</h3>
+<p>O desenho de diferenças em diferenças só funciona sob a hipótese de <strong>tendências paralelas</strong>: sem a política, os dois grupos teriam evoluído do mesmo jeito. Não dá para testá-la com dois períodos apenas, mas dá para visualizar o que ela afirma.</p>
+<div class="cell" data-exercise="ap3_ex4">
+<div>
+<div id="webr-9" class="exercise-cell">
+
+</div>
+<script type="webr-9-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxubWVkaWFzIDwtIGFnZ3JlZ2F0ZShlbXByZWdhZG9zIH4gdHJhdGFkYSArIGRlcG9pcywgZGF0YSA9IGxhbmNob25ldGVzLCBGVU4gPSBtZWFuKVxuZ2dwbG90KG1lZGlhcywgYWVzKHggPSBkZXBvaXMsIHkgPSBlbXByZWdhZG9zLCBjb2xvdXIgPSBmYWN0b3IoX19fX19fKSwgZ3JvdXAgPSBmYWN0b3IoX19fX19fKSkpICtcbiAgZ2VvbV9saW5lKGxpbmV3aWR0aCA9IDEpICtcbiAgZ2VvbV9wb2ludChzaXplID0gMykgK1xuICBsYWJzKHRpdGxlID0gXCJFbXByZWdvIG3DqWRpbyBhbnRlcyBlIGRlcG9pc1wiLCBjb2xvdXIgPSBcIlRyYXRhZGFcIikgK1xuICB0aGVtZV9taW5pbWFsKCkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-17" class="callout-17-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As duas lacunas são <code>tratada</code>. Depois de rodar, observe: as duas linhas são paralelas?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-18-contents" aria-controls="callout-18" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-18" class="callout-18-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>medias <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(empregados <span class="sc">~</span> tratada <span class="sc">+</span> depois, <span class="at">data =</span> lanchonetes, <span class="at">FUN =</span> mean)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(medias, <span class="fu">aes</span>(<span class="at">x =</span> depois, <span class="at">y =</span> empregados, <span class="at">colour =</span> <span class="fu">factor</span>(tratada), <span class="at">group =</span> <span class="fu">factor</span>(tratada))) <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Emprego médio antes e depois"</span>, <span class="at">colour =</span> <span class="st">"Tratada"</span>) <span class="sc">+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>As linhas <strong>não</strong> são paralelas — a distância vertical entre elas encolhe. Essa não-paralelismo <em>é</em> o efeito estimado: a interação mede exatamente o quanto as linhas deixaram de ser paralelas.</p>
+<p>A hipótese de tendências paralelas não é sobre o que você vê no gráfico; é sobre o que <strong>teria acontecido</strong> com a linha das tratadas se a política não existisse. Ela é inverificável por natureza, e por isso todo trabalho sério de diferenças em diferenças gasta parágrafos a defendendo.</p>
 </div>
 </div>
 </div>
 </section>
 <section id="exercício-5-escrevendo-o-resultado" class="level3" data-number="8.5">
 <h3 data-number="8.5" class="anchored" data-anchor-id="exercício-5-escrevendo-o-resultado"><span class="header-section-number">8.5</span> Exercício 5 — escrevendo o resultado</h3>
-<p>Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: o retorno estimado de um ano de estudo, o intervalo de confiança, o diferencial de gênero e uma frase sobre o poder explicativo do modelo.</p>
+<p>Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: o efeito estimado com intervalo e valor-p, uma frase sobre por que as comparações simples não servem, e a ressalva sobre tendências paralelas.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Um parágrafo possível">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -850,10 +916,10 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgfD5cbiAgZ3Jv
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-17" class="callout-17-contents callout-collapse collapse">
+<div id="callout-19" class="callout-19-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>A estimação por MQO de uma equação de rendimentos para 720 trabalhadores da região de Sinop indica que cada ano adicional de escolaridade está associado a um acréscimo de R$ 1,35 no salário-hora (IC 95%: R$ 1,27 a R$ 1,43), mantidas constantes a experiência e o sexo. A experiência apresenta retorno positivo, porém bem menor, de R$ 0,28 por ano. Verifica-se ainda um diferencial de gênero de R$ 2,57 por hora desfavorável às mulheres, não explicado por diferenças de escolaridade ou de experiência entre os grupos. O modelo explica 64% da variação dos salários na amostra.</p>
-<p>Repare no que o parágrafo faz: reporta o número, o intervalo, a condição (<em>mantidas constantes</em>) e a magnitude relativa. E não afirma causalidade em momento algum.</p>
+<p>A estimação por diferenças em diferenças, com 240 estabelecimentos observados antes e depois da instituição do piso salarial regional, indica efeito de +1,56 empregado por lanchonete (IC 95%: 0,36 a 2,77; p = 0,011). As comparações simples conduzem a conclusões opostas e ambas incorretas: restrita ao período posterior, a diferença entre tratadas e controle é de −1,08 empregado, refletindo uma disparidade que já existia antes da medida; restrita ao grupo tratado, a variação é de +0,24 e estatisticamente indistinguível de zero, por desconsiderar a queda de 1,32 empregado observada no grupo de controle no mesmo intervalo. O resultado é condicional à hipótese de tendências paralelas, não verificável com apenas dois períodos de observação.</p>
+<p>Repare no que o parágrafo faz: dá o número com intervalo e valor-p, explica por que os atalhos falham, e termina admitindo a hipótese que sustenta o desenho.</p>
 </div>
 </div>
 </div>
@@ -861,12 +927,11 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgfD5cbiAgZ3Jv
 </section>
 <section id="o-que-estava-por-trás-dos-dados" class="level2" data-number="9">
 <h2 data-number="9" class="anchored" data-anchor-id="o-que-estava-por-trás-dos-dados"><span class="header-section-number">9</span> O que estava por trás dos dados</h2>
-<p>Chegou a hora. Os salários desta amostra foram gerados por esta equação:</p>
+<p>Chegou a hora. O emprego desta amostra foi gerado por esta equação:</p>
 <p><span class="math display">\[
-\text{salário} = 4{,}20 + 1{,}35 \times \text{escolaridade} + 0{,}28 \times \text{experiência} - 2{,}10 \times \text{feminino} + u
+\text{empregados} = 21{,}0 - 2{,}6 \, \text{tratada} - 1{,}8 \, \text{depois} + 1{,}9 \, (\text{tratada} \times \text{depois}) + u
 \]</span></p>
-<p>com <span class="math inline">\(u\)</span> sorteado de uma normal de média zero e desvio-padrão 3,50.</p>
-<p>Compare com o que você estimou:</p>
+<p>com <span class="math inline">\(u\)</span> sorteado de uma normal de média zero e desvio-padrão 3,40.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -879,27 +944,33 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgfD5cbiAgZ3Jv
 <tbody>
 <tr class="odd">
 <td>Intercepto</td>
-<td>4,20</td>
-<td>4,22</td>
-<td>[3,09 ; 5,34]</td>
+<td>21,00</td>
+<td>21,06</td>
+<td>[20,46 ; 21,66]</td>
 </tr>
 <tr class="even">
-<td>Escolaridade</td>
-<td><strong>1,35</strong></td>
-<td><strong>1,348</strong></td>
-<td>[1,270 ; 1,427]</td>
+<td>tratada</td>
+<td>−2,60</td>
+<td>−2,64</td>
+<td>[−3,49 ; −1,79]</td>
 </tr>
 <tr class="odd">
-<td>Experiência</td>
-<td>0,28</td>
-<td>0,281</td>
-<td>[0,246 ; 0,316]</td>
+<td>depois</td>
+<td>−1,80</td>
+<td>−1,32</td>
+<td>[−2,17 ; −0,47]</td>
 </tr>
 <tr class="even">
-<td>Feminino</td>
-<td>−2,10</td>
-<td>−2,572</td>
-<td>[−3,094 ; −2,050]</td>
+<td><strong>interação (efeito)</strong></td>
+<td><strong>+1,90</strong></td>
+<td><strong>+1,56</strong></td>
+<td>[0,36 ; 2,77]</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\sigma\)</span></td>
+<td>3,40</td>
+<td>3,36</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>
@@ -913,21 +984,20 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2FsYXJpb3MgfD5cbiAgZ3Jv
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>1. O MQO acertou.</strong> Os quatro intervalos de confiança contêm o valor verdadeiro. Não foi sorte: é a propriedade do estimador funcionando. Se repetíssemos a amostragem cem vezes, cerca de 95 dos intervalos conteriam o parâmetro.</p>
-<p><strong>2. Estimativa não é parâmetro.</strong> O coeficiente da dummy saiu em −2,57 quando o verdadeiro era −2,10. A diferença de 0,47 não é erro de cálculo nem de código: é <strong>erro amostral</strong>. Uma amostra é uma amostra. Foi para medir essa incerteza que você calculou o intervalo no Exercício 2 — e é por isso que reportar o coeficiente sem o intervalo esconde metade da informação.</p>
-<p><strong>3. O modelo simples estava enviesado, e dá para provar.</strong> A regressão só com escolaridade deu 1,18 contra o verdadeiro 1,35. O viés de −0,17 é quase idêntico ao previsto pela fórmula do viés de variável omitida: o efeito da variável esquecida (0,28) multiplicado pela relação dela com a variável mantida (−0,56), o que dá −0,16.</p>
-<p>Guarde esta última: com dados reais, você nunca saberia que 1,18 estava errado. Aqui você viu.</p>
+<p><strong>1. A interação recuperou o efeito; os atalhos, não.</strong> O efeito verdadeiro era +1,90. A interação estimou +1,56, com o valor verdadeiro dentro do intervalo. Os dois atalhos deram −1,08 e +0,24 — nenhum dos dois chega perto, e um deles tem até o sinal trocado. Não é questão de precisão: são estimadores de coisas diferentes.</p>
+<p><strong>2. Um coeficiente pode estar longe e o modelo continuar correto.</strong> O coeficiente de <code>depois</code> saiu −1,32 quando o verdadeiro era −1,80. É erro amostral, e o intervalo o contém. Estimativa individual oscila; a garantia do MQO é sobre o comportamento médio do procedimento, não sobre uma amostra em particular.</p>
+<p><strong>3. Os grupos eram desiguais desde o início — e isso não invalidou nada.</strong> O coeficiente <code>tratada</code> de −2,6 diz que as lanchonetes tratadas já eram menores. Num experimento com sorteio isso não aconteceria; aqui aconteceu, e o desenho de diferenças em diferenças ainda funciona, porque ele <strong>não</strong> exige que os grupos sejam iguais em nível. Exige apenas que suas tendências sejam iguais. É uma hipótese bem mais modesta — e é isso que torna o método tão usado em avaliação de políticas públicas.</p>
 </div>
 </div>
 </section>
 <section id="voltando-ao-artigo" class="level2" data-number="10">
 <h2 data-number="10" class="anchored" data-anchor-id="voltando-ao-artigo"><span class="header-section-number">10</span> Voltando ao artigo</h2>
-<p>A literatura brasileira costuma estimar a equação de Mincer em <strong>logaritmo</strong> do salário, e não em nível como fizemos. O motivo é a interpretação: em log, o coeficiente vira o retorno <strong>percentual</strong> de um ano de estudo, comparável entre países e períodos — a ordem de 8% a 10% ao ano que se lê nos artigos.</p>
-<p>Nós ficamos em nível de propósito: a Unidade 1 trata do modelo linear, e a transformação logarítmica é o assunto da Unidade 2. Quando chegar ao Laboratório 5, você vai reestimar esta mesma relação em log e obter o número que dialoga diretamente com a literatura.</p>
-<p>Duas ressalvas que todo artigo sério faz, e que valem para o que você acabou de estimar:</p>
+<p>Card e Krueger encontraram, em Nova Jersey e Pensilvânia, um efeito próximo de +2,8 empregados em tempo integral equivalente por estabelecimento, com sinal positivo e magnitude modesta. A reação foi imediata e dura: outros pesquisadores questionaram a medida de emprego usada nas entrevistas telefônicas, e uma réplica com dados de folha de pagamento chegou a resultado negativo. Card e Krueger responderam com dados administrativos. O debate segue vivo trinta anos depois.</p>
+<p>Esse desconforto é parte do que torna o artigo formativo. Uma evidência empírica bem construída não encerra uma discussão — ela obriga quem discorda a construir evidência igualmente boa.</p>
+<p>Duas ressalvas que valem para o que você acabou de estimar:</p>
 <ul>
-<li><strong>Isto não é causalidade.</strong> Pessoas que estudam mais podem diferir em características não observadas — motivação, origem familiar, acesso a redes — que também afetam o salário. O coeficiente mede associação condicional, não o efeito de mandar alguém estudar mais um ano.</li>
-<li><strong>A amostra é o que é.</strong> São 720 trabalhadores de uma região. Nada garante que o retorno seja o mesmo em outro estado, setor ou período.</li>
+<li><strong>Um estudo é um estudo.</strong> O resultado vale para lanchonetes de uma região, num aumento específico de piso, num período específico. Não autoriza a conclusão de que piso salarial nunca reduz emprego — e um aumento de magnitude muito maior teria efeitos que este desenho não observa.</li>
+<li><strong>Tendências paralelas é uma hipótese, não um achado.</strong> Com dois períodos apenas, ela não pode ser testada. Trabalhos modernos coletam vários períodos anteriores justamente para mostrar que, antes da política, as trajetórias dos dois grupos caminhavam juntas.</li>
 </ul>
 
 

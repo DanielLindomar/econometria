@@ -8,7 +8,7 @@
 
 <meta name="author" content="Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop">
 
-<title>Laboratório 3 — Introdução à estatística – Econometria Interativa · UNEMAT</title>
+<title>Aplicação 8 — O coeficiente está certo, o erro-padrão está errado – Econometria Interativa · UNEMAT</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -131,6 +131,35 @@ background: #1E2761;
 <script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
 <link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -322,8 +351,8 @@ background: #1E2761;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Laboratório 3 — Introdução à estatística</h1>
-            <p class="subtitle lead">Econometria I · Unidade 1 — Introdução ao modelo de regressão linear</p>
+      <h1 class="title">Aplicação 8 — O coeficiente está certo, o erro-padrão está errado</h1>
+            <p class="subtitle lead">Econometria II · Heterocedasticidade em uso</p>
                       </div>
   </div>
     
@@ -350,27 +379,25 @@ background: #1E2761;
     <h2 id="toc-title">Nesta página</h2>
    
   <ul>
-  <li><a href="#tendência-central-média-mediana-e-moda" id="toc-tendência-central-média-mediana-e-moda" class="nav-link active" data-scroll-target="#tendência-central-média-mediana-e-moda"><span class="header-section-number">1</span> Tendência central: média, mediana e moda</a></li>
-  <li><a href="#dispersão-variância-e-desvio-padrão" id="toc-dispersão-variância-e-desvio-padrão" class="nav-link" data-scroll-target="#dispersão-variância-e-desvio-padrão"><span class="header-section-number">2</span> Dispersão: variância e desvio-padrão</a>
+  <li><a href="#o-problema" id="toc-o-problema" class="nav-link active" data-scroll-target="#o-problema"><span class="header-section-number">1</span> O problema</a></li>
+  <li><a href="#nossa-versão" id="toc-nossa-versão" class="nav-link" data-scroll-target="#nossa-versão"><span class="header-section-number">2</span> Nossa versão</a></li>
+  <li><a href="#os-dados" id="toc-os-dados" class="nav-link" data-scroll-target="#os-dados"><span class="header-section-number">3</span> Os dados</a></li>
+  <li><a href="#primeiro-olhar-o-cone" id="toc-primeiro-olhar-o-cone" class="nav-link" data-scroll-target="#primeiro-olhar-o-cone"><span class="header-section-number">4</span> Primeiro olhar: o cone</a></li>
+  <li><a href="#o-modelo-por-mqo" id="toc-o-modelo-por-mqo" class="nav-link" data-scroll-target="#o-modelo-por-mqo"><span class="header-section-number">5</span> O modelo por MQO</a></li>
+  <li><a href="#os-resíduos-denunciam" id="toc-os-resíduos-denunciam" class="nav-link" data-scroll-target="#os-resíduos-denunciam"><span class="header-section-number">6</span> Os resíduos denunciam</a></li>
+  <li><a href="#os-testes-formais" id="toc-os-testes-formais" class="nav-link" data-scroll-target="#os-testes-formais"><span class="header-section-number">7</span> Os testes formais</a></li>
+  <li><a href="#a-solução-de-white" id="toc-a-solução-de-white" class="nav-link" data-scroll-target="#a-solução-de-white"><span class="header-section-number">8</span> A solução de White</a></li>
+  <li><a href="#a-alternativa-ponderar" id="toc-a-alternativa-ponderar" class="nav-link" data-scroll-target="#a-alternativa-ponderar"><span class="header-section-number">9</span> A alternativa: ponderar</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">10</span> Exercícios</a>
   <ul class="collapse">
-  <li><a href="#exercício-1-descritivas-das-vendas" id="toc-exercício-1-descritivas-das-vendas" class="nav-link" data-scroll-target="#exercício-1-descritivas-das-vendas"><span class="header-section-number">2.1</span> Exercício 1 — descritivas das vendas</a></li>
+  <li><a href="#exercício-1-a-tabela-que-um-artigo-publicaria" id="toc-exercício-1-a-tabela-que-um-artigo-publicaria" class="nav-link" data-scroll-target="#exercício-1-a-tabela-que-um-artigo-publicaria"><span class="header-section-number">10.1</span> Exercício 1 — a tabela que um artigo publicaria</a></li>
+  <li><a href="#exercício-2-o-teste-de-white-na-mão" id="toc-exercício-2-o-teste-de-white-na-mão" class="nav-link" data-scroll-target="#exercício-2-o-teste-de-white-na-mão"><span class="header-section-number">10.2</span> Exercício 2 — o teste de White na mão</a></li>
+  <li><a href="#exercício-3-o-que-acontece-com-o-teste-f" id="toc-exercício-3-o-que-acontece-com-o-teste-f" class="nav-link" data-scroll-target="#exercício-3-o-que-acontece-com-o-teste-f"><span class="header-section-number">10.3</span> Exercício 3 — o que acontece com o teste F</a></li>
+  <li><a href="#exercício-4-heterocedasticidade-e-forma-funcional" id="toc-exercício-4-heterocedasticidade-e-forma-funcional" class="nav-link" data-scroll-target="#exercício-4-heterocedasticidade-e-forma-funcional"><span class="header-section-number">10.4</span> Exercício 4 — heterocedasticidade e forma funcional</a></li>
+  <li><a href="#exercício-5-escrevendo-o-resultado" id="toc-exercício-5-escrevendo-o-resultado" class="nav-link" data-scroll-target="#exercício-5-escrevendo-o-resultado"><span class="header-section-number">10.5</span> Exercício 5 — escrevendo o resultado</a></li>
   </ul></li>
-  <li><a href="#a-forma-da-distribuição-histograma-e-boxplot" id="toc-a-forma-da-distribuição-histograma-e-boxplot" class="nav-link" data-scroll-target="#a-forma-da-distribuição-histograma-e-boxplot"><span class="header-section-number">3</span> A forma da distribuição: histograma e boxplot</a></li>
-  <li><a href="#amostras-por-que-os-números-mudam" id="toc-amostras-por-que-os-números-mudam" class="nav-link" data-scroll-target="#amostras-por-que-os-números-mudam"><span class="header-section-number">4</span> Amostras: por que os números mudam</a>
-  <ul class="collapse">
-  <li><a href="#exercício-2-amostra-maior" id="toc-exercício-2-amostra-maior" class="nav-link" data-scroll-target="#exercício-2-amostra-maior"><span class="header-section-number">4.1</span> Exercício 2 — amostra maior</a></li>
-  </ul></li>
-  <li><a href="#teste-de-hipóteses" id="toc-teste-de-hipóteses" class="nav-link" data-scroll-target="#teste-de-hipóteses"><span class="header-section-number">5</span> Teste de hipóteses</a>
-  <ul class="collapse">
-  <li><a href="#exercício-3-dias-quentes" id="toc-exercício-3-dias-quentes" class="nav-link" data-scroll-target="#exercício-3-dias-quentes"><span class="header-section-number">5.1</span> Exercício 3 — dias quentes</a></li>
-  </ul></li>
-  <li><a href="#glossário-funções-novas-deste-laboratório" id="toc-glossário-funções-novas-deste-laboratório" class="nav-link" data-scroll-target="#glossário-funções-novas-deste-laboratório"><span class="header-section-number">6</span> Glossário — funções novas deste laboratório</a></li>
-  <li><a href="#exercícios-avaliativos" id="toc-exercícios-avaliativos" class="nav-link" data-scroll-target="#exercícios-avaliativos"><span class="header-section-number">7</span> Exercícios avaliativos</a>
-  <ul class="collapse">
-  <li><a href="#questão-1" id="toc-questão-1" class="nav-link" data-scroll-target="#questão-1"><span class="header-section-number">7.1</span> Questão 1</a></li>
-  <li><a href="#questão-2" id="toc-questão-2" class="nav-link" data-scroll-target="#questão-2"><span class="header-section-number">7.2</span> Questão 2</a></li>
-  <li><a href="#questão-3" id="toc-questão-3" class="nav-link" data-scroll-target="#questão-3"><span class="header-section-number">7.3</span> Questão 3</a></li>
-  </ul></li>
+  <li><a href="#o-que-estava-por-trás-dos-dados" id="toc-o-que-estava-por-trás-dos-dados" class="nav-link" data-scroll-target="#o-que-estava-por-trás-dos-dados"><span class="header-section-number">11</span> O que estava por trás dos dados</a></li>
+  <li><a href="#voltando-ao-artigo" id="toc-voltando-ao-artigo" class="nav-link" data-scroll-target="#voltando-ao-artigo"><span class="header-section-number">12</span> Voltando ao artigo</a></li>
   </ul>
 </nav>
     </div>
@@ -390,53 +417,67 @@ background: #1E2761;
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Objetivos de aprendizagem
+<span class="screen-reader-only">Nota</span>O que é uma Aplicação
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Ao final deste laboratório você será capaz de:</p>
-<ul>
-<li>calcular e interpretar medidas de tendência central (média, mediana, moda) e de dispersão (variância, desvio-padrão);</li>
-<li>ler a distribuição de uma variável em histogramas e boxplots;</li>
-<li>entender o efeito da amostragem sobre as estatísticas;</li>
-<li>realizar e interpretar um teste de hipóteses simples.</li>
-</ul>
+<p>Nos laboratórios você aprendeu a executar. Aqui você vai <strong>usar</strong> o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.</p>
+<p>O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.</p>
 </div>
 </div>
-<p>No Excel, este laboratório usa as funções estatísticas da planilha. Aqui, faremos o mesmo percurso no R — com uma vantagem: os conceitos de <strong>amostra</strong> e <strong>população</strong>, centrais na econometria, ficam explícitos no código.</p>
+<section id="o-problema" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="o-problema"><span class="header-section-number">1</span> O problema</h2>
+<p>Uma das hipóteses do modelo clássico é a homocedasticidade: a variância do erro é a mesma para todas as observações. Em dados de empresas, de famílias ou de municípios, essa hipótese quase nunca se sustenta. Unidades maiores variam mais, em termos absolutos, do que unidades pequenas — e não há nada de estranho nisso.</p>
+<p>A pergunta é o que fazer a respeito. Até o final dos anos 1970, a resposta padrão exigia <strong>saber a forma</strong> da heterocedasticidade: supunha-se que <span class="math inline">\(\sigma_i^2\)</span> era proporcional a alguma variável, estimava-se por mínimos quadrados ponderados e seguia-se em frente. Se a suposição sobre a forma estivesse errada, o remédio podia ser pior que a doença.</p>
+<p>Em 1980, Halbert White publicou <em>A Heteroskedasticity-Consistent Covariance Matrix Estimator and a Direct Test for Heteroskedasticity</em> e resolveu o problema de um jeito que hoje parece óbvio e na época não era: mostrou que é possível corrigir os erros-padrão <strong>sem saber nada</strong> sobre a forma da heterocedasticidade. Basta usar os resíduos observados para estimar a matriz de covariância.</p>
+<p>O artigo é um dos mais citados da história da economia. A expressão “erros-padrão robustos”, que você vê em quase toda tabela de resultados publicada hoje, vem daqui.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>O que exatamente a heterocedasticidade estraga
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Esta é a parte que costuma se embaralhar na cabeça de quem está aprendendo, então vale fixar:</p>
+<p><strong>O que continua certo:</strong> o estimador MQO permanece <strong>não-viesado</strong> e <strong>consistente</strong>. O coeficiente estimado continua sendo, em média, o valor verdadeiro. Nada de errado com o número que aparece na coluna <code>Estimate</code>.</p>
+<p><strong>O que fica errado:</strong> a fórmula do <strong>erro-padrão</strong>. E, por consequência, a estatística t, o valor-p, o intervalo de confiança e o teste F. Ou seja: todo o aparato de inferência.</p>
+<p><strong>O que se perde:</strong> a eficiência. O MQO deixa de ser o de menor variância entre os não-viesados — o teorema de Gauss-Markov depende da homocedasticidade.</p>
+<p>Então o problema não é o que você estimou. É o quanto você acha que confia nisso.</p>
+</div>
+</div>
+</section>
+<section id="nossa-versão" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="nossa-versão"><span class="header-section-number">2</span> Nossa versão</h2>
+<p>Vamos estimar quanto as empresas gastam em <strong>pesquisa e desenvolvimento</strong> em função do seu <strong>faturamento</strong>, com dados de 300 empresas industriais.</p>
+<p>A expectativa é que empresas maiores gastem mais em P&amp;D — e também que <strong>variem mais</strong>: uma empresa de R$ 20 milhões pode gastar R$ 2 milhões ou R$ 3,5 milhões conforme a estratégia, enquanto uma de R$ 800 mil não tem essa margem de manobra.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Comece por aqui
+<span class="screen-reader-only">Importante</span>Estes dados foram gerados por simulação
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Rode este bloco primeiro para carregar os dados.</p>
+<p>Não são uma pesquisa de campo. Foram construídos por um processo que <strong>eu conheço</strong> — inclusive a forma exata da heterocedasticidade.</p>
+<p>No fim da página eu mostro o coeficiente verdadeiro e a regra que governa a variância do erro. Você vai poder verificar qual dos três procedimentos — MQO simples, MQO com erros robustos, mínimos quadrados ponderados — chegou mais perto, e por quanto.</p>
+<p>Não role até lá antes de estimar.</p>
 </div>
 </div>
+</section>
+<section id="os-dados" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="os-dados"><span class="header-section-number">3</span> Os dados</h2>
 <div class="cell">
 <div>
 <div id="webr-1" class="exercise-cell">
 
 </div>
 <script type="webr-1-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShkcGx5cilcbmxpbW9uYWRhIDwtIHJlYWQuY3N2KFwiZGFkb3MvbGltb25hZGEuY3N2XCIpXG5ucm93KGxpbW9uYWRhKSJ9
-</script>
-</div>
-</div>
-<section id="tendência-central-média-mediana-e-moda" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="tendência-central-média-mediana-e-moda"><span class="header-section-number">1</span> Tendência central: média, mediana e moda</h2>
-<p>Média e mediana você já conhece (<code>mean()</code>, <code>median()</code>). A <strong>moda</strong> — o valor mais frequente — não tem função pronta no R base; obtemo-la com <code>table()</code>, que conta quantas vezes cada valor aparece, combinada com <code>which.max()</code>, que você já viu no Lab 1. <code>sort()</code> (nova) ordena um vetor; com <code>decreasing = TRUE</code>, do maior para o menor.</p>
-<div class="cell">
-<div>
-<div id="webr-2" class="exercise-cell">
-
-</div>
-<script type="webr-2-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibWVhbihsaW1vbmFkYSR0ZW1wZXJhdHVyYSlcbm1lZGlhbihsaW1vbmFkYSR0ZW1wZXJhdHVyYSlcbmNvbnRhZ2VtIDwtIHRhYmxlKHJvdW5kKGxpbW9uYWRhJHRlbXBlcmF0dXJhKSlcbnNvcnQoY29udGFnZW0sIGRlY3JlYXNpbmcgPSBUUlVFKSB8PiBoZWFkKDUpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZW1wcmVzYXMgPC0gcmVhZC5jc3YoXCJkYWRvcy9wZF9lbXByZXNhcy5jc3ZcIilcbmhlYWQoZW1wcmVzYXMpXG5zdW1tYXJ5KGVtcHJlc2FzKSJ9
 </script>
 </div>
 </div>
@@ -446,283 +487,10 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibWVhbihsaW1vbmFkYSR0ZW1w
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
+<span class="screen-reader-only">Dica</span>O dicionário das variáveis
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Média de <strong>15,96 °C</strong> e mediana de <strong>16,2 °C</strong> — praticamente iguais, primeiro indício de uma distribuição simétrica. A tabela de contagem mostra as temperaturas (arredondadas) mais frequentes; a mais comum é a <strong>moda</strong>. Quando média ≈ mediana ≈ moda, a distribuição tende ao formato de sino.</p>
-</div>
-</div>
-</section>
-<section id="dispersão-variância-e-desvio-padrão" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="dispersão-variância-e-desvio-padrão"><span class="header-section-number">2</span> Dispersão: variância e desvio-padrão</h2>
-<p>Aqui mora uma distinção que o Excel esconde em duas fórmulas (VAR.P e VAR.A): a variância <strong>populacional</strong> divide por <em>n</em>; a <strong>amostral</strong>, por <em>n − 1</em>. As funções do R, <code>var()</code> e <code>sd()</code>, calculam a versão <strong>amostral</strong> — a adequada quando os dados são uma amostra, que é o caso típico em econometria. Para a populacional, basta o ajuste <code>(n-1)/n</code>.</p>
-<div class="cell">
-<div>
-<div id="webr-3" class="exercise-cell">
-
-</div>
-<script type="webr-3-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibiA8LSBucm93KGxpbW9uYWRhKVxudmFyKGxpbW9uYWRhJHRlbXBlcmF0dXJhKSAgICAgICAgICAgICAgICAgICAgIyBhbW9zdHJhbCAoZGl2aWRlIHBvciBuLTEpXG52YXIobGltb25hZGEkdGVtcGVyYXR1cmEpICogKG4gLSAxKSAvIG4gICAgICAjIHBvcHVsYWNpb25hbCAoZGl2aWRlIHBvciBuKVxuc2QobGltb25hZGEkdGVtcGVyYXR1cmEpICAgICAgICAgICAgICAgICAgICAgIyBkZXN2aW8tcGFkcsOjbyBhbW9zdHJhbCJ9
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Variância amostral de <strong>80,99</strong> e populacional de <strong>80,77</strong> — com 365 observações a diferença é mínima, mas o conceito importa: nossos estimadores de regressão usarão sempre a lógica amostral. O desvio-padrão de <strong>9,0 °C</strong> diz que um dia típico fica a cerca de 9 graus da média.</p>
-</div>
-</div>
-<section id="exercício-1-descritivas-das-vendas" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="exercício-1-descritivas-das-vendas"><span class="header-section-number">2.1</span> Exercício 1 — descritivas das vendas</h3>
-<p>Calcule média, mediana e desvio-padrão das <strong>vendas</strong>.</p>
-<div class="cell" data-exercise="l3_ex1">
-<div>
-<div id="webr-4" class="exercise-cell">
-
-</div>
-<script type="webr-4-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiYyhtZWRpYSAgID0gX19fX19fKGxpbW9uYWRhJHZlbmRhcyksXG4gIG1lZGlhbmEgPSBfX19fX18obGltb25hZGEkdmVuZGFzKSxcbiAgZHAgICAgICA9IF9fX19fXyhsaW1vbmFkYSR2ZW5kYXMpKSJ9
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>As três funções são <code>mean()</code>, <code>median()</code> e <code>sd()</code>.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">media   =</span> <span class="fu">mean</span>(limonada<span class="sc">$</span>vendas),</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediana =</span> <span class="fu">median</span>(limonada<span class="sc">$</span>vendas),</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dp      =</span> <span class="fu">sd</span>(limonada<span class="sc">$</span>vendas))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="a-forma-da-distribuição-histograma-e-boxplot" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="a-forma-da-distribuição-histograma-e-boxplot"><span class="header-section-number">3</span> A forma da distribuição: histograma e boxplot</h2>
-<p>Duas camadas novas do ggplot2: <code>geom_histogram()</code> agrupa os valores em faixas (<code>bins</code> controla o número de faixas) e mostra a frequência de cada uma; <code>geom_boxplot()</code> desenha a caixa com mediana, quartis e possíveis outliers.</p>
-<div class="cell">
-<div>
-<div id="webr-5" class="exercise-cell">
-
-</div>
-<script type="webr-5-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxuZ2dwbG90KGxpbW9uYWRhLCBhZXMoeCA9IHRlbXBlcmF0dXJhKSkgK1xuICBnZW9tX2hpc3RvZ3JhbShiaW5zID0gMjAsIGZpbGwgPSBcIiMxRTI3NjFcIiwgY29sb3IgPSBcIndoaXRlXCIpICtcbiAgbGFicyh4ID0gXCJUZW1wZXJhdHVyYSAowrBDKVwiLCB5ID0gXCJGcmVxdcOqbmNpYVwiLFxuICAgICAgIHRpdGxlID0gXCJEaXN0cmlidWnDp8OjbyBkYSB0ZW1wZXJhdHVyYVwiKSArXG4gIHRoZW1lX21pbmltYWwoYmFzZV9zaXplID0gMTMpIn0=
-</script>
-</div>
-</div>
-<div class="cell">
-<div>
-<div id="webr-6" class="exercise-cell">
-
-</div>
-<script type="webr-6-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZ2dwbG90KGxpbW9uYWRhLCBhZXMoeSA9IHRlbXBlcmF0dXJhKSkgK1xuICBnZW9tX2JveHBsb3QoZmlsbCA9IFwiI0FFQzRGMlwiKSArXG4gIGxhYnMoeSA9IFwiVGVtcGVyYXR1cmEgKMKwQylcIiwgdGl0bGUgPSBcIkJveHBsb3QgZGEgdGVtcGVyYXR1cmFcIikgK1xuICB0aGVtZV9taW5pbWFsKGJhc2Vfc2l6ZSA9IDEzKSJ9
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>O histograma tem um pico central e caudas parecidas dos dois lados — <strong>aproximadamente normal</strong> (a assimetria calculada é de apenas −0,005). No boxplot, a linha central é a mediana e a caixa vai do 1º ao 3º quartil; não há pontos isolados, ou seja, <strong>sem outliers relevantes</strong>. Essa é a resposta da questão 3 do questionário.</p>
-</div>
-</div>
-</section>
-<section id="amostras-por-que-os-números-mudam" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="amostras-por-que-os-números-mudam"><span class="header-section-number">4</span> Amostras: por que os números mudam</h2>
-<p>Em econometria quase nunca observamos a população — trabalhamos com <strong>amostras</strong>. Duas funções novas: <code>set.seed()</code> fixa o gerador aleatório (para o resultado ser reproduzível) e <code>slice_sample()</code> sorteia <code>n</code> linhas da base.</p>
-<div class="cell">
-<div>
-<div id="webr-7" class="exercise-cell">
-
-</div>
-<script type="webr-7-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2V0LnNlZWQoMTIzKVxuYW1vc3RyYTMwIDwtIGxpbW9uYWRhIHw+IHNsaWNlX3NhbXBsZShuID0gMzApXG5jKG1lZGlhX3BvcCA9IG1lYW4obGltb25hZGEkdmVuZGFzKSwgbWVkaWFfYW1vc3RyYSA9IG1lYW4oYW1vc3RyYTMwJHZlbmRhcykpIn0=
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>A média da amostra de 30 dias <strong>não coincide</strong> com a da base completa — é o erro amostral. Troque o número dentro de <code>set.seed()</code> e rode de novo: cada amostra dá uma média diferente, e amostras maiores (<code>n = 100</code>, <code>n = 200</code>) tendem a errar menos. Essa variação de amostra para amostra é exatamente o que os testes de hipóteses levam em conta.</p>
-</div>
-</div>
-<section id="exercício-2-amostra-maior" class="level3" data-number="4.1">
-<h3 data-number="4.1" class="anchored" data-anchor-id="exercício-2-amostra-maior"><span class="header-section-number">4.1</span> Exercício 2 — amostra maior</h3>
-<p>Sorteie uma amostra de <strong>100 dias</strong> e compare a média das vendas com a da base completa.</p>
-<div class="cell" data-exercise="l3_ex2">
-<div>
-<div id="webr-8" class="exercise-cell">
-
-</div>
-<script type="webr-8-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2V0LnNlZWQoMTIzKVxuYW1vc3RyYTEwMCA8LSBsaW1vbmFkYSB8PiBzbGljZV9zYW1wbGUobiA9IF9fX19fXylcbmMobWVkaWFfcG9wID0gbWVhbihsaW1vbmFkYSR2ZW5kYXMpLCBtZWRpYV9hbW9zdHJhID0gbWVhbihhbW9zdHJhMTAwJF9fX19fXykpIn0=
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-9" class="callout-9-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Complete com <code>100</code> e <code>vendas</code>. Compare o desvio em relação à média populacional com o da amostra de 30.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-10" class="callout-10-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>amostra100 <span class="ot">&lt;-</span> limonada <span class="sc">|&gt;</span> <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">100</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">media_pop =</span> <span class="fu">mean</span>(limonada<span class="sc">$</span>vendas), <span class="at">media_amostra =</span> <span class="fu">mean</span>(amostra100<span class="sc">$</span>vendas))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="teste-de-hipóteses" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="teste-de-hipóteses"><span class="header-section-number">5</span> Teste de hipóteses</h2>
-<p>Pergunta do laboratório: <strong>dias com pouca chuva vendem mais do que dias chuvosos?</strong> Formalmente:</p>
-<ul>
-<li><strong>H0</strong>: a média de vendas é igual nos dois grupos (a diferença é fruto do acaso);</li>
-<li><strong>H1</strong>: nos dias de chuva abaixo da média, vende-se <strong>mais</strong>.</li>
-</ul>
-<p>A função nova é <code>t.test()</code>. Repare na forma que usamos: <code>vendas ~ grupo</code> compara <strong>dois grupos entre si</strong>. Essa é a comparação correta aqui. Seria tentador testar um grupo contra a média geral da base, mas a média geral já inclui esse mesmo grupo — o valor de referência não seria independente e o teste ficaria viciado a favor de rejeitar H0.</p>
-<div class="cell">
-<div>
-<div id="webr-9" class="exercise-cell">
-
-</div>
-<script type="webr-9-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGltb25hZGEgPC0gbGltb25hZGEgfD4gbXV0YXRlKHNlY28gPSBjaHV2YSA8IG1lYW4oY2h1dmEpKVxudGFibGUobGltb25hZGEkc2VjbylcbnQudGVzdCh2ZW5kYXMgfiBzZWNvLCBkYXRhID0gbGltb25hZGEsIGFsdGVybmF0aXZlID0gXCJsZXNzXCIpIn0=
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>São <strong>230 dias</strong> secos contra <strong>135 chuvosos</strong>, com vendas médias de <strong>29,5</strong> e <strong>18,3</strong>. A estatística t fica em torno de <strong>−25,4</strong> e o valor-p é praticamente <strong>zero</strong> — muitíssimo menor que o crítico de 0,05. <strong>Rejeitamos H0</strong>: a diferença não é acaso; dias mais secos vendem sistematicamente mais.</p>
-<p>O sinal negativo e o <code>alternative = "less"</code> vêm da ordem dos grupos: o R põe <code>FALSE</code> (dias chuvosos) primeiro e <code>TRUE</code> (dias secos) depois, então a hipótese “os chuvosos vendem menos” é um teste à esquerda. Guarde a lógica: estatística de teste, valor-p, comparação com o nível de significância — é o mesmo raciocínio dos testes t da regressão.</p>
-</div>
-</div>
-<section id="exercício-3-dias-quentes" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="exercício-3-dias-quentes"><span class="header-section-number">5.1</span> Exercício 3 — dias quentes</h3>
-<p>Teste se os dias com <strong>temperatura acima da média</strong> vendem mais do que os dias mais frios.</p>
-<div class="cell" data-exercise="l3_ex3">
-<div>
-<div id="webr-10" class="exercise-cell">
-
-</div>
-<script type="webr-10-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGltb25hZGEgPC0gbGltb25hZGEgfD4gbXV0YXRlKHF1ZW50ZSA9IF9fX19fXyA+IG1lYW4oX19fX19fKSlcbnQudGVzdCh2ZW5kYXMgfiBxdWVudGUsIGRhdGEgPSBsaW1vbmFkYSwgYWx0ZXJuYXRpdmUgPSBcIl9fX19fX1wiKSJ9
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-12" class="callout-12-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Crie o grupo com <code>temperatura &gt; mean(temperatura)</code> e use <code>alternative = "less"</code> — como no exemplo, o grupo <code>FALSE</code> (dias frios) vem primeiro.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-13" class="callout-13-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>limonada <span class="ot">&lt;-</span> limonada <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">quente =</span> temperatura <span class="sc">&gt;</span> <span class="fu">mean</span>(temperatura))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(vendas <span class="sc">~</span> quente, <span class="at">data =</span> limonada, <span class="at">alternative =</span> <span class="st">"less"</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="glossário-funções-novas-deste-laboratório" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="glossário-funções-novas-deste-laboratório"><span class="header-section-number">6</span> Glossário — funções novas deste laboratório</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -730,71 +498,370 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGltb25hZGEgPC0gbGltb25h
 </colgroup>
 <thead>
 <tr class="header">
-<th>Função</th>
-<th>O que faz</th>
+<th>Variável</th>
+<th>O que é</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>table()</code></td>
-<td>Conta a frequência de cada valor (com <code>which.max</code>, dá a moda).</td>
+<td><code>faturamento</code></td>
+<td>Receita bruta anual, em R$ mil</td>
 </tr>
 <tr class="even">
-<td><code>sort()</code></td>
-<td>Ordena um vetor (<code>decreasing = TRUE</code> inverte).</td>
-</tr>
-<tr class="odd">
-<td><code>var()</code></td>
-<td>Variância <strong>amostral</strong> (divide por n−1).</td>
-</tr>
-<tr class="even">
-<td><code>geom_histogram()</code></td>
-<td>Histograma (<code>bins</code> = nº de faixas).</td>
-</tr>
-<tr class="odd">
-<td><code>geom_boxplot()</code></td>
-<td>Boxplot (mediana, quartis, outliers).</td>
-</tr>
-<tr class="even">
-<td><code>set.seed()</code></td>
-<td>Fixa o sorteio aleatório (reprodutibilidade).</td>
-</tr>
-<tr class="odd">
-<td><code>slice_sample()</code></td>
-<td>Sorteia n linhas da base.</td>
-</tr>
-<tr class="even">
-<td><code>t.test()</code></td>
-<td>Teste t (uma amostra, <code>mu</code>, <code>alternative</code>).</td>
+<td><code>gasto_pd</code></td>
+<td>Dispêndio anual em pesquisa e desenvolvimento, em R$ mil</td>
 </tr>
 </tbody>
 </table>
+<p>São 300 empresas. O faturamento vai de R$ 600 mil a cerca de R$ 17 milhões — uma amplitude de quase trinta vezes. É nesse tipo de amostra que a heterocedasticidade costuma aparecer.</p>
+</div>
+</div>
 </section>
-<section id="exercícios-avaliativos" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="exercícios-avaliativos"><span class="header-section-number">7</span> Exercícios avaliativos</h2>
+<section id="primeiro-olhar-o-cone" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="primeiro-olhar-o-cone"><span class="header-section-number">4</span> Primeiro olhar: o cone</h2>
+<div class="cell">
+<div>
+<div id="webr-2" class="exercise-cell">
+
+</div>
+<script type="webr-2-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxuZ2dwbG90KGVtcHJlc2FzLCBhZXMoZmF0dXJhbWVudG8sIGdhc3RvX3BkKSkgK1xuICBnZW9tX3BvaW50KGFscGhhID0gMC41LCBjb2xvdXIgPSBcIiMxRTI3NjFcIikgK1xuICBnZW9tX3Ntb290aChtZXRob2QgPSBcImxtXCIsIHNlID0gRkFMU0UsIGNvbG91ciA9IFwiI0MwMzkyQlwiKSArXG4gIGxhYnModGl0bGUgPSBcIkdhc3RvIGVtIFAmRCBlIGZhdHVyYW1lbnRvXCIsXG4gICAgICAgeCA9IFwiRmF0dXJhbWVudG8gKFIkIG1pbClcIiwgeSA9IFwiR2FzdG8gZW0gUCZEIChSJCBtaWwpXCIpICtcbiAgdGhlbWVfbWluaW1hbCgpIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A relação positiva é evidente. Mas o que interessa aqui não é a inclinação, é a <strong>abertura</strong>.</p>
+<p>À esquerda, perto da origem, os pontos se apertam contra a reta. À direita, eles se espalham numa faixa cada vez mais larga. A nuvem tem forma de cone.</p>
+<p>Esse cone é a assinatura visual da heterocedasticidade. Uma nuvem homocedástica teria espessura constante do começo ao fim.</p>
+</div>
+</div>
+</section>
+<section id="o-modelo-por-mqo" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="o-modelo-por-mqo"><span class="header-section-number">5</span> O modelo por MQO</h2>
+<div class="cell">
+<div>
+<div id="webr-3" class="exercise-cell">
+
+</div>
+<script type="webr-3-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibXFvIDwtIGxtKGdhc3RvX3BkIH4gZmF0dXJhbWVudG8sIGRhdGEgPSBlbXByZXNhcylcbnN1bW1hcnkobXFvKSJ9
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O coeficiente do faturamento é cerca de <strong>0,1318</strong>: cada R$ 1 mil de faturamento a mais está associado a R$ 132 a mais de gasto em P&amp;D — pouco mais de 13% da receita marginal.</p>
+<p>O erro-padrão é <strong>0,00431</strong>, o t passa de <strong>30</strong> e o R² fica em torno de <strong>0,76</strong>.</p>
+<p>Uma tabela impecável. Se a heterocedasticidade não fosse verificada, esses seriam os números reportados — e o intervalo de confiança de 95%, de 0,1233 a 0,1403, seria estreito demais.</p>
+</div>
+</div>
+</section>
+<section id="os-resíduos-denunciam" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="os-resíduos-denunciam"><span class="header-section-number">6</span> Os resíduos denunciam</h2>
+<div class="cell">
+<div>
+<div id="webr-4" class="exercise-cell">
+
+</div>
+<script type="webr-4-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZW1wcmVzYXMkcmVzaWR1byA8LSByZXNpZChtcW8pXG5nZ3Bsb3QoZW1wcmVzYXMsIGFlcyhmYXR1cmFtZW50bywgcmVzaWR1bykpICtcbiAgZ2VvbV9wb2ludChhbHBoYSA9IDAuNSwgY29sb3VyID0gXCIjQzAzOTJCXCIpICtcbiAgZ2VvbV9obGluZSh5aW50ZXJjZXB0ID0gMCwgbGluZXR5cGUgPSBcImRhc2hlZFwiKSArXG4gIGxhYnModGl0bGUgPSBcIlJlc8OtZHVvcyBjb250cmEgbyBmYXR1cmFtZW50b1wiLFxuICAgICAgIHggPSBcIkZhdHVyYW1lbnRvIChSJCBtaWwpXCIsIHkgPSBcIlJlc8OtZHVvXCIpICtcbiAgdGhlbWVfbWluaW1hbCgpIn0=
+</script>
+</div>
+</div>
+<div class="cell">
+<div>
+<div id="webr-5" class="exercise-cell">
+
+</div>
+<script type="webr-5-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZW1wcmVzYXMkcXVhcnRpbCA8LSBjdXQoZW1wcmVzYXMkZmF0dXJhbWVudG8sXG4gICAgICAgICAgICAgICAgICAgICAgICBicmVha3MgPSBxdWFudGlsZShlbXByZXNhcyRmYXR1cmFtZW50bywgcHJvYnMgPSBzZXEoMCwgMSwgMC4yNSkpLFxuICAgICAgICAgICAgICAgICAgICAgICAgbGFiZWxzID0gYyhcIlExXCIsIFwiUTJcIiwgXCJRM1wiLCBcIlE0XCIpLCBpbmNsdWRlLmxvd2VzdCA9IFRSVUUpXG5hZ2dyZWdhdGUocmVzaWR1byB+IHF1YXJ0aWwsIGRhdGEgPSBlbXByZXNhcywgRlVOID0gc2QpIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O gráfico mostra o mesmo cone, agora sem a inclinação atrapalhando: os resíduos se abrem à medida que o faturamento cresce.</p>
+<p>A tabela quantifica. O desvio-padrão dos resíduos vai de cerca de <strong>57</strong> no primeiro quartil de faturamento a cerca de <strong>355</strong> no quarto. Um aumento de <strong>seis vezes</strong>.</p>
+<p>O MQO calculou o erro-padrão dos coeficientes supondo que esse número fosse <strong>o mesmo</strong> para as 300 empresas — cerca de 200, a média. Para as empresas pequenas ele superestima a incerteza; para as grandes, subestima grosseiramente. E são justamente as grandes que mais influenciam a inclinação da reta.</p>
+</div>
+</div>
+</section>
+<section id="os-testes-formais" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="os-testes-formais"><span class="header-section-number">7</span> Os testes formais</h2>
+<div class="cell">
+<div>
+<div id="webr-6" class="exercise-cell">
+
+</div>
+<script type="webr-6-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShsbXRlc3QpXG5icHRlc3QobXFvKSJ9
+</script>
+</div>
+</div>
+<div class="cell">
+<div>
+<div id="webr-7" class="exercise-cell">
+
+</div>
+<script type="webr-7-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiYnB0ZXN0KG1xbywgfiBmYXR1cmFtZW50byArIEkoZmF0dXJhbWVudG9eMiksIGRhdGEgPSBlbXByZXNhcykifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Os dois testes têm como hipótese nula a <strong>homocedasticidade</strong>.</p>
+<p>O <strong>Breusch-Pagan</strong> dá estatística em torno de 72,6 com valor-p da ordem de <span class="math inline">\(10^{-17}\)</span>. O <strong>teste de White</strong> — que é o mesmo teste com os quadrados incluídos — dá cerca de 87,3, com valor-p ainda menor.</p>
+<p>Rejeitamos a homocedasticidade sem margem para dúvida.</p>
+<p>A diferença entre os dois vale registrar: o Breusch-Pagan procura heterocedasticidade que seja <strong>linear</strong> nas explicativas; o de White inclui quadrados e produtos cruzados e detecta formas mais gerais. Por isso o de White é o mais usado como teste de propósito geral — ele não exige que você adivinhe a forma do problema.</p>
+</div>
+</div>
+</section>
+<section id="a-solução-de-white" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="a-solução-de-white"><span class="header-section-number">8</span> A solução de White</h2>
+<div class="cell">
+<div>
+<div id="webr-8" class="exercise-cell">
+
+</div>
+<script type="webr-8-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShzYW5kd2ljaClcbmNvZWZ0ZXN0KG1xbywgdmNvdiA9IHZjb3ZIQyhtcW8sIHR5cGUgPSBcIkhDMVwiKSkifQ==
+</script>
+</div>
+</div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Vale nota
+<span class="screen-reader-only">Importante</span>Compare as duas tabelas linha por linha
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>As respostas destes exercícios são cobradas no <strong>questionário da disciplina, no SIGAA</strong>. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — <strong>sem a solução</strong>. Anote os valores obtidos antes de responder no SIGAA.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>MQO clássico</th>
+<th>MQO robusto</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Coeficiente</td>
+<td>0,13182</td>
+<td><strong>0,13182</strong></td>
+</tr>
+<tr class="even">
+<td>Erro-padrão</td>
+<td>0,00431</td>
+<td><strong>0,00850</strong></td>
+</tr>
+<tr class="odd">
+<td>Estatística t</td>
+<td>30,60</td>
+<td>15,51</td>
+</tr>
+<tr class="even">
+<td>IC 95%</td>
+<td>[0,1233 ; 0,1403]</td>
+<td>[0,1151 ; 0,1486]</td>
+</tr>
+</tbody>
+</table>
+<p>O <strong>coeficiente não mudou nada</strong> — nem na quinta casa decimal. Era de se esperar: a correção de White não toca no estimador dos parâmetros, apenas na matriz de covariância.</p>
+<p>O <strong>erro-padrão praticamente dobrou</strong>: de 0,0043 para 0,0085, uma razão de 1,97. O erro-padrão clássico estava subestimando a incerteza em quase 50%.</p>
+<p>O <strong>intervalo de confiança ficou o dobro de largo</strong>. Esta é a informação que estava sendo escondida.</p>
+<p>Neste caso a conclusão qualitativa não muda — o coeficiente continua altamente significativo com t de 15,5. Mas imagine um coeficiente com t clássico de 2,3: robustecido, ele cairia para 1,2 e deixaria de ser significativo. É assim que resultados publicados desaparecem quando alguém refaz as contas.</p>
 </div>
 </div>
-<section id="questão-1" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="questão-1"><span class="header-section-number">7.1</span> Questão 1</h3>
-<p>Na base Limonada, calcule o DESVIO-PADRÃO AMOSTRAL das VENDAS (função sd()).</p>
+</section>
+<section id="a-alternativa-ponderar" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="a-alternativa-ponderar"><span class="header-section-number">9</span> A alternativa: ponderar</h2>
+<p>White resolveu o problema da inferência. Existe outro caminho, que resolve também o problema da <strong>eficiência</strong> — mas cobra um preço.</p>
+<p>Se soubermos como a variância se comporta, podemos dar menos peso às observações mais ruidosas. É o método dos mínimos quadrados ponderados.</p>
 <div class="cell">
+<div>
+<div id="webr-9" class="exercise-cell">
+
+</div>
+<script type="webr-9-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibXFwIDwtIGxtKGdhc3RvX3BkIH4gZmF0dXJhbWVudG8sIGRhdGEgPSBlbXByZXNhcyxcbiAgICAgICAgICB3ZWlnaHRzID0gMSAvIGZhdHVyYW1lbnRvXjIuMylcbnN1bW1hcnkobXFwKSJ9
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O coeficiente muda para cerca de <strong>0,1251</strong>, e o erro-padrão cai para aproximadamente <strong>0,00286</strong> — menor que o do MQO clássico e um terço do robusto.</p>
+<p>Isso é ganho de eficiência real: ao dar mais peso às empresas pequenas, cujos dados são mais informativos por serem menos ruidosos, o estimador extrai mais informação da mesma amostra.</p>
+<p>O preço está no expoente <code>2.3</code>. De onde ele saiu? Eu sabia a resposta porque gerei os dados. Com dados reais, esse expoente é um chute — e um chute errado produz um estimador que não é nem eficiente nem confiável.</p>
+<p>É por isso que a prática dominante hoje é a de White: aceita-se perder eficiência em troca de não precisar supor nada. Robustez vale mais que eficiência quando não se sabe a forma do problema — e quase nunca se sabe.</p>
+</div>
+</div>
+</section>
+<section id="exercícios" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">10</span> Exercícios</h2>
+<p>Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.</p>
+<section id="exercício-1-a-tabela-que-um-artigo-publicaria" class="level3" data-number="10.1">
+<h3 data-number="10.1" class="anchored" data-anchor-id="exercício-1-a-tabela-que-um-artigo-publicaria"><span class="header-section-number">10.1</span> Exercício 1 — a tabela que um artigo publicaria</h3>
+<p>Monte uma tabela comparando os erros-padrão clássico e robusto.</p>
+<div class="cell" data-exercise="ap8_ex1">
+<div>
+<div id="webr-10" class="exercise-cell">
+
+</div>
+<script type="webr-10-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2VfY2xhc3NpY28gPC0gc3VtbWFyeShtcW8pJGNvZWZmaWNpZW50c1ssIDJdXG5zZV9yb2J1c3RvICA8LSBzcXJ0KGRpYWcodmNvdkhDKF9fX19fXywgdHlwZSA9IFwiSEMxXCIpKSlcbmRhdGEuZnJhbWUoXG4gIGNvZWZpY2llbnRlID0gcm91bmQoY29lZihtcW8pLCA1KSxcbiAgc2VfY2xhc3NpY28gPSByb3VuZChzZV9jbGFzc2ljbywgNSksXG4gIHNlX3JvYnVzdG8gID0gcm91bmQoX19fX19fLCA1KSxcbiAgcmF6YW8gICAgICAgPSByb3VuZChzZV9yb2J1c3RvIC8gc2VfY2xhc3NpY28sIDMpXG4pIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As lacunas são <code>mqo</code> e <code>se_robusto</code>. A função <code>diag()</code> extrai a diagonal da matriz de covariância; a raiz quadrada dela são os erros-padrão.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-12" class="callout-12-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>se_classico <span class="ot">&lt;-</span> <span class="fu">summary</span>(mqo)<span class="sc">$</span>coefficients[, <span class="dv">2</span>]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>se_robusto  <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcovHC</span>(mqo, <span class="at">type =</span> <span class="st">"HC1"</span>)))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">coeficiente =</span> <span class="fu">round</span>(<span class="fu">coef</span>(mqo), <span class="dv">5</span>),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">se_classico =</span> <span class="fu">round</span>(se_classico, <span class="dv">5</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">se_robusto  =</span> <span class="fu">round</span>(se_robusto, <span class="dv">5</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">razao       =</span> <span class="fu">round</span>(se_robusto <span class="sc">/</span> se_classico, <span class="dv">3</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A razão fica em torno de 1,97 para o coeficiente do faturamento e de 1,39 para o intercepto.</p>
+<p>Repare que a correção não é uniforme: cada coeficiente é afetado de maneira diferente, dependendo de como a variância do erro se relaciona com aquela variável. Não existe um fator único de ajuste — é por isso que a correção precisa ser calculada, e não estimada de cabeça.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-2-o-teste-de-white-na-mão" class="level3" data-number="10.2">
+<h3 data-number="10.2" class="anchored" data-anchor-id="exercício-2-o-teste-de-white-na-mão"><span class="header-section-number">10.2</span> Exercício 2 — o teste de White na mão</h3>
+<p>O teste de White é uma regressão auxiliar. Faça-a passo a passo.</p>
+<div class="cell" data-exercise="ap8_ex2">
 <div>
 <div id="webr-11" class="exercise-cell">
 
 </div>
 <script type="webr-11-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZW1wcmVzYXMkcmVzMiA8LSByZXNpZChtcW8pXjJcbmF1eGlsaWFyIDwtIGxtKHJlczIgfiBmYXR1cmFtZW50byArIEkoZmF0dXJhbWVudG9eX19fX19fKSwgZGF0YSA9IGVtcHJlc2FzKVxucjJfYXV4IDwtIHN1bW1hcnkoYXV4aWxpYXIpJHIuc3F1YXJlZFxuTE0gPC0gbnJvdyhlbXByZXNhcykgKiBfX19fX19cbkxNXG5wY2hpc3EoTE0sIGRmID0gMiwgbG93ZXIudGFpbCA9IEZBTFNFKSJ9
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A primeira lacuna é <code>2</code> (o termo quadrático) e a segunda é <code>r2_aux</code>. A estatística é <span class="math inline">\(LM = n \cdot R^2_{aux}\)</span>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-14" class="callout-14-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>empresas<span class="sc">$</span>res2 <span class="ot">&lt;-</span> <span class="fu">resid</span>(mqo)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>auxiliar <span class="ot">&lt;-</span> <span class="fu">lm</span>(res2 <span class="sc">~</span> faturamento <span class="sc">+</span> <span class="fu">I</span>(faturamento<span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> empresas)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>r2_aux <span class="ot">&lt;-</span> <span class="fu">summary</span>(auxiliar)<span class="sc">$</span>r.squared</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>LM <span class="ot">&lt;-</span> <span class="fu">nrow</span>(empresas) <span class="sc">*</span> r2_aux</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>LM</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">pchisq</span>(LM, <span class="at">df =</span> <span class="dv">2</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>O valor bate com a saída do <code>bptest()</code> na versão de White.</p>
+<p>Vale entender a lógica, que é elegante: sob homocedasticidade, o quadrado do resíduo não deveria ter relação nenhuma com as explicativas. Se a regressão auxiliar consegue explicar alguma coisa — <span class="math inline">\(R^2\)</span> maior que zero por uma margem estatisticamente relevante —, há heterocedasticidade. O teste todo cabe em três linhas.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-3-o-que-acontece-com-o-teste-f" class="level3" data-number="10.3">
+<h3 data-number="10.3" class="anchored" data-anchor-id="exercício-3-o-que-acontece-com-o-teste-f"><span class="header-section-number">10.3</span> Exercício 3 — o que acontece com o teste F</h3>
+<p>A heterocedasticidade também contamina o teste F. Compare a versão clássica com a robusta.</p>
+<div class="cell" data-exercise="ap8_ex3">
+<div>
+<div id="webr-12" class="exercise-cell">
+
+</div>
+<script type="webr-12-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic3VtbWFyeShtcW8pJGZzdGF0aXN0aWNcbndhbGR0ZXN0KG1xbywgdmNvdiA9IHZjb3ZIQyhfX19fX18sIHR5cGUgPSBcIkhDMVwiKSkifQ==
 </script>
 </div>
 </div>
@@ -810,51 +877,40 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7Nk
 </div>
 <div id="callout-15" class="callout-15-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Atenção: 9,00 é o desvio-padrão da TEMPERATURA (trabalhado na página). Aqui pede-se o das VENDAS.</p>
+<p>A lacuna é <code>mqo</code>. O <code>waldtest()</code> do pacote <code>lmtest</code> aceita uma matriz de covariância alternativa.</p>
 </div>
 </div>
 </div>
-</section>
-<section id="questão-2" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="questão-2"><span class="header-section-number">7.2</span> Questão 2</h3>
-<p>Na base Limonada, calcule a MÉDIA e o DESVIO-PADRÃO AMOSTRAL da variável CHUVA (mm).</p>
-<div class="cell">
-<div>
-<div id="webr-12" class="exercise-cell">
-
-</div>
-<script type="webr-12-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-16-contents" aria-controls="callout-16" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
+<span class="screen-reader-only">Nota</span>Solução
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-16" class="callout-16-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Use <code>mean()</code> e <code>sd()</code> na coluna <code>chuva</code>. Cuidado para não confundir a média com a mediana — a distribuição da chuva é assimétrica à direita.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mqo)<span class="sc">$</span>fstatistic</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">waldtest</span>(mqo, <span class="at">vcov =</span> <span class="fu">vcovHC</span>(mqo, <span class="at">type =</span> <span class="st">"HC1"</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>O F clássico fica em torno de 936; o robusto cai para cerca de 241. Os dois rejeitam a nula com folga neste caso, mas a diferença de magnitude mostra que o problema não se restringe aos testes t individuais.</p>
+<p>A regra prática: se você corrigiu os erros-padrão, corrija também os testes conjuntos. Reportar t robusto e F clássico na mesma tabela é uma inconsistência comum e fácil de evitar.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="questão-3" class="level3" data-number="7.3">
-<h3 data-number="7.3" class="anchored" data-anchor-id="questão-3"><span class="header-section-number">7.3</span> Questão 3</h3>
-<p>Compare, com t.test(vendas ~ grupo), as vendas dos dias com TEMPERATURA ACIMA DA MÉDIA contra as dos dias com temperatura abaixo. Qual a estatística t (em módulo) e a conclusão a 5%?</p>
-<div class="cell">
+<section id="exercício-4-heterocedasticidade-e-forma-funcional" class="level3" data-number="10.4">
+<h3 data-number="10.4" class="anchored" data-anchor-id="exercício-4-heterocedasticidade-e-forma-funcional"><span class="header-section-number">10.4</span> Exercício 4 — heterocedasticidade e forma funcional</h3>
+<p>Existe uma terceira saída: mudar a escala das variáveis. Estime o modelo em logaritmos e reteste.</p>
+<div class="cell" data-exercise="ap8_ex4">
 <div>
 <div id="webr-13" class="exercise-cell">
 
 </div>
 <script type="webr-13-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibG9nX21vZGVsbyA8LSBsbShsb2coZ2FzdG9fcGQpIH4gbG9nKF9fX19fXyksIGRhdGEgPSBlbXByZXNhcylcbmJwdGVzdChsb2dfbW9kZWxvKVxuc3VtbWFyeShsb2dfbW9kZWxvKSRjb2VmZmljaWVudHMifQ==
 </script>
 </div>
 </div>
@@ -870,14 +926,129 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7Nk
 </div>
 <div id="callout-17" class="callout-17-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Cuidado: o teste da CHUVA já foi feito na página e dá outro valor. Aqui o grupo é definido por <code>temperatura &gt; mean(temperatura)</code>.</p>
+<p>A lacuna é <code>faturamento</code>. Compare o valor-p do teste com o obtido no modelo em nível.</p>
 </div>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-18-contents" aria-controls="callout-18" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-18" class="callout-18-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>log_modelo <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">log</span>(gasto_pd) <span class="sc">~</span> <span class="fu">log</span>(faturamento), <span class="at">data =</span> empresas)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bptest</span>(log_modelo)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(log_modelo)<span class="sc">$</span>coefficients</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>O valor-p do Breusch-Pagan sai de cerca de <span class="math inline">\(10^{-17}\)</span> no modelo em nível para aproximadamente <strong>0,005</strong> no modelo em log. É uma melhora de quinze ordens de grandeza — mas repare: <strong>ainda rejeita</strong> a homocedasticidade a 5%.</p>
+<p>Guarde esse resultado, porque ele é mais instrutivo que um “problema resolvido”. O logaritmo comprime a escala e reduz muito a dispersão dos erros das empresas grandes, sem eliminá-la. A conduta correta continua sendo usar erros robustos, agora no modelo em log.</p>
+<p>Note também que a elasticidade estimada fica em torno de <strong>0,99</strong> — praticamente 1, o que significa gasto em P&amp;D aproximadamente proporcional ao faturamento. Mas atenção: o modelo em log responde a outra pergunta. O coeficiente é uma variação percentual, não um valor em reais. A escolha entre nível e log deve vir da pergunta de pesquisa; reduzir heterocedasticidade é efeito colateral bem-vindo, não justificativa.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-5-escrevendo-o-resultado" class="level3" data-number="10.5">
+<h3 data-number="10.5" class="anchored" data-anchor-id="exercício-5-escrevendo-o-resultado"><span class="header-section-number">10.5</span> Exercício 5 — escrevendo o resultado</h3>
+<p>Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: a evidência de heterocedasticidade com os testes, o coeficiente estimado, os erros-padrão nas duas versões, e a explicitação de qual foi adotado.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Um parágrafo possível">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Um parágrafo possível
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-19" class="callout-19-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A estimação por MQO da relação entre dispêndio em P&amp;D e faturamento, para 300 empresas industriais, fornece coeficiente de 0,1318 (R² = 0,759), indicando que aproximadamente 13,2% do faturamento marginal se converte em gasto com pesquisa. Os testes de Breusch-Pagan (LM = 72,6; p &lt; 0,001) e de White (LM = 87,3; p &lt; 0,001) rejeitam a hipótese de homocedasticidade, e o desvio-padrão dos resíduos varia de 57,3 no primeiro quartil de faturamento a 355,0 no quarto. Adotam-se erros-padrão consistentes na presença de heterocedasticidade (White, 1980; HC1), que elevam o erro-padrão do coeficiente de 0,0043 para 0,0085 e ampliam o intervalo de 95% para 0,1151 a 0,1486. A significância do coeficiente é preservada (t = 15,5).</p>
+<p>Repare no que o parágrafo faz: apresenta a evidência antes do remédio, nomeia a variante usada (HC1), quantifica o efeito da correção e informa que a conclusão sobreviveu a ela.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="o-que-estava-por-trás-dos-dados" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="o-que-estava-por-trás-dos-dados"><span class="header-section-number">11</span> O que estava por trás dos dados</h2>
+<p>Chegou a hora. O gasto em P&amp;D desta amostra foi gerado por esta equação:</p>
+<p><span class="math display">\[
+\text{gasto}_i = 4{,}80 + 0{,}128\,\text{faturamento}_i + u_i
+\]</span></p>
+<p>com o erro sorteado de uma normal de média zero e <strong>desvio-padrão que depende do faturamento</strong>:</p>
+<p><span class="math display">\[
+\sigma_i = 0{,}0085 \times \text{faturamento}_i^{1{,}15}
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Procedimento</th>
+<th>Coeficiente</th>
+<th>Erro-padrão</th>
+<th>O que ele acerta</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Verdade</strong></td>
+<td><strong>0,1280</strong></td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>MQO clássico</td>
+<td>0,1318</td>
+<td>0,0043</td>
+<td>coeficiente sim, inferência não</td>
+</tr>
+<tr class="odd">
+<td>MQO robusto</td>
+<td>0,1318</td>
+<td>0,0085</td>
+<td>coeficiente sim, inferência sim</td>
+</tr>
+<tr class="even">
+<td>Ponderado</td>
+<td>0,1251</td>
+<td>0,0029</td>
+<td>os dois, se a forma estiver certa</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Três lições que só a simulação permite
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>1. O MQO não errou o coeficiente.</strong> O verdadeiro é 0,1280 e a estimativa deu 0,1318 — diferença de 3%, dentro do intervalo. A heterocedasticidade não introduziu viés algum, exatamente como a teoria promete. Quem “corrige” heterocedasticidade esperando que o coeficiente mude não entendeu o problema.</p>
+<p><strong>2. O erro-padrão clássico estava errado por um fator de dois — e nada na saída avisava.</strong> O <code>summary()</code> reportou 0,0043 com toda a confiança do mundo. Não há asterisco, aviso ou nota de rodapé indicando que aquele número pressupõe uma hipótese que os dados rejeitam. O único jeito de descobrir é testar.</p>
+<p><strong>3. O ponderado ganhou porque eu contei o segredo.</strong> Com peso <span class="math inline">\(1/\text{faturamento}^{2{,}3}\)</span> — que é aproximadamente <span class="math inline">\(1/\sigma_i^2\)</span>, já que <span class="math inline">\(2 \times 1{,}15 = 2{,}3\)</span> —, o estimador chegou a 0,1251, mais perto do verdadeiro, e com o menor erro-padrão dos três. Foi o melhor procedimento <strong>porque eu usei a resposta</strong>. Num trabalho real, essa informação não existe, e um expoente chutado errado destrói a vantagem. É a razão de a correção de White ter vencido a disputa na prática: ela não pede nada em troca.</p>
+</div>
+</div>
+</section>
+<section id="voltando-ao-artigo" class="level2" data-number="12">
+<h2 data-number="12" class="anchored" data-anchor-id="voltando-ao-artigo"><span class="header-section-number">12</span> Voltando ao artigo</h2>
+<p>O artigo de White tem duas contribuições, e o título anuncia as duas: um <strong>estimador</strong> consistente da matriz de covariância e um <strong>teste direto</strong> de heterocedasticidade. As duas se tornaram padrão, e é curioso que a segunda seja hoje menos usada que a primeira — a prática dominante em muitas áreas é reportar erros robustos direto, sem testar antes, já que a correção não custa nada quando não há heterocedasticidade.</p>
+<p>A ideia foi estendida para outros contextos com a mesma lógica: Newey e West (1987) construíram erros-padrão robustos simultaneamente a heterocedasticidade <strong>e autocorrelação</strong>, para séries temporais; a literatura de dados agrupados desenvolveu os erros-padrão <em>clusterizados</em>, que hoje são obrigatórios em qualquer trabalho com dados de painel ou com tratamento aplicado por grupo. Todos partem do mesmo insight de White: não modele a estrutura do erro, estime-a a partir dos resíduos.</p>
+<p>Duas ressalvas que valem para o que você acabou de estimar:</p>
+<ul>
+<li><strong>Robusto não é mágico.</strong> A propriedade de White é assintótica — vale para amostras grandes. Com 30 observações, os erros-padrão robustos podem ser piores que os clássicos. As variantes HC2 e HC3 existem justamente para melhorar o desempenho em amostras pequenas, e HC3 é a recomendação usual abaixo de umas 250 observações.</li>
+<li><strong>Heterocedasticidade pode ser sintoma, não doença.</strong> Às vezes o cone nos resíduos indica forma funcional errada, e não variância variável. Se o modelo em log resolve o problema, vale perguntar se a especificação em nível fazia sentido econômico desde o início — assunto da próxima aplicação.</li>
+</ul>
 
 
 <script type="webr-data">
-eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiJdLCJyZXBvcyI6W119LCJyZW5kZXJfZGYiOiJkZWZhdWx0In0=
+eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiIsImxtdGVzdCIsInNhbmR3aWNoIl0sInJlcG9zIjpbXX0sInJlbmRlcl9kZiI6ImRlZmF1bHQifQ==
 </script>
 <script type="ojs-module-contents">
 eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTM7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEzID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTMtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMyA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTMsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTI7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEyID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTItY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTIsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzExID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTA7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEwID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTAtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTAsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC05IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV85O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItOSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzkgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici05LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItOS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV85ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl85LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfODtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTgiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl84ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItOC1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTgtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfOCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfOCwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTciLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzc7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici03IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNyA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTctY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici03LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzcgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzcsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC02IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV82O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzYgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici02LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItNi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV82ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl82LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfNTtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl81ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItNS1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTUtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfNSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfNSwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTQiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzQ7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici00IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNCA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTQtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici00LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzQgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzQsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0zIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV8zO1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzMgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici0zLWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8zID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8zLCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMjtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTIiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl8yID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMi1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTItY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMiwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTEiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfMSA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xLWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzEgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXByZWx1ZGUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ3ZWJST2pzID0ge1xuICBjb25zdCB7IFdlYlIsIENoYW5uZWxUeXBlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lLldlYlI7XG4gIGNvbnN0IHtcbiAgICBXZWJSRXZhbHVhdG9yLFxuICAgIFdlYlJFbnZpcm9ubWVudE1hbmFnZXIsXG4gICAgc2V0dXBSLFxuICAgIGI2NERlY29kZSxcbiAgICBjb2xsYXBzZVBhdGhcbiAgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG5cbiAgY29uc3Qgc3RhdHVzQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLXN0YXR1c1wiKTtcbiAgY29uc3QgaW5kaWNhdG9yQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLWluZGljYXRvclwiKTtcbiAgaW5kaWNhdG9yQ29udGFpbmVyLmNsYXNzTGlzdC5yZW1vdmUoXCJkLW5vbmVcIik7XG5cbiAgbGV0IHN0YXR1c1RleHQgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIHN0YXR1c1RleHQuY2xhc3NMaXN0ID0gXCJleGVyY2lzZS1sb2FkaW5nLWRldGFpbHNcIjtcbiAgc3RhdHVzVGV4dCA9IHN0YXR1c0NvbnRhaW5lci5hcHBlbmRDaGlsZChzdGF0dXNUZXh0KTtcbiAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBJbml0aWFsaXNlYDtcblxuICAvLyBIb2lzdCBpbmRpY2F0b3Igb3V0IGZyb20gZmluYWwgc2xpZGUgd2hlbiBydW5uaW5nIHVuZGVyIHJldmVhbFxuICBjb25zdCByZXZlYWxTdGF0dXMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKFwiLnJldmVhbCAuZXhlcmNpc2UtbG9hZGluZy1pbmRpY2F0b3JcIik7XG4gIGlmIChyZXZlYWxTdGF0dXMpIHtcbiAgICByZXZlYWxTdGF0dXMucmVtb3ZlKCk7XG4gICAgZG9jdW1lbnQucXVlcnlTZWxlY3RvcihcIi5yZXZlYWwgPiAuc2xpZGVzXCIpLmFwcGVuZENoaWxkKHJldmVhbFN0YXR1cyk7XG4gIH1cblxuICAvLyBNYWtlIGFueSByZXZlYWwgc2xpZGVzIHdpdGggbGl2ZSBjZWxscyBzY3JvbGxhYmxlXG4gIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoXCIucmV2ZWFsIC5leGVyY2lzZS1jZWxsXCIpLmZvckVhY2goKGVsKSA9PiB7XG4gICAgZWwuY2xvc2VzdCgnc2VjdGlvbi5zbGlkZScpLmNsYXNzTGlzdC5hZGQoXCJzY3JvbGxhYmxlXCIpO1xuICB9KVxuXG4gIC8vIHdlYlIgc3VwcGxlbWVudGFsIGRhdGEgYW5kIG9wdGlvbnNcbiAgY29uc3QgZGF0YUNvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici1kYXRhXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgZGF0YSA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKGRhdGFDb250ZW50KSk7XG5cbiAgLy8gR3JhYiBsaXN0IG9mIHJlc291cmNlcyB0byBiZSBkb3dubG9hZGVkXG4gIGNvbnN0IGZpbGVzQ29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ2ZnMtZmlsZVxcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGZpbGVzID0gSlNPTi5wYXJzZShiNjREZWNvZGUoZmlsZXNDb250ZW50KSk7XG5cbiAgLy8gSW5pdGlhbGlzZSB3ZWJSIGFuZCBzZXR1cCBmb3IgUiBjb2RlIGV2YWx1YXRpb25cbiAgbGV0IHdlYlJQcm9taXNlID0gKGFzeW5jICh3ZWJSKSA9PiB7XG4gICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyB3ZWJSYDtcbiAgICBhd2FpdCB3ZWJSLmluaXQoKTtcblxuICAgIC8vIEluc3RhbGwgcHJvdmlkZWQgbGlzdCBvZiBwYWNrYWdlc1xuICAgIC8vIEVuc3VyZSB3ZWJSIGRlZmF1bHQgcmVwbyBpcyBpbmNsdWRlZFxuICAgIGRhdGEucGFja2FnZXMucmVwb3MucHVzaChcImh0dHBzOi8vcmVwby5yLXdhc20ub3JnXCIpXG4gICAgYXdhaXQgZGF0YS5wYWNrYWdlcy5wa2dzLm1hcCgocGtnKSA9PiAoKSA9PiB7XG4gICAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYERvd25sb2FkaW5nIHBhY2thZ2U6ICR7cGtnfWA7XG4gICAgICByZXR1cm4gd2ViUi5ldmFsUlZvaWQoYFxuICAgICAgICB3ZWJyOjppbnN0YWxsKHBrZywgcmVwb3MgPSByZXBvcylcbiAgICAgICAgbGlicmFyeShwa2csIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSlcbiAgICAgIGAsIHsgZW52OiB7XG4gICAgICAgIHBrZzogcGtnLFxuICAgICAgICByZXBvczogZGF0YS5wYWNrYWdlcy5yZXBvcyxcbiAgICAgIH19KTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIC8vIERvd25sb2FkIGFuZCBpbnN0YWxsIHJlc291cmNlc1xuICAgIGF3YWl0IGZpbGVzLm1hcCgoZmlsZSkgPT4gYXN5bmMgKCkgPT4ge1xuICAgICAgY29uc3QgbmFtZSA9IGZpbGUuc3Vic3RyaW5nKGZpbGUubGFzdEluZGV4T2YoJy8nKSArIDEpO1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyByZXNvdXJjZTogJHtuYW1lfWA7XG4gICAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKGZpbGUpO1xuICAgICAgaWYgKCFyZXNwb25zZS5vaykge1xuICAgICAgICB0aHJvdyBuZXcgRXJyb3IoYENhbid0IGRvd25sb2FkIFxcYCR7ZmlsZX1cXGAuIEVycm9yICR7cmVzcG9uc2Uuc3RhdHVzfTogXCIke3Jlc3BvbnNlLnN0YXR1c1RleHR9XCIuYCk7XG4gICAgICB9XG4gICAgICBjb25zdCBkYXRhID0gYXdhaXQgcmVzcG9uc2UuYXJyYXlCdWZmZXIoKTtcblxuICAgICAgLy8gU3RvcmUgVVJMcyBpbiB0aGUgY3dkIHdpdGhvdXQgYW55IHN1YmRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGlmIChmaWxlLmluY2x1ZGVzKFwiOi8vXCIpKSB7XG4gICAgICAgIGZpbGUgPSBuYW1lO1xuICAgICAgfVxuXG4gICAgICAvLyBDb2xsYXBzZSBoaWdoZXIgZGlyZWN0b3J5IHN0cnVjdHVyZVxuICAgICAgZmlsZSA9IGNvbGxhcHNlUGF0aChmaWxlKTtcblxuICAgICAgLy8gQ3JlYXRlIGRpcmVjdG9yeSB0cmVlLCBpZ25vcmluZyBcImRpcmVjdG9yeSBleGlzdHNcIiBWRlMgZXJyb3JzXG4gICAgICBjb25zdCBwYXJ0cyA9IGZpbGUuc3BsaXQoJy8nKS5zbGljZSgwLCAtMSk7XG4gICAgICBsZXQgcGF0aCA9ICcnO1xuICAgICAgd2hpbGUgKHBhcnRzLmxlbmd0aCA+IDApIHtcbiAgICAgICAgcGF0aCArPSBwYXJ0cy5zaGlmdCgpICsgJy8nO1xuICAgICAgICBjb25zdCBhbmFseXNpcyA9IGF3YWl0IHdlYlIuRlMuYW5hbHl6ZVBhdGgocGF0aCk7XG4gICAgICAgIGlmICghYW5hbHlzaXMuZXhpc3RzKSB7XG4gICAgICAgICAgdHJ5IHtcbiAgICAgICAgICAgIGF3YWl0IHdlYlIuRlMubWtkaXIocGF0aCk7XG4gICAgICAgICAgfSBjYXRjaCAoZSkge1xuICAgICAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBGaWxlc3lzdGVtIEVycm9yOiBcIiR7ZS5tZXNzYWdlfVwiLmApO1xuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgfVxuXG4gICAgICAvLyBXcml0ZSB0aGlzIGZpbGUgdG8gdGhlIFZGU1xuICAgICAgcmV0dXJuIGF3YWl0IHdlYlIuRlMud3JpdGVGaWxlKGZpbGUsIG5ldyBVaW50OEFycmF5KGRhdGEpKTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgSW5zdGFsbGluZyB3ZWJSIHNoaW1zYDtcbiAgICBhd2FpdCB3ZWJSLmV2YWxSVm9pZChgd2Vicjo6c2hpbV9pbnN0YWxsKClgKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgV2ViUiBlbnZpcm9ubWVudCBzZXR1cGA7XG4gICAgYXdhaXQgc2V0dXBSKHdlYlIsIGRhdGEpO1xuXG4gICAgc3RhdHVzVGV4dC5yZW1vdmUoKTtcbiAgICBpZiAoc3RhdHVzQ29udGFpbmVyLmNoaWxkcmVuLmxlbmd0aCA9PSAwKSB7XG4gICAgICBzdGF0dXNDb250YWluZXIucGFyZW50Tm9kZS5yZW1vdmUoKTtcbiAgICB9XG4gICAgcmV0dXJuIHdlYlI7XG4gIH0pKG5ldyBXZWJSKGRhdGEub3B0aW9ucykpO1xuXG4gIC8vIEtlZXAgdHJhY2sgb2YgaW5pdGlhbCBPSlMgYmxvY2sgcmVuZGVyXG4gIGNvbnN0IHJlbmRlcmVkT2pzID0ge307XG5cbiAgY29uc3QgcHJvY2VzcyA9IGFzeW5jIChjb250ZXh0LCBpbnB1dHMpID0+IHtcbiAgICBjb25zdCB3ZWJSID0gYXdhaXQgd2ViUlByb21pc2U7XG4gICAgY29uc3QgZXZhbHVhdG9yID0gbmV3IFdlYlJFdmFsdWF0b3Iod2ViUiwgY29udGV4dClcbiAgICBhd2FpdCBldmFsdWF0b3IucHJvY2VzcyhpbnB1dHMpO1xuICAgIHJldHVybiBldmFsdWF0b3IuY29udGFpbmVyO1xuICB9XG5cbiAgcmV0dXJuIHtcbiAgICBwcm9jZXNzLFxuICAgIHdlYlJQcm9taXNlLFxuICAgIHJlbmRlcmVkT2pzLFxuICB9O1xufVxuIn1dfQ==
@@ -893,7 +1064,6 @@ eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMyIsImlubGluZSI6ZmFsc2UsIm1l
 <script type="vfs-file">
 WyJkYWRvcy8vbGltb25hZGEuY3N2IiwiZGFkb3MvL2RpYW1hbnRlcy5jc3YiLCJkYWRvcy8vY3Jlc2NpbWVudG8uY3N2IiwiZGFkb3MvL2VtcHJlZ28uY3N2IiwiZGFkb3MvL2FkdWJvX3Byb2R1dGl2aWRhZGUuY3N2IiwiZGFkb3MvL3NhbGFyaW9faG9yYS5jc3YiLCJkYWRvcy8vcHJlc3Nhb19hcnRlcmlhbC5jc3YiLCJkYWRvcy8vc2VyaWVzX3RlbXBvLmNzdiIsImRhZG9zLy9yZXRvcm5vX2Fjb2VzLmNzdiIsImRhZG9zLy9kY3AuY3N2IiwiZGFkb3MvL2NvbnN0cnVjb2VzLmNzdiIsImRhZG9zLy9yZXRvcm5vc19zb2phLmNzdiIsImRhZG9zLy9jb25zdW1vX2ZhbWlsaWFzLmNzdiIsImRhZG9zLy9tYXJpbmhhLmNzdiIsImRhZG9zLy9jb25zdW1vLmNzdiIsImRhZG9zLy9zYWxhcmlvX3Npbm9wLmNzdiIsImRhZG9zLy9zYWxhcmlvX2hvcmEyLmNzdiIsImRhZG9zLy9lc3B1cmlhLmNzdiIsImRhZG9zLy9sYW5jaG9uZXRlcy5jc3YiLCJkYWRvcy8vZ2FzdG9fYWxpbWVudGFjYW8uY3N2IiwiZGFkb3MvL3ZlbmRhc19tYXF1aW5hcy5jc3YiLCJkYWRvcy8vdGVtcGVyYXR1cmFfY29ycG9yYWwuY3N2IiwiZGFkb3MvL3BpYl9yZWFsLmNzdiIsImRhZG9zLy9ob3Jhc190cmFiYWxoby5jc3YiLCJkYWRvcy8vY29ycnVwY2FvLmNzdiIsImRhZG9zLy9pbmR1c3RyaWEuY3N2IiwiZGFkb3MvL2Z1bmNhb19wdWxtb25hci5jc3YiLCJkYWRvcy8vbmF0YWxpZGFkZS5jc3YiLCJkYWRvcy8vYWJvcnRvLmNzdiIsImRhZG9zLy92ZW5kYXNfcm91cGFzLmNzdiIsImRhZG9zLy9mZXJ0aWxpZGFkZS5jc3YiLCJkYWRvcy8vZnVuY2FvX3Byb2R1Y2FvLmNzdiIsImRhZG9zLy9pbnZlc3RpbWVudG8uY3N2IiwiZGFkb3MvL3BkX2VtcHJlc2FzLmNzdiIsImRhZG9zLy9kaWFiZXRlcy5jc3YiLCJkYWRvcy8vY3VzdG9fbWVkaW8uY3N2IiwiZGFkb3MvL2luZHVzdHJpYV9tdC5jc3YiLCJsb2dvLXVuZW1hdC5wbmciXQ==
 </script>
-</section>
 </section>
 
 </main> <!-- /main -->

@@ -8,7 +8,7 @@
 
 <meta name="author" content="Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop">
 
-<title>Laboratório 3 — Introdução à estatística – Econometria Interativa · UNEMAT</title>
+<title>Aplicação 6 — O modelo que ajusta melhor é o que prevê pior – Econometria Interativa · UNEMAT</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -131,6 +131,35 @@ background: #1E2761;
 <script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
 <link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -322,8 +351,8 @@ background: #1E2761;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Laboratório 3 — Introdução à estatística</h1>
-            <p class="subtitle lead">Econometria I · Unidade 1 — Introdução ao modelo de regressão linear</p>
+      <h1 class="title">Aplicação 6 — O modelo que ajusta melhor é o que prevê pior</h1>
+            <p class="subtitle lead">Econometria I · Unidade 6 — previsão econômica em uso</p>
                       </div>
   </div>
     
@@ -350,27 +379,30 @@ background: #1E2761;
     <h2 id="toc-title">Nesta página</h2>
    
   <ul>
-  <li><a href="#tendência-central-média-mediana-e-moda" id="toc-tendência-central-média-mediana-e-moda" class="nav-link active" data-scroll-target="#tendência-central-média-mediana-e-moda"><span class="header-section-number">1</span> Tendência central: média, mediana e moda</a></li>
-  <li><a href="#dispersão-variância-e-desvio-padrão" id="toc-dispersão-variância-e-desvio-padrão" class="nav-link" data-scroll-target="#dispersão-variância-e-desvio-padrão"><span class="header-section-number">2</span> Dispersão: variância e desvio-padrão</a>
+  <li><a href="#o-problema" id="toc-o-problema" class="nav-link active" data-scroll-target="#o-problema"><span class="header-section-number">1</span> O problema</a></li>
+  <li><a href="#nossa-versão" id="toc-nossa-versão" class="nav-link" data-scroll-target="#nossa-versão"><span class="header-section-number">2</span> Nossa versão</a></li>
+  <li><a href="#os-dados" id="toc-os-dados" class="nav-link" data-scroll-target="#os-dados"><span class="header-section-number">3</span> Os dados</a></li>
+  <li><a href="#primeiro-olhar" id="toc-primeiro-olhar" class="nav-link" data-scroll-target="#primeiro-olhar"><span class="header-section-number">4</span> Primeiro olhar</a></li>
+  <li><a href="#a-regra-de-ouro-separar-antes-de-estimar" id="toc-a-regra-de-ouro-separar-antes-de-estimar" class="nav-link" data-scroll-target="#a-regra-de-ouro-separar-antes-de-estimar"><span class="header-section-number">5</span> A regra de ouro: separar antes de estimar</a></li>
+  <li><a href="#quatro-candidatos" id="toc-quatro-candidatos" class="nav-link" data-scroll-target="#quatro-candidatos"><span class="header-section-number">6</span> Quatro candidatos</a>
   <ul class="collapse">
-  <li><a href="#exercício-1-descritivas-das-vendas" id="toc-exercício-1-descritivas-das-vendas" class="nav-link" data-scroll-target="#exercício-1-descritivas-das-vendas"><span class="header-section-number">2.1</span> Exercício 1 — descritivas das vendas</a></li>
+  <li><a href="#candidato-1-o-ingênuo" id="toc-candidato-1-o-ingênuo" class="nav-link" data-scroll-target="#candidato-1-o-ingênuo"><span class="header-section-number">6.1</span> Candidato 1 — o ingênuo</a></li>
+  <li><a href="#candidato-2-o-ingênuo-sazonal" id="toc-candidato-2-o-ingênuo-sazonal" class="nav-link" data-scroll-target="#candidato-2-o-ingênuo-sazonal"><span class="header-section-number">6.2</span> Candidato 2 — o ingênuo sazonal</a></li>
+  <li><a href="#candidato-3-tendência-linear-com-sazonalidade" id="toc-candidato-3-tendência-linear-com-sazonalidade" class="nav-link" data-scroll-target="#candidato-3-tendência-linear-com-sazonalidade"><span class="header-section-number">6.3</span> Candidato 3 — tendência linear com sazonalidade</a></li>
+  <li><a href="#candidato-4-o-sofisticado" id="toc-candidato-4-o-sofisticado" class="nav-link" data-scroll-target="#candidato-4-o-sofisticado"><span class="header-section-number">6.4</span> Candidato 4 — o sofisticado</a></li>
   </ul></li>
-  <li><a href="#a-forma-da-distribuição-histograma-e-boxplot" id="toc-a-forma-da-distribuição-histograma-e-boxplot" class="nav-link" data-scroll-target="#a-forma-da-distribuição-histograma-e-boxplot"><span class="header-section-number">3</span> A forma da distribuição: histograma e boxplot</a></li>
-  <li><a href="#amostras-por-que-os-números-mudam" id="toc-amostras-por-que-os-números-mudam" class="nav-link" data-scroll-target="#amostras-por-que-os-números-mudam"><span class="header-section-number">4</span> Amostras: por que os números mudam</a>
+  <li><a href="#o-torneio" id="toc-o-torneio" class="nav-link" data-scroll-target="#o-torneio"><span class="header-section-number">7</span> O torneio</a></li>
+  <li><a href="#o-paradoxo-em-um-gráfico" id="toc-o-paradoxo-em-um-gráfico" class="nav-link" data-scroll-target="#o-paradoxo-em-um-gráfico"><span class="header-section-number">8</span> O paradoxo, em um gráfico</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">9</span> Exercícios</a>
   <ul class="collapse">
-  <li><a href="#exercício-2-amostra-maior" id="toc-exercício-2-amostra-maior" class="nav-link" data-scroll-target="#exercício-2-amostra-maior"><span class="header-section-number">4.1</span> Exercício 2 — amostra maior</a></li>
+  <li><a href="#exercício-1-vendo-o-desastre" id="toc-exercício-1-vendo-o-desastre" class="nav-link" data-scroll-target="#exercício-1-vendo-o-desastre"><span class="header-section-number">9.1</span> Exercício 1 — vendo o desastre</a></li>
+  <li><a href="#exercício-2-o-erro-mês-a-mês" id="toc-exercício-2-o-erro-mês-a-mês" class="nav-link" data-scroll-target="#exercício-2-o-erro-mês-a-mês"><span class="header-section-number">9.2</span> Exercício 2 — o erro mês a mês</a></li>
+  <li><a href="#exercício-3-o-preço-de-cada-parâmetro" id="toc-exercício-3-o-preço-de-cada-parâmetro" class="nav-link" data-scroll-target="#exercício-3-o-preço-de-cada-parâmetro"><span class="header-section-number">9.3</span> Exercício 3 — o preço de cada parâmetro</a></li>
+  <li><a href="#exercício-4-combinando-previsões" id="toc-exercício-4-combinando-previsões" class="nav-link" data-scroll-target="#exercício-4-combinando-previsões"><span class="header-section-number">9.4</span> Exercício 4 — combinando previsões</a></li>
+  <li><a href="#exercício-5-escrevendo-o-resultado" id="toc-exercício-5-escrevendo-o-resultado" class="nav-link" data-scroll-target="#exercício-5-escrevendo-o-resultado"><span class="header-section-number">9.5</span> Exercício 5 — escrevendo o resultado</a></li>
   </ul></li>
-  <li><a href="#teste-de-hipóteses" id="toc-teste-de-hipóteses" class="nav-link" data-scroll-target="#teste-de-hipóteses"><span class="header-section-number">5</span> Teste de hipóteses</a>
-  <ul class="collapse">
-  <li><a href="#exercício-3-dias-quentes" id="toc-exercício-3-dias-quentes" class="nav-link" data-scroll-target="#exercício-3-dias-quentes"><span class="header-section-number">5.1</span> Exercício 3 — dias quentes</a></li>
-  </ul></li>
-  <li><a href="#glossário-funções-novas-deste-laboratório" id="toc-glossário-funções-novas-deste-laboratório" class="nav-link" data-scroll-target="#glossário-funções-novas-deste-laboratório"><span class="header-section-number">6</span> Glossário — funções novas deste laboratório</a></li>
-  <li><a href="#exercícios-avaliativos" id="toc-exercícios-avaliativos" class="nav-link" data-scroll-target="#exercícios-avaliativos"><span class="header-section-number">7</span> Exercícios avaliativos</a>
-  <ul class="collapse">
-  <li><a href="#questão-1" id="toc-questão-1" class="nav-link" data-scroll-target="#questão-1"><span class="header-section-number">7.1</span> Questão 1</a></li>
-  <li><a href="#questão-2" id="toc-questão-2" class="nav-link" data-scroll-target="#questão-2"><span class="header-section-number">7.2</span> Questão 2</a></li>
-  <li><a href="#questão-3" id="toc-questão-3" class="nav-link" data-scroll-target="#questão-3"><span class="header-section-number">7.3</span> Questão 3</a></li>
-  </ul></li>
+  <li><a href="#o-que-estava-por-trás-dos-dados" id="toc-o-que-estava-por-trás-dos-dados" class="nav-link" data-scroll-target="#o-que-estava-por-trás-dos-dados"><span class="header-section-number">10</span> O que estava por trás dos dados</a></li>
+  <li><a href="#voltando-ao-artigo" id="toc-voltando-ao-artigo" class="nav-link" data-scroll-target="#voltando-ao-artigo"><span class="header-section-number">11</span> Voltando ao artigo</a></li>
   </ul>
 </nav>
     </div>
@@ -390,53 +422,116 @@ background: #1E2761;
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Objetivos de aprendizagem
+<span class="screen-reader-only">Nota</span>O que é uma Aplicação
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Ao final deste laboratório você será capaz de:</p>
-<ul>
-<li>calcular e interpretar medidas de tendência central (média, mediana, moda) e de dispersão (variância, desvio-padrão);</li>
-<li>ler a distribuição de uma variável em histogramas e boxplots;</li>
-<li>entender o efeito da amostragem sobre as estatísticas;</li>
-<li>realizar e interpretar um teste de hipóteses simples.</li>
-</ul>
+<p>Nos laboratórios você aprendeu a executar. Aqui você vai <strong>usar</strong> o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.</p>
+<p>O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.</p>
 </div>
 </div>
-<p>No Excel, este laboratório usa as funções estatísticas da planilha. Aqui, faremos o mesmo percurso no R — com uma vantagem: os conceitos de <strong>amostra</strong> e <strong>população</strong>, centrais na econometria, ficam explícitos no código.</p>
+<section id="o-problema" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="o-problema"><span class="header-section-number">1</span> O problema</h2>
+<p>Entre 1982 e 2000, Spyros Makridakis e Michèle Hibon organizaram três competições de previsão que ficaram conhecidas como M, M2 e M3. A regra era simples: centenas de séries reais eram distribuídas aos participantes, cada um previa o que quisesse com o método que preferisse, e os organizadores comparavam as previsões com o que de fato aconteceu.</p>
+<p>A M3, publicada em <em>The M3-Competition: results, conclusions and implications</em>, usou <strong>3.003 séries</strong>. O resultado incomodou boa parte da profissão:</p>
+<p><strong>Métodos estatisticamente sofisticados não previram melhor que métodos simples.</strong> Em várias categorias, previram pior. E a combinação de métodos simples costumava bater qualquer método individual, por mais elaborado que fosse.</p>
+<p>Makridakis e Hibon já haviam encontrado isso nas competições anteriores e enfrentado resistência considerável. A explicação que ofereceram é a que interessa a esta unidade: modelos complexos <strong>ajustam melhor o passado</strong> porque têm mais parâmetros para acomodar o que já aconteceu. Só que parte do que aconteceu é ruído, e ruído não se repete. Ao ajustar o ruído, o modelo carrega para o futuro uma estrutura que nunca existiu.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>A mudança de mentalidade que a unidade exige
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Nas unidades anteriores, você julgou modelos pelo R², pelos testes t e F, pelos diagnósticos de resíduos — tudo calculado <strong>dentro</strong> da amostra usada para estimar.</p>
+<p>Em previsão, esse critério não vale. O modelo será usado em dados que ele nunca viu, e o único teste honesto é escondê-los dele. Separa-se a série em duas partes, estima-se numa e mede-se o erro na outra. É o mais próximo de honestidade que a estatística oferece.</p>
+</div>
+</div>
+</section>
+<section id="nossa-versão" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="nossa-versão"><span class="header-section-number">2</span> Nossa versão</h2>
+<p>Vamos prever as <strong>vendas mensais de máquinas agrícolas</strong> de uma revenda regional, com 132 meses observados — de janeiro de 2015 a dezembro de 2025.</p>
+<p>O plano: usar os <strong>120 primeiros meses</strong> para estimar e guardar os <strong>12 últimos</strong> como se ainda não tivessem acontecido. Quatro métodos vão competir. No fim, comparamos as previsões com o que realmente foi vendido.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Comece por aqui
+<span class="screen-reader-only">Importante</span>Estes dados foram gerados por simulação
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Rode este bloco primeiro para carregar os dados.</p>
+<p>Não são vendas reais. Foram construídos por um processo que <strong>eu conheço</strong> — e é justamente por isso que esta aplicação existe.</p>
+<p>No fim da página eu mostro a equação que gerou a série. Você vai poder verificar qual dos quatro métodos chegou mais perto do processo verdadeiro — e se foi o mesmo que venceu o torneio de previsão.</p>
+<p>Não role até lá antes de estimar.</p>
 </div>
 </div>
+</section>
+<section id="os-dados" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="os-dados"><span class="header-section-number">3</span> Os dados</h2>
 <div class="cell">
 <div>
 <div id="webr-1" class="exercise-cell">
 
 </div>
 <script type="webr-1-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShkcGx5cilcbmxpbW9uYWRhIDwtIHJlYWQuY3N2KFwiZGFkb3MvbGltb25hZGEuY3N2XCIpXG5ucm93KGxpbW9uYWRhKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoidmVuZGFzIDwtIHJlYWQuY3N2KFwiZGFkb3MvdmVuZGFzX21hcXVpbmFzLmNzdlwiKVxudmVuZGFzJHRlbXBvIDwtIDE6bnJvdyh2ZW5kYXMpXG52ZW5kYXMkbWVzX2FubyA8LSBmYWN0b3IoKCh2ZW5kYXMkdGVtcG8gLSAxKSAlJSAxMikgKyAxKVxuaGVhZCh2ZW5kYXMpXG5zdW1tYXJ5KHZlbmRhcyR2ZW5kYXMpIn0=
 </script>
 </div>
 </div>
-<section id="tendência-central-média-mediana-e-moda" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="tendência-central-média-mediana-e-moda"><span class="header-section-number">1</span> Tendência central: média, mediana e moda</h2>
-<p>Média e mediana você já conhece (<code>mean()</code>, <code>median()</code>). A <strong>moda</strong> — o valor mais frequente — não tem função pronta no R base; obtemo-la com <code>table()</code>, que conta quantas vezes cada valor aparece, combinada com <code>which.max()</code>, que você já viu no Lab 1. <code>sort()</code> (nova) ordena um vetor; com <code>decreasing = TRUE</code>, do maior para o menor.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>O dicionário das variáveis
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variável</th>
+<th>O que é</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mes</code></td>
+<td>Mês de referência, de 2015-01 a 2025-12</td>
+</tr>
+<tr class="even">
+<td><code>vendas</code></td>
+<td>Unidades vendidas no mês</td>
+</tr>
+<tr class="odd">
+<td><code>tempo</code></td>
+<td>Contador de 1 a 132, criado agora</td>
+</tr>
+<tr class="even">
+<td><code>mes_ano</code></td>
+<td>Mês do calendário (1 a 12), criado agora como fator</td>
+</tr>
+</tbody>
+</table>
+<p>As duas últimas colunas não vieram do arquivo — foram construídas. <code>tempo</code> serve para a tendência, e <code>mes_ano</code> vai virar as onze dummies sazonais.</p>
+</div>
+</div>
+</section>
+<section id="primeiro-olhar" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="primeiro-olhar"><span class="header-section-number">4</span> Primeiro olhar</h2>
 <div class="cell">
 <div>
 <div id="webr-2" class="exercise-cell">
 
 </div>
 <script type="webr-2-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibWVhbihsaW1vbmFkYSR0ZW1wZXJhdHVyYSlcbm1lZGlhbihsaW1vbmFkYSR0ZW1wZXJhdHVyYSlcbmNvbnRhZ2VtIDwtIHRhYmxlKHJvdW5kKGxpbW9uYWRhJHRlbXBlcmF0dXJhKSlcbnNvcnQoY29udGFnZW0sIGRlY3JlYXNpbmcgPSBUUlVFKSB8PiBoZWFkKDUpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxuZ2dwbG90KHZlbmRhcywgYWVzKHRlbXBvLCB2ZW5kYXMpKSArXG4gIGdlb21fbGluZShjb2xvdXIgPSBcIiMxRTI3NjFcIiwgbGluZXdpZHRoID0gMC43KSArXG4gIGdlb21fdmxpbmUoeGludGVyY2VwdCA9IDEyMC41LCBsaW5ldHlwZSA9IFwiZGFzaGVkXCIsIGNvbG91ciA9IFwiI0MwMzkyQlwiKSArXG4gIGxhYnModGl0bGUgPSBcIlZlbmRhcyBtZW5zYWlzIGRlIG3DoXF1aW5hcyBhZ3LDrWNvbGFzXCIsXG4gICAgICAgc3VidGl0bGUgPSBcIsOAIGRpcmVpdGEgZGEgbGluaGEgdmVybWVsaGE6IG9zIDEyIG1lc2VzIHF1ZSBvcyBtb2RlbG9zIG7Do28gdsOjbyB2ZXJcIixcbiAgICAgICB4ID0gXCJNZXNlcyBkZXNkZSBqYW4vMjAxNVwiLCB5ID0gXCJVbmlkYWRlc1wiKSArXG4gIHRoZW1lX21pbmltYWwoKSJ9
 </script>
 </div>
 </div>
@@ -450,351 +545,339 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibWVhbihsaW1vbmFkYSR0ZW1w
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Média de <strong>15,96 °C</strong> e mediana de <strong>16,2 °C</strong> — praticamente iguais, primeiro indício de uma distribuição simétrica. A tabela de contagem mostra as temperaturas (arredondadas) mais frequentes; a mais comum é a <strong>moda</strong>. Quando média ≈ mediana ≈ moda, a distribuição tende ao formato de sino.</p>
+<p>Duas regularidades saltam à vista.</p>
+<p>Uma <strong>tendência de alta</strong>: a série termina bem acima de onde começou.</p>
+<p>Uma <strong>oscilação regular dentro de cada ano</strong>: picos e vales que se repetem no mesmo ponto do calendário. É sazonalidade, e faz sentido econômico — venda de máquina agrícola acompanha o calendário de safra e as linhas de crédito rural.</p>
+<p>Qualquer modelo que se proponha a prever esta série precisa dar conta das duas coisas.</p>
 </div>
 </div>
 </section>
-<section id="dispersão-variância-e-desvio-padrão" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="dispersão-variância-e-desvio-padrão"><span class="header-section-number">2</span> Dispersão: variância e desvio-padrão</h2>
-<p>Aqui mora uma distinção que o Excel esconde em duas fórmulas (VAR.P e VAR.A): a variância <strong>populacional</strong> divide por <em>n</em>; a <strong>amostral</strong>, por <em>n − 1</em>. As funções do R, <code>var()</code> e <code>sd()</code>, calculam a versão <strong>amostral</strong> — a adequada quando os dados são uma amostra, que é o caso típico em econometria. Para a populacional, basta o ajuste <code>(n-1)/n</code>.</p>
+<section id="a-regra-de-ouro-separar-antes-de-estimar" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="a-regra-de-ouro-separar-antes-de-estimar"><span class="header-section-number">5</span> A regra de ouro: separar antes de estimar</h2>
 <div class="cell">
 <div>
 <div id="webr-3" class="exercise-cell">
 
 </div>
 <script type="webr-3-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibiA8LSBucm93KGxpbW9uYWRhKVxudmFyKGxpbW9uYWRhJHRlbXBlcmF0dXJhKSAgICAgICAgICAgICAgICAgICAgIyBhbW9zdHJhbCAoZGl2aWRlIHBvciBuLTEpXG52YXIobGltb25hZGEkdGVtcGVyYXR1cmEpICogKG4gLSAxKSAvIG4gICAgICAjIHBvcHVsYWNpb25hbCAoZGl2aWRlIHBvciBuKVxuc2QobGltb25hZGEkdGVtcGVyYXR1cmEpICAgICAgICAgICAgICAgICAgICAgIyBkZXN2aW8tcGFkcsOjbyBhbW9zdHJhbCJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoidHJlaW5vIDwtIHN1YnNldCh2ZW5kYXMsIHRlbXBvIDw9IDEyMClcbnRlc3RlICA8LSBzdWJzZXQodmVuZGFzLCB0ZW1wbyA+IDEyMClcbm5yb3codHJlaW5vKVxubnJvdyh0ZXN0ZSkifQ==
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Variância amostral de <strong>80,99</strong> e populacional de <strong>80,77</strong> — com 365 observações a diferença é mínima, mas o conceito importa: nossos estimadores de regressão usarão sempre a lógica amostral. O desvio-padrão de <strong>9,0 °C</strong> diz que um dia típico fica a cerca de 9 graus da média.</p>
-</div>
-</div>
-<section id="exercício-1-descritivas-das-vendas" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="exercício-1-descritivas-das-vendas"><span class="header-section-number">2.1</span> Exercício 1 — descritivas das vendas</h3>
-<p>Calcule média, mediana e desvio-padrão das <strong>vendas</strong>.</p>
-<div class="cell" data-exercise="l3_ex1">
-<div>
-<div id="webr-4" class="exercise-cell">
-
-</div>
-<script type="webr-4-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiYyhtZWRpYSAgID0gX19fX19fKGxpbW9uYWRhJHZlbmRhcyksXG4gIG1lZGlhbmEgPSBfX19fX18obGltb25hZGEkdmVuZGFzKSxcbiAgZHAgICAgICA9IF9fX19fXyhsaW1vbmFkYSR2ZW5kYXMpKSJ9
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>As três funções são <code>mean()</code>, <code>median()</code> e <code>sd()</code>.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">media   =</span> <span class="fu">mean</span>(limonada<span class="sc">$</span>vendas),</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">mediana =</span> <span class="fu">median</span>(limonada<span class="sc">$</span>vendas),</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dp      =</span> <span class="fu">sd</span>(limonada<span class="sc">$</span>vendas))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="a-forma-da-distribuição-histograma-e-boxplot" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="a-forma-da-distribuição-histograma-e-boxplot"><span class="header-section-number">3</span> A forma da distribuição: histograma e boxplot</h2>
-<p>Duas camadas novas do ggplot2: <code>geom_histogram()</code> agrupa os valores em faixas (<code>bins</code> controla o número de faixas) e mostra a frequência de cada uma; <code>geom_boxplot()</code> desenha a caixa com mediana, quartis e possíveis outliers.</p>
-<div class="cell">
-<div>
-<div id="webr-5" class="exercise-cell">
-
-</div>
-<script type="webr-5-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxuZ2dwbG90KGxpbW9uYWRhLCBhZXMoeCA9IHRlbXBlcmF0dXJhKSkgK1xuICBnZW9tX2hpc3RvZ3JhbShiaW5zID0gMjAsIGZpbGwgPSBcIiMxRTI3NjFcIiwgY29sb3IgPSBcIndoaXRlXCIpICtcbiAgbGFicyh4ID0gXCJUZW1wZXJhdHVyYSAowrBDKVwiLCB5ID0gXCJGcmVxdcOqbmNpYVwiLFxuICAgICAgIHRpdGxlID0gXCJEaXN0cmlidWnDp8OjbyBkYSB0ZW1wZXJhdHVyYVwiKSArXG4gIHRoZW1lX21pbmltYWwoYmFzZV9zaXplID0gMTMpIn0=
-</script>
-</div>
-</div>
-<div class="cell">
-<div>
-<div id="webr-6" class="exercise-cell">
-
-</div>
-<script type="webr-6-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZ2dwbG90KGxpbW9uYWRhLCBhZXMoeSA9IHRlbXBlcmF0dXJhKSkgK1xuICBnZW9tX2JveHBsb3QoZmlsbCA9IFwiI0FFQzRGMlwiKSArXG4gIGxhYnMoeSA9IFwiVGVtcGVyYXR1cmEgKMKwQylcIiwgdGl0bGUgPSBcIkJveHBsb3QgZGEgdGVtcGVyYXR1cmFcIikgK1xuICB0aGVtZV9taW5pbWFsKGJhc2Vfc2l6ZSA9IDEzKSJ9
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>O histograma tem um pico central e caudas parecidas dos dois lados — <strong>aproximadamente normal</strong> (a assimetria calculada é de apenas −0,005). No boxplot, a linha central é a mediana e a caixa vai do 1º ao 3º quartil; não há pontos isolados, ou seja, <strong>sem outliers relevantes</strong>. Essa é a resposta da questão 3 do questionário.</p>
-</div>
-</div>
-</section>
-<section id="amostras-por-que-os-números-mudam" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="amostras-por-que-os-números-mudam"><span class="header-section-number">4</span> Amostras: por que os números mudam</h2>
-<p>Em econometria quase nunca observamos a população — trabalhamos com <strong>amostras</strong>. Duas funções novas: <code>set.seed()</code> fixa o gerador aleatório (para o resultado ser reproduzível) e <code>slice_sample()</code> sorteia <code>n</code> linhas da base.</p>
-<div class="cell">
-<div>
-<div id="webr-7" class="exercise-cell">
-
-</div>
-<script type="webr-7-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2V0LnNlZWQoMTIzKVxuYW1vc3RyYTMwIDwtIGxpbW9uYWRhIHw+IHNsaWNlX3NhbXBsZShuID0gMzApXG5jKG1lZGlhX3BvcCA9IG1lYW4obGltb25hZGEkdmVuZGFzKSwgbWVkaWFfYW1vc3RyYSA9IG1lYW4oYW1vc3RyYTMwJHZlbmRhcykpIn0=
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>A média da amostra de 30 dias <strong>não coincide</strong> com a da base completa — é o erro amostral. Troque o número dentro de <code>set.seed()</code> e rode de novo: cada amostra dá uma média diferente, e amostras maiores (<code>n = 100</code>, <code>n = 200</code>) tendem a errar menos. Essa variação de amostra para amostra é exatamente o que os testes de hipóteses levam em conta.</p>
-</div>
-</div>
-<section id="exercício-2-amostra-maior" class="level3" data-number="4.1">
-<h3 data-number="4.1" class="anchored" data-anchor-id="exercício-2-amostra-maior"><span class="header-section-number">4.1</span> Exercício 2 — amostra maior</h3>
-<p>Sorteie uma amostra de <strong>100 dias</strong> e compare a média das vendas com a da base completa.</p>
-<div class="cell" data-exercise="l3_ex2">
-<div>
-<div id="webr-8" class="exercise-cell">
-
-</div>
-<script type="webr-8-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2V0LnNlZWQoMTIzKVxuYW1vc3RyYTEwMCA8LSBsaW1vbmFkYSB8PiBzbGljZV9zYW1wbGUobiA9IF9fX19fXylcbmMobWVkaWFfcG9wID0gbWVhbihsaW1vbmFkYSR2ZW5kYXMpLCBtZWRpYV9hbW9zdHJhID0gbWVhbihhbW9zdHJhMTAwJF9fX19fXykpIn0=
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-9" class="callout-9-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Complete com <code>100</code> e <code>vendas</code>. Compare o desvio em relação à média populacional com o da amostra de 30.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-10" class="callout-10-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>amostra100 <span class="ot">&lt;-</span> limonada <span class="sc">|&gt;</span> <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">100</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">media_pop =</span> <span class="fu">mean</span>(limonada<span class="sc">$</span>vendas), <span class="at">media_amostra =</span> <span class="fu">mean</span>(amostra100<span class="sc">$</span>vendas))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="teste-de-hipóteses" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="teste-de-hipóteses"><span class="header-section-number">5</span> Teste de hipóteses</h2>
-<p>Pergunta do laboratório: <strong>dias com pouca chuva vendem mais do que dias chuvosos?</strong> Formalmente:</p>
-<ul>
-<li><strong>H0</strong>: a média de vendas é igual nos dois grupos (a diferença é fruto do acaso);</li>
-<li><strong>H1</strong>: nos dias de chuva abaixo da média, vende-se <strong>mais</strong>.</li>
-</ul>
-<p>A função nova é <code>t.test()</code>. Repare na forma que usamos: <code>vendas ~ grupo</code> compara <strong>dois grupos entre si</strong>. Essa é a comparação correta aqui. Seria tentador testar um grupo contra a média geral da base, mas a média geral já inclui esse mesmo grupo — o valor de referência não seria independente e o teste ficaria viciado a favor de rejeitar H0.</p>
-<div class="cell">
-<div>
-<div id="webr-9" class="exercise-cell">
-
-</div>
-<script type="webr-9-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGltb25hZGEgPC0gbGltb25hZGEgfD4gbXV0YXRlKHNlY28gPSBjaHV2YSA8IG1lYW4oY2h1dmEpKVxudGFibGUobGltb25hZGEkc2VjbylcbnQudGVzdCh2ZW5kYXMgfiBzZWNvLCBkYXRhID0gbGltb25hZGEsIGFsdGVybmF0aXZlID0gXCJsZXNzXCIpIn0=
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>São <strong>230 dias</strong> secos contra <strong>135 chuvosos</strong>, com vendas médias de <strong>29,5</strong> e <strong>18,3</strong>. A estatística t fica em torno de <strong>−25,4</strong> e o valor-p é praticamente <strong>zero</strong> — muitíssimo menor que o crítico de 0,05. <strong>Rejeitamos H0</strong>: a diferença não é acaso; dias mais secos vendem sistematicamente mais.</p>
-<p>O sinal negativo e o <code>alternative = "less"</code> vêm da ordem dos grupos: o R põe <code>FALSE</code> (dias chuvosos) primeiro e <code>TRUE</code> (dias secos) depois, então a hipótese “os chuvosos vendem menos” é um teste à esquerda. Guarde a lógica: estatística de teste, valor-p, comparação com o nível de significância — é o mesmo raciocínio dos testes t da regressão.</p>
-</div>
-</div>
-<section id="exercício-3-dias-quentes" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="exercício-3-dias-quentes"><span class="header-section-number">5.1</span> Exercício 3 — dias quentes</h3>
-<p>Teste se os dias com <strong>temperatura acima da média</strong> vendem mais do que os dias mais frios.</p>
-<div class="cell" data-exercise="l3_ex3">
-<div>
-<div id="webr-10" class="exercise-cell">
-
-</div>
-<script type="webr-10-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGltb25hZGEgPC0gbGltb25hZGEgfD4gbXV0YXRlKHF1ZW50ZSA9IF9fX19fXyA+IG1lYW4oX19fX19fKSlcbnQudGVzdCh2ZW5kYXMgfiBxdWVudGUsIGRhdGEgPSBsaW1vbmFkYSwgYWx0ZXJuYXRpdmUgPSBcIl9fX19fX1wiKSJ9
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-12" class="callout-12-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Crie o grupo com <code>temperatura &gt; mean(temperatura)</code> e use <code>alternative = "less"</code> — como no exemplo, o grupo <code>FALSE</code> (dias frios) vem primeiro.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-13" class="callout-13-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>limonada <span class="ot">&lt;-</span> limonada <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">quente =</span> temperatura <span class="sc">&gt;</span> <span class="fu">mean</span>(temperatura))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(vendas <span class="sc">~</span> quente, <span class="at">data =</span> limonada, <span class="at">alternative =</span> <span class="st">"less"</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="glossário-funções-novas-deste-laboratório" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="glossário-funções-novas-deste-laboratório"><span class="header-section-number">6</span> Glossário — funções novas deste laboratório</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Função</th>
-<th>O que faz</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>table()</code></td>
-<td>Conta a frequência de cada valor (com <code>which.max</code>, dá a moda).</td>
-</tr>
-<tr class="even">
-<td><code>sort()</code></td>
-<td>Ordena um vetor (<code>decreasing = TRUE</code> inverte).</td>
-</tr>
-<tr class="odd">
-<td><code>var()</code></td>
-<td>Variância <strong>amostral</strong> (divide por n−1).</td>
-</tr>
-<tr class="even">
-<td><code>geom_histogram()</code></td>
-<td>Histograma (<code>bins</code> = nº de faixas).</td>
-</tr>
-<tr class="odd">
-<td><code>geom_boxplot()</code></td>
-<td>Boxplot (mediana, quartis, outliers).</td>
-</tr>
-<tr class="even">
-<td><code>set.seed()</code></td>
-<td>Fixa o sorteio aleatório (reprodutibilidade).</td>
-</tr>
-<tr class="odd">
-<td><code>slice_sample()</code></td>
-<td>Sorteia n linhas da base.</td>
-</tr>
-<tr class="even">
-<td><code>t.test()</code></td>
-<td>Teste t (uma amostra, <code>mu</code>, <code>alternative</code>).</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="exercícios-avaliativos" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="exercícios-avaliativos"><span class="header-section-number">7</span> Exercícios avaliativos</h2>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Vale nota
+<span class="screen-reader-only">Importante</span>Por que essa linha é a mais importante da página
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>As respostas destes exercícios são cobradas no <strong>questionário da disciplina, no SIGAA</strong>. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — <strong>sem a solução</strong>. Anote os valores obtidos antes de responder no SIGAA.</p>
+<p>A partir daqui, <strong>nada</strong> do que os modelos fizerem pode usar as 12 observações de <code>teste</code>. Nem para estimar, nem para escolher o número de parâmetros, nem para decidir qual método usar.</p>
+<p>O erro mais comum em trabalhos de previsão é violar isso sem perceber — testar vários modelos, ver qual acerta melhor os últimos 12 meses e reportar esse como “o modelo escolhido”. A avaliação deixa de ser honesta, porque o teste participou da escolha. Em aprendizado de máquina isso se chama vazamento de dados, e o efeito é sempre o mesmo: erro reportado menor do que o erro real.</p>
 </div>
 </div>
-<section id="questão-1" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="questão-1"><span class="header-section-number">7.1</span> Questão 1</h3>
-<p>Na base Limonada, calcule o DESVIO-PADRÃO AMOSTRAL das VENDAS (função sd()).</p>
+</section>
+<section id="quatro-candidatos" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="quatro-candidatos"><span class="header-section-number">6</span> Quatro candidatos</h2>
+<section id="candidato-1-o-ingênuo" class="level3" data-number="6.1">
+<h3 data-number="6.1" class="anchored" data-anchor-id="candidato-1-o-ingênuo"><span class="header-section-number">6.1</span> Candidato 1 — o ingênuo</h3>
+<p>A previsão mais simples possível: os próximos 12 meses serão iguais ao último mês observado.</p>
 <div class="cell">
+<div>
+<div id="webr-4" class="exercise-cell">
+
+</div>
+<script type="webr-4-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicHJldl9pbmdlbnVvIDwtIHJlcCh0cmVpbm8kdmVuZGFzWzEyMF0sIDEyKVxucHJldl9pbmdlbnVvIn0=
+</script>
+</div>
+</div>
+</section>
+<section id="candidato-2-o-ingênuo-sazonal" class="level3" data-number="6.2">
+<h3 data-number="6.2" class="anchored" data-anchor-id="candidato-2-o-ingênuo-sazonal"><span class="header-section-number">6.2</span> Candidato 2 — o ingênuo sazonal</h3>
+<p>Um passo além: cada mês do próximo ano será igual ao mesmo mês do ano anterior.</p>
+<div class="cell">
+<div>
+<div id="webr-5" class="exercise-cell">
+
+</div>
+<script type="webr-5-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicHJldl9zYXpvbmFsIDwtIHRyZWlubyR2ZW5kYXNbMTA5OjEyMF1cbnByZXZfc2F6b25hbCJ9
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Não subestime estes dois
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Eles não têm parâmetro nenhum a estimar e parecem quase uma piada ao lado de um modelo econométrico. Mas nas competições M eles serviram de <strong>referência obrigatória</strong>: um método sofisticado que não bate o ingênuo sazonal não está entregando nada além de complexidade.</p>
+</div>
+</div>
+</section>
+<section id="candidato-3-tendência-linear-com-sazonalidade" class="level3" data-number="6.3">
+<h3 data-number="6.3" class="anchored" data-anchor-id="candidato-3-tendência-linear-com-sazonalidade"><span class="header-section-number">6.3</span> Candidato 3 — tendência linear com sazonalidade</h3>
+<p>Uma regressão com o tempo e onze dummies mensais. Treze parâmetros ao todo.</p>
+<div class="cell">
+<div>
+<div id="webr-6" class="exercise-cell">
+
+</div>
+<script type="webr-6-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibW9kZWxvX3NpbXBsZXMgPC0gbG0odmVuZGFzIH4gdGVtcG8gKyBtZXNfYW5vLCBkYXRhID0gdHJlaW5vKVxuc3VtbWFyeShtb2RlbG9fc2ltcGxlcykkci5zcXVhcmVkXG5wcmV2X3NpbXBsZXMgPC0gcHJlZGljdChtb2RlbG9fc2ltcGxlcywgbmV3ZGF0YSA9IHRlc3RlKVxucm91bmQocHJldl9zaW1wbGVzLCAxKSJ9
+</script>
+</div>
+</div>
+</section>
+<section id="candidato-4-o-sofisticado" class="level3" data-number="6.4">
+<h3 data-number="6.4" class="anchored" data-anchor-id="candidato-4-o-sofisticado"><span class="header-section-number">6.4</span> Candidato 4 — o sofisticado</h3>
+<p>Uma tendência polinomial de grau 8, com as mesmas dummies sazonais. Vinte parâmetros. Ele consegue acompanhar curvaturas que a reta não alcança.</p>
+<div class="cell">
+<div>
+<div id="webr-7" class="exercise-cell">
+
+</div>
+<script type="webr-7-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibW9kZWxvX2NvbXBsZXhvIDwtIGxtKHZlbmRhcyB+IHBvbHkodGVtcG8sIDgpICsgbWVzX2FubywgZGF0YSA9IHRyZWlubylcbnN1bW1hcnkobW9kZWxvX2NvbXBsZXhvKSRyLnNxdWFyZWRcbnByZXZfY29tcGxleG8gPC0gcHJlZGljdChtb2RlbG9fY29tcGxleG8sIG5ld2RhdGEgPSB0ZXN0ZSlcbnJvdW5kKHByZXZfY29tcGxleG8sIDEpIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Compare os dois R². O modelo complexo ajusta o passado <strong>melhor</strong> — como não poderia deixar de ser, já que tem sete parâmetros a mais para trabalhar. Acrescentar regressores nunca reduz o R².</p>
+<p>Olhe agora as previsões que ele produziu. Alguns valores fogem completamente da escala da série. Guarde essa observação; ela vai reaparecer.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="o-torneio" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="o-torneio"><span class="header-section-number">7</span> O torneio</h2>
+<p>Agora a comparação que importa: os quatro métodos contra os 12 meses que nenhum deles viu.</p>
+<div class="cell">
+<div>
+<div id="webr-8" class="exercise-cell">
+
+</div>
+<script type="webr-8-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShNZXRyaWNzKVxucmVzdWx0YWRvIDwtIGRhdGEuZnJhbWUoXG4gIG1ldG9kbyA9IGMoXCJJbmfDqm51b1wiLCBcIkluZ8OqbnVvIHNhem9uYWxcIiwgXCJUZW5kw6puY2lhICsgc2F6b25hbFwiLCBcIlBvbGluw7RtaW8gZ3JhdSA4XCIpLFxuICBSTVNFID0gYyhybXNlKHRlc3RlJHZlbmRhcywgcHJldl9pbmdlbnVvKSxcbiAgICAgICAgICAgcm1zZSh0ZXN0ZSR2ZW5kYXMsIHByZXZfc2F6b25hbCksXG4gICAgICAgICAgIHJtc2UodGVzdGUkdmVuZGFzLCBwcmV2X3NpbXBsZXMpLFxuICAgICAgICAgICBybXNlKHRlc3RlJHZlbmRhcywgcHJldl9jb21wbGV4bykpLFxuICBNQVBFID0gYyhtYXBlKHRlc3RlJHZlbmRhcywgcHJldl9pbmdlbnVvKSxcbiAgICAgICAgICAgbWFwZSh0ZXN0ZSR2ZW5kYXMsIHByZXZfc2F6b25hbCksXG4gICAgICAgICAgIG1hcGUodGVzdGUkdmVuZGFzLCBwcmV2X3NpbXBsZXMpLFxuICAgICAgICAgICBtYXBlKHRlc3RlJHZlbmRhcywgcHJldl9jb21wbGV4bykpICogMTAwXG4pXG5yZXN1bHRhZG8kUk1TRSA8LSByb3VuZChyZXN1bHRhZG8kUk1TRSwgMilcbnJlc3VsdGFkbyRNQVBFIDwtIHJvdW5kKHJlc3VsdGFkbyRNQVBFLCAyKVxucmVzdWx0YWRvW29yZGVyKHJlc3VsdGFkbyRSTVNFKSwgXSJ9
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A ordem de chegada:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Método</th>
+<th>RMSE</th>
+<th>MAPE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tendência + sazonal</td>
+<td>≈ 42</td>
+<td>≈ 2,5%</td>
+</tr>
+<tr class="even">
+<td>Ingênuo sazonal</td>
+<td>≈ 68</td>
+<td>≈ 4,5%</td>
+</tr>
+<tr class="odd">
+<td>Ingênuo</td>
+<td>≈ 97</td>
+<td>≈ 6,4%</td>
+</tr>
+<tr class="even">
+<td><strong>Polinômio grau 8</strong></td>
+<td><strong>≈ 388</strong></td>
+<td><strong>≈ 26%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>O modelo com mais parâmetros, melhor R² e maior sofisticação técnica ficou em <strong>último lugar</strong> — e não por pouco: erra cerca de nove vezes mais que o modelo simples, e cinco vezes mais que a previsão ingênua de repetir o último mês.</p>
+<p>Repare também que o ingênuo sazonal, que não estima parâmetro algum, deixou o polinômio para trás com folga.</p>
+</div>
+</div>
+</section>
+<section id="o-paradoxo-em-um-gráfico" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="o-paradoxo-em-um-gráfico"><span class="header-section-number">8</span> O paradoxo, em um gráfico</h2>
+<div class="cell">
+<div>
+<div id="webr-9" class="exercise-cell">
+
+</div>
+<script type="webr-9-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29tcGFyYWNhbyA8LSBkYXRhLmZyYW1lKFxuICBhanVzdGVfZGVudHJvICAgPSBjKHJtc2UodHJlaW5vJHZlbmRhcywgZml0dGVkKG1vZGVsb19zaW1wbGVzKSksXG4gICAgICAgICAgICAgICAgICAgICAgcm1zZSh0cmVpbm8kdmVuZGFzLCBmaXR0ZWQobW9kZWxvX2NvbXBsZXhvKSkpLFxuICBlcnJvX2ZvcmEgICAgICAgPSBjKHJtc2UodGVzdGUkdmVuZGFzLCBwcmV2X3NpbXBsZXMpLFxuICAgICAgICAgICAgICAgICAgICAgIHJtc2UodGVzdGUkdmVuZGFzLCBwcmV2X2NvbXBsZXhvKSksXG4gIHJvdy5uYW1lcyA9IGMoXCJUZW5kw6puY2lhICsgc2F6b25hbCAoMTMgcGFyLilcIiwgXCJQb2xpbsO0bWlvIGdyYXUgOCAoMjAgcGFyLilcIilcbilcbnJvdW5kKGNvbXBhcmFjYW8sIDIpIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>O que estes quatro números dizem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Dentro da amostra, o polinômio erra <strong>menos</strong> — RMSE de cerca de 36 contra 37. Ele venceu na única comparação que a maioria dos trabalhos apresenta.</p>
+<p>Fora da amostra, ele erra <strong>dez vezes mais</strong>.</p>
+<p>Este é o resultado central de Makridakis e Hibon, reproduzido numa tela. O ajuste ao passado e a capacidade de prever o futuro não são a mesma coisa — e, a partir de certo ponto, são objetivos em conflito. Cada parâmetro extra melhora um pouco o ajuste e piora bastante a extrapolação.</p>
+<p>O nome disso é <strong>sobreajuste</strong>. O polinômio de grau 8 não aprendeu o padrão da série; ele decorou os solavancos dos 120 meses de treino. Quando teve que se pronunciar sobre o mês 121, projetou para fora curvaturas que existiam apenas no ruído.</p>
+</div>
+</div>
+</section>
+<section id="exercícios" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">9</span> Exercícios</h2>
+<p>Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.</p>
+<section id="exercício-1-vendo-o-desastre" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="exercício-1-vendo-o-desastre"><span class="header-section-number">9.1</span> Exercício 1 — vendo o desastre</h3>
+<p>Coloque num gráfico os 12 meses reais e as previsões dos dois modelos de regressão.</p>
+<div class="cell" data-exercise="ap6_ex1">
+<div>
+<div id="webr-10" class="exercise-cell">
+
+</div>
+<script type="webr-10-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZ3JhZmljbyA8LSBkYXRhLmZyYW1lKFxuICB0ZW1wbyA9IHJlcCh0ZXN0ZSR0ZW1wbywgMyksXG4gIHZhbG9yID0gYyh0ZXN0ZSR2ZW5kYXMsIHByZXZfc2ltcGxlcywgX19fX19fKSxcbiAgc2VyaWUgPSByZXAoYyhcIlJlYWxcIiwgXCJUZW5kw6puY2lhICsgc2F6b25hbFwiLCBcIlBvbGluw7RtaW8gZ3JhdSA4XCIpLCBlYWNoID0gMTIpXG4pXG5nZ3Bsb3QoZ3JhZmljbywgYWVzKHRlbXBvLCB2YWxvciwgY29sb3VyID0gc2VyaWUpKSArXG4gIGdlb21fbGluZShsaW5ld2lkdGggPSAwLjkpICtcbiAgZ2VvbV9wb2ludChzaXplID0gMikgK1xuICBsYWJzKHRpdGxlID0gXCJQcmV2aXPDtWVzIGNvbnRyYSBhIHJlYWxpZGFkZVwiLCB4ID0gXCJNw6pzXCIsIHkgPSBcIlVuaWRhZGVzXCIpICtcbiAgdGhlbWVfbWluaW1hbCgpIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A lacuna é <code>prev_complexo</code>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-12" class="callout-12-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>grafico <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">tempo =</span> <span class="fu">rep</span>(teste<span class="sc">$</span>tempo, <span class="dv">3</span>),</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">valor =</span> <span class="fu">c</span>(teste<span class="sc">$</span>vendas, prev_simples, prev_complexo),</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">serie =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Real"</span>, <span class="st">"Tendência + sazonal"</span>, <span class="st">"Polinômio grau 8"</span>), <span class="at">each =</span> <span class="dv">12</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(grafico, <span class="fu">aes</span>(tempo, valor, <span class="at">colour =</span> serie)) <span class="sc">+</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Previsões contra a realidade"</span>, <span class="at">x =</span> <span class="st">"Mês"</span>, <span class="at">y =</span> <span class="st">"Unidades"</span>) <span class="sc">+</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A linha do modelo simples acompanha a real de perto. A do polinômio dispara para longe — e o desvio <strong>cresce</strong> a cada mês à frente, porque a extrapolação polinomial se afasta cada vez mais rápido.</p>
+<p>O gráfico também mostra por que o RMSE puniu tanto: ele eleva os erros ao quadrado, e alguns erros aqui são gigantes.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-2-o-erro-mês-a-mês" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="exercício-2-o-erro-mês-a-mês"><span class="header-section-number">9.2</span> Exercício 2 — o erro mês a mês</h3>
+<p>Calcule o erro percentual de cada mês para o modelo simples e identifique o pior.</p>
+<div class="cell" data-exercise="ap6_ex2">
 <div>
 <div id="webr-11" class="exercise-cell">
 
 </div>
 <script type="webr-11-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZXJyb3MgPC0gZGF0YS5mcmFtZShcbiAgbWVzICAgICAgPSB0ZXN0ZSRtZXMsXG4gIHJlYWwgICAgID0gdGVzdGUkdmVuZGFzLFxuICBwcmV2aXN0byA9IHJvdW5kKHByZXZfc2ltcGxlcywgMSksXG4gIGVycm9fcGN0ID0gcm91bmQoMTAwICogKHRlc3RlJHZlbmRhcyAtIHByZXZfc2ltcGxlcykgLyB0ZXN0ZSRfX19fX18sIDIpXG4pXG5lcnJvc1xuZXJyb3Nbd2hpY2gubWF4KGFicyhlcnJvcyRlcnJvX3BjdCkpLCBdIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A lacuna é <code>vendas</code>. <code>which.max()</code> devolve a posição do maior valor.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-14" class="callout-14-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>erros <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">mes      =</span> teste<span class="sc">$</span>mes,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">real     =</span> teste<span class="sc">$</span>vendas,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">previsto =</span> <span class="fu">round</span>(prev_simples, <span class="dv">1</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">erro_pct =</span> <span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> (teste<span class="sc">$</span>vendas <span class="sc">-</span> prev_simples) <span class="sc">/</span> teste<span class="sc">$</span>vendas, <span class="dv">2</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>erros</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>erros[<span class="fu">which.max</span>(<span class="fu">abs</span>(erros<span class="sc">$</span>erro_pct)), ]</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Quase todos os erros ficam abaixo de 5%, e não há sinal claro de viés — erros positivos e negativos se alternam. É o comportamento que se espera de um modelo bem especificado: o que sobra é ruído, e ruído não tem direção preferida.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-3-o-preço-de-cada-parâmetro" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="exercício-3-o-preço-de-cada-parâmetro"><span class="header-section-number">9.3</span> Exercício 3 — o preço de cada parâmetro</h3>
+<p>Estime versões com polinômios de graus intermediários e monte a curva do erro fora da amostra contra a complexidade.</p>
+<div class="cell" data-exercise="ap6_ex3">
+<div>
+<div id="webr-12" class="exercise-cell">
+
+</div>
+<script type="webr-12-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZ3JhdXMgPC0gYygxLCAyLCAzLCA1LCA4KVxuZXJyb3NfZm9yYSA8LSBzYXBwbHkoZ3JhdXMsIGZ1bmN0aW9uKGcpIHtcbiAgbSA8LSBsbSh2ZW5kYXMgfiBwb2x5KHRlbXBvLCBnKSArIG1lc19hbm8sIGRhdGEgPSBfX19fX18pXG4gIHJtc2UodGVzdGUkdmVuZGFzLCBwcmVkaWN0KG0sIG5ld2RhdGEgPSBfX19fX18pKVxufSlcbmRhdGEuZnJhbWUoZ3JhdSA9IGdyYXVzLCBybXNlX2ZvcmEgPSByb3VuZChlcnJvc19mb3JhLCAyKSkifQ==
 </script>
 </div>
 </div>
@@ -810,51 +893,44 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7Nk
 </div>
 <div id="callout-15" class="callout-15-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Atenção: 9,00 é o desvio-padrão da TEMPERATURA (trabalhado na página). Aqui pede-se o das VENDAS.</p>
+<p>A primeira lacuna é <code>treino</code> (onde se estima) e a segunda é <code>teste</code> (onde se avalia). Nunca o contrário.</p>
 </div>
 </div>
 </div>
-</section>
-<section id="questão-2" class="level3" data-number="7.2">
-<h3 data-number="7.2" class="anchored" data-anchor-id="questão-2"><span class="header-section-number">7.2</span> Questão 2</h3>
-<p>Na base Limonada, calcule a MÉDIA e o DESVIO-PADRÃO AMOSTRAL da variável CHUVA (mm).</p>
-<div class="cell">
-<div>
-<div id="webr-12" class="exercise-cell">
-
-</div>
-<script type="webr-12-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
-</script>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-16-contents" aria-controls="callout-16" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
+<span class="screen-reader-only">Nota</span>Solução
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-16" class="callout-16-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Use <code>mean()</code> e <code>sd()</code> na coluna <code>chuva</code>. Cuidado para não confundir a média com a mediana — a distribuição da chuva é assimétrica à direita.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>graus <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">8</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>erros_fora <span class="ot">&lt;-</span> <span class="fu">sapply</span>(graus, <span class="cf">function</span>(g) {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lm</span>(vendas <span class="sc">~</span> <span class="fu">poly</span>(tempo, g) <span class="sc">+</span> mes_ano, <span class="at">data =</span> treino)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(teste<span class="sc">$</span>vendas, <span class="fu">predict</span>(m, <span class="at">newdata =</span> teste))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">grau =</span> graus, <span class="at">rmse_fora =</span> <span class="fu">round</span>(erros_fora, <span class="dv">2</span>))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>O erro fica baixo e estável nos graus 1 a 3 e depois <strong>explode</strong>. Não há uma degradação suave: passado certo ponto, a extrapolação polinomial perde o controle.</p>
+<p>Se você fizesse a mesma tabela com o R² dentro da amostra, ela subiria monotonicamente com o grau. Duas curvas, sentidos opostos — a que interessa para previsão é esta.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="questão-3" class="level3" data-number="7.3">
-<h3 data-number="7.3" class="anchored" data-anchor-id="questão-3"><span class="header-section-number">7.3</span> Questão 3</h3>
-<p>Compare, com t.test(vendas ~ grupo), as vendas dos dias com TEMPERATURA ACIMA DA MÉDIA contra as dos dias com temperatura abaixo. Qual a estatística t (em módulo) e a conclusão a 5%?</p>
-<div class="cell">
+<section id="exercício-4-combinando-previsões" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="exercício-4-combinando-previsões"><span class="header-section-number">9.4</span> Exercício 4 — combinando previsões</h3>
+<p>Uma das conclusões mais robustas das competições M: a média de vários métodos costuma bater cada um deles isoladamente. Teste com os três métodos razoáveis.</p>
+<div class="cell" data-exercise="ap6_ex4">
 <div>
 <div id="webr-13" class="exercise-cell">
 
 </div>
 <script type="webr-13-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicHJldl9jb21iaW5hZGEgPC0gKHByZXZfaW5nZW51byArIHByZXZfc2F6b25hbCArIF9fX19fXykgLyAzXG5jKGluZ2VudW8gICA9IHJtc2UodGVzdGUkdmVuZGFzLCBwcmV2X2luZ2VudW8pLFxuICBzYXpvbmFsICAgPSBybXNlKHRlc3RlJHZlbmRhcywgcHJldl9zYXpvbmFsKSxcbiAgc2ltcGxlcyAgID0gcm1zZSh0ZXN0ZSR2ZW5kYXMsIHByZXZfc2ltcGxlcyksXG4gIGNvbWJpbmFkYSA9IHJtc2UodGVzdGUkdmVuZGFzLCBfX19fX18pKSJ9
 </script>
 </div>
 </div>
@@ -870,14 +946,128 @@ eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7Nk
 </div>
 <div id="callout-17" class="callout-17-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Cuidado: o teste da CHUVA já foi feito na página e dá outro valor. Aqui o grupo é definido por <code>temperatura &gt; mean(temperatura)</code>.</p>
+<p>As duas lacunas são <code>prev_simples</code> e <code>prev_combinada</code>. Deixe o polinômio de fora — ele estragaria a média.</p>
 </div>
 </div>
 </div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-18-contents" aria-controls="callout-18" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-18" class="callout-18-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>prev_combinada <span class="ot">&lt;-</span> (prev_ingenuo <span class="sc">+</span> prev_sazonal <span class="sc">+</span> prev_simples) <span class="sc">/</span> <span class="dv">3</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">ingenuo   =</span> <span class="fu">rmse</span>(teste<span class="sc">$</span>vendas, prev_ingenuo),</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">sazonal   =</span> <span class="fu">rmse</span>(teste<span class="sc">$</span>vendas, prev_sazonal),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">simples   =</span> <span class="fu">rmse</span>(teste<span class="sc">$</span>vendas, prev_simples),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">combinada =</span> <span class="fu">rmse</span>(teste<span class="sc">$</span>vendas, prev_combinada))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A combinação fica melhor que o ingênuo e que o ingênuo sazonal, mas <strong>não</strong> supera o modelo simples sozinho. Isso é honesto e vale registrar: combinar ajuda quando os métodos erram em direções diferentes e têm qualidade parecida. Aqui, um dos componentes é bem melhor que os outros dois, e a média o puxa para baixo.</p>
+<p>A lição prática das competições M é mais sutil do que “combinar é sempre melhor”: combinar reduz o risco de escolher mal, e essa proteção vale mais quando não se sabe de antemão qual método é o bom.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-5-escrevendo-o-resultado" class="level3" data-number="9.5">
+<h3 data-number="9.5" class="anchored" data-anchor-id="exercício-5-escrevendo-o-resultado"><span class="header-section-number">9.5</span> Exercício 5 — escrevendo o resultado</h3>
+<p>Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num relatório de previsão. Ele precisa conter: o desenho da avaliação, as métricas dos métodos comparados, o método escolhido e uma frase sobre por que o R² não foi o critério.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Um parágrafo possível">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Um parágrafo possível
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-19" class="callout-19-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A avaliação empregou divisão temporal da série de 132 observações mensais, com estimação nos 120 primeiros meses e validação nos 12 finais, mantidos fora do processo de estimação e de seleção. Entre os quatro métodos comparados, o modelo de tendência linear com dummies sazonais apresentou o menor erro de previsão (RMSE = 42,4; MAPE = 2,50%), seguido pela previsão ingênua sazonal (RMSE = 67,7; MAPE = 4,45%). A especificação com tendência polinomial de oitava ordem, embora superior no ajuste amostral (R² = 0,932 contra 0,928), registrou o pior desempenho preditivo (RMSE = 388,1; MAPE = 26,00%), caracterizando sobreajuste. Adota-se, portanto, a especificação simples, e registra-se que o critério de seleção foi o erro fora da amostra, e não a qualidade do ajuste.</p>
+<p>Repare no que o parágrafo faz: descreve o desenho antes dos resultados, reporta duas métricas, e explicita o critério de escolha — porque é justamente aí que trabalhos de previsão costumam falhar.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="o-que-estava-por-trás-dos-dados" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="o-que-estava-por-trás-dos-dados"><span class="header-section-number">10</span> O que estava por trás dos dados</h2>
+<p>Chegou a hora. As vendas desta série foram geradas por esta equação:</p>
+<p><span class="math display">\[
+\text{vendas}_t = 820 + 3{,}4\,t + 95 \operatorname{sen}\!\left(\frac{2\pi t}{12}\right) + 42{,}75 \cos\!\left(\frac{2\pi t}{6}\right) + u_t
+\]</span></p>
+<p>com <span class="math inline">\(u_t\)</span> sorteado de uma normal de média zero e desvio-padrão 38,0.</p>
+<p>Ou seja: uma <strong>tendência linear</strong> e um <strong>padrão sazonal fixo</strong>, mais ruído. Não há curvatura alguma na tendência — o coeficiente de qualquer termo quadrático ou superior é <strong>exatamente zero</strong>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Verdade</th>
+<th>Tendência + sazonal</th>
+<th>Polinômio grau 8</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tendência mensal</td>
+<td><strong>3,40</strong></td>
+<td>3,25</td>
+<td>— (8 termos)</td>
+</tr>
+<tr class="even">
+<td>Parâmetros</td>
+<td>14</td>
+<td>13</td>
+<td>20</td>
+</tr>
+<tr class="odd">
+<td>RMSE dentro</td>
+<td>—</td>
+<td>36,8</td>
+<td><strong>35,7</strong></td>
+</tr>
+<tr class="even">
+<td>RMSE fora</td>
+<td>—</td>
+<td><strong>42,4</strong></td>
+<td>388,1</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Três lições que só a simulação permite
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>1. O modelo vencedor era o modelo certo.</strong> A série foi gerada com tendência linear e sazonalidade fixa — exatamente a especificação do candidato 3. Ele estimou a tendência em 3,25 contra 3,40 verdadeiro, e previu com erro médio de 2,5%. Quando a especificação corresponde ao processo gerador, a previsão funciona. O problema, com dados reais, é que ninguém sabe qual é o processo gerador.</p>
+<p><strong>2. Os sete parâmetros extras estavam medindo ruído.</strong> O polinômio de grau 8 estimou coeficientes não nulos para termos cujo valor verdadeiro é zero. Ele não errou por acaso: ele fez exatamente o que o método manda, que é minimizar a soma dos quadrados dentro da amostra. O ruído dos 120 meses de treino ganhou curvatura, e a curvatura foi projetada para frente.</p>
+<p><strong>3. Nenhum diagnóstico de dentro da amostra teria denunciado o problema.</strong> R² maior, resíduos menores, coeficientes que passam no teste t. Todo o instrumental das unidades anteriores aprovaria o modelo complexo. Só a separação treino/teste revelou o desastre — e é por isso que ela não é opcional em trabalhos de previsão.</p>
+</div>
+</div>
+</section>
+<section id="voltando-ao-artigo" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="voltando-ao-artigo"><span class="header-section-number">11</span> Voltando ao artigo</h2>
+<p>Makridakis e Hibon esperavam, nas primeiras competições, que os métodos mais elaborados vencessem. Não venceram, e a reação inicial da comunidade foi questionar as competições, não os métodos. Levou quase duas décadas e três edições para que o resultado fosse aceito como regularidade e não como artefato.</p>
+<p>As competições continuam. A M4 (2018) e a M5 (2020) incorporaram aprendizado de máquina, e o retrato ficou mais matizado: métodos modernos passaram a vencer, mas os vencedores costumam ser <strong>combinações</strong> que incluem componentes estatísticos simples, e o ganho sobre um bom benchmark permanece modesto. A lição de fundo sobreviveu.</p>
+<p>Duas ressalvas que valem para o que você acabou de fazer:</p>
+<ul>
+<li><strong>Uma janela de teste é uma amostra.</strong> Doze meses é pouco. Um método pode vencer por sorte numa janela específica. A prática recomendada é a validação em janelas móveis — repetir o exercício deslizando o ponto de corte ao longo da série e comparar o desempenho médio.</li>
+<li><strong>Simples não significa melhor por princípio.</strong> Significa que a complexidade precisa se pagar. Se o polinômio tivesse vencido fora da amostra, seria ele o escolhido. O critério não é a elegância nem a modéstia do modelo: é o erro em dados que ele não viu.</li>
+</ul>
 
 
 <script type="webr-data">
-eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiJdLCJyZXBvcyI6W119LCJyZW5kZXJfZGYiOiJkZWZhdWx0In0=
+eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiIsIk1ldHJpY3MiXSwicmVwb3MiOltdfSwicmVuZGVyX2RmIjoiZGVmYXVsdCJ9
 </script>
 <script type="ojs-module-contents">
 eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTM7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEzID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTMtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMyA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTMsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTI7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEyID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTItY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTIsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzExID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTA7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEwID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTAtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTAsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC05IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV85O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItOSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzkgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici05LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItOS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV85ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl85LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfODtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTgiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl84ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItOC1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTgtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfOCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfOCwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTciLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzc7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici03IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNyA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTctY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici03LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzcgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzcsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC02IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV82O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzYgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici02LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItNi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV82ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl82LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfNTtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl81ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItNS1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTUtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfNSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfNSwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTQiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzQ7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici00IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNCA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTQtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici00LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzQgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzQsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0zIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV8zO1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzMgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici0zLWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8zID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8zLCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMjtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTIiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl8yID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMi1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTItY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMiwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTEiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfMSA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xLWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzEgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXByZWx1ZGUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ3ZWJST2pzID0ge1xuICBjb25zdCB7IFdlYlIsIENoYW5uZWxUeXBlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lLldlYlI7XG4gIGNvbnN0IHtcbiAgICBXZWJSRXZhbHVhdG9yLFxuICAgIFdlYlJFbnZpcm9ubWVudE1hbmFnZXIsXG4gICAgc2V0dXBSLFxuICAgIGI2NERlY29kZSxcbiAgICBjb2xsYXBzZVBhdGhcbiAgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG5cbiAgY29uc3Qgc3RhdHVzQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLXN0YXR1c1wiKTtcbiAgY29uc3QgaW5kaWNhdG9yQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLWluZGljYXRvclwiKTtcbiAgaW5kaWNhdG9yQ29udGFpbmVyLmNsYXNzTGlzdC5yZW1vdmUoXCJkLW5vbmVcIik7XG5cbiAgbGV0IHN0YXR1c1RleHQgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIHN0YXR1c1RleHQuY2xhc3NMaXN0ID0gXCJleGVyY2lzZS1sb2FkaW5nLWRldGFpbHNcIjtcbiAgc3RhdHVzVGV4dCA9IHN0YXR1c0NvbnRhaW5lci5hcHBlbmRDaGlsZChzdGF0dXNUZXh0KTtcbiAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBJbml0aWFsaXNlYDtcblxuICAvLyBIb2lzdCBpbmRpY2F0b3Igb3V0IGZyb20gZmluYWwgc2xpZGUgd2hlbiBydW5uaW5nIHVuZGVyIHJldmVhbFxuICBjb25zdCByZXZlYWxTdGF0dXMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKFwiLnJldmVhbCAuZXhlcmNpc2UtbG9hZGluZy1pbmRpY2F0b3JcIik7XG4gIGlmIChyZXZlYWxTdGF0dXMpIHtcbiAgICByZXZlYWxTdGF0dXMucmVtb3ZlKCk7XG4gICAgZG9jdW1lbnQucXVlcnlTZWxlY3RvcihcIi5yZXZlYWwgPiAuc2xpZGVzXCIpLmFwcGVuZENoaWxkKHJldmVhbFN0YXR1cyk7XG4gIH1cblxuICAvLyBNYWtlIGFueSByZXZlYWwgc2xpZGVzIHdpdGggbGl2ZSBjZWxscyBzY3JvbGxhYmxlXG4gIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoXCIucmV2ZWFsIC5leGVyY2lzZS1jZWxsXCIpLmZvckVhY2goKGVsKSA9PiB7XG4gICAgZWwuY2xvc2VzdCgnc2VjdGlvbi5zbGlkZScpLmNsYXNzTGlzdC5hZGQoXCJzY3JvbGxhYmxlXCIpO1xuICB9KVxuXG4gIC8vIHdlYlIgc3VwcGxlbWVudGFsIGRhdGEgYW5kIG9wdGlvbnNcbiAgY29uc3QgZGF0YUNvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici1kYXRhXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgZGF0YSA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKGRhdGFDb250ZW50KSk7XG5cbiAgLy8gR3JhYiBsaXN0IG9mIHJlc291cmNlcyB0byBiZSBkb3dubG9hZGVkXG4gIGNvbnN0IGZpbGVzQ29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ2ZnMtZmlsZVxcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGZpbGVzID0gSlNPTi5wYXJzZShiNjREZWNvZGUoZmlsZXNDb250ZW50KSk7XG5cbiAgLy8gSW5pdGlhbGlzZSB3ZWJSIGFuZCBzZXR1cCBmb3IgUiBjb2RlIGV2YWx1YXRpb25cbiAgbGV0IHdlYlJQcm9taXNlID0gKGFzeW5jICh3ZWJSKSA9PiB7XG4gICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyB3ZWJSYDtcbiAgICBhd2FpdCB3ZWJSLmluaXQoKTtcblxuICAgIC8vIEluc3RhbGwgcHJvdmlkZWQgbGlzdCBvZiBwYWNrYWdlc1xuICAgIC8vIEVuc3VyZSB3ZWJSIGRlZmF1bHQgcmVwbyBpcyBpbmNsdWRlZFxuICAgIGRhdGEucGFja2FnZXMucmVwb3MucHVzaChcImh0dHBzOi8vcmVwby5yLXdhc20ub3JnXCIpXG4gICAgYXdhaXQgZGF0YS5wYWNrYWdlcy5wa2dzLm1hcCgocGtnKSA9PiAoKSA9PiB7XG4gICAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYERvd25sb2FkaW5nIHBhY2thZ2U6ICR7cGtnfWA7XG4gICAgICByZXR1cm4gd2ViUi5ldmFsUlZvaWQoYFxuICAgICAgICB3ZWJyOjppbnN0YWxsKHBrZywgcmVwb3MgPSByZXBvcylcbiAgICAgICAgbGlicmFyeShwa2csIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSlcbiAgICAgIGAsIHsgZW52OiB7XG4gICAgICAgIHBrZzogcGtnLFxuICAgICAgICByZXBvczogZGF0YS5wYWNrYWdlcy5yZXBvcyxcbiAgICAgIH19KTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIC8vIERvd25sb2FkIGFuZCBpbnN0YWxsIHJlc291cmNlc1xuICAgIGF3YWl0IGZpbGVzLm1hcCgoZmlsZSkgPT4gYXN5bmMgKCkgPT4ge1xuICAgICAgY29uc3QgbmFtZSA9IGZpbGUuc3Vic3RyaW5nKGZpbGUubGFzdEluZGV4T2YoJy8nKSArIDEpO1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyByZXNvdXJjZTogJHtuYW1lfWA7XG4gICAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKGZpbGUpO1xuICAgICAgaWYgKCFyZXNwb25zZS5vaykge1xuICAgICAgICB0aHJvdyBuZXcgRXJyb3IoYENhbid0IGRvd25sb2FkIFxcYCR7ZmlsZX1cXGAuIEVycm9yICR7cmVzcG9uc2Uuc3RhdHVzfTogXCIke3Jlc3BvbnNlLnN0YXR1c1RleHR9XCIuYCk7XG4gICAgICB9XG4gICAgICBjb25zdCBkYXRhID0gYXdhaXQgcmVzcG9uc2UuYXJyYXlCdWZmZXIoKTtcblxuICAgICAgLy8gU3RvcmUgVVJMcyBpbiB0aGUgY3dkIHdpdGhvdXQgYW55IHN1YmRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGlmIChmaWxlLmluY2x1ZGVzKFwiOi8vXCIpKSB7XG4gICAgICAgIGZpbGUgPSBuYW1lO1xuICAgICAgfVxuXG4gICAgICAvLyBDb2xsYXBzZSBoaWdoZXIgZGlyZWN0b3J5IHN0cnVjdHVyZVxuICAgICAgZmlsZSA9IGNvbGxhcHNlUGF0aChmaWxlKTtcblxuICAgICAgLy8gQ3JlYXRlIGRpcmVjdG9yeSB0cmVlLCBpZ25vcmluZyBcImRpcmVjdG9yeSBleGlzdHNcIiBWRlMgZXJyb3JzXG4gICAgICBjb25zdCBwYXJ0cyA9IGZpbGUuc3BsaXQoJy8nKS5zbGljZSgwLCAtMSk7XG4gICAgICBsZXQgcGF0aCA9ICcnO1xuICAgICAgd2hpbGUgKHBhcnRzLmxlbmd0aCA+IDApIHtcbiAgICAgICAgcGF0aCArPSBwYXJ0cy5zaGlmdCgpICsgJy8nO1xuICAgICAgICBjb25zdCBhbmFseXNpcyA9IGF3YWl0IHdlYlIuRlMuYW5hbHl6ZVBhdGgocGF0aCk7XG4gICAgICAgIGlmICghYW5hbHlzaXMuZXhpc3RzKSB7XG4gICAgICAgICAgdHJ5IHtcbiAgICAgICAgICAgIGF3YWl0IHdlYlIuRlMubWtkaXIocGF0aCk7XG4gICAgICAgICAgfSBjYXRjaCAoZSkge1xuICAgICAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBGaWxlc3lzdGVtIEVycm9yOiBcIiR7ZS5tZXNzYWdlfVwiLmApO1xuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgfVxuXG4gICAgICAvLyBXcml0ZSB0aGlzIGZpbGUgdG8gdGhlIFZGU1xuICAgICAgcmV0dXJuIGF3YWl0IHdlYlIuRlMud3JpdGVGaWxlKGZpbGUsIG5ldyBVaW50OEFycmF5KGRhdGEpKTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgSW5zdGFsbGluZyB3ZWJSIHNoaW1zYDtcbiAgICBhd2FpdCB3ZWJSLmV2YWxSVm9pZChgd2Vicjo6c2hpbV9pbnN0YWxsKClgKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgV2ViUiBlbnZpcm9ubWVudCBzZXR1cGA7XG4gICAgYXdhaXQgc2V0dXBSKHdlYlIsIGRhdGEpO1xuXG4gICAgc3RhdHVzVGV4dC5yZW1vdmUoKTtcbiAgICBpZiAoc3RhdHVzQ29udGFpbmVyLmNoaWxkcmVuLmxlbmd0aCA9PSAwKSB7XG4gICAgICBzdGF0dXNDb250YWluZXIucGFyZW50Tm9kZS5yZW1vdmUoKTtcbiAgICB9XG4gICAgcmV0dXJuIHdlYlI7XG4gIH0pKG5ldyBXZWJSKGRhdGEub3B0aW9ucykpO1xuXG4gIC8vIEtlZXAgdHJhY2sgb2YgaW5pdGlhbCBPSlMgYmxvY2sgcmVuZGVyXG4gIGNvbnN0IHJlbmRlcmVkT2pzID0ge307XG5cbiAgY29uc3QgcHJvY2VzcyA9IGFzeW5jIChjb250ZXh0LCBpbnB1dHMpID0+IHtcbiAgICBjb25zdCB3ZWJSID0gYXdhaXQgd2ViUlByb21pc2U7XG4gICAgY29uc3QgZXZhbHVhdG9yID0gbmV3IFdlYlJFdmFsdWF0b3Iod2ViUiwgY29udGV4dClcbiAgICBhd2FpdCBldmFsdWF0b3IucHJvY2VzcyhpbnB1dHMpO1xuICAgIHJldHVybiBldmFsdWF0b3IuY29udGFpbmVyO1xuICB9XG5cbiAgcmV0dXJuIHtcbiAgICBwcm9jZXNzLFxuICAgIHdlYlJQcm9taXNlLFxuICAgIHJlbmRlcmVkT2pzLFxuICB9O1xufVxuIn1dfQ==
@@ -893,7 +1083,6 @@ eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMyIsImlubGluZSI6ZmFsc2UsIm1l
 <script type="vfs-file">
 WyJkYWRvcy8vbGltb25hZGEuY3N2IiwiZGFkb3MvL2RpYW1hbnRlcy5jc3YiLCJkYWRvcy8vY3Jlc2NpbWVudG8uY3N2IiwiZGFkb3MvL2VtcHJlZ28uY3N2IiwiZGFkb3MvL2FkdWJvX3Byb2R1dGl2aWRhZGUuY3N2IiwiZGFkb3MvL3NhbGFyaW9faG9yYS5jc3YiLCJkYWRvcy8vcHJlc3Nhb19hcnRlcmlhbC5jc3YiLCJkYWRvcy8vc2VyaWVzX3RlbXBvLmNzdiIsImRhZG9zLy9yZXRvcm5vX2Fjb2VzLmNzdiIsImRhZG9zLy9kY3AuY3N2IiwiZGFkb3MvL2NvbnN0cnVjb2VzLmNzdiIsImRhZG9zLy9yZXRvcm5vc19zb2phLmNzdiIsImRhZG9zLy9jb25zdW1vX2ZhbWlsaWFzLmNzdiIsImRhZG9zLy9tYXJpbmhhLmNzdiIsImRhZG9zLy9jb25zdW1vLmNzdiIsImRhZG9zLy9zYWxhcmlvX3Npbm9wLmNzdiIsImRhZG9zLy9zYWxhcmlvX2hvcmEyLmNzdiIsImRhZG9zLy9lc3B1cmlhLmNzdiIsImRhZG9zLy9sYW5jaG9uZXRlcy5jc3YiLCJkYWRvcy8vZ2FzdG9fYWxpbWVudGFjYW8uY3N2IiwiZGFkb3MvL3ZlbmRhc19tYXF1aW5hcy5jc3YiLCJkYWRvcy8vdGVtcGVyYXR1cmFfY29ycG9yYWwuY3N2IiwiZGFkb3MvL3BpYl9yZWFsLmNzdiIsImRhZG9zLy9ob3Jhc190cmFiYWxoby5jc3YiLCJkYWRvcy8vY29ycnVwY2FvLmNzdiIsImRhZG9zLy9pbmR1c3RyaWEuY3N2IiwiZGFkb3MvL2Z1bmNhb19wdWxtb25hci5jc3YiLCJkYWRvcy8vbmF0YWxpZGFkZS5jc3YiLCJkYWRvcy8vYWJvcnRvLmNzdiIsImRhZG9zLy92ZW5kYXNfcm91cGFzLmNzdiIsImRhZG9zLy9mZXJ0aWxpZGFkZS5jc3YiLCJkYWRvcy8vZnVuY2FvX3Byb2R1Y2FvLmNzdiIsImRhZG9zLy9pbnZlc3RpbWVudG8uY3N2IiwiZGFkb3MvL3BkX2VtcHJlc2FzLmNzdiIsImRhZG9zLy9kaWFiZXRlcy5jc3YiLCJkYWRvcy8vY3VzdG9fbWVkaW8uY3N2IiwiZGFkb3MvL2luZHVzdHJpYV9tdC5jc3YiLCJsb2dvLXVuZW1hdC5wbmciXQ==
 </script>
-</section>
 </section>
 
 </main> <!-- /main -->
