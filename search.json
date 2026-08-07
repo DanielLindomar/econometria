@@ -420,95 +420,109 @@
     "text": "7 Exercícios avaliativos\n\n\n\n\n\n\nImportanteVale nota\n\n\n\nAs respostas destes exercícios são cobradas no questionário da disciplina, no SIGAA. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — sem a solução. Anote os valores obtidos antes de responder no SIGAA.\n\n\n\n7.1 Questão 1\nEstime o modelo LOG-LOG log(alimentacao) ~ log(gasto_total) (base gasto_alimentacao.csv). Qual a ELASTICIDADE-RENDA estimada e sua interpretação?\nA base tem uma família com gasto zero em alimentação, e log(0) não existe: filtre com filter(alimentacao &gt; 0) antes de estimar, ou o lm() retorna erro.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nAtenção: 1.593 é o coeficiente do modelo LIN-LOG (feito na página). Aqui o modelo é log-log, e o coeficiente já é a elasticidade.\n\n\n\n\n\n7.2 Questão 2\nA soma das elasticidades ficou perto de 1, mas isso basta para afirmar que os retornos são constantes? Teste formalmente a hipótese H0: elasticidade do trabalho + elasticidade do capital = 1, com linearHypothesis() do pacote car. Informe a estatística F e a conclusão a 5%.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nUse linearHypothesis(modelo, \"trabalho + capital = 1\") sobre o modelo em logs. Uma soma próxima de 1 na amostra não implica, por si só, que a restrição não seja rejeitada — é o teste que decide.\n\n\n\n\n\n7.3 Questão 3\nReestime o modelo log-lin do PIB real usando SÓ os anos a partir de 1980 e informe a TAXA DE CRESCIMENTO ANUAL EXATA (composta) desse subperíodo.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nFiltre ano &gt;= 1980, recrie a tendência começando em zero e use exp(coef) - 1. O coeficiente bruto não é a taxa composta."
   },
   {
-    "objectID": "econ2-lab07.html",
-    "href": "econ2-lab07.html",
-    "title": "Laboratório 7 — Multicolinearidade",
+    "objectID": "aplic-econ1-u1.html#o-problema",
+    "href": "aplic-econ1-u1.html#o-problema",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "1 O problema",
+    "text": "1 O problema\nPoucas perguntas atravessaram tanto a economia do trabalho quanto esta: quanto vale, em dinheiro, um ano a mais de escolaridade?\nA formulação que se tornou padrão é de Jacob Mincer, em Schooling, Experience and Earnings (1974). A ideia é simples e poderosa: os rendimentos de uma pessoa dependem do quanto ela estudou e do quanto já trabalhou. Estudar é um investimento — abre-se mão de renda hoje para ganhar mais depois —, e a regressão permite medir o retorno desse investimento.\nDesde então, a equação de Mincer foi estimada para praticamente todo país e período com dados disponíveis. No Brasil, ela é o instrumento por trás de boa parte do que se afirma sobre desigualdade, política educacional e diferencial de gênero no mercado de trabalho.\n\n\n\n\n\n\nDicaLeitura recomendada\n\n\n\nAlém do trabalho de Mincer, vale ler um estudo brasileiro recente sobre retornos da educação, indicado no Conteúdo Programado da unidade. Compare o que os autores encontraram com o que você vai estimar aqui."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#nossa-versão",
+    "href": "aplic-econ1-u1.html#nossa-versão",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "2 Nossa versão",
+    "text": "2 Nossa versão\nVamos responder à mesma pergunta com dados de 720 trabalhadores da região de Sinop, com informações de salário-hora, escolaridade, experiência e sexo.\n\n\n\n\n\n\nImportanteEstes dados foram gerados por simulação\n\n\n\nNão são uma pesquisa de campo. Foram construídos por um processo que eu conheço — e é justamente por isso que esta aplicação existe.\nCom dados reais, você estima um coeficiente e nunca descobre se acertou. Aqui, no fim da página, eu mostro os valores verdadeiros que usei para gerar os salários. Você vai poder comparar a sua estimativa com a resposta certa — coisa que nenhum economista consegue fazer na vida real.\nNão role até lá antes de estimar. A graça está em descobrir depois."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#os-dados",
+    "href": "aplic-econ1-u1.html#os-dados",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "3 Os dados",
+    "text": "3 Os dados\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaO dicionário das variáveis\n\n\n\n\n\n\nVariável\nO que é\n\n\n\n\nsalario_hora\nRendimento por hora trabalhada, em reais\n\n\nescolaridade\nAnos completos de estudo (4 a 20)\n\n\nexperiencia\nAnos de experiência no mercado de trabalho\n\n\nfeminino\n1 se mulher, 0 se homem\n\n\n\nSão 720 trabalhadores. O salário-hora médio fica em torno de R$ 21,60 e a escolaridade média em quase 11 anos — o ensino médio completo."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#primeiro-olhar-escolaridade-e-salário",
+    "href": "aplic-econ1-u1.html#primeiro-olhar-escolaridade-e-salário",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "4 Primeiro olhar: escolaridade e salário",
+    "text": "4 Primeiro olhar: escolaridade e salário\nAntes de estimar qualquer coisa, veja a relação que você quer medir.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nA nuvem sobe da esquerda para a direita: quem estudou mais ganha mais. A reta vermelha resume essa tendência, e a inclinação dela é exatamente o número que queremos — quantos reais a mais por ano de estudo.\nRepare também na dispersão: para 11 anos de estudo há gente ganhando R$ 15 e gente ganhando R$ 28. A escolaridade explica parte do salário, não tudo. Guardar isso evita a leitura ingênua do R² mais adiante."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#o-modelo-simples",
+    "href": "aplic-econ1-u1.html#o-modelo-simples",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "5 O modelo simples",
+    "text": "5 O modelo simples\nComece pela versão mais direta: salário explicado só pela escolaridade.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nO coeficiente de escolaridade fica em torno de 1,18: cada ano adicional de estudo está associado a R$ 1,18 a mais por hora. Com 40 horas semanais, isso são cerca de R$ 190 por mês — por ano de estudo.\nO R² fica próximo de 0,47: a escolaridade sozinha explica 47% da variação dos salários nesta amostra.\nGuarde o número 1,18. Ele vai mudar."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#o-modelo-completo",
+    "href": "aplic-econ1-u1.html#o-modelo-completo",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "6 O modelo completo",
+    "text": "6 O modelo completo\nDuas coisas ficaram de fora. A primeira é a experiência — quem trabalha há mais tempo tende a ganhar mais. A segunda é o sexo — e a literatura é farta em mostrar que o mercado remunera homens e mulheres de forma diferente, com a mesma qualificação.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nTrês coisas mudaram, e todas importam:\nO coeficiente da escolaridade subiu de 1,18 para cerca de 1,35. Ao incluir a experiência, o retorno da educação aumentou — o que é, no mínimo, curioso. Por quê?\nA experiência vale cerca de R$ 0,28 por ano: menos de um quarto do que vale um ano de estudo.\nA dummy feminino fica em torno de −2,57: mantidas escolaridade e experiência constantes, as mulheres desta amostra ganham cerca de R$ 2,57 a menos por hora. É o diferencial que não se explica por qualificação.\nE o R² sobe para cerca de 0,64."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#por-que-o-retorno-da-educação-aumentou",
+    "href": "aplic-econ1-u1.html#por-que-o-retorno-da-educação-aumentou",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "7 Por que o retorno da educação aumentou?",
+    "text": "7 Por que o retorno da educação aumentou?\nEsta é a pergunta central da aplicação, e ela tem uma resposta precisa.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nA correlação entre escolaridade e experiência é negativa, em torno de −0,25: quem estuda mais entra mais tarde no mercado e, na mesma idade, acumulou menos tempo de trabalho.\nAgora junte as duas peças. A experiência tem efeito positivo sobre o salário (+0,28) e é negativamente correlacionada com a escolaridade (−0,56 anos de experiência por ano de estudo). Ao deixar a experiência de fora, o coeficiente da escolaridade absorve esse efeito pela porta dos fundos — e absorve com sinal negativo, puxando a estimativa para baixo.\nÉ o viés de variável omitida, o mesmo fenômeno que produziu o paradoxo do preço no Laboratório 1. Aqui dá para medi-lo: 0,28 × (−0,56) ≈ −0,16 — quase exatamente a diferença entre 1,18 e 1,35."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#exercícios",
+    "href": "aplic-econ1-u1.html#exercícios",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "8 Exercícios",
+    "text": "8 Exercícios\nAgora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.\n\n8.1 Exercício 1 — a tabela de resultados\nArtigos não publicam a saída bruta do R. Publicam uma tabela com coeficiente, erro-padrão e significância. Monte a sua.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nO objeto do modelo completo se chama completo. A matriz summary(modelo)$coefficients tem quatro colunas: estimativa, erro-padrão, t e valor-p.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\ntabela &lt;- data.frame(\n  variavel = names(coef(completo)),\n  coeficiente = round(coef(completo), 3),\n  erro_padrao = round(summary(completo)$coefficients[, 2], 3),\n  valor_p     = round(summary(completo)$coefficients[, 4], 4)\n)\ntabela\n\n\n\n\n\n8.2 Exercício 2 — o intervalo de confiança\nUm coeficiente sem intervalo é uma informação incompleta. Calcule os intervalos de 95%.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nconfint(modelo, level = 0.95). Guarde o intervalo da escolaridade — você vai precisar dele no fim da página.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nconfint(completo, level = 0.95)\n\n\n\n\n\n8.3 Exercício 3 — previsão para três perfis\nQuanto o modelo prevê para cada um destes trabalhadores?\n\n11 anos de estudo, 10 de experiência, homem\n16 anos de estudo, 5 de experiência, mulher\n8 anos de estudo, 20 de experiência, homem\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nCada vetor tem os três valores da respectiva variável, na ordem dos perfis.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nperfis &lt;- data.frame(\n  escolaridade = c(11, 16, 8),\n  experiencia  = c(10, 5, 20),\n  feminino     = c(0, 1, 0)\n)\npredict(completo, newdata = perfis)\n\n\n\n\n\n8.4 Exercício 4 — o diferencial de gênero, bruto e ajustado\nCompare o salário médio de homens e mulheres sem controlar por nada. Depois compare com o coeficiente da dummy no modelo completo. Os dois números são diferentes — e a diferença tem significado.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nAgrupe por feminino. Carregue dplyr antes com library(dplyr).\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nlibrary(dplyr)\nsalarios |&gt;\n  group_by(feminino) |&gt;\n  summarise(salario_medio = mean(salario_hora), escolaridade_media = mean(escolaridade))\nA diferença bruta de salário é de cerca de R$ 2,43, enquanto o coeficiente da dummy é de cerca de −R$ 2,57. As escolaridades médias dos dois grupos são praticamente iguais, então o controle muda pouco — mas repare que o diferencial ajustado é maior que o bruto. Em amostras reais isso costuma se inverter.\n\n\n\n\n\n8.5 Exercício 5 — escrevendo o resultado\nEste exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: o retorno estimado de um ano de estudo, o intervalo de confiança, o diferencial de gênero e uma frase sobre o poder explicativo do modelo.\n\n\n\n\n\n\nNotaUm parágrafo possível\n\n\n\n\n\nA estimação por MQO de uma equação de rendimentos para 720 trabalhadores da região de Sinop indica que cada ano adicional de escolaridade está associado a um acréscimo de R$ 1,35 no salário-hora (IC 95%: R$ 1,27 a R$ 1,43), mantidas constantes a experiência e o sexo. A experiência apresenta retorno positivo, porém bem menor, de R$ 0,28 por ano. Verifica-se ainda um diferencial de gênero de R$ 2,57 por hora desfavorável às mulheres, não explicado por diferenças de escolaridade ou de experiência entre os grupos. O modelo explica 64% da variação dos salários na amostra.\nRepare no que o parágrafo faz: reporta o número, o intervalo, a condição (mantidas constantes) e a magnitude relativa. E não afirma causalidade em momento algum."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#o-que-estava-por-trás-dos-dados",
+    "href": "aplic-econ1-u1.html#o-que-estava-por-trás-dos-dados",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "9 O que estava por trás dos dados",
+    "text": "9 O que estava por trás dos dados\nChegou a hora. Os salários desta amostra foram gerados por esta equação:\n\\[\n\\text{salário} = 4{,}20 + 1{,}35 \\times \\text{escolaridade} + 0{,}28 \\times \\text{experiência} - 2{,}10 \\times \\text{feminino} + u\n\\]\ncom \\(u\\) sorteado de uma normal de média zero e desvio-padrão 3,50.\nCompare com o que você estimou:\n\n\n\nParâmetro\nValor verdadeiro\nVocê estimou\nIntervalo de 95%\n\n\n\n\nIntercepto\n4,20\n4,22\n[3,09 ; 5,34]\n\n\nEscolaridade\n1,35\n1,348\n[1,270 ; 1,427]\n\n\nExperiência\n0,28\n0,281\n[0,246 ; 0,316]\n\n\nFeminino\n−2,10\n−2,572\n[−3,094 ; −2,050]\n\n\n\n\n\n\n\n\n\nImportanteTrês lições que só a simulação permite\n\n\n\n1. O MQO acertou. Os quatro intervalos de confiança contêm o valor verdadeiro. Não foi sorte: é a propriedade do estimador funcionando. Se repetíssemos a amostragem cem vezes, cerca de 95 dos intervalos conteriam o parâmetro.\n2. Estimativa não é parâmetro. O coeficiente da dummy saiu em −2,57 quando o verdadeiro era −2,10. A diferença de 0,47 não é erro de cálculo nem de código: é erro amostral. Uma amostra é uma amostra. Foi para medir essa incerteza que você calculou o intervalo no Exercício 2 — e é por isso que reportar o coeficiente sem o intervalo esconde metade da informação.\n3. O modelo simples estava enviesado, e dá para provar. A regressão só com escolaridade deu 1,18 contra o verdadeiro 1,35. O viés de −0,17 é quase idêntico ao previsto pela fórmula do viés de variável omitida: o efeito da variável esquecida (0,28) multiplicado pela relação dela com a variável mantida (−0,56), o que dá −0,16.\nGuarde esta última: com dados reais, você nunca saberia que 1,18 estava errado. Aqui você viu."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#voltando-ao-artigo",
+    "href": "aplic-econ1-u1.html#voltando-ao-artigo",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "10 Voltando ao artigo",
+    "text": "10 Voltando ao artigo\nA literatura brasileira costuma estimar a equação de Mincer em logaritmo do salário, e não em nível como fizemos. O motivo é a interpretação: em log, o coeficiente vira o retorno percentual de um ano de estudo, comparável entre países e períodos — a ordem de 8% a 10% ao ano que se lê nos artigos.\nNós ficamos em nível de propósito: a Unidade 1 trata do modelo linear, e a transformação logarítmica é o assunto da Unidade 2. Quando chegar ao Laboratório 5, você vai reestimar esta mesma relação em log e obter o número que dialoga diretamente com a literatura.\nDuas ressalvas que todo artigo sério faz, e que valem para o que você acabou de estimar:\n\nIsto não é causalidade. Pessoas que estudam mais podem diferir em características não observadas — motivação, origem familiar, acesso a redes — que também afetam o salário. O coeficiente mede associação condicional, não o efeito de mandar alguém estudar mais um ano.\nA amostra é o que é. São 720 trabalhadores de uma região. Nada garante que o retorno seja o mesmo em outro estado, setor ou período."
+  },
+  {
+    "objectID": "aplic-econ1-u1.html#exercícios-avaliativos",
+    "href": "aplic-econ1-u1.html#exercícios-avaliativos",
+    "title": "Aplicação 1 — Quanto vale um ano a mais de estudo?",
+    "section": "11 Exercícios avaliativos",
+    "text": "11 Exercícios avaliativos\n\n\n\n\n\n\nImportanteVale nota\n\n\n\nAs respostas destes exercícios são cobradas no questionário da disciplina, no SIGAA. Aqui você tem o espaço para rodar seu código e uma dica — sem a solução.\n\n\n\n11.1 Questão 1\nReestime o modelo completo apenas para os trabalhadores com 12 ou mais anos de estudo. O que acontece com o retorno da escolaridade em relação ao modelo com a amostra toda?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nUse filter(escolaridade &gt;= 12) antes de estimar. Compare o coeficiente com o 1,348 da amostra completa.\n\n\n\n\n\n11.2 Questão 2\nAcrescente ao modelo completo o termo I(experiencia^2). O coeficiente do termo quadrático é significativo a 5%? O que o sinal dele diz sobre o formato da relação entre experiência e salário?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nlm(salario_hora ~ escolaridade + experiencia + I(experiencia^2) + feminino, data = salarios). Lembre que a equação verdadeira não tinha termo quadrático.\n\n\n\n\n\n11.3 Questão 3\nQual a soma dos quadrados dos resíduos do modelo completo, e qual o desvio-padrão residual? Compare este último com o desvio-padrão de 3,50 usado para gerar os dados.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nsum(resid(completo)^2) e summary(completo)$sigma."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Econometria Interativa",
     "section": "",
-    "text": "Este laboratório abre o bloco de diagnóstico: verificar as premissas do Modelo Clássico (Lab 1 a 6 as assumiram válidas). Começamos pela premissa 5 — ausência de relações lineares perfeitas entre os X. A base é a oferta de trabalho de 753 mulheres casadas, com 13 variáveis explicativas — várias delas parentes próximas (idade e idade do marido; renda familiar e salário do marido…)."
+    "text": "Bem-vindo! Nesta página estão os laboratórios interativos de Econometria I e II e o curso de R da disciplina. Em todas as páginas o R roda no seu navegador — nada precisa ser instalado."
   },
   {
-    "objectID": "econ2-lab07.html#diagnóstico-1-a-matriz-de-correlações",
-    "href": "econ2-lab07.html#diagnóstico-1-a-matriz-de-correlações",
-    "title": "Laboratório 7 — Multicolinearidade",
-    "section": "1 Diagnóstico 1: a matriz de correlações",
-    "text": "1 Diagnóstico 1: a matriz de correlações\nCorrelação alta (acima de 0,8) entre dois X é o sinal mais simples. cor() aplicado a um data frame devolve a matriz completa.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nidade × idade_marido e renda_fam × sal_marido mostram correlações muito altas — cônjuges têm idades parecidas, e o salário do marido é o grosso da renda familiar. São os pares que inflam as variâncias dos estimadores."
+    "objectID": "index.html#econometria-i-laboratórios",
+    "href": "index.html#econometria-i-laboratórios",
+    "title": "Econometria Interativa",
+    "section": "Econometria I — Laboratórios",
+    "text": "Econometria I — Laboratórios\n\n\n\n#\nLaboratório\nTema\n\n\n\n\n1\nExplorando dados\nPrimeiro contato com dados e correlação\n\n\n2\nAnalisando e visualizando dados\nGráficos e tabelas dinâmicas\n\n\n3\nIntrodução à estatística\nDescritivas, intervalos e testes\n\n\n4\nRegressão linear\nRegressão simples e múltipla\n\n\n5\nFormas funcionais\nLog-linear, log-lin, lin-log\n\n\n6\nVariáveis qualitativas\nDummies, sazonalidade e mudança estrutural\n\n\n7\nSéries temporais\nDecomposição, estacionariedade e cointegração\n\n\n8\nModelos de volatilidade\nARCH e GARCH\n\n\n9\nPrevisão econômica\nBox-Jenkins e VAR"
   },
   {
-    "objectID": "econ2-lab07.html#diagnóstico-2-regressões-auxiliares",
-    "href": "econ2-lab07.html#diagnóstico-2-regressões-auxiliares",
-    "title": "Laboratório 7 — Multicolinearidade",
-    "section": "2 Diagnóstico 2: regressões auxiliares",
-    "text": "2 Diagnóstico 2: regressões auxiliares\nA regressão auxiliar regride um X contra todos os outros: R² auxiliar alto = aquela variável é quase combinação linear das demais. (No Lab do Excel eram 13 regressões à mão; aqui, uma linha por variável.)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nO R² auxiliar da renda familiar é alto — ela é amplamente explicada pelas demais (sobretudo pelo salário do marido). A regra de Klein: colinearidade preocupa quando o R² auxiliar supera o R² do modelo principal (0,36). Aqui, supera com folga."
+    "objectID": "index.html#econometria-ii-diagnóstico-de-regressão",
+    "href": "index.html#econometria-ii-diagnóstico-de-regressão",
+    "title": "Econometria Interativa",
+    "section": "Econometria II — Diagnóstico de regressão",
+    "text": "Econometria II — Diagnóstico de regressão\n\n\n\n#\nLaboratório\nTema\n\n\n\n\n7\nMulticolinearidade\nDetecção e correção\n\n\n8\nHeterocedasticidade e autocorrelação\nTestes e erros-padrão robustos\n\n\n9\nEspecificação do modelo\nRESET, variáveis omitidas e proxies"
   },
   {
-    "objectID": "econ2-lab07.html#diagnóstico-3-o-vif",
-    "href": "econ2-lab07.html#diagnóstico-3-o-vif",
-    "title": "Laboratório 7 — Multicolinearidade",
-    "section": "3 Diagnóstico 3: o VIF",
-    "text": "3 Diagnóstico 3: o VIF\nO fator de inflação da variância resume tudo: VIF = 1/(1 − R²aux). A função vif() do pacote car calcula todos de uma vez — a versão moderna das 13 regressões auxiliares.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nRegra prática: VIF &gt; 10 = colinearidade séria; entre 5 e 10, atenção. tmi, renda_fam, idade e idade_marido lideram (na casa de 5–6): variâncias infladas várias vezes. VIF = 6 significa que a variância daquele coeficiente é 6× maior do que seria sem colinearidade — por isso os t encolhem.\n\n\n\n3.1 Exercício 1 — enxugando o modelo\nCorrija removendo as redundâncias: tire renda_fam (fica sal_marido) e idade_marido (fica idade). Compare os VIFs.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nMantenha sal_marido no lugar das duas removidas. Observe os t: variáveis antes “insignificantes” ganham vida.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nmodelo2 &lt;- lm(horas ~ filhos6 + filhos6_18 + idade + esc + salario +\n              horas_marido + esc_marido + sal_marido + tmi + esc_mae + esc_pai,\n              data = horas)\nvif(modelo2) |&gt; sort(decreasing = TRUE) |&gt; round(1)\nsummary(modelo2)\n\n\n\n\n\n3.2 Exercício 2 — o caso da Marinha\nBase clássica de 25 estabelecimentos militares (y = horas de trabalho mensais; x2 a x7, medidas de tamanho fortemente colineares). Estime e calcule os VIFs.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nA função é vif(). Prepare-se para VIFs na casa das centenas — o exemplo é extremo de propósito.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nmarinha &lt;- read.csv(\"dados/marinha.csv\")\nmod_mar &lt;- lm(y ~ x2 + x3 + x4 + x5 + x6 + x7, data = marinha)\nvif(mod_mar) |&gt; round(1)"
-  },
-  {
-    "objectID": "econ2-lab07.html#quando-a-colinearidade-não-é-problema",
-    "href": "econ2-lab07.html#quando-a-colinearidade-não-é-problema",
-    "title": "Laboratório 7 — Multicolinearidade",
-    "section": "4 Quando a colinearidade NÃO é problema",
-    "text": "4 Quando a colinearidade NÃO é problema\nSe o objetivo é previsão, a colinearidade pouco importa: as previsões continuam válidas dentro do padrão dos dados. Ela só é grave quando queremos interpretar coeficientes individuais. E lembre: multicolinearidade perfeita (correlação = 1) impede a estimação — o R remove a variável automaticamente com um aviso; a alta infla variâncias, mas os estimadores seguem não viesados."
-  },
-  {
-    "objectID": "econ2-lab07.html#glossário-funções-novas-deste-laboratório",
-    "href": "econ2-lab07.html#glossário-funções-novas-deste-laboratório",
-    "title": "Laboratório 7 — Multicolinearidade",
-    "section": "5 Glossário — funções novas deste laboratório",
-    "text": "5 Glossário — funções novas deste laboratório\n\n\n\nFunção\nO que faz\n\n\n\n\ncor(df)\nMatriz de correlações de várias colunas.\n\n\nsummary(m)$r.squared\nExtrai só o R² do modelo.\n\n\nvif() (car)\nFator de inflação da variância de cada X."
-  },
-  {
-    "objectID": "econ2-lab07.html#exercícios-avaliativos",
-    "href": "econ2-lab07.html#exercícios-avaliativos",
-    "title": "Laboratório 7 — Multicolinearidade",
-    "section": "6 Exercícios avaliativos",
-    "text": "6 Exercícios avaliativos\n\n\n\n\n\n\nImportanteVale nota\n\n\n\nAs respostas destes exercícios são cobradas no questionário da disciplina, no SIGAA. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — sem a solução. Anote os valores obtidos antes de responder no SIGAA.\n\n\n\n6.1 Questão 1\nNa base horas_trabalho.csv, calcule a CORRELAÇÃO entre idade e idade_marido, e entre renda_fam e sal_marido.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nUse cor() nos dois pares de colunas. São as correlações que motivam a remoção de uma variável de cada par.\n\n\n\n\n\n6.2 Questão 2\nNo modelo completo das horas de trabalho, calcule os VIF de esc (escolaridade da esposa) e esc_marido. O que se conclui?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nCuidado: 6,2 é o VIF de tmi e 5,5 o de renda_fam (as variáveis realmente problemáticas, vistas na página).\n\n\n\n\n\n6.3 Questão 3\nNo modelo y ~ x2 + … + x7 da base marinha.csv, informe o R² e o MAIOR VIF encontrado.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nRode a regressão e depois vif(). Com n = 25 e 6 regressores, o modelo é frágil mesmo com VIF moderado."
-  },
-  {
-    "objectID": "r-aula10.html",
-    "href": "r-aula10.html",
-    "title": "Aula 10 — Análise de séries de tempo",
-    "section": "",
-    "text": "Esta aula consolida os Labs 7 e 9 num único fluxo com os preços mensais (series_tempo.csv): boi gordo, soja e PETR4."
-  },
-  {
-    "objectID": "r-aula10.html#preparar-e-decompor",
-    "href": "r-aula10.html#preparar-e-decompor",
-    "title": "Aula 10 — Análise de séries de tempo",
-    "section": "1 Preparar e decompor",
-    "text": "1 Preparar e decompor"
-  },
-  {
-    "objectID": "r-aula10.html#estacionariedade",
-    "href": "r-aula10.html#estacionariedade",
-    "title": "Aula 10 — Análise de séries de tempo",
-    "section": "2 Estacionariedade",
-    "text": "2 Estacionariedade\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nNível: não estacionário (I(1)); log-diferença: estacionária (I(0)). Todo o restante da aula trabalha com séries transformadas ou modelos que absorvem a raiz unitária (o “d” do ARIMA)."
-  },
-  {
-    "objectID": "r-aula10.html#arima-com-diagnóstico",
-    "href": "r-aula10.html#arima-com-diagnóstico",
-    "title": "Aula 10 — Análise de séries de tempo",
-    "section": "3 ARIMA com diagnóstico",
-    "text": "3 ARIMA com diagnóstico\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nauto.arima escolheu a ordem pelos critérios de informação; o Ljung-Box com valor-p alto valida os resíduos como ruído branco; e o leque de previsão alarga com o horizonte. O ciclo identificar–estimar–diagnosticar–prever, em quatro linhas.\n\n\n\n3.1 Exercício 1 — ARIMA do boi\nRode o fluxo completo para o boi gordo: auto.arima → checkresiduals → previsão de 6 meses.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nA coluna é boi; a função, auto.arima.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nboi &lt;- ts(precos$boi, start = c(2006, 3), frequency = 12)\nmod_boi &lt;- auto.arima(boi)\ncheckresiduals(mod_boi)\nplot(forecast(mod_boi, h = 6))"
-  },
-  {
-    "objectID": "r-aula10.html#var-e-causalidade-de-granger",
-    "href": "r-aula10.html#var-e-causalidade-de-granger",
-    "title": "Aula 10 — Análise de séries de tempo",
-    "section": "4 VAR e causalidade de Granger",
-    "text": "4 VAR e causalidade de Granger\nNo VAR, cada série responde às defasagens de todas. A pergunta de Granger: o passado de X ajuda a prever Y além do próprio passado de Y? causality() (nova, pacote vars) testa.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nDois testes espelhados: “Chicago Granger-causa Brasil?” e o inverso. O padrão esperado — e o achado clássico da literatura de transmissão de preços — é a causalidade de fora para dentro: o mercado americano prevê o brasileiro, não o contrário. Atenção ao nome: causalidade de Granger é precedência preditiva, não causalidade estrutural.\n\n\n\n4.1 Exercício 2 — diagnóstico do VAR\nValide o VAR: serial.test() checa autocorrelação residual do sistema (H0: sem autocorrelação).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nA função é serial.test. Valor-p alto = sistema bem especificado; baixo = aumente p no VAR.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nserial.test(var1, lags.pt = 12)"
-  },
-  {
-    "objectID": "r-aula10.html#glossário-da-aula",
-    "href": "r-aula10.html#glossário-da-aula",
-    "title": "Aula 10 — Análise de séries de tempo",
-    "section": "5 Glossário da aula",
-    "text": "5 Glossário da aula\n\n\n\nFunção\nO que faz\n\n\n\n\nauto.arima / checkresiduals\nOrdem automática / diagnóstico.\n\n\ncausality() (vars)\nTeste de causalidade de Granger.\n\n\nserial.test() (vars)\nAutocorrelação residual do VAR."
+    "objectID": "index.html#curso-de-r-unidade-7",
+    "href": "index.html#curso-de-r-unidade-7",
+    "title": "Econometria Interativa",
+    "section": "Curso de R — Unidade 7",
+    "text": "Curso de R — Unidade 7\n\n\n\n#\nAula\n\n\n\n\n1\nIntrodução ao R\n\n\n2\nEstrutura dos dados\n\n\n3\nRegressão linear simples\n\n\n4\nRegressão múltipla\n\n\n5\nFormas funcionais\n\n\n6\nVariáveis qualitativas\n\n\n7\nHeterocedasticidade\n\n\n8\nAutocorrelação\n\n\n9\nEspecificação da regressão\n\n\n10\nSéries de tempo\n\n\n11\nMachine Learning\n\n\n\n\n\n\n\n\n\nNotaComo usar\n\n\n\nCada página tem blocos de código com o botão Run Code. Rode os blocos na ordem: os primeiros carregam os dados usados pelos seguintes. Exercícios têm Dica e Solução — tente antes de abrir a solução."
   },
   {
     "objectID": "econ2-lab09.html",
@@ -560,32 +574,95 @@
     "text": "6 Exercícios avaliativos\n\n\n\n\n\n\nImportanteVale nota\n\n\n\nAs respostas destes exercícios são cobradas no questionário da disciplina, no SIGAA. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — sem a solução. Anote os valores obtidos antes de responder no SIGAA.\n\n\n\n6.1 Questão 1\nCompare o teste RESET do modelo LINEAR (salario ~ escolaridade + experiencia) com o da forma LOG-LIN. Quais os valores de F?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nRode resettest() nos dois modelos e compare os F. A queda acentuada é o argumento a favor da equação minceriana.\n\n\n\n\n\n6.2 Questão 2\nNa equação minceriana log(salario) ~ escolaridade + experiencia, qual o RETORNO PERCENTUAL de um ano adicional de estudo?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nEm log-lin, multiplique o coeficiente por 100. Cuidado: 1,42 é o coeficiente em NÍVEL (dólares por hora), não o percentual.\n\n\n\n\n\n6.3 Questão 3\nAplique o teste de Jarque-Bera aos resíduos da equação minceriana (log). Qual a conclusão a 5%?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nCuidado: JB aprox. 1,14 é o resultado do modelo de NATALIDADE (n = 20), visto na página.\n\n\n\n\n\n6.4 Questão 4\nCompare o R² do modelo COMPLETO da taxa de aborto (7 explicativas) com o de um modelo REDUZIDO (religiao, preco, esc, renda). Qual a diferença?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nEstime os dois modelos e compare os R². O R² sempre cai ao remover variáveis - o que importa é a magnitude da queda."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Econometria Interativa",
+    "objectID": "r-aula10.html",
+    "href": "r-aula10.html",
+    "title": "Aula 10 — Análise de séries de tempo",
     "section": "",
-    "text": "Bem-vindo! Nesta página estão os laboratórios interativos de Econometria I e II e o curso de R da disciplina. Em todas as páginas o R roda no seu navegador — nada precisa ser instalado."
+    "text": "Esta aula consolida os Labs 7 e 9 num único fluxo com os preços mensais (series_tempo.csv): boi gordo, soja e PETR4."
   },
   {
-    "objectID": "index.html#econometria-i-laboratórios",
-    "href": "index.html#econometria-i-laboratórios",
-    "title": "Econometria Interativa",
-    "section": "Econometria I — Laboratórios",
-    "text": "Econometria I — Laboratórios\n\n\n\n#\nLaboratório\nTema\n\n\n\n\n1\nExplorando dados\nPrimeiro contato com dados e correlação\n\n\n2\nAnalisando e visualizando dados\nGráficos e tabelas dinâmicas\n\n\n3\nIntrodução à estatística\nDescritivas, intervalos e testes\n\n\n4\nRegressão linear\nRegressão simples e múltipla\n\n\n5\nFormas funcionais\nLog-linear, log-lin, lin-log\n\n\n6\nVariáveis qualitativas\nDummies, sazonalidade e mudança estrutural\n\n\n7\nSéries temporais\nDecomposição, estacionariedade e cointegração\n\n\n8\nModelos de volatilidade\nARCH e GARCH\n\n\n9\nPrevisão econômica\nBox-Jenkins e VAR"
+    "objectID": "r-aula10.html#preparar-e-decompor",
+    "href": "r-aula10.html#preparar-e-decompor",
+    "title": "Aula 10 — Análise de séries de tempo",
+    "section": "1 Preparar e decompor",
+    "text": "1 Preparar e decompor"
   },
   {
-    "objectID": "index.html#econometria-ii-diagnóstico-de-regressão",
-    "href": "index.html#econometria-ii-diagnóstico-de-regressão",
-    "title": "Econometria Interativa",
-    "section": "Econometria II — Diagnóstico de regressão",
-    "text": "Econometria II — Diagnóstico de regressão\n\n\n\n#\nLaboratório\nTema\n\n\n\n\n7\nMulticolinearidade\nDetecção e correção\n\n\n8\nHeterocedasticidade e autocorrelação\nTestes e erros-padrão robustos\n\n\n9\nEspecificação do modelo\nRESET, variáveis omitidas e proxies"
+    "objectID": "r-aula10.html#estacionariedade",
+    "href": "r-aula10.html#estacionariedade",
+    "title": "Aula 10 — Análise de séries de tempo",
+    "section": "2 Estacionariedade",
+    "text": "2 Estacionariedade\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nNível: não estacionário (I(1)); log-diferença: estacionária (I(0)). Todo o restante da aula trabalha com séries transformadas ou modelos que absorvem a raiz unitária (o “d” do ARIMA)."
   },
   {
-    "objectID": "index.html#curso-de-r-unidade-7",
-    "href": "index.html#curso-de-r-unidade-7",
-    "title": "Econometria Interativa",
-    "section": "Curso de R — Unidade 7",
-    "text": "Curso de R — Unidade 7\n\n\n\n#\nAula\n\n\n\n\n1\nIntrodução ao R\n\n\n2\nEstrutura dos dados\n\n\n3\nRegressão linear simples\n\n\n4\nRegressão múltipla\n\n\n5\nFormas funcionais\n\n\n6\nVariáveis qualitativas\n\n\n7\nHeterocedasticidade\n\n\n8\nAutocorrelação\n\n\n9\nEspecificação da regressão\n\n\n10\nSéries de tempo\n\n\n11\nMachine Learning\n\n\n\n\n\n\n\n\n\nNotaComo usar\n\n\n\nCada página tem blocos de código com o botão Run Code. Rode os blocos na ordem: os primeiros carregam os dados usados pelos seguintes. Exercícios têm Dica e Solução — tente antes de abrir a solução."
+    "objectID": "r-aula10.html#arima-com-diagnóstico",
+    "href": "r-aula10.html#arima-com-diagnóstico",
+    "title": "Aula 10 — Análise de séries de tempo",
+    "section": "3 ARIMA com diagnóstico",
+    "text": "3 ARIMA com diagnóstico\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nauto.arima escolheu a ordem pelos critérios de informação; o Ljung-Box com valor-p alto valida os resíduos como ruído branco; e o leque de previsão alarga com o horizonte. O ciclo identificar–estimar–diagnosticar–prever, em quatro linhas.\n\n\n\n3.1 Exercício 1 — ARIMA do boi\nRode o fluxo completo para o boi gordo: auto.arima → checkresiduals → previsão de 6 meses.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nA coluna é boi; a função, auto.arima.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nboi &lt;- ts(precos$boi, start = c(2006, 3), frequency = 12)\nmod_boi &lt;- auto.arima(boi)\ncheckresiduals(mod_boi)\nplot(forecast(mod_boi, h = 6))"
+  },
+  {
+    "objectID": "r-aula10.html#var-e-causalidade-de-granger",
+    "href": "r-aula10.html#var-e-causalidade-de-granger",
+    "title": "Aula 10 — Análise de séries de tempo",
+    "section": "4 VAR e causalidade de Granger",
+    "text": "4 VAR e causalidade de Granger\nNo VAR, cada série responde às defasagens de todas. A pergunta de Granger: o passado de X ajuda a prever Y além do próprio passado de Y? causality() (nova, pacote vars) testa.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nDois testes espelhados: “Chicago Granger-causa Brasil?” e o inverso. O padrão esperado — e o achado clássico da literatura de transmissão de preços — é a causalidade de fora para dentro: o mercado americano prevê o brasileiro, não o contrário. Atenção ao nome: causalidade de Granger é precedência preditiva, não causalidade estrutural.\n\n\n\n4.1 Exercício 2 — diagnóstico do VAR\nValide o VAR: serial.test() checa autocorrelação residual do sistema (H0: sem autocorrelação).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nA função é serial.test. Valor-p alto = sistema bem especificado; baixo = aumente p no VAR.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nserial.test(var1, lags.pt = 12)"
+  },
+  {
+    "objectID": "r-aula10.html#glossário-da-aula",
+    "href": "r-aula10.html#glossário-da-aula",
+    "title": "Aula 10 — Análise de séries de tempo",
+    "section": "5 Glossário da aula",
+    "text": "5 Glossário da aula\n\n\n\nFunção\nO que faz\n\n\n\n\nauto.arima / checkresiduals\nOrdem automática / diagnóstico.\n\n\ncausality() (vars)\nTeste de causalidade de Granger.\n\n\nserial.test() (vars)\nAutocorrelação residual do VAR."
+  },
+  {
+    "objectID": "econ2-lab07.html",
+    "href": "econ2-lab07.html",
+    "title": "Laboratório 7 — Multicolinearidade",
+    "section": "",
+    "text": "Este laboratório abre o bloco de diagnóstico: verificar as premissas do Modelo Clássico (Lab 1 a 6 as assumiram válidas). Começamos pela premissa 5 — ausência de relações lineares perfeitas entre os X. A base é a oferta de trabalho de 753 mulheres casadas, com 13 variáveis explicativas — várias delas parentes próximas (idade e idade do marido; renda familiar e salário do marido…)."
+  },
+  {
+    "objectID": "econ2-lab07.html#diagnóstico-1-a-matriz-de-correlações",
+    "href": "econ2-lab07.html#diagnóstico-1-a-matriz-de-correlações",
+    "title": "Laboratório 7 — Multicolinearidade",
+    "section": "1 Diagnóstico 1: a matriz de correlações",
+    "text": "1 Diagnóstico 1: a matriz de correlações\nCorrelação alta (acima de 0,8) entre dois X é o sinal mais simples. cor() aplicado a um data frame devolve a matriz completa.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nidade × idade_marido e renda_fam × sal_marido mostram correlações muito altas — cônjuges têm idades parecidas, e o salário do marido é o grosso da renda familiar. São os pares que inflam as variâncias dos estimadores."
+  },
+  {
+    "objectID": "econ2-lab07.html#diagnóstico-2-regressões-auxiliares",
+    "href": "econ2-lab07.html#diagnóstico-2-regressões-auxiliares",
+    "title": "Laboratório 7 — Multicolinearidade",
+    "section": "2 Diagnóstico 2: regressões auxiliares",
+    "text": "2 Diagnóstico 2: regressões auxiliares\nA regressão auxiliar regride um X contra todos os outros: R² auxiliar alto = aquela variável é quase combinação linear das demais. (No Lab do Excel eram 13 regressões à mão; aqui, uma linha por variável.)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nO R² auxiliar da renda familiar é alto — ela é amplamente explicada pelas demais (sobretudo pelo salário do marido). A regra de Klein: colinearidade preocupa quando o R² auxiliar supera o R² do modelo principal (0,36). Aqui, supera com folga."
+  },
+  {
+    "objectID": "econ2-lab07.html#diagnóstico-3-o-vif",
+    "href": "econ2-lab07.html#diagnóstico-3-o-vif",
+    "title": "Laboratório 7 — Multicolinearidade",
+    "section": "3 Diagnóstico 3: o VIF",
+    "text": "3 Diagnóstico 3: o VIF\nO fator de inflação da variância resume tudo: VIF = 1/(1 − R²aux). A função vif() do pacote car calcula todos de uma vez — a versão moderna das 13 regressões auxiliares.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaComo ler essa saída\n\n\n\nRegra prática: VIF &gt; 10 = colinearidade séria; entre 5 e 10, atenção. tmi, renda_fam, idade e idade_marido lideram (na casa de 5–6): variâncias infladas várias vezes. VIF = 6 significa que a variância daquele coeficiente é 6× maior do que seria sem colinearidade — por isso os t encolhem.\n\n\n\n3.1 Exercício 1 — enxugando o modelo\nCorrija removendo as redundâncias: tire renda_fam (fica sal_marido) e idade_marido (fica idade). Compare os VIFs.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nMantenha sal_marido no lugar das duas removidas. Observe os t: variáveis antes “insignificantes” ganham vida.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nmodelo2 &lt;- lm(horas ~ filhos6 + filhos6_18 + idade + esc + salario +\n              horas_marido + esc_marido + sal_marido + tmi + esc_mae + esc_pai,\n              data = horas)\nvif(modelo2) |&gt; sort(decreasing = TRUE) |&gt; round(1)\nsummary(modelo2)\n\n\n\n\n\n3.2 Exercício 2 — o caso da Marinha\nBase clássica de 25 estabelecimentos militares (y = horas de trabalho mensais; x2 a x7, medidas de tamanho fortemente colineares). Estime e calcule os VIFs.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nA função é vif(). Prepare-se para VIFs na casa das centenas — o exemplo é extremo de propósito.\n\n\n\n\n\n\n\n\n\nNotaSolução\n\n\n\n\n\nmarinha &lt;- read.csv(\"dados/marinha.csv\")\nmod_mar &lt;- lm(y ~ x2 + x3 + x4 + x5 + x6 + x7, data = marinha)\nvif(mod_mar) |&gt; round(1)"
+  },
+  {
+    "objectID": "econ2-lab07.html#quando-a-colinearidade-não-é-problema",
+    "href": "econ2-lab07.html#quando-a-colinearidade-não-é-problema",
+    "title": "Laboratório 7 — Multicolinearidade",
+    "section": "4 Quando a colinearidade NÃO é problema",
+    "text": "4 Quando a colinearidade NÃO é problema\nSe o objetivo é previsão, a colinearidade pouco importa: as previsões continuam válidas dentro do padrão dos dados. Ela só é grave quando queremos interpretar coeficientes individuais. E lembre: multicolinearidade perfeita (correlação = 1) impede a estimação — o R remove a variável automaticamente com um aviso; a alta infla variâncias, mas os estimadores seguem não viesados."
+  },
+  {
+    "objectID": "econ2-lab07.html#glossário-funções-novas-deste-laboratório",
+    "href": "econ2-lab07.html#glossário-funções-novas-deste-laboratório",
+    "title": "Laboratório 7 — Multicolinearidade",
+    "section": "5 Glossário — funções novas deste laboratório",
+    "text": "5 Glossário — funções novas deste laboratório\n\n\n\nFunção\nO que faz\n\n\n\n\ncor(df)\nMatriz de correlações de várias colunas.\n\n\nsummary(m)$r.squared\nExtrai só o R² do modelo.\n\n\nvif() (car)\nFator de inflação da variância de cada X."
+  },
+  {
+    "objectID": "econ2-lab07.html#exercícios-avaliativos",
+    "href": "econ2-lab07.html#exercícios-avaliativos",
+    "title": "Laboratório 7 — Multicolinearidade",
+    "section": "6 Exercícios avaliativos",
+    "text": "6 Exercícios avaliativos\n\n\n\n\n\n\nImportanteVale nota\n\n\n\nAs respostas destes exercícios são cobradas no questionário da disciplina, no SIGAA. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — sem a solução. Anote os valores obtidos antes de responder no SIGAA.\n\n\n\n6.1 Questão 1\nNa base horas_trabalho.csv, calcule a CORRELAÇÃO entre idade e idade_marido, e entre renda_fam e sal_marido.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nUse cor() nos dois pares de colunas. São as correlações que motivam a remoção de uma variável de cada par.\n\n\n\n\n\n6.2 Questão 2\nNo modelo completo das horas de trabalho, calcule os VIF de esc (escolaridade da esposa) e esc_marido. O que se conclui?\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nCuidado: 6,2 é o VIF de tmi e 5,5 o de renda_fam (as variáveis realmente problemáticas, vistas na página).\n\n\n\n\n\n6.3 Questão 3\nNo modelo y ~ x2 + … + x7 da base marinha.csv, informe o R² e o MAIOR VIF encontrado.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDicaDica\n\n\n\n\n\nRode a regressão e depois vif(). Com n = 25 e 6 regressores, o modelo é frágil mesmo com VIF moderado."
   },
   {
     "objectID": "econ1-lab06.html",
