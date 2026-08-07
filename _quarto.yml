@@ -26,6 +26,9 @@ website:
           - econ2-lab07.qmd
           - econ2-lab08.qmd
           - econ2-lab09.qmd
+      - text: "Aplicações"
+        menu:
+          - aplic-econ1-u1.qmd
       - text: "Curso de R"
         menu:
           - r-aula01.qmd
