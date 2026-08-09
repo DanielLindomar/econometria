@@ -1,0 +1,261 @@
+---
+title: "Projeto 8 — O que move as exportações de soja"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+    - prais
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, a correção adotada e o efeito dela sobre a inferência |
+| **3ª** | Especificação | O teste RESET, o modelo final e a comparação antes/depois |
+
+Cada etapa abaixo corresponde a uma dessas entregas.
+:::
+
+## O caso
+
+Mato Grosso responde por cerca de um terço da soja brasileira, e a soja responde por parte relevante do saldo comercial do país. Prever o volume exportado interessa a portos, ferrovias, tradings e ao próprio governo, que projeta a balança comercial a partir dessas séries.
+
+Três forças agem sobre o volume embarcado: o **preço internacional**, que torna a exportação mais atrativa; a **taxa de câmbio**, que determina quanto o produtor recebe em reais; e a **produção** da safra, que estabelece o teto físico do que se pode embarcar. A isso se soma um padrão sazonal fortíssimo — a colheita se concentra entre fevereiro e maio, e os embarques acompanham.
+
+A pergunta que você vai responder:
+
+> **Como preço internacional, câmbio e safra determinam o volume exportado?**
+
+## A base
+
+Os dados vêm do **Painel de Comércio Exterior do Agronegócio — Mato Grosso**, com **156 meses, de janeiro de 2013 a dezembro de 2025**.
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza de levantamentos reais do setor. As unidades observadas não existem, e os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira.
+:::
+
+```{webr}
+meses <- read.csv("dados/exportacoes_soja.csv")
+head(meses)
+summary(meses)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `mes` | Mês de referência | AAAA-MM |
+| `exportacoes_mi_t` | Volume exportado de soja em grão | milhões de toneladas |
+| `preco_chicago` | Cotação da soja na Bolsa de Chicago | centavos de dólar/bushel |
+| `cambio` | Taxa de câmbio média do mês | R\$/US\$ |
+| `producao_mi_t` | Produção acumulada da safra | milhões de toneladas |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+library(ggplot2)
+ggplot(meses, aes(preco_chicago, exportacoes_mi_t)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Preço em Chicago (cents/bushel)", y = "Exportações (mi t)") + theme_minimal()
+```
+
+```{webr}
+ggplot(meses, aes(cambio, exportacoes_mi_t)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Câmbio (R$/US$)", y = "Exportações (mi t)") + theme_minimal()
+```
+
+```{webr}
+ggplot(meses, aes(producao_mi_t, exportacoes_mi_t)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Produção da safra (mi t)", y = "Exportações (mi t)") + theme_minimal()
+```
+
+```{webr}
+round(cor(meses[, c("exportacoes_mi_t", "preco_chicago", "cambio", "producao_mi_t")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva a série: período, volume médio mensal, maior e menor embarque.
+2. Faça o gráfico das exportações ao longo do tempo. **Descreva o padrão que se repete todo ano** e explique-o pelo calendário agrícola.
+3. A dispersão do volume é a mesma em todos os níveis? Compare meses de pico e de entressafra.
+4. Faça o gráfico das exportações contra o preço de Chicago. A relação parece linear?
+5. Escreva a equação que você vai estimar e justifique cada variável.
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(exportacoes_mi_t ~ preco_chicago + cambio + producao_mi_t, data = meses)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+```
+
+```{webr}
+# cada explicativa isolada, para comparar
+summary(lm(exportacoes_mi_t ~ preco_chicago, data = meses))$coefficients
+summary(lm(exportacoes_mi_t ~ cambio, data = meses))$coefficients
+```
+
+```{webr}
+modelo_loglog <- lm(log(exportacoes_mi_t) ~ log(preco_chicago) + log(cambio) + producao_mi_t, data = meses)
+summary(modelo_loglog)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados e interprete cada coeficiente.
+2. Reporte os VIF.
+3. O coeficiente do câmbio tem o sinal esperado? E o do preço internacional?
+4. A sazonalidade não está no modelo. Que consequência isso tem para os resíduos? Adiante o que você espera encontrar na Etapa 3.
+5. Qual sua decisão sobre a especificação até aqui?
+:::
+
+---
+
+# Etapa 3 — Autocorrelação e heterocedasticidade
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+meses$tempo <- 1:nrow(meses)
+meses$residuo <- resid(modelo1)
+ggplot(meses, aes(tempo, residuo)) +
+  geom_line(colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Meses desde o início da série", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+acf(resid(modelo1), lag.max = 24, main = "Autocorrelação dos resíduos")
+```
+
+```{webr}
+library(lmtest)
+dwtest(modelo1)
+bgtest(modelo1, order = 4)
+bgtest(modelo1, order = 12)
+bptest(modelo1)
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1, vcov = NeweyWest(modelo1, lag = 4, prewhite = FALSE))
+```
+
+```{webr}
+library(prais)
+prais_winsten(exportacoes_mi_t ~ preco_chicago + cambio + producao_mi_t, data = meses, index = "tempo")
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Faça o gráfico dos resíduos contra o tempo. O padrão sazonal aparece neles?
+2. Reporte o Durbin-Watson e o Breusch-Godfrey com 4 e 12 defasagens. Por que a defasagem 12 é especialmente informativa aqui?
+3. Reporte também o Breusch-Pagan. Há heterocedasticidade **além** da autocorrelação?
+4. Acrescente **dummies mensais** ao modelo e refaça o Breusch-Godfrey. A autocorrelação diminui? O que isso indica sobre a origem dela?
+5. Compare erros-padrão clássicos, Newey-West e o modelo com dummies. Qual estratégia você adota?
+:::
+
+---
+
+# Etapa 4 — Especificação e modelo final
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+resettest(modelo1, power = 2:3, type = "fitted")
+```
+
+```{webr}
+modelo_loglog <- lm(log(exportacoes_mi_t) ~ log(preco_chicago) + log(cambio) + producao_mi_t, data = meses)
+summary(modelo_loglog)
+resettest(modelo_loglog, power = 2:3, type = "fitted")
+```
+
+```{webr}
+# atenção: AIC e R2 NÃO são comparáveis entre modelos com variáveis
+# dependentes diferentes. A comparação abaixo é entre os resíduos,
+# cada um na sua própria escala.
+c(sigma_modelo1 = summary(modelo1)$sigma,
+  sigma_alternativo = summary(modelo_loglog)$sigma)
+coeftest(modelo_loglog, vcov = vcovHC(modelo_loglog, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O RESET rejeita a especificação em nível? Reporte a estatística.
+2. Estime a versão **log-log** (exportações, preço e câmbio em logaritmo). Rode o RESET e o Breusch-Pagan de novo.
+3. Interprete os coeficientes do modelo log-log como **elasticidades**. A oferta de exportação é elástica ao preço?
+4. Compare os dois modelos pelo AIC e pelo comportamento dos resíduos. Qual você adota?
+5. Monte a tabela final, escreva o parágrafo de resultados e feche com as limitações.
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina admitindo um problema não resolvido vale mais do que um que o esconde.
+:::

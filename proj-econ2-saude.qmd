@@ -1,0 +1,255 @@
+---
+title: "Projeto 2 — Por que uns municípios gastam mais em saúde que outros"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, a correção adotada e o efeito dela sobre a inferência |
+| **3ª** | Especificação | O teste RESET, o modelo final e a comparação antes/depois |
+
+Cada etapa abaixo corresponde a uma dessas entregas.
+:::
+
+## O caso
+
+A Constituição obriga cada município a aplicar ao menos 15% da receita própria em saúde, mas o gasto efetivo varia enormemente entre eles — há municípios que gastam menos de R\$ 500 por habitante ao ano e outros que passam de R\$ 2 mil. Entender essa diferença interessa a quem desenha a política de repasses federais e a quem fiscaliza a aplicação do piso.
+
+A hipótese usual combina **capacidade de arrecadação** e **necessidade**. Municípios mais ricos conseguem gastar mais; municípios com população mais envelhecida precisam gastar mais. E há a questão da escala: prefeituras pequenas talvez tenham custo por habitante maior, porque a estrutura mínima de um hospital ou de uma UBS não encolhe na proporção da população.
+
+A pergunta que você vai responder:
+
+> **O que explica a diferença de gasto em saúde por habitante entre os municípios?**
+
+## A base
+
+Os dados vêm do **Painel de Finanças Municipais de Mato Grosso (PFM-MT), exercício de 2024**, com **141 municípios de Mato Grosso**.
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza de levantamentos reais do setor. As unidades observadas não existem, e os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira.
+:::
+
+```{webr}
+municipios <- read.csv("dados/saude_municipios.csv")
+head(municipios)
+summary(municipios)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `gasto_saude_pc` | Gasto municipal em saúde por habitante, no ano | R\$/hab |
+| `populacao_mil` | População residente | mil habitantes |
+| `pib_mil` | PIB municipal | R\$ milhões |
+| `receita_pc` | Receita corrente líquida por habitante | R\$ mil/hab |
+| `perc_idosos` | Proporção da população com 60 anos ou mais | % |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+library(ggplot2)
+ggplot(municipios, aes(receita_pc, gasto_saude_pc)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Receita por habitante (R$ mil)", y = "Gasto em saúde (R$/hab)") + theme_minimal()
+```
+
+```{webr}
+ggplot(municipios, aes(perc_idosos, gasto_saude_pc)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "População com 60+ (%)", y = "Gasto em saúde (R$/hab)") + theme_minimal()
+```
+
+```{webr}
+ggplot(municipios, aes(populacao_mil, gasto_saude_pc)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "População (mil habitantes)", y = "Gasto em saúde (R$/hab)") + theme_minimal()
+```
+
+```{webr}
+round(cor(municipios[, c("gasto_saude_pc", "populacao_mil", "pib_mil", "receita_pc", "perc_idosos")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva a amostra: quantos municípios, qual a faixa de gasto por habitante, qual o município mediano.
+2. Qual variável parece explicar melhor o gasto? Alguma relação surpreende em relação ao que a teoria previa?
+3. Olhe a matriz de correlações. **Há um par de variáveis que praticamente carrega a mesma informação.** Qual é, e por que isso era esperado do ponto de vista econômico?
+4. Faça o gráfico de população contra PIB. O que ele mostra?
+5. Escreva a equação que você vai estimar e justifique cada variável.
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(gasto_saude_pc ~ populacao_mil + pib_mil + receita_pc + perc_idosos, data = municipios)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+```
+
+```{webr}
+# cada explicativa isolada, para comparar
+summary(lm(gasto_saude_pc ~ populacao_mil, data = municipios))$coefficients
+summary(lm(gasto_saude_pc ~ pib_mil, data = municipios))$coefficients
+```
+
+```{webr}
+modelo_sem_pib <- lm(gasto_saude_pc ~ populacao_mil + receita_pc + perc_idosos, data = municipios)
+summary(modelo_sem_pib)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados no formato de um artigo e interprete o sinal e a magnitude de cada coeficiente em reais por habitante.
+2. Os VIF são altos para duas variáveis. Quais, e o que isso significa em termos da informação disponível na amostra?
+3. Compare os coeficientes de `populacao_mil` e `pib_mil` no modelo completo com os das regressões simples. O que muda? Algum sinal se inverte?
+4. Estime o modelo sem o PIB. O coeficiente da população muda muito? Isso é ganho ou perda?
+5. Qual sua decisão: manter as duas, retirar uma, ou construir uma variável combinada (por exemplo, PIB por habitante)? Defenda à luz do objetivo do trabalho.
+:::
+
+---
+
+# Etapa 3 — Heterocedasticidade e autocorrelação
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+municipios$residuo <- resid(modelo1)
+ggplot(municipios, aes(fitted(modelo1), residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Valores ajustados", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+ggplot(municipios, aes(populacao_mil, residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "População residente", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+library(lmtest)
+bptest(modelo1)
+bptest(modelo1, ~ populacao_mil + I(populacao_mil^2) + pib_mil + I(pib_mil^2) + receita_pc + I(receita_pc^2) + perc_idosos, data = municipios)
+```
+
+```{webr}
+dwtest(modelo1)
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1, vcov = vcovHC(modelo1, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Os resíduos apresentam padrão em relação aos valores ajustados? E em relação à população?
+2. Reporte o Breusch-Pagan e o teste de White com estatística e valor-p. Eles concordam?
+3. O teste de Durbin-Watson faz sentido nesta base? Justifique a partir da natureza dos dados.
+4. Compare a tabela clássica com a de erros-padrão HC3. O que muda? Alguma conclusão de significância se altera?
+5. Que correção você adota, e por quê? Se optar por não corrigir, justifique.
+:::
+
+---
+
+# Etapa 4 — Especificação e modelo final
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+resettest(modelo1, power = 2:3, type = "fitted")
+```
+
+```{webr}
+modelo_sem_pib <- lm(gasto_saude_pc ~ populacao_mil + receita_pc + perc_idosos, data = municipios)
+summary(modelo_sem_pib)
+resettest(modelo_sem_pib, power = 2:3, type = "fitted")
+```
+
+```{webr}
+AIC(modelo1, modelo_sem_pib)
+coeftest(modelo_sem_pib, vcov = vcovHC(modelo_sem_pib, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O RESET rejeita a especificação? Reporte a estatística e explique em uma frase o que o teste faz.
+2. Faça sentido econômico: o gasto per capita deveria depender da população de forma **linear**? Pense em custo fixo de estrutura e ganho de escala.
+3. Estime uma versão com a população em logaritmo e compare pelo AIC. Melhora?
+4. Monte a tabela final com as especificações lado a lado e escreva o parágrafo de resultados.
+5. Feche com as limitações: o que este modelo **não** permite afirmar sobre a gestão da saúde municipal?
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina admitindo um problema não resolvido vale mais do que um que o esconde.
+:::

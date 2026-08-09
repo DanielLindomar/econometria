@@ -1,0 +1,256 @@
+---
+title: "Projeto 3 — O que explica o desempenho das escolas"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, a correção adotada e o efeito dela sobre a inferência |
+| **3ª** | Especificação | O teste RESET, o modelo final e a comparação antes/depois |
+
+Cada etapa abaixo corresponde a uma dessas entregas.
+:::
+
+## O caso
+
+O IDEB combina aprendizado e fluxo escolar numa nota de 0 a 10, e virou o principal indicador de qualidade da educação básica no Brasil. Explicar por que uma escola vai bem e outra vai mal é a pergunta que orienta política educacional — e é também uma das mais delicadas, porque boa parte da resposta está fora da escola.
+
+A literatura de economia da educação, desde o Relatório Coleman de 1966, encontra que o **nível socioeconômico dos alunos** costuma explicar mais da variação de desempenho do que qualquer insumo escolar. Isso não torna a escola irrelevante: significa que separar o efeito da escola do efeito do contexto exige cuidado. Aqui você vai medir os dois.
+
+A pergunta que você vai responder:
+
+> **Quanto do desempenho de uma escola se explica por características dela própria, e quanto pelo contexto dos alunos?**
+
+## A base
+
+Os dados vêm do **Painel Escolar de Mato Grosso (PEM-MT), edição de 2023**, com **260 escolas públicas de ensino fundamental**.
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza de levantamentos reais do setor. As unidades observadas não existem, e os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira.
+:::
+
+```{webr}
+escolas <- read.csv("dados/ideb_escolas.csv")
+head(escolas)
+summary(escolas)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `ideb` | Nota do IDEB da escola | 0 a 10 |
+| `nse` | Índice de nível socioeconômico dos alunos | 0 a 100 |
+| `matriculas` | Número de alunos matriculados | alunos |
+| `docentes_superior` | Docentes com ensino superior completo | % |
+| `horas_aula` | Duração média da jornada escolar | horas/dia |
+| `laboratorio` | 1 se a escola tem laboratório de informática, 0 caso contrário | — |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+library(ggplot2)
+ggplot(escolas, aes(nse, ideb)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Nível socioeconômico dos alunos", y = "IDEB") + theme_minimal()
+```
+
+```{webr}
+ggplot(escolas, aes(matriculas, ideb)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Matrículas", y = "IDEB") + theme_minimal()
+```
+
+```{webr}
+ggplot(escolas, aes(docentes_superior, ideb)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Docentes com superior (%)", y = "IDEB") + theme_minimal()
+```
+
+```{webr}
+round(cor(escolas[, c("ideb", "nse", "matriculas", "docentes_superior", "horas_aula", "laboratorio")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva a amostra: quantas escolas, qual a faixa de IDEB, qual a proporção com laboratório.
+2. Qual variável tem a relação mais forte com o IDEB? Isso é compatível com o que a literatura encontra?
+3. Observe o gráfico do IDEB contra o nível socioeconômico. **A dispersão dos pontos é a mesma ao longo de todo o eixo?** Descreva o que você vê.
+4. A relação entre matrículas e IDEB parece linear? Compare escolas de 100 e de 1.000 alunos.
+5. Escreva a equação que você vai estimar e justifique cada variável.
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(ideb ~ nse + docentes_superior + matriculas + laboratorio, data = escolas)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+```
+
+```{webr}
+# cada explicativa isolada, para comparar
+summary(lm(ideb ~ nse, data = escolas))$coefficients
+summary(lm(ideb ~ docentes_superior, data = escolas))$coefficients
+```
+
+```{webr}
+modelo_log <- lm(ideb ~ nse + docentes_superior + log(matriculas) + laboratorio, data = escolas)
+summary(modelo_log)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados e interprete cada coeficiente em pontos do IDEB.
+2. Os VIF indicam problema? Compare com o caso das terras, discutido em aula.
+3. O coeficiente de `laboratorio` é o efeito de ter laboratório, ou de ser o tipo de escola que tem laboratório? Discuta.
+4. Se o efeito do nível socioeconômico é o maior de todos, que conclusão de política pública **não** se pode tirar daí?
+5. Alguma variável saiu insignificante? Isso significa que ela não importa?
+:::
+
+---
+
+# Etapa 3 — Heterocedasticidade e autocorrelação
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+escolas$residuo <- resid(modelo1)
+ggplot(escolas, aes(fitted(modelo1), residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Valores ajustados", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+ggplot(escolas, aes(docentes_superior, residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Docentes com ensino superior completo", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+library(lmtest)
+bptest(modelo1)
+bptest(modelo1, ~ nse + I(nse^2) + docentes_superior + I(docentes_superior^2) + matriculas + I(matriculas^2) + laboratorio, data = escolas)
+```
+
+```{webr}
+dwtest(modelo1)
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1, vcov = vcovHC(modelo1, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Faça o gráfico dos resíduos contra o nível socioeconômico. O padrão é claro — descreva-o e diga em que direção a dispersão cresce.
+2. Reporte o Breusch-Pagan e o teste de White. Qual o valor-p de cada um?
+3. Que interpretação **econômica** você dá para o fato de a variância ser maior nas escolas de nível socioeconômico baixo? Pense no que faz uma escola pobre ir bem ou mal.
+4. Compare erros-padrão clássicos e HC3. Alguma conclusão muda?
+5. Se optasse por mínimos quadrados ponderados, que ponderação usaria? Como justificaria a escolha sem conhecer a forma verdadeira da variância?
+:::
+
+---
+
+# Etapa 4 — Especificação e modelo final
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+resettest(modelo1, power = 2:3, type = "fitted")
+```
+
+```{webr}
+modelo_log <- lm(ideb ~ nse + docentes_superior + log(matriculas) + laboratorio, data = escolas)
+summary(modelo_log)
+resettest(modelo_log, power = 2:3, type = "fitted")
+```
+
+```{webr}
+AIC(modelo1, modelo_log)
+coeftest(modelo_log, vcov = vcovHC(modelo_log, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O RESET rejeita a especificação? Reporte a estatística.
+2. Estime a versão com `log(matriculas)` e compare pelo AIC e pelo R². Qual especificação você adota?
+3. Interprete o coeficiente de `log(matriculas)`: o que acontece com o IDEB quando a escola dobra de tamanho?
+4. Monte a tabela final com as especificações lado a lado e escreva o parágrafo de resultados.
+5. Feche com as limitações — em especial, o que a ausência de dados sobre gestão e sobre o histórico do aluno impede de concluir.
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina admitindo um problema não resolvido vale mais do que um que o esconde.
+:::

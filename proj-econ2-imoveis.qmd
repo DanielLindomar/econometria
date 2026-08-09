@@ -1,0 +1,260 @@
+---
+title: "Projeto 5 — Quanto vale um apartamento em Sinop"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, a correção adotada e o efeito dela sobre a inferência |
+| **3ª** | Especificação | O teste RESET, o modelo final e a comparação antes/depois |
+
+Cada etapa abaixo corresponde a uma dessas entregas.
+:::
+
+## O caso
+
+Avaliar imóveis é uma das aplicações mais antigas e mais lucrativas da econometria. Bancos precisam do valor para conceder financiamento, prefeituras para calcular o IPTU, e a norma técnica brasileira de avaliação de imóveis (NBR 14653) exige explicitamente um modelo de regressão com diagnóstico estatístico.
+
+O modelo hedônico, formalizado por Sherwin Rosen em 1974, trata o imóvel como um pacote de características — área, localização, idade, vagas de garagem — e estima quanto o mercado paga por cada uma. A questão prática, e o cerne deste projeto, é **em que escala** essas características entram: um metro quadrado a mais vale o mesmo num apartamento de 60 m² e num de 300 m²?
+
+A pergunta que você vai responder:
+
+> **Quanto o mercado paga por cada característica de um imóvel?**
+
+## A base
+
+Os dados vêm do **Cadastro de Transações Imobiliárias de Sinop (CTI-Sinop), 2024**, com **240 imóveis residenciais transacionados**.
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza de levantamentos reais do setor. As unidades observadas não existem, e os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira.
+:::
+
+```{webr}
+imoveis <- read.csv("dados/imoveis_sinop.csv")
+head(imoveis)
+summary(imoveis)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `preco` | Preço de venda do imóvel | R\$ |
+| `area_m2` | Área privativa | m² |
+| `quartos` | Número de quartos | — |
+| `idade_anos` | Idade do imóvel | anos |
+| `dist_centro_km` | Distância até o centro | km |
+| `garagens` | Vagas de garagem | — |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+library(ggplot2)
+ggplot(imoveis, aes(area_m2, preco)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Área privativa (m²)", y = "Preço (R$)") + theme_minimal()
+```
+
+```{webr}
+ggplot(imoveis, aes(idade_anos, preco)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Idade (anos)", y = "Preço (R$)") + theme_minimal()
+```
+
+```{webr}
+ggplot(imoveis, aes(dist_centro_km, preco)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Distância até o centro (km)", y = "Preço (R$)") + theme_minimal()
+```
+
+```{webr}
+round(cor(imoveis[, c("preco", "area_m2", "quartos", "idade_anos", "dist_centro_km", "garagens")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva a amostra: quantos imóveis, faixa de preços e de áreas.
+2. Faça o gráfico do preço contra a área. **A relação é uma reta?** Olhe com atenção os imóveis maiores.
+3. A dispersão dos preços é a mesma para imóveis pequenos e grandes? O que isso sugere sobre a variância do erro?
+4. Quartos e área devem estar correlacionados. Isso é problema? Verifique na matriz de correlações.
+5. Escreva a equação que você vai estimar e justifique cada variável.
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(preco ~ area_m2 + quartos + idade_anos + dist_centro_km + garagens, data = imoveis)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+```
+
+```{webr}
+# cada explicativa isolada, para comparar
+summary(lm(preco ~ area_m2, data = imoveis))$coefficients
+summary(lm(preco ~ quartos, data = imoveis))$coefficients
+```
+
+```{webr}
+modelo_log <- lm(log(preco) ~ area_m2 + quartos + idade_anos + dist_centro_km + garagens, data = imoveis)
+summary(modelo_log)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados e interprete cada coeficiente em reais.
+2. Reporte os VIF. Área e quartos competem pela mesma informação?
+3. O coeficiente da área diz "cada m² a mais vale X reais". Essa afirmação é plausível para todos os imóveis da amostra? Verifique prevendo o preço de um imóvel de 60 m² e de um de 400 m².
+4. O coeficiente de `quartos` é significativo? Se um quarto a mais não agrega valor mantida a área constante, o que isso significa economicamente?
+5. Qual sua decisão sobre a especificação até aqui?
+:::
+
+---
+
+# Etapa 3 — Heterocedasticidade e autocorrelação
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+imoveis$residuo <- resid(modelo1)
+ggplot(imoveis, aes(fitted(modelo1), residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Valores ajustados", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+ggplot(imoveis, aes(area_m2, residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Área privativa", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+library(lmtest)
+bptest(modelo1)
+bptest(modelo1, ~ area_m2 + I(area_m2^2) + quartos + I(quartos^2) + idade_anos + I(idade_anos^2) + dist_centro_km, data = imoveis)
+```
+
+```{webr}
+dwtest(modelo1)
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1, vcov = vcovHC(modelo1, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Faça o gráfico dos resíduos contra os valores ajustados. Descreva o formato.
+2. Reporte o Breusch-Pagan e o teste de White.
+3. A heterocedasticidade aqui é um problema em si, ou é sintoma de outra coisa? Adiante a hipótese que você vai testar na Etapa 4.
+4. Compare erros-padrão clássicos e HC3.
+5. A NBR 14653 exige verificação de homocedasticidade em laudos de avaliação. Se este fosse um laudo, ele seria aceito? Justifique.
+:::
+
+---
+
+# Etapa 4 — Especificação e modelo final
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+resettest(modelo1, power = 2:3, type = "fitted")
+```
+
+```{webr}
+modelo_log <- lm(log(preco) ~ area_m2 + quartos + idade_anos + dist_centro_km + garagens, data = imoveis)
+summary(modelo_log)
+resettest(modelo_log, power = 2:3, type = "fitted")
+```
+
+```{webr}
+# atenção: AIC e R2 NÃO são comparáveis entre modelos com variáveis
+# dependentes diferentes. A comparação abaixo é entre os resíduos,
+# cada um na sua própria escala.
+c(sigma_modelo1 = summary(modelo1)$sigma,
+  sigma_alternativo = summary(modelo_log)$sigma)
+coeftest(modelo_log, vcov = vcovHC(modelo_log, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O RESET rejeita a especificação em nível? Reporte a estatística — ela é das mais fortes que você vai encontrar.
+2. Estime o modelo com o **preço em logaritmo**. Rode o RESET de novo e o Breusch-Pagan de novo. O que aconteceu com os dois problemas?
+3. Interprete o coeficiente da área no modelo log: o que significa, em variação percentual do preço, um metro quadrado a mais?
+4. Compare as previsões dos dois modelos para imóveis de 60, 150 e 350 m². Onde eles mais discordam, e qual erro de avaliação isso representaria em reais?
+5. Monte a tabela final, escreva o parágrafo de resultados e feche com as limitações.
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina admitindo um problema não resolvido vale mais do que um que o esconde.
+:::

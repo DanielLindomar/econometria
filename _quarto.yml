@@ -37,6 +37,18 @@ website:
           - aplic-econ2-u1.qmd
           - aplic-econ2-u2.qmd
           - aplic-econ2-u3.qmd
+      - text: "Projetos"
+        menu:
+          - proj-econ2-terras.qmd
+          - proj-econ2-saude.qmd
+          - proj-econ2-ideb.qmd
+          - proj-econ2-custo-soja.qmd
+          - proj-econ2-imoveis.qmd
+          - proj-econ2-energia.qmd
+          - proj-econ2-repasse.qmd
+          - proj-econ2-exportacoes.qmd
+          - proj-econ2-credito.qmd
+          - proj-econ2-icms.qmd
       - text: "Curso de R"
         menu:
           - r-aula01.qmd

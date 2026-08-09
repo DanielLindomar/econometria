@@ -1,0 +1,257 @@
+---
+title: "Projeto 7 — Quanto o dólar pesa no preço da comida"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+    - prais
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, a correção adotada e o efeito dela sobre a inferência |
+| **3ª** | Especificação | O teste RESET, o modelo final e a comparação antes/depois |
+
+Cada etapa abaixo corresponde a uma dessas entregas.
+:::
+
+## O caso
+
+Quando o real se desvaloriza, o preço dos alimentos sobe. A intuição é direta: boa parte do que se produz no Brasil é *commodity* cotada em dólar, e o produtor que pode exportar só vende no mercado interno por um preço equivalente. O fenômeno tem nome — **repasse cambial**, ou *exchange rate pass-through* — e uma literatura extensa que tenta medir seu tamanho e sua velocidade.
+
+A magnitude importa para a política monetária. Se o repasse é alto, uma desvalorização exige resposta do Banco Central; se é baixo, a autoridade pode acomodar o choque. Aqui você vai estimá-lo com dados mensais — e vai encontrar o problema típico de qualquer série de inflação: o que aconteceu com os preços no mês passado ajuda a prever este mês.
+
+A pergunta que você vai responder:
+
+> **Qual a magnitude do repasse cambial para os preços dos alimentos?**
+
+## A base
+
+Os dados vêm do **Monitor de Preços ao Consumidor — Centro-Oeste**, com **168 meses, de janeiro de 2012 a dezembro de 2025**.
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza de levantamentos reais do setor. As unidades observadas não existem, e os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira.
+:::
+
+```{webr}
+meses <- read.csv("dados/repasse_cambial.csv")
+head(meses)
+summary(meses)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `mes` | Mês de referência | AAAA-MM |
+| `inflacao_alimentos` | Variação mensal do índice de preços de alimentos | % |
+| `var_cambio` | Variação mensal da taxa de câmbio | % |
+| `var_commodities` | Variação mensal do índice de commodities agrícolas | % |
+| `selic` | Taxa básica de juros no mês | % a.a. |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+library(ggplot2)
+ggplot(meses, aes(var_cambio, inflacao_alimentos)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Variação do câmbio (%)", y = "Inflação de alimentos (%)") + theme_minimal()
+```
+
+```{webr}
+ggplot(meses, aes(var_commodities, inflacao_alimentos)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Variação das commodities (%)", y = "Inflação de alimentos (%)") + theme_minimal()
+```
+
+```{webr}
+ggplot(meses, aes(selic, inflacao_alimentos)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Selic (% a.a.)", y = "Inflação de alimentos (%)") + theme_minimal()
+```
+
+```{webr}
+round(cor(meses[, c("inflacao_alimentos", "var_cambio", "var_commodities", "selic")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva a série: período, inflação média mensal de alimentos, maior e menor variação registrada.
+2. Faça o gráfico da inflação de alimentos ao longo do tempo. Há períodos de maior turbulência?
+3. Faça o gráfico da inflação contra a variação cambial. A relação é visível?
+4. As variáveis já estão em variação percentual. Que problema isso evita, em comparação com trabalhar com os níveis do câmbio e do índice de preços?
+5. Escreva a equação que você vai estimar e justifique cada variável.
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(inflacao_alimentos ~ var_cambio + var_commodities + selic, data = meses)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+```
+
+```{webr}
+# cada explicativa isolada, para comparar
+summary(lm(inflacao_alimentos ~ var_cambio, data = meses))$coefficients
+summary(lm(inflacao_alimentos ~ var_commodities, data = meses))$coefficients
+```
+
+```{webr}
+modelo_defasado <- lm(inflacao_alimentos ~ var_cambio + lag_var_cambio + var_commodities + selic, data = meses)
+summary(modelo_defasado)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados. **Interprete o coeficiente do câmbio como o repasse**: uma desvalorização de 10% eleva os preços de alimentos em quanto?
+2. Reporte os VIF. Há multicolinearidade nesta base?
+3. A Selic tem o sinal esperado? Ela é significativa? Se não for, que explicação econômica você daria?
+4. Compare seu repasse estimado com a ordem de grandeza que a literatura brasileira costuma reportar para alimentos.
+5. Qual sua decisão sobre a especificação até aqui?
+:::
+
+---
+
+# Etapa 3 — Autocorrelação e heterocedasticidade
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+meses$tempo <- 1:nrow(meses)
+meses$residuo <- resid(modelo1)
+ggplot(meses, aes(tempo, residuo)) +
+  geom_line(colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Meses desde o início da série", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+acf(resid(modelo1), lag.max = 24, main = "Autocorrelação dos resíduos")
+```
+
+```{webr}
+library(lmtest)
+dwtest(modelo1)
+bgtest(modelo1, order = 4)
+bgtest(modelo1, order = 12)
+bptest(modelo1)
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1, vcov = NeweyWest(modelo1, lag = 4, prewhite = FALSE))
+```
+
+```{webr}
+library(prais)
+prais_winsten(inflacao_alimentos ~ var_cambio + var_commodities + selic, data = meses, index = "tempo")
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Faça o gráfico dos resíduos contra o tempo. Descreva o padrão.
+2. Reporte o Durbin-Watson e o Breusch-Godfrey com 4 e 12 defasagens.
+3. Que interpretação econômica você dá para a autocorrelação dos resíduos numa equação de inflação? Pense em rigidez de preços e em contratos.
+4. Compare erros-padrão clássicos e Newey-West. A conclusão sobre o repasse se mantém?
+5. Estime por Prais-Winsten e compare. O coeficiente do câmbio muda muito?
+:::
+
+---
+
+# Etapa 4 — Especificação e modelo final
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+resettest(modelo1, power = 2:3, type = "fitted")
+```
+
+```{webr}
+modelo_defasado <- lm(inflacao_alimentos ~ var_cambio + lag_var_cambio + var_commodities + selic, data = meses)
+summary(modelo_defasado)
+resettest(modelo_defasado, power = 2:3, type = "fitted")
+```
+
+```{webr}
+AIC(modelo1, modelo_defasado)
+coeftest(modelo_defasado, vcov = vcovHC(modelo_defasado, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O RESET rejeita a especificação? Reporte a estatística.
+2. O repasse cambial não é instantâneo. Acrescente a **variação cambial defasada em um mês** e reestime.
+3. Some os coeficientes do câmbio contemporâneo e defasado: esse é o **repasse acumulado em dois meses**. Ele é maior que o contemporâneo? Interprete.
+4. O Breusch-Godfrey melhora com a defasagem incluída? O que isso sugere sobre a origem da autocorrelação?
+5. Monte a tabela final, escreva o parágrafo de resultados e feche com as limitações.
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina admitindo um problema não resolvido vale mais do que um que o esconde.
+:::

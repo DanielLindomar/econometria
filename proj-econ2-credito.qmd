@@ -1,0 +1,257 @@
+---
+title: "Projeto 9 — Crédito rural e taxa de juros"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+    - prais
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, a correção adotada e o efeito dela sobre a inferência |
+| **3ª** | Especificação | O teste RESET, o modelo final e a comparação antes/depois |
+
+Cada etapa abaixo corresponde a uma dessas entregas.
+:::
+
+## O caso
+
+O crédito rural é o principal instrumento de política agrícola brasileiro, e boa parte dele é subsidiada: o Plano Safra fixa taxas abaixo das de mercado para determinadas linhas. Entender como a demanda por crédito responde aos juros é o que permite dimensionar o custo fiscal do subsídio e prever a demanda por recursos.
+
+Há um complicador nesta série que você vai precisar detectar. Em algum ponto do período houve uma **mudança nas condições de financiamento** que alterou o patamar da relação entre juros e crédito. Nada na base indica onde — cabe a você encontrar. Modelos estimados por cima de uma quebra estrutural produzem coeficientes que não descrevem nenhum dos dois regimes.
+
+A pergunta que você vai responder:
+
+> **Como a demanda por crédito rural responde à taxa de juros?**
+
+## A base
+
+Os dados vêm do **Série Histórica de Crédito Rural — Centro-Oeste**, com **200 meses, de janeiro de 2009 a agosto de 2025**.
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza de levantamentos reais do setor. As unidades observadas não existem, e os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira.
+:::
+
+```{webr}
+meses <- read.csv("dados/credito_rural.csv")
+head(meses)
+summary(meses)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `mes` | Mês de referência | AAAA-MM |
+| `credito_rural` | Concessões de crédito rural no mês | R\$ milhões |
+| `juros_reais` | Taxa de juros real das operações | % a.a. |
+| `pib_agro` | Índice de atividade do agronegócio | base 100 |
+| `preco_soja` | Preço da saca de soja | R\$/saca |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+library(ggplot2)
+ggplot(meses, aes(juros_reais, credito_rural)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Juros reais (% a.a.)", y = "Crédito rural (R$ mi)") + theme_minimal()
+```
+
+```{webr}
+ggplot(meses, aes(pib_agro, credito_rural)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Índice de atividade do agronegócio", y = "Crédito rural (R$ mi)") + theme_minimal()
+```
+
+```{webr}
+ggplot(meses, aes(preco_soja, credito_rural)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Preço da soja (R$/saca)", y = "Crédito rural (R$ mi)") + theme_minimal()
+```
+
+```{webr}
+round(cor(meses[, c("credito_rural", "juros_reais", "pib_agro", "preco_soja")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva a série: período, volume médio de concessões, faixa de juros.
+2. Faça o gráfico do crédito ao longo do tempo. **Você identifica algum ponto em que o comportamento da série muda?** Marque o mês aproximado.
+3. Faça o mesmo com a série de juros. A mudança acontece no mesmo momento?
+4. Faça o gráfico do crédito contra os juros. Há sinal de que a relação não é a mesma o tempo todo?
+5. Escreva a equação que você vai estimar e justifique cada variável.
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(credito_rural ~ juros_reais + pib_agro + preco_soja, data = meses)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+```
+
+```{webr}
+# cada explicativa isolada, para comparar
+summary(lm(credito_rural ~ juros_reais, data = meses))$coefficients
+summary(lm(credito_rural ~ pib_agro, data = meses))$coefficients
+```
+
+```{webr}
+modelo_quebra <- lm(credito_rural ~ juros_reais + pib_agro + preco_soja + quebra, data = meses)
+summary(modelo_quebra)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados e interprete cada coeficiente.
+2. Reporte os VIF.
+3. O coeficiente dos juros tem o sinal esperado? Calcule a redução de concessões associada a um ponto percentual a mais de juros.
+4. O R² deste modelo é modesto. Isso invalida os resultados? Discuta o que R² mede e o que não mede.
+5. Qual sua decisão sobre a especificação até aqui?
+:::
+
+---
+
+# Etapa 3 — Autocorrelação e heterocedasticidade
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+meses$tempo <- 1:nrow(meses)
+meses$residuo <- resid(modelo1)
+ggplot(meses, aes(tempo, residuo)) +
+  geom_line(colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Meses desde o início da série", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+acf(resid(modelo1), lag.max = 24, main = "Autocorrelação dos resíduos")
+```
+
+```{webr}
+library(lmtest)
+dwtest(modelo1)
+bgtest(modelo1, order = 4)
+bgtest(modelo1, order = 12)
+bptest(modelo1)
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1, vcov = NeweyWest(modelo1, lag = 4, prewhite = FALSE))
+```
+
+```{webr}
+library(prais)
+prais_winsten(credito_rural ~ juros_reais + pib_agro + preco_soja, data = meses, index = "tempo")
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Faça o gráfico dos resíduos contra o tempo. **Há um trecho em que eles ficam sistematicamente de um lado do zero?** Isso é autocorrelação ou é outra coisa?
+2. Reporte o Durbin-Watson e o Breusch-Godfrey com 4 e 12 defasagens.
+3. Compare erros-padrão clássicos e Newey-West.
+4. Estime por Prais-Winsten e compare os coeficientes.
+5. Antes de aceitar a correção de autocorrelação, considere a hipótese alternativa: e se o padrão dos resíduos vier de uma **quebra estrutural** não modelada? Como distinguir os dois casos?
+:::
+
+---
+
+# Etapa 4 — Especificação e modelo final
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+resettest(modelo1, power = 2:3, type = "fitted")
+```
+
+```{webr}
+modelo_quebra <- lm(credito_rural ~ juros_reais + pib_agro + preco_soja + quebra, data = meses)
+summary(modelo_quebra)
+resettest(modelo_quebra, power = 2:3, type = "fitted")
+```
+
+```{webr}
+AIC(modelo1, modelo_quebra)
+coeftest(modelo_quebra, vcov = vcovHC(modelo_quebra, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O RESET rejeita a especificação? Reporte a estatística — e note que o RESET detecta mais coisas do que forma funcional.
+2. Crie uma dummy que vale 1 a partir do mês em que você suspeita da quebra e inclua no modelo. Ela é significativa?
+3. Teste também a **interação** entre a dummy e os juros: a sensibilidade do crédito aos juros mudou depois da quebra, ou apenas o patamar?
+4. Refaça o Breusch-Godfrey e o RESET no modelo com a quebra. Os problemas diminuíram? O que isso ensina sobre confundir má especificação com autocorrelação?
+5. Monte a tabela final, escreva o parágrafo de resultados e feche com as limitações.
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina admitindo um problema não resolvido vale mais do que um que o esconde.
+:::

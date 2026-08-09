@@ -1,0 +1,255 @@
+---
+title: "Projeto 4 — Quanto custa produzir uma saca de soja"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, a correção adotada e o efeito dela sobre a inferência |
+| **3ª** | Especificação | O teste RESET, o modelo final e a comparação antes/depois |
+
+Cada etapa abaixo corresponde a uma dessas entregas.
+:::
+
+## O caso
+
+O custo de produção por hectare é o número que decide se a safra fecha no azul. Ele é acompanhado de perto por produtores, por cooperativas que negociam insumos em conjunto e por bancos que precisam dimensionar o crédito de custeio.
+
+Três componentes explicam a maior parte da variação entre propriedades: **fertilizantes**, que respondem pela maior fatia do custo variável; **logística**, porque o frete de insumos até a porteira encarece quem está longe dos entrepostos; e **tecnologia**, já que agricultura de precisão promete reduzir desperdício de insumo. Uma quarta candidata é o **tamanho da propriedade**, pela hipótese de ganho de escala na compra de insumos — e essa é a que você deve olhar com mais ceticismo.
+
+A pergunta que você vai responder:
+
+> **O que determina o custo de produção por hectare, e existe ganho de escala?**
+
+## A base
+
+Os dados vêm do **Levantamento de Custos de Produção de Soja em Mato Grosso, safra 2023/24**, com **195 propriedades produtoras de soja**.
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza de levantamentos reais do setor. As unidades observadas não existem, e os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira.
+:::
+
+```{webr}
+propriedades <- read.csv("dados/custo_soja.csv")
+head(propriedades)
+summary(propriedades)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `custo_ha` | Custo total de produção por hectare | R\$/ha |
+| `area_ha` | Área plantada da propriedade | ha |
+| `adubo_kg` | Fertilizante aplicado por hectare | kg/ha |
+| `distancia_km` | Distância até o entreposto de insumos | km |
+| `tecnologia` | 1 se usa agricultura de precisão, 0 caso contrário | — |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+library(ggplot2)
+ggplot(propriedades, aes(adubo_kg, custo_ha)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Fertilizante (kg/ha)", y = "Custo (R$/ha)") + theme_minimal()
+```
+
+```{webr}
+ggplot(propriedades, aes(area_ha, custo_ha)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Área da propriedade (ha)", y = "Custo (R$/ha)") + theme_minimal()
+```
+
+```{webr}
+ggplot(propriedades, aes(distancia_km, custo_ha)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Distância até o entreposto (km)", y = "Custo (R$/ha)") + theme_minimal()
+```
+
+```{webr}
+round(cor(propriedades[, c("custo_ha", "area_ha", "adubo_kg", "distancia_km", "tecnologia")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva a amostra: quantas propriedades, faixa de custo, proporção que usa agricultura de precisão.
+2. Qual variável tem a relação mais forte com o custo?
+3. Observe o gráfico do custo contra o fertilizante. **A dispersão em torno da tendência é constante?** Descreva.
+4. Há razão econômica para o custo **por hectare** depender da área total da propriedade? Argumente antes de estimar — e note que a resposta não é óbvia.
+5. Escreva a equação que você vai estimar e justifique cada variável.
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(custo_ha ~ area_ha + adubo_kg + distancia_km + tecnologia, data = propriedades)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+```
+
+```{webr}
+# cada explicativa isolada, para comparar
+summary(lm(custo_ha ~ area_ha, data = propriedades))$coefficients
+summary(lm(custo_ha ~ adubo_kg, data = propriedades))$coefficients
+```
+
+```{webr}
+modelo_sem_area <- lm(custo_ha ~ adubo_kg + distancia_km + tecnologia, data = propriedades)
+summary(modelo_sem_area)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados e interprete cada coeficiente em reais por hectare.
+2. Os VIF indicam problema nesta base? Reporte-os.
+3. O coeficiente da área é significativo? Se não for, isso refuta a hipótese de ganho de escala ou apenas não a confirma? Cuidado com a diferença.
+4. Retire a área e reestime. Os demais coeficientes mudam? Compare com o que aconteceria se a área fosse relevante e correlacionada com as outras.
+5. Quanto o produtor economiza, em média, adotando agricultura de precisão? O resultado é economicamente relevante diante do custo médio?
+:::
+
+---
+
+# Etapa 3 — Heterocedasticidade e autocorrelação
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+propriedades$residuo <- resid(modelo1)
+ggplot(propriedades, aes(fitted(modelo1), residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Valores ajustados", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+ggplot(propriedades, aes(adubo_kg, residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Fertilizante aplicado por hectare", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+library(lmtest)
+bptest(modelo1)
+bptest(modelo1, ~ area_ha + I(area_ha^2) + adubo_kg + I(adubo_kg^2) + distancia_km + I(distancia_km^2) + tecnologia, data = propriedades)
+```
+
+```{webr}
+dwtest(modelo1)
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1, vcov = vcovHC(modelo1, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Faça os resíduos contra o fertilizante e contra os valores ajustados. Em qual dos dois o padrão é mais nítido, e por quê?
+2. Reporte o Breusch-Pagan e o teste de White com estatística e valor-p.
+3. Que interpretação econômica você dá para a variância crescer com a dose de fertilizante?
+4. Compare erros-padrão clássicos e HC3. Qual coeficiente é mais afetado, e por quê justamente ele?
+5. Aplique mínimos quadrados ponderados com peso `1/adubo_kg^2` e compare com o robusto. Qual você reporta no trabalho, e por quê?
+:::
+
+---
+
+# Etapa 4 — Especificação e modelo final
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+resettest(modelo1, power = 2:3, type = "fitted")
+```
+
+```{webr}
+modelo_sem_area <- lm(custo_ha ~ adubo_kg + distancia_km + tecnologia, data = propriedades)
+summary(modelo_sem_area)
+resettest(modelo_sem_area, power = 2:3, type = "fitted")
+```
+
+```{webr}
+AIC(modelo1, modelo_sem_area)
+coeftest(modelo_sem_area, vcov = vcovHC(modelo_sem_area, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O RESET rejeita a especificação? Reporte a estatística.
+2. Teste incluir a área em logaritmo. Muda alguma coisa? O que isso diz sobre a hipótese de ganho de escala?
+3. Um consultor afirma que "propriedades acima de 2 mil hectares têm custo por hectare menor". Como você testaria essa afirmação com estes dados?
+4. Monte a tabela final e escreva o parágrafo de resultados.
+5. Feche com as limitações: que custos não estão na base e como isso afeta a leitura?
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina admitindo um problema não resolvido vale mais do que um que o esconde.
+:::

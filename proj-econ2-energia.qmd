@@ -1,0 +1,257 @@
+---
+title: "Projeto 6 — A demanda industrial por energia elétrica"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+    - prais
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, a correção adotada e o efeito dela sobre a inferência |
+| **3ª** | Especificação | O teste RESET, o modelo final e a comparação antes/depois |
+
+Cada etapa abaixo corresponde a uma dessas entregas.
+:::
+
+## O caso
+
+Prever o consumo industrial de energia é uma necessidade operacional do setor elétrico: o sistema precisa contratar geração com anos de antecedência, e errar para menos significa risco de racionamento, enquanto errar para mais significa capacidade ociosa paga pelo consumidor.
+
+A demanda industrial responde a três coisas: ao **nível de atividade** das fábricas, ao **preço** da energia — ainda que a resposta de curto prazo seja pequena, porque trocar de tecnologia leva tempo — e ao **clima**, já que refrigeração e climatização pesam na conta. O desafio econométrico aqui é outro: séries mensais de consumo têm memória. O que se consumiu em março ajuda a prever abril, e isso viola uma hipótese central do modelo clássico.
+
+A pergunta que você vai responder:
+
+> **Como o consumo industrial responde à atividade econômica, à tarifa e à temperatura?**
+
+## A base
+
+Os dados vêm do **Balanço Mensal de Energia de Mato Grosso (BME-MT)**, com **180 meses, de janeiro de 2011 a dezembro de 2025**.
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza de levantamentos reais do setor. As unidades observadas não existem, e os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira.
+:::
+
+```{webr}
+meses <- read.csv("dados/energia_industrial.csv")
+head(meses)
+summary(meses)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `mes` | Mês de referência | AAAA-MM |
+| `consumo_gwh` | Consumo industrial de energia elétrica | GWh |
+| `producao_industrial` | Índice de produção industrial | base 100 |
+| `tarifa_kwh` | Tarifa industrial média | R\$/kWh |
+| `temperatura` | Temperatura média do mês | °C |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+library(ggplot2)
+ggplot(meses, aes(producao_industrial, consumo_gwh)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Índice de produção industrial", y = "Consumo (GWh)") + theme_minimal()
+```
+
+```{webr}
+ggplot(meses, aes(tarifa_kwh, consumo_gwh)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Tarifa (R$/kWh)", y = "Consumo (GWh)") + theme_minimal()
+```
+
+```{webr}
+ggplot(meses, aes(temperatura, consumo_gwh)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Temperatura média (°C)", y = "Consumo (GWh)") + theme_minimal()
+```
+
+```{webr}
+round(cor(meses[, c("consumo_gwh", "producao_industrial", "tarifa_kwh", "temperatura")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva a série: período coberto, faixa de consumo, tendência aparente.
+2. Faça o gráfico do consumo ao longo do tempo. Há tendência? Há padrão que se repete dentro de cada ano?
+3. Qual variável parece explicar melhor o consumo?
+4. Reporte a matriz de correlações. Produção industrial e tarifa crescem juntas ao longo do tempo — isso é problema?
+5. Escreva a equação que você vai estimar e justifique cada variável.
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(consumo_gwh ~ producao_industrial + tarifa_kwh + temperatura, data = meses)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+```
+
+```{webr}
+# cada explicativa isolada, para comparar
+summary(lm(consumo_gwh ~ producao_industrial, data = meses))$coefficients
+summary(lm(consumo_gwh ~ tarifa_kwh, data = meses))$coefficients
+```
+
+```{webr}
+modelo_dinamico <- lm(consumo_gwh ~ producao_industrial + tarifa_kwh + temperatura + lag_consumo, data = meses)
+summary(modelo_dinamico)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados e interprete cada coeficiente em GWh.
+2. Reporte os VIF. Em séries temporais, variáveis com tendência comum costumam inflar o VIF — é o caso aqui?
+3. O coeficiente da tarifa tem o sinal esperado pela teoria da demanda? E a magnitude é economicamente plausível?
+4. Calcule a elasticidade-preço da demanda no ponto médio. Ela é elástica ou inelástica? Isso faz sentido para o curto prazo?
+5. Qual sua decisão sobre a especificação até aqui?
+:::
+
+---
+
+# Etapa 3 — Autocorrelação e heterocedasticidade
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+meses$tempo <- 1:nrow(meses)
+meses$residuo <- resid(modelo1)
+ggplot(meses, aes(tempo, residuo)) +
+  geom_line(colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Meses desde o início da série", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+acf(resid(modelo1), lag.max = 24, main = "Autocorrelação dos resíduos")
+```
+
+```{webr}
+library(lmtest)
+dwtest(modelo1)
+bgtest(modelo1, order = 4)
+bgtest(modelo1, order = 12)
+bptest(modelo1)
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1, vcov = NeweyWest(modelo1, lag = 4, prewhite = FALSE))
+```
+
+```{webr}
+library(prais)
+prais_winsten(consumo_gwh ~ producao_industrial + tarifa_kwh + temperatura, data = meses, index = "tempo")
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Faça o gráfico dos resíduos **contra o tempo**. Os resíduos oscilam em torno de zero sem memória, ou fazem excursões longas?
+2. Reporte o Durbin-Watson. **Aqui ele faz sentido** — por quê, diferentemente do caso das terras?
+3. Reporte o teste de Breusch-Godfrey com 4 e com 12 defasagens. Por que ele é preferível ao Durbin-Watson?
+4. Estime com erros-padrão de Newey-West e compare com os clássicos. Os erros-padrão sobem ou descem? Por quê era esperado?
+5. Estime também por Prais-Winsten. Compare os coeficientes com os do MQO — eles mudam? E os erros-padrão?
+:::
+
+---
+
+# Etapa 4 — Especificação e modelo final
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+resettest(modelo1, power = 2:3, type = "fitted")
+```
+
+```{webr}
+modelo_dinamico <- lm(consumo_gwh ~ producao_industrial + tarifa_kwh + temperatura + lag_consumo, data = meses)
+summary(modelo_dinamico)
+resettest(modelo_dinamico, power = 2:3, type = "fitted")
+```
+
+```{webr}
+AIC(modelo1, modelo_dinamico)
+coeftest(modelo_dinamico, vcov = vcovHC(modelo_dinamico, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O RESET rejeita a especificação? Reporte a estatística.
+2. Acrescente a **defasagem do consumo** como regressor e reestime. O que acontece com o Breusch-Godfrey?
+3. Compare as três abordagens para a autocorrelação — Newey-West, Prais-Winsten e modelo dinâmico. Elas resolvem o mesmo problema? Qual você adota, e por quê?
+4. Discuta: se a autocorrelação vinha de uma variável omitida com persistência, qual das três abordagens efetivamente corrige o problema?
+5. Monte a tabela final, escreva o parágrafo de resultados e feche com as limitações.
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina admitindo um problema não resolvido vale mais do que um que o esconde.
+:::

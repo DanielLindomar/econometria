@@ -65,6 +65,31 @@ Cada aplicação replica a **ideia** de um artigo de referência com dados simul
 | Heterocedasticidade | [O coeficiente está certo, o erro-padrão está errado](aplic-econ2-u2.qmd) | White (1980) |
 | Especificação | [A reta que recomendaria adubar até a falência](aplic-econ2-u3.qmd) | Ramsey (1969) — teste RESET |
 
+## Projetos — Econometria II
+
+Dez casos para o **projeto avaliado** da disciplina. Você escolhe um e o apresenta **três vezes** ao longo do semestre, acrescentando a cada apresentação a camada estudada em aula: multicolinearidade, depois heterocedasticidade e autocorrelação, e por fim especificação.
+
+::: {.callout-important}
+## Estas páginas não interpretam os resultados
+
+Diferentemente dos laboratórios e das aplicações, aqui o código está pronto **e a leitura é sua**. Cada etapa termina com uma lista de perguntas — respondê-las é o trabalho avaliado.
+:::
+
+| # | Projeto | Dados | Diagnóstico em destaque |
+|---|---|---|---|
+| 1 | [Preço da terra em Mato Grosso](proj-econ2-terras.qmd) | 220 imóveis rurais | Multicolinearidade e forma funcional |
+| 2 | [Gasto municipal em saúde](proj-econ2-saude.qmd) | 141 municípios | Multicolinearidade severa |
+| 3 | [Desempenho escolar (IDEB)](proj-econ2-ideb.qmd) | 260 escolas | Heterocedasticidade |
+| 4 | [Custo de produção da soja](proj-econ2-custo-soja.qmd) | 195 propriedades | Heterocedasticidade e variável irrelevante |
+| 5 | [Preço de imóveis em Sinop](proj-econ2-imoveis.qmd) | 240 imóveis urbanos | Especificação e forma funcional |
+| 6 | [Demanda industrial por energia](proj-econ2-energia.qmd) | 180 meses | Autocorrelação |
+| 7 | [Repasse cambial para alimentos](proj-econ2-repasse.qmd) | 168 meses | Autocorrelação e defasagens |
+| 8 | [Exportações de soja](proj-econ2-exportacoes.qmd) | 156 meses | Autocorrelação e sazonalidade |
+| 9 | [Crédito rural e juros](proj-econ2-credito.qmd) | 200 meses | Quebra estrutural |
+| 10 | [Arrecadação de ICMS](proj-econ2-icms.qmd) | 192 meses | Multicolinearidade e previsão |
+
+Os casos 1 a 5 são de **corte transversal** e os casos 6 a 10, de **série temporal** — a escolha determina quais diagnósticos fazem sentido no seu trabalho.
+
 ## Curso de R — Unidade 7
 
 | # | Aula |
