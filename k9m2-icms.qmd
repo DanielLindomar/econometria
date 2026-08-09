@@ -1,0 +1,82 @@
+---
+title: "Projeto 10 — Prevendo a arrecadação de ICMS"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 10** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-icms.html`](proj-econ2-icms.html) |
+| Base | `dados/icms_mt.csv` — 192 observações, série temporal |
+| Foco | multicolinearidade e autocorrelação |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+icms_mi = 120 + 1,35*massa_salarial + 22*preco_combustivel + 0,85*indice_varejo + 9,5*saz_mes + e_t
+
+e_t = 0,66*e_{t-1} + v_t, v_t ~ N(0; 11^2)
+
+massa_salarial e indice_varejo compartilham tendencia -> VIF ~17. SAZONALIDADE mensal forte (dezembro e o pico).
+   A sazonalidade NAO esta no modelo sugerido: e a principal fonte de estrutura nos residuos.
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`icms_mi ~ massa_salarial + preco_combustivel + indice_varejo`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **77.1508** | 15.7761 | 4.89 | 0.0000 | 16.3416 | 4.72 |
+| `massa_salarial` | **0.6089** | 0.3046 | 2.00 | 0.0471 | 0.2815 | 2.16 |
+| `preco_combustivel` | **12.8649** | 4.6238 | 2.78 | 0.0059 | 4.0100 | 3.21 |
+| `indice_varejo` | **2.4239** | 0.2582 | 9.39 | 0.0000 | 0.2639 | 9.18 |
+
+- **R²** 0.9142  ·  **R² ajustado** 0.9128  ·  **σ** 14.345  ·  **AIC** 1571.6
+- **VIF** `massa_salarial` 16.74, `preco_combustivel` 14.89, `indice_varejo` 8.11
+- **Breusch-Pagan** p = 0.0432  ·  **White** p = 0.0105
+- **Durbin-Watson** 0.840
+- **Breusch-Godfrey** 4 defasagens p = 1.91e-13  ·  12 defasagens p = 3.52e-10
+- **RESET** potência 2: F = 0.01, p = 0.9377  ·  potência 3: F = 0.25, p = 0.7768
+
+## Modelo 2 — alternativa sugerida (sem a massa salarial)
+
+`icms_mi ~ indice_varejo + preco_combustivel`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **90.4549** | 14.4161 | 6.27 | 0.0000 | 15.7370 | 5.75 |
+| `indice_varejo` | **2.6369** | 0.2371 | 11.12 | 0.0000 | 0.2334 | 11.30 |
+| `preco_combustivel` | **19.7065** | 3.1331 | 6.29 | 0.0000 | 2.9322 | 6.72 |
+
+- **R²** 0.9124  ·  **R² ajustado** 0.9115  ·  **σ** 14.458  ·  **AIC** 1573.6
+- **VIF** `indice_varejo` 6.73, `preco_combustivel` 6.73
+- **Breusch-Pagan** p = 0.0153  ·  **White** p = 0.0111
+- **Durbin-Watson** 0.838
+- **Breusch-Godfrey** 4 defasagens p = 1.55e-13  ·  12 defasagens p = 2.31e-10
+- **RESET** potência 2: F = 0.57, p = 0.4507  ·  potência 3: F = 0.49, p = 0.6158
+
+
+## Onde o aluno costuma errar
+
+1. Interpretar os coeficientes individuais apesar do VIF de 17.
+2. Nao perceber que, para PREVISAO, a multicolinearidade e irrelevante — este e o ponto do caso.
+3. Esquecer as dummies mensais e atribuir toda a estrutura dos residuos a autocorrelacao.
+4. Avaliar a previsao dentro da amostra.

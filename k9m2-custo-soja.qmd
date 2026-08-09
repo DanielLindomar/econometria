@@ -1,0 +1,80 @@
+---
+title: "Projeto 4 — Quanto custa produzir uma saca de soja"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 4** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-custo-soja.html`](proj-econ2-custo-soja.html) |
+| Base | `dados/custo_soja.csv` — 195 observações, corte transversal |
+| Foco | heterocedasticidade |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+custo_ha = 1850 + 3,05*adubo_kg + 1,55*distancia_km - 140*tecnologia + u
+
+u ~ N(0, sigma_i), sigma_i = 20 + 0,95*(adubo_kg - 190)  -> variancia cresce forte com a dose
+
+area_ha e DISTRATORA: nao entra no processo gerador. Coeficiente verdadeiro = ZERO.
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`custo_ha ~ area_ha + adubo_kg + distancia_km + tecnologia`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **1822.2207** | 69.5520 | 26.20 | 0.0000 | 66.8242 | 27.27 |
+| `area_ha` | -0.0073 | 0.0107 | -0.69 | 0.4922 | 0.0095 | -0.77 |
+| `adubo_kg` | **3.1673** | 0.1962 | 16.14 | 0.0000 | 0.2125 | 14.91 |
+| `distancia_km` | **1.5328** | 0.1069 | 14.34 | 0.0000 | 0.1097 | 13.97 |
+| `tecnologia` | **-144.0643** | 24.0161 | -6.00 | 0.0000 | 21.5902 | -6.67 |
+
+- **R²** 0.7238  ·  **R² ajustado** 0.7180  ·  **σ** 156.818  ·  **AIC** 2529.8
+- **VIF** `area_ha` 1.00, `adubo_kg` 1.00, `distancia_km` 1.00, `tecnologia` 1.00
+- **Breusch-Pagan** p = 2.91e-05  ·  **White** p = 0.00245
+- **Durbin-Watson** 2.204  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 0.10, p = 0.7546  ·  potência 3: F = 0.13, p = 0.8779
+
+## Modelo 2 — alternativa sugerida (sem a área)
+
+`custo_ha ~ adubo_kg + distancia_km + tecnologia`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **1813.4396** | 68.2771 | 26.56 | 0.0000 | 66.7369 | 27.17 |
+| `adubo_kg` | **3.1714** | 0.1959 | 16.19 | 0.0000 | 0.2133 | 14.86 |
+| `distancia_km` | **1.5348** | 0.1067 | 14.39 | 0.0000 | 0.1090 | 14.08 |
+| `tecnologia` | **-144.0975** | 23.9829 | -6.01 | 0.0000 | 21.4758 | -6.71 |
+
+- **R²** 0.7231  ·  **R² ajustado** 0.7188  ·  **σ** 156.602  ·  **AIC** 2528.3
+- **VIF** `adubo_kg` 1.00, `distancia_km` 1.00, `tecnologia` 1.00
+- **Breusch-Pagan** p = 7.38e-06  ·  **White** p = 8.62e-05
+- **Durbin-Watson** 2.194  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 0.10, p = 0.748  ·  potência 3: F = 0.16, p = 0.8495
+
+
+## Onde o aluno costuma errar
+
+1. Interpretar o coeficiente insignificante da area como prova de que nao ha ganho de escala.
+2. Nao perceber que a variancia cresce com o adubo (o padrao contra os ajustados e menos nitido).
+3. Aplicar MQP com ponderacao arbitraria sem justificar a escolha.

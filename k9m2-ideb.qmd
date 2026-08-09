@@ -1,0 +1,83 @@
+---
+title: "Projeto 3 — O que explica o desempenho das escolas"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 3** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-ideb.html`](proj-econ2-ideb.html) |
+| Base | `dados/ideb_escolas.csv` — 260 observações, corte transversal |
+| Foco | heterocedasticidade |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+ideb = 4,30 + 0,048*nse + 0,012*docentes_superior - 0,62*ln(matriculas) + 0,24*laboratorio + 0,11*horas_aula + u
+
+u ~ N(0, sigma_i), sigma_i = 0,10 + 0,014*(85 - nse)  -> escolas de NSE BAIXO variam MUITO mais
+
+as matriculas entram em LOG; horas_aula nao esta na lista de X do enunciado (variavel disponivel na base,
+   mas omitida do modelo sugerido: quem incluir melhora o ajuste)
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`ideb ~ nse + docentes_superior + matriculas + laboratorio`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **1.6329** | 0.2814 | 5.80 | 0.0000 | 0.3017 | 5.41 |
+| `nse` | **0.0559** | 0.0034 | 16.47 | 0.0000 | 0.0038 | 14.74 |
+| `docentes_superior` | **0.0122** | 0.0031 | 3.89 | 0.0001 | 0.0028 | 4.27 |
+| `matriculas` | **-0.0017** | 0.0002 | -11.46 | 0.0000 | 0.0002 | -9.58 |
+| `laboratorio` | 0.1087 | 0.0852 | 1.28 | 0.2031 | 0.0875 | 1.24 |
+
+- **R²** 0.6015  ·  **R² ajustado** 0.5952  ·  **σ** 0.675  ·  **AIC** 538.5
+- **VIF** `nse` 1.02, `docentes_superior` 1.01, `matriculas` 1.02, `laboratorio` 1.00
+- **Breusch-Pagan** p = 2.28e-05  ·  **White** p = 0.000182
+- **Durbin-Watson** 1.988  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 0.83, p = 0.3632  ·  potência 3: F = 3.46, p = 0.03286
+
+## Modelo 2 — alternativa sugerida (com matrículas em log)
+
+`ideb ~ nse + docentes_superior + log(matriculas) + laboratorio`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **4.7439** | 0.3455 | 13.73 | 0.0000 | 0.3294 | 14.40 |
+| `nse` | **0.0573** | 0.0031 | 18.66 | 0.0000 | 0.0034 | 16.92 |
+| `docentes_superior` | **0.0117** | 0.0028 | 4.13 | 0.0000 | 0.0026 | 4.43 |
+| `log(matriculas)` | **-0.6812** | 0.0460 | -14.81 | 0.0000 | 0.0409 | -16.66 |
+| `laboratorio` | 0.1034 | 0.0769 | 1.35 | 0.1798 | 0.0784 | 1.32 |
+
+- **R²** 0.6753  ·  **R² ajustado** 0.6702  ·  **σ** 0.609  ·  **AIC** 485.2
+- **VIF** `nse` 1.03, `docentes_superior` 1.01, `log(matriculas)` 1.03, `laboratorio` 1.00
+- **Breusch-Pagan** p = 4.81e-06  ·  **White** p = 6.16e-05
+- **Durbin-Watson** 2.030  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 0.75, p = 0.3866  ·  potência 3: F = 0.40, p = 0.6714
+
+
+## Onde o aluno costuma errar
+
+1. Concluir que 'a escola nao importa, so o contexto' — os coeficientes de insumos escolares sao significativos.
+2. Nao perceber o formato de funil dos residuos contra o NSE.
+3. Usar matriculas em nivel e nao testar a forma logaritmica.
+4. Esquecer que horas_aula esta na base e nao foi incluida no modelo sugerido.

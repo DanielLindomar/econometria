@@ -1,0 +1,64 @@
+---
+title: "Projeto 6 — A demanda industrial por energia elétrica"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 6** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-energia.html`](proj-econ2-energia.html) |
+| Base | `dados/energia_industrial.csv` — 180 observações, série temporal |
+| Foco | autocorrelação |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+consumo_gwh = 380 + 2,15*producao_industrial - 310*tarifa_kwh + 6,4*temperatura + e_t
+
+e_t = 0,78*e_{t-1} + v_t, v_t ~ N(0; 14^2)   -> AR(1) FORTE nos erros
+
+producao_industrial tambem tem tendencia e AR(1); tarifa idem -> VIF moderado por tendencia comum
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`consumo_gwh ~ producao_industrial + tarifa_kwh + temperatura`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **340.6856** | 15.5095 | 21.97 | 0.0000 | 13.9825 | 24.37 |
+| `producao_industrial` | **2.7872** | 0.1892 | 14.73 | 0.0000 | 0.1892 | 14.73 |
+| `tarifa_kwh` | **-401.1486** | 40.1698 | -9.99 | 0.0000 | 41.7108 | -9.62 |
+| `temperatura` | **6.5143** | 0.4464 | 14.59 | 0.0000 | 0.4468 | 14.58 |
+
+- **R²** 0.7307  ·  **R² ajustado** 0.7261  ·  **σ** 19.820  ·  **AIC** 1590.0
+- **VIF** `producao_industrial` 5.24, `tarifa_kwh` 5.24, `temperatura` 1.00
+- **Breusch-Pagan** p = 0.0263  ·  **White** p = 0.0369
+- **Durbin-Watson** 0.526
+- **Breusch-Godfrey** 4 defasagens p = 1.32e-20  ·  12 defasagens p = 7.18e-17
+- **RESET** potência 2: F = 0.04, p = 0.8415  ·  potência 3: F = 0.04, p = 0.956
+
+
+## Onde o aluno costuma errar
+
+1. Usar Durbin-Watson e parar por ai, sem Breusch-Godfrey.
+2. Achar que Newey-West 'corrige' a autocorrelacao — ele so corrige a INFERENCIA.
+3. Nao notar que a elasticidade-preco de curto prazo deve mesmo ser baixa.
+4. Incluir a defasagem da dependente e usar DW (invalido com dependente defasada — precisa do h de Durbin ou do BG).

@@ -1,0 +1,42 @@
+---
+title: "Gabaritos dos Projetos — Econometria II"
+subtitle: "Uso do professor · não divulgar"
+format:
+  live-html:
+    toc: false
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Página restrita
+
+Índice dos dez gabaritos. Cada um traz a equação verdadeira que gerou os dados, as saídas dos modelos com erros-padrão clássicos e robustos, os diagnósticos completos e os erros mais prováveis do aluno.
+
+Nenhuma destas páginas está no menu do site nem é indexada por buscadores — mas **quem tiver o endereço entra**. Guarde este link nos favoritos e não o compartilhe.
+:::
+
+| # | Projeto | Endereço |
+|---|---|---|
+| 1 | [O que determina o preço da terra em Mato Grosso](k9m2-terras.html) | `k9m2-terras.html` |
+| 2 | [Por que uns municípios gastam mais em saúde que outros](k9m2-saude.html) | `k9m2-saude.html` |
+| 3 | [O que explica o desempenho das escolas](k9m2-ideb.html) | `k9m2-ideb.html` |
+| 4 | [Quanto custa produzir uma saca de soja](k9m2-custo-soja.html) | `k9m2-custo-soja.html` |
+| 5 | [Quanto vale um apartamento em Sinop](k9m2-imoveis.html) | `k9m2-imoveis.html` |
+| 6 | [A demanda industrial por energia elétrica](k9m2-energia.html) | `k9m2-energia.html` |
+| 7 | [Quanto o dólar pesa no preço da comida](k9m2-repasse.html) | `k9m2-repasse.html` |
+| 8 | [O que move as exportações de soja](k9m2-exportacoes.html) | `k9m2-exportacoes.html` |
+| 9 | [Crédito rural e taxa de juros](k9m2-credito.html) | `k9m2-credito.html` |
+| 10 | [Prevendo a arrecadação de ICMS](k9m2-icms.html) | `k9m2-icms.html` |
+
+## Como usar em aula
+
+O gabarito existe para ser projetado **depois** que o aluno apresentar, não antes. A sequência que funciona:
+
+1. O aluno apresenta a estimativa dele e a interpretação.
+2. Você abre o gabarito e projeta a **equação verdadeira**.
+3. A turma compara o que foi estimado com o que era o valor real.
+
+Se dois alunos tiverem o mesmo caso com sementes diferentes, projete os dois resultados lado a lado antes de revelar a equação: eles vão diferir, e a discussão sobre erro amostral acontece sozinha.

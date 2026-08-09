@@ -1,0 +1,83 @@
+---
+title: "Projeto 8 — O que move as exportações de soja"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 8** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-exportacoes.html`](proj-econ2-exportacoes.html) |
+| Base | `dados/exportacoes_soja.csv` — 156 observações, série temporal |
+| Foco | autocorrelação e forma funcional |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+ln(exportacoes) = -9,6 + 1,35*ln(preco_chicago) + 0,95*ln(cambio) + 0,0095*producao + 0,26*saz_mes + e_t
+
+e_t = 0,48*e_{t-1} + v_t, v_t ~ N(0; 0,070^2)
+
+modelo verdadeiro e LOG-LOG com SAZONALIDADE mensal (pico em abril, vale em novembro/dezembro).
+   ELASTICIDADES verdadeiras: preco 1,35 e cambio 0,95.
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`exportacoes_mi_t ~ preco_chicago + cambio + producao_mi_t`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **-29.1651** | 3.5659 | -8.18 | 0.0000 | 3.8739 | -7.53 |
+| `preco_chicago` | **0.0120** | 0.0051 | 2.36 | 0.0193 | 0.0054 | 2.23 |
+| `cambio` | **2.2834** | 0.6943 | 3.29 | 0.0013 | 0.7256 | 3.15 |
+| `producao_mi_t` | **0.1518** | 0.0376 | 4.04 | 0.0001 | 0.0419 | 3.62 |
+
+- **R²** 0.6533  ·  **R² ajustado** 0.6465  ·  **σ** 2.997  ·  **AIC** 789.1
+- **VIF** `preco_chicago` 3.14, `cambio` 2.92, `producao_mi_t` 4.31
+- **Breusch-Pagan** p = 0.000193  ·  **White** p = 9.43e-05
+- **Durbin-Watson** 0.516
+- **Breusch-Godfrey** 4 defasagens p = 1.76e-22  ·  12 defasagens p = 6.61e-22
+- **RESET** potência 2: F = 3.15, p = 0.07804  ·  potência 3: F = 1.56, p = 0.2127
+
+## Modelo 2 — alternativa sugerida (log-log)
+
+`log(exportacoes_mi_t) ~ log(preco_chicago) + log(cambio) + producao_mi_t`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **-6.7851** | 2.6610 | -2.55 | 0.0118 | 3.1337 | -2.17 |
+| `log(preco_chicago)` | **0.9149** | 0.4092 | 2.24 | 0.0268 | 0.4776 | 1.92 |
+| `log(cambio)` | **0.8342** | 0.2056 | 4.06 | 0.0001 | 0.2004 | 4.16 |
+| `producao_mi_t` | **0.0134** | 0.0025 | 5.28 | 0.0000 | 0.0029 | 4.57 |
+
+- **R²** 0.7312  ·  **R² ajustado** 0.7259  ·  **σ** 0.204  ·  **AIC** -48.7
+- **VIF** `log(preco_chicago)` 3.21, `log(cambio)` 2.92, `producao_mi_t` 4.21
+- **Breusch-Pagan** p = 0.723  ·  **White** p = 0.00951
+- **Durbin-Watson** 0.534
+- **Breusch-Godfrey** 4 defasagens p = 1.04e-21  ·  12 defasagens p = 6.02e-21
+- **RESET** potência 2: F = 1.40, p = 0.2388  ·  potência 3: F = 0.70, p = 0.4986
+
+
+## Onde o aluno costuma errar
+
+1. Nao perceber a sazonalidade nos residuos e tratar tudo como autocorrelacao.
+2. Estimar em nivel e reportar elasticidades (so o log-log da elasticidade).
+3. Usar Breusch-Godfrey com 4 defasagens apenas, perdendo o padrao de 12 meses.
+4. Comparar AIC entre nivel e log.

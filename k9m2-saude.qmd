@@ -1,0 +1,81 @@
+---
+title: "Projeto 2 — Por que uns municípios gastam mais em saúde que outros"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 2** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-saude.html`](proj-econ2-saude.html) |
+| Base | `dados/saude_municipios.csv` — 141 observações, corte transversal |
+| Foco | multicolinearidade |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+gasto_saude_pc = 540 - 1,85*populacao_mil + 0,098*pib_mil + 62*receita_pc + 28*perc_idosos + u
+
+u ~ N(0, sigma_i), sigma_i = 18 + 0,085*E[gasto]  (heterocedasticidade moderada)
+
+populacao e pib construidos com correlacao ~0,99 -> VIF ~20. Sinais VERDADEIROS opostos: a populacao entra
+   com sinal NEGATIVO (ganho de escala) e o PIB com POSITIVO. Nenhum dos dois e identificavel isoladamente.
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`gasto_saude_pc ~ populacao_mil + pib_mil + receita_pc + perc_idosos`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **731.9769** | 140.4155 | 5.21 | 0.0000 | 142.2594 | 5.15 |
+| `populacao_mil` | **-4.6794** | 2.1579 | -2.17 | 0.0319 | 1.2814 | -3.65 |
+| `pib_mil` | **0.2904** | 0.1173 | 2.47 | 0.0146 | 0.0681 | 4.26 |
+| `receita_pc` | 8.1932 | 28.1649 | 0.29 | 0.7716 | 28.9835 | 0.28 |
+| `perc_idosos` | **32.1418** | 4.5120 | 7.12 | 0.0000 | 4.4535 | 7.22 |
+
+- **R²** 0.3751  ·  **R² ajustado** 0.3567  ·  **σ** 114.522  ·  **AIC** 1741.9
+- **VIF** `populacao_mil` 19.89, `pib_mil` 20.25, `receita_pc` 1.10, `perc_idosos` 1.86
+- **Breusch-Pagan** p = 0.724  ·  **White** p = 0.928
+- **Durbin-Watson** 1.783  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 0.26, p = 0.6135  ·  potência 3: F = 0.18, p = 0.8321
+
+## Modelo 2 — alternativa sugerida (sem o PIB)
+
+`gasto_saude_pc ~ populacao_mil + receita_pc + perc_idosos`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **667.8267** | 140.5581 | 4.75 | 0.0000 | 140.9435 | 4.74 |
+| `populacao_mil` | 0.4124 | 0.6620 | 0.62 | 0.5343 | 0.7548 | 0.55 |
+| `receita_pc` | 25.8270 | 27.7533 | 0.93 | 0.3537 | 28.2662 | 0.91 |
+| `perc_idosos` | **30.9071** | 4.5674 | 6.77 | 0.0000 | 4.6889 | 6.59 |
+
+- **R²** 0.3470  ·  **R² ajustado** 0.3327  ·  **σ** 116.644  ·  **AIC** 1746.2
+- **VIF** `populacao_mil` 1.80, `receita_pc` 1.03, `perc_idosos` 1.83
+- **Breusch-Pagan** p = 0.788  ·  **White** p = 0.845
+- **Durbin-Watson** 1.769  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 1.38, p = 0.2415  ·  potência 3: F = 1.75, p = 0.1769
+
+
+## Onde o aluno costuma errar
+
+1. Concluir que 'populacao nao afeta o gasto' porque o t e baixo — o problema e de identificacao, nao de efeito.
+2. Retirar o PIB e reportar o coeficiente da populacao como se fosse o efeito puro de escala.
+3. Ignorar que os dois coeficientes verdadeiros tem SINAIS OPOSTOS, o que torna a separacao ainda mais dificil.

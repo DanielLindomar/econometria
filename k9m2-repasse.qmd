@@ -1,0 +1,65 @@
+---
+title: "Projeto 7 — Quanto o dólar pesa no preço da comida"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 7** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-repasse.html`](proj-econ2-repasse.html) |
+| Base | `dados/repasse_cambial.csv` — 168 observações, série temporal |
+| Foco | autocorrelação |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+inflacao_alimentos = 0,22 + 0,185*var_cambio + 0,095*var_commodities - 0,018*selic + e_t
+
+e_t = 0,62*e_{t-1} + v_t, v_t ~ N(0; 0,31^2)
+
+REPASSE VERDADEIRO = 0,185 (10% de desvalorizacao -> 1,85% de inflacao de alimentos).
+   A selic tem coeficiente pequeno de proposito: espera-se que saia insignificante.
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`inflacao_alimentos ~ var_cambio + var_commodities + selic`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | -0.1401 | 0.2472 | -0.57 | 0.5716 | 0.2589 | -0.54 |
+| `var_cambio` | **0.2104** | 0.0189 | 11.11 | 0.0000 | 0.0174 | 12.11 |
+| `var_commodities` | **0.0904** | 0.0117 | 7.73 | 0.0000 | 0.0123 | 7.36 |
+| `selic` | 0.0164 | 0.0260 | 0.63 | 0.5294 | 0.0268 | 0.61 |
+
+- **R²** 0.5133  ·  **R² ajustado** 0.5044  ·  **σ** 0.432  ·  **AIC** 198.4
+- **VIF** `var_cambio` 1.01, `var_commodities` 1.01, `selic` 1.00
+- **Breusch-Pagan** p = 0.278  ·  **White** p = 0.0934
+- **Durbin-Watson** 0.644
+- **Breusch-Godfrey** 4 defasagens p = 9.76e-17  ·  12 defasagens p = 2.04e-13
+- **RESET** potência 2: F = 1.21, p = 0.2736  ·  potência 3: F = 0.61, p = 0.5447
+
+
+## Onde o aluno costuma errar
+
+1. Reportar o repasse sem intervalo de confianca.
+2. Concluir que a Selic 'nao afeta a inflacao de alimentos' a partir de um coeficiente insignificante.
+3. Nao testar a defasagem do cambio — o repasse nao e instantaneo.
+4. Confundir o repasse contemporaneo com o acumulado.

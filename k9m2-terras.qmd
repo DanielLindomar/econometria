@@ -1,0 +1,83 @@
+---
+title: "Projeto 1 — O que determina o preço da terra em Mato Grosso"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 1** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-terras.html`](proj-econ2-terras.html) |
+| Base | `dados/terras_mt.csv` — 220 observações, corte transversal |
+| Foco | multicolinearidade e forma funcional |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+preco_ha = 6,00 + 0,62*produtividade + 0,50*aptidao - 12,00*ln(distancia_km) + 8,50*irrigacao + u
+
+u ~ N(0, sigma_i), sigma_i = 0,4 + 5,5*(produtividade/60)^4  -> heterocedasticidade ligada à produtividade
+
+corr(produtividade, aptidao) = 0,938 por construção -> VIF 8,3. A distância entra em LOG: quem estimar em nível é rejeitado pelo RESET. area_ha é distratora.
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`preco_ha ~ produtividade + aptidao + distancia_km + irrigacao`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **-23.6546** | 7.4995 | -3.15 | 0.0018 | 8.8539 | -2.67 |
+| `produtividade` | **0.6516** | 0.2541 | 2.56 | 0.0110 | 0.3067 | 2.12 |
+| `aptidao` | **0.3837** | 0.1361 | 2.82 | 0.0053 | 0.1598 | 2.40 |
+| `distancia_km` | **-0.1401** | 0.0078 | -17.94 | 0.0000 | 0.0089 | -15.68 |
+| `irrigacao` | **8.6784** | 1.6961 | 5.12 | 0.0000 | 1.7319 | 5.01 |
+
+- **R²** 0.7105  ·  **R² ajustado** 0.7051  ·  **σ** 9.771  ·  **AIC** 1632.2
+- **VIF** `produtividade` 8.30, `aptidao` 8.32, `distancia_km` 1.01, `irrigacao` 1.02
+- **Breusch-Pagan** p = 4.85e-06  ·  **White** p = 1.51e-06
+- **Durbin-Watson** 1.944  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 18.36, p = 2.757e-05  ·  potência 3: F = 10.87, p = 3.205e-05
+
+## Modelo 2 — alternativa sugerida (distância em log)
+
+`preco_ha ~ produtividade + aptidao + log(distancia_km) + irrigacao`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **15.5428** | 5.9405 | 2.62 | 0.0095 | 7.5602 | 2.06 |
+| `produtividade` | **0.4866** | 0.1914 | 2.54 | 0.0117 | 0.2312 | 2.10 |
+| `aptidao` | **0.4543** | 0.1025 | 4.43 | 0.0000 | 0.1141 | 3.98 |
+| `log(distancia_km)` | **-11.7758** | 0.4347 | -27.09 | 0.0000 | 0.4402 | -26.75 |
+| `irrigacao` | **8.5744** | 1.2755 | 6.72 | 0.0000 | 1.2890 | 6.65 |
+
+- **R²** 0.8362  ·  **R² ajustado** 0.8331  ·  **σ** 7.350  ·  **AIC** 1507.0
+- **VIF** `produtividade` 8.32, `aptidao` 8.34, `log(distancia_km)` 1.01, `irrigacao` 1.02
+- **Breusch-Pagan** p = 1.27e-07  ·  **White** p = 3.08e-08
+- **Durbin-Watson** 1.812  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 1.81, p = 0.1799  ·  potência 3: F = 1.41, p = 0.2455
+
+
+## Onde o aluno costuma errar
+
+1. Comemorar o DW de 1,94 em dados de corte transversal.
+2. Retirar aptidao 'porque o VIF era alto' sem discutir o viés que isso cria.
+3. Dizer que a correção robusta 'melhorou o modelo' — ela não altera coeficiente nenhum.
+4. Ler o coeficiente do log como efeito por quilômetro.
+5. Não perceber que o modelo em nível prevê preço NEGATIVO a 300 km.

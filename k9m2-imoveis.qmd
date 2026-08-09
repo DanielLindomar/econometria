@@ -1,0 +1,84 @@
+---
+title: "Projeto 5 — Quanto vale um apartamento em Sinop"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 5** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-imoveis.html`](proj-econ2-imoveis.html) |
+| Base | `dados/imoveis_sinop.csv` — 240 observações, corte transversal |
+| Foco | especificação |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+preco = exp(11,55 + 0,0042*area_m2 + 0,075*quartos - 0,0125*idade_anos - 0,062*dist_centro_km + 0,055*garagens) * exp(u)
+
+u ~ N(0; 0,16^2) no LOG do preco -> em nivel, a variancia cresce com o preco esperado
+
+o modelo verdadeiro e LOG-LINEAR. Estimar em nivel gera heterocedasticidade E ma especificacao ao mesmo tempo.
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`preco ~ area_m2 + quartos + idade_anos + dist_centro_km + garagens`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **61641.7139** | 10607.4316 | 5.81 | 0.0000 | 12372.1280 | 4.98 |
+| `area_m2` | **1037.0418** | 61.9995 | 16.73 | 0.0000 | 84.9571 | 12.21 |
+| `quartos` | **11201.5374** | 4151.2942 | 2.70 | 0.0075 | 4429.0078 | 2.53 |
+| `idade_anos` | **-2780.0513** | 354.4874 | -7.84 | 0.0000 | 318.6631 | -8.72 |
+| `dist_centro_km` | **-11211.0635** | 947.8241 | -11.83 | 0.0000 | 1032.7898 | -10.86 |
+| `garagens` | **13381.5776** | 3187.0099 | 4.20 | 0.0000 | 3656.7326 | 3.66 |
+
+- **R²** 0.7870  ·  **R² ajustado** 0.7824  ·  **σ** 38662.932  ·  **AIC** 5757.1
+- **VIF** `area_m2` 1.93, `quartos` 1.94, `idade_anos` 1.01, `dist_centro_km` 1.01, `garagens` 1.01
+- **Breusch-Pagan** p = 4.17e-10  ·  **White** p = 5.23e-13
+- **Durbin-Watson** 2.019  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 56.14, p = 1.396e-12  ·  potência 3: F = 68.38, p = 3.597e-24
+
+## Modelo 2 — alternativa sugerida (com o preço em log)
+
+`log(preco) ~ area_m2 + quartos + idade_anos + dist_centro_km + garagens`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **11.5166** | 0.0451 | 255.44 | 0.0000 | 0.0465 | 247.58 |
+| `area_m2` | **0.0046** | 0.0003 | 17.41 | 0.0000 | 0.0003 | 16.73 |
+| `quartos` | **0.0556** | 0.0176 | 3.15 | 0.0018 | 0.0167 | 3.34 |
+| `idade_anos` | **-0.0144** | 0.0015 | -9.58 | 0.0000 | 0.0013 | -11.31 |
+| `dist_centro_km` | **-0.0606** | 0.0040 | -15.05 | 0.0000 | 0.0042 | -14.54 |
+| `garagens` | **0.0826** | 0.0135 | 6.10 | 0.0000 | 0.0145 | 5.70 |
+
+- **R²** 0.8200  ·  **R² ajustado** 0.8162  ·  **σ** 0.164  ·  **AIC** -179.8
+- **VIF** `area_m2` 1.93, `quartos` 1.94, `idade_anos` 1.01, `dist_centro_km` 1.01, `garagens` 1.01
+- **Breusch-Pagan** p = 0.359  ·  **White** p = 0.625
+- **Durbin-Watson** 1.894  ← *sem significado em corte transversal*
+- **RESET** potência 2: F = 0.75, p = 0.3876  ·  potência 3: F = 0.81, p = 0.4474
+
+
+## Onde o aluno costuma errar
+
+1. Reportar o modelo em nivel como valido porque o R2 e alto.
+2. Comparar AIC entre o modelo em nivel e o modelo em log (dependentes diferentes — comparacao invalida).
+3. Nao perceber que log resolve heterocedasticidade E especificacao de uma vez.
+4. Interpretar o coeficiente do log como reais por m2.

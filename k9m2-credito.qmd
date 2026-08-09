@@ -1,0 +1,65 @@
+---
+title: "Projeto 9 — Crédito rural e taxa de juros"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 9** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-credito.html`](proj-econ2-credito.html) |
+| Base | `dados/credito_rural.csv` — 200 observações, série temporal |
+| Foco | autocorrelação e quebra estrutural |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+credito_rural = 42 - 2,35*juros_reais + 0,62*pib_agro + 0,085*preco_soja + e_t
+
+e_t = 0,70*e_{t-1} + v_t, v_t ~ N(0; 7,5^2)
+
+QUEBRA ESTRUTURAL no mes 121 (janeiro de 2019): a partir dali os juros sobem 1,6 p.p. de patamar.
+   A quebra esta na variavel JUROS, nao no intercepto da equacao - o RESET a detecta como ma especificacao.
+:::
+
+## Modelo 1 — o que o aluno estima primeiro
+
+`credito_rural ~ juros_reais + pib_agro + preco_soja`
+
+| Variável | Coef. | Erro-padrão | t | p | se HC3 | t HC3 |
+|---|---|---|---|---|---|---|
+| `const` | **28.7049** | 10.5463 | 2.72 | 0.0071 | 8.5353 | 3.36 |
+| `juros_reais` | **-3.5577** | 0.8568 | -4.15 | 0.0000 | 0.7959 | -4.47 |
+| `pib_agro` | **0.6380** | 0.1013 | 6.30 | 0.0000 | 0.1032 | 6.18 |
+| `preco_soja` | **0.2460** | 0.1196 | 2.06 | 0.0411 | 0.1077 | 2.28 |
+
+- **R²** 0.4565  ·  **R² ajustado** 0.4482  ·  **σ** 10.766  ·  **AIC** 1522.1
+- **VIF** `juros_reais` 2.45, `pib_agro` 4.87, `preco_soja` 2.78
+- **Breusch-Pagan** p = 0.00763  ·  **White** p = 0.00029
+- **Durbin-Watson** 0.705
+- **Breusch-Godfrey** 4 defasagens p = 1.68e-17  ·  12 defasagens p = 7.2e-14
+- **RESET** potência 2: F = 19.45, p = 1.707e-05  ·  potência 3: F = 21.36, p = 4.126e-09
+
+
+## Onde o aluno costuma errar
+
+1. Corrigir a autocorrelacao com Prais-Winsten sem investigar a quebra — trata o sintoma, nao a causa.
+2. Escolher o ponto da quebra olhando qual maximiza o R2 (data mining) em vez de justificar economicamente.
+3. Nao testar se a quebra mudou o intercepto, a inclinacao, ou os dois.
+4. Ignorar que o RESET detecta quebra estrutural, e nao apenas forma funcional.
