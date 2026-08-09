@@ -8,7 +8,7 @@
 
 <meta name="author" content="Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop">
 
-<title>Laboratório 1 — Explorando dados – Econometria Interativa · UNEMAT</title>
+<title>Projeto 1 — O que determina o preço da terra em Mato Grosso – Econometria Interativa · UNEMAT</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,41 +26,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -322,8 +287,8 @@ background: #1E2761;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Laboratório 1 — Explorando dados</h1>
-            <p class="subtitle lead">Econometria I · Unidade 1 — Introdução ao modelo de regressão linear</p>
+      <h1 class="title">Projeto 1 — O que determina o preço da terra em Mato Grosso</h1>
+            <p class="subtitle lead">Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão</p>
                       </div>
   </div>
     
@@ -350,42 +315,14 @@ background: #1E2761;
     <h2 id="toc-title">Nesta página</h2>
    
   <ul>
-  <li><a href="#contexto-a-limonada-da-rosie" id="toc-contexto-a-limonada-da-rosie" class="nav-link active" data-scroll-target="#contexto-a-limonada-da-rosie"><span class="header-section-number">1</span> Contexto: a limonada da Rosie</a></li>
-  <li><a href="#importar-e-conhecer-os-dados" id="toc-importar-e-conhecer-os-dados" class="nav-link" data-scroll-target="#importar-e-conhecer-os-dados"><span class="header-section-number">2</span> Importar e conhecer os dados</a>
+  <li><a href="#o-caso" id="toc-o-caso" class="nav-link active" data-scroll-target="#o-caso"><span class="header-section-number">0.1</span> O caso</a></li>
+  <li><a href="#a-base" id="toc-a-base" class="nav-link" data-scroll-target="#a-base"><span class="header-section-number">0.2</span> A base</a></li>
+  <li><a href="#etapa-1-conhecer-os-dados-e-especificar" id="toc-etapa-1-conhecer-os-dados-e-especificar" class="nav-link" data-scroll-target="#etapa-1-conhecer-os-dados-e-especificar"><span class="header-section-number">1</span> Etapa 1 — Conhecer os dados e especificar</a></li>
+  <li><a href="#etapa-2-estimar-e-diagnosticar-multicolinearidade" id="toc-etapa-2-estimar-e-diagnosticar-multicolinearidade" class="nav-link" data-scroll-target="#etapa-2-estimar-e-diagnosticar-multicolinearidade"><span class="header-section-number">2</span> Etapa 2 — Estimar e diagnosticar multicolinearidade</a></li>
+  <li><a href="#etapa-3-heterocedasticidade-e-autocorrelação" id="toc-etapa-3-heterocedasticidade-e-autocorrelação" class="nav-link" data-scroll-target="#etapa-3-heterocedasticidade-e-autocorrelação"><span class="header-section-number">3</span> Etapa 3 — Heterocedasticidade e autocorrelação</a></li>
+  <li><a href="#etapa-4-especificação-e-modelo-final" id="toc-etapa-4-especificação-e-modelo-final" class="nav-link" data-scroll-target="#etapa-4-especificação-e-modelo-final"><span class="header-section-number">4</span> Etapa 4 — Especificação e modelo final</a>
   <ul class="collapse">
-  <li><a href="#exercício-1-o-tamanho-da-base" id="toc-exercício-1-o-tamanho-da-base" class="nav-link" data-scroll-target="#exercício-1-o-tamanho-da-base"><span class="header-section-number">2.1</span> Exercício 1 — o tamanho da base</a></li>
-  </ul></li>
-  <li><a href="#resumo-estatístico" id="toc-resumo-estatístico" class="nav-link" data-scroll-target="#resumo-estatístico"><span class="header-section-number">3</span> Resumo estatístico</a>
-  <ul class="collapse">
-  <li><a href="#exercício-2-o-dia-mais-quente" id="toc-exercício-2-o-dia-mais-quente" class="nav-link" data-scroll-target="#exercício-2-o-dia-mais-quente"><span class="header-section-number">3.1</span> Exercício 2 — o dia mais quente</a></li>
-  </ul></li>
-  <li><a href="#criando-uma-variável-a-receita" id="toc-criando-uma-variável-a-receita" class="nav-link" data-scroll-target="#criando-uma-variável-a-receita"><span class="header-section-number">4</span> Criando uma variável: a receita</a>
-  <ul class="collapse">
-  <li><a href="#exercício-3-a-receita-média-diária" id="toc-exercício-3-a-receita-média-diária" class="nav-link" data-scroll-target="#exercício-3-a-receita-média-diária"><span class="header-section-number">4.1</span> Exercício 3 — a receita média diária</a></li>
-  </ul></li>
-  <li><a href="#filtrar-e-ordenar-o-dia-mais-frio" id="toc-filtrar-e-ordenar-o-dia-mais-frio" class="nav-link" data-scroll-target="#filtrar-e-ordenar-o-dia-mais-frio"><span class="header-section-number">5</span> Filtrar e ordenar: o dia mais frio</a>
-  <ul class="collapse">
-  <li><a href="#exercício-4-o-fim-de-semana-vende-mais" id="toc-exercício-4-o-fim-de-semana-vende-mais" class="nav-link" data-scroll-target="#exercício-4-o-fim-de-semana-vende-mais"><span class="header-section-number">5.1</span> Exercício 4 — o fim de semana vende mais?</a></li>
-  </ul></li>
-  <li><a href="#medindo-associação-correlações" id="toc-medindo-associação-correlações" class="nav-link" data-scroll-target="#medindo-associação-correlações"><span class="header-section-number">6</span> Medindo associação: correlações</a>
-  <ul class="collapse">
-  <li><a href="#exercício-5-panfletos-e-vendas" id="toc-exercício-5-panfletos-e-vendas" class="nav-link" data-scroll-target="#exercício-5-panfletos-e-vendas"><span class="header-section-number">6.1</span> Exercício 5 — panfletos e vendas</a></li>
-  </ul></li>
-  <li><a href="#visualizando-a-relação" id="toc-visualizando-a-relação" class="nav-link" data-scroll-target="#visualizando-a-relação"><span class="header-section-number">7</span> Visualizando a relação</a>
-  <ul class="collapse">
-  <li><a href="#exercício-6-o-gráfico-da-chuva" id="toc-exercício-6-o-gráfico-da-chuva" class="nav-link" data-scroll-target="#exercício-6-o-gráfico-da-chuva"><span class="header-section-number">7.1</span> Exercício 6 — o gráfico da chuva</a></li>
-  </ul></li>
-  <li><a href="#o-paradoxo-do-preço" id="toc-o-paradoxo-do-preço" class="nav-link" data-scroll-target="#o-paradoxo-do-preço"><span class="header-section-number">8</span> O paradoxo do preço</a>
-  <ul class="collapse">
-  <li><a href="#exercício-7-medindo-o-paradoxo" id="toc-exercício-7-medindo-o-paradoxo" class="nav-link" data-scroll-target="#exercício-7-medindo-o-paradoxo"><span class="header-section-number">8.1</span> Exercício 7 — medindo o paradoxo</a></li>
-  </ul></li>
-  <li><a href="#glossário-as-funções-deste-laboratório" id="toc-glossário-as-funções-deste-laboratório" class="nav-link" data-scroll-target="#glossário-as-funções-deste-laboratório"><span class="header-section-number">9</span> Glossário: as funções deste laboratório</a></li>
-  <li><a href="#o-que-vem-a-seguir" id="toc-o-que-vem-a-seguir" class="nav-link" data-scroll-target="#o-que-vem-a-seguir"><span class="header-section-number">10</span> O que vem a seguir</a></li>
-  <li><a href="#exercícios-avaliativos" id="toc-exercícios-avaliativos" class="nav-link" data-scroll-target="#exercícios-avaliativos"><span class="header-section-number">11</span> Exercícios avaliativos</a>
-  <ul class="collapse">
-  <li><a href="#questão-1" id="toc-questão-1" class="nav-link" data-scroll-target="#questão-1"><span class="header-section-number">11.1</span> Questão 1</a></li>
-  <li><a href="#questão-2" id="toc-questão-2" class="nav-link" data-scroll-target="#questão-2"><span class="header-section-number">11.2</span> Questão 2</a></li>
-  <li><a href="#questão-3" id="toc-questão-3" class="nav-link" data-scroll-target="#questão-3"><span class="header-section-number">11.3</span> Questão 3</a></li>
+  <li><a href="#o-que-entregar" id="toc-o-que-entregar" class="nav-link" data-scroll-target="#o-que-entregar"><span class="header-section-number">4.1</span> O que entregar</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -400,838 +337,496 @@ background: #1E2761;
 <div class="logo-topo">
 <p><img src="logo-unemat.png" class="img-fluid" width="110"></p>
 </div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Como funciona este projeto
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Esta página <strong>não interpreta os resultados para você</strong>. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.</p>
+<p>Você apresentará este mesmo caso <strong>três vezes</strong> ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Apresentação</th>
+<th>Depois da unidade sobre</th>
+<th>O que você leva</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1ª</strong></td>
+<td>Multicolinearidade</td>
+<td>Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade</td>
+</tr>
+<tr class="even">
+<td><strong>2ª</strong></td>
+<td>Heterocedasticidade e autocorrelação</td>
+<td>Os testes, a correção adotada e o efeito dela sobre a inferência</td>
+</tr>
+<tr class="odd">
+<td><strong>3ª</strong></td>
+<td>Especificação</td>
+<td>O teste RESET, o modelo final e a comparação antes/depois</td>
+</tr>
+</tbody>
+</table>
+<p>Cada etapa abaixo corresponde a uma dessas entregas.</p>
+</div>
+</div>
+<section id="o-caso" class="level2" data-number="0.1">
+<h2 data-number="0.1" class="anchored" data-anchor-id="o-caso"><span class="header-section-number">0.1</span> O caso</h2>
+<p>Mato Grosso concentra a maior área plantada de soja do país, e o preço da terra agrícola é uma das variáveis mais acompanhadas pelo setor — por produtores que querem expandir, por bancos que aceitam a terra como garantia e pelo poder público, que a usa como base para tributação e para desapropriações.</p>
+<p>A pergunta que você vai responder é a de qualquer avaliador de imóveis rurais:</p>
+<blockquote class="blockquote">
+<p><strong>Quanto vale um hectare, e o que explica a diferença de preço entre um imóvel e outro?</strong></p>
+</blockquote>
+<p>Quatro candidatas óbvias, todas com justificativa econômica:</p>
+<ul>
+<li><strong>Produtividade da terra.</strong> Terra que produz mais soja gera mais receita por hectare, e o preço deveria capitalizar essa renda futura.</li>
+<li><strong>Aptidão agrícola.</strong> Um índice técnico de qualidade do solo, relevo e regime de chuvas — mede o potencial da terra, não o que ela de fato produziu.</li>
+<li><strong>Distância até o entreposto.</strong> Quanto mais longe do armazém ou do ponto de embarque, maior o frete e menor o preço líquido recebido pelo produtor. É a lógica de von Thünen, de 1826, e ela continua valendo.</li>
+<li><strong>Irrigação.</strong> Área irrigada permite segunda safra segura e reduz o risco climático.</li>
+</ul>
+</section>
+<section id="a-base" class="level2" data-number="0.2">
+<h2 data-number="0.2" class="anchored" data-anchor-id="a-base"><span class="header-section-number">0.2</span> A base</h2>
+<p>Os dados vêm do <strong>Painel de Preços de Terras Agrícolas de Mato Grosso (PPTA-MT)</strong>, levantamento de 2024, com <strong>220 imóveis rurais</strong> distribuídos pelas principais regiões produtoras do estado.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Objetivos de aprendizagem
+<span class="screen-reader-only">Nota</span>Sobre os dados
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Ao final deste laboratório você será capaz de:</p>
-<ul>
-<li>importar uma base de dados e inspecionar sua estrutura;</li>
-<li>calcular e <strong>interpretar</strong> estatísticas descritivas;</li>
-<li>criar variáveis derivadas e obter totais e subtotais;</li>
-<li>filtrar e ordenar registros para responder a perguntas concretas;</li>
-<li>medir a associação entre duas variáveis e visualizá-la num gráfico;</li>
-<li>reconhecer por que <strong>correlação não é causalidade</strong>.</li>
-</ul>
+<p>Esta base é <strong>sintética</strong>: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza dos levantamentos de preços de terras publicados por instituições do setor. Os imóveis não existem, e os números <strong>não devem ser citados como evidência empírica</strong> em trabalhos acadêmicos.</p>
+<p>O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira — e há pelo menos uma que a maioria dos trabalhos publicados não trata corretamente.</p>
 </div>
 </div>
-<section id="contexto-a-limonada-da-rosie" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="contexto-a-limonada-da-rosie"><span class="header-section-number">1</span> Contexto: a limonada da Rosie</h2>
-<p>Rosie Reeves vende limonada caseira num quiosque no parque. Para atrair clientes, distribui panfletos e anota, em todos os dias de 2017, suas vendas, o preço cobrado, o número de panfletos distribuídos e o clima (temperatura e chuva). São <strong>365 observações</strong> — uma por dia.</p>
-<p>Nossa pergunta de fundo é simples e econômica: <strong>o que explica a variação das vendas?</strong> Ao longo do laboratório vamos construindo a resposta, e o caminho nos levará direto à motivação da análise de regressão.</p>
-<p>Aqui o R roda <strong>no seu próprio navegador</strong>: basta clicar em <strong>Run Code</strong>. Edite o código e rode quantas vezes quiser — não há como “quebrar” nada.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Comece pelo bloco 1
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Todos os blocos compartilham a mesma sessão do R. Rode o <strong>primeiro bloco</strong> antes dos demais: é ele que cria o objeto <code>limonada</code>, usado em todo o restante da página.</p>
-</div>
-</div>
-</section>
-<section id="importar-e-conhecer-os-dados" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="importar-e-conhecer-os-dados"><span class="header-section-number">2</span> Importar e conhecer os dados</h2>
-<p>O primeiro passo de qualquer análise é trazer os dados para dentro do R e olhar para eles. A função <code>read.csv()</code> lê o arquivo e <code>head()</code> mostra as seis primeiras linhas.</p>
-<p>O símbolo <code>&lt;-</code> é o <strong>operador de atribuição</strong>: ele guarda o resultado da direita num objeto com o nome da esquerda. Assim, <code>limonada &lt;- read.csv("dados/limonada.csv")</code> significa “leia o arquivo e guarde o conteúdo num objeto chamado <code>limonada</code>”. A partir daí, sempre que escrevermos <code>limonada</code>, o R saberá do que se trata.</p>
 <div class="cell">
 <div>
 <div id="webr-1" class="exercise-cell">
 
 </div>
 <script type="webr-1-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGltb25hZGEgPC0gcmVhZC5jc3YoXCJkYWRvcy9saW1vbmFkYS5jc3ZcIilcbmhlYWQobGltb25hZGEpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoidGVycmFzIDwtIHJlYWQuY3N2KFwiZGFkb3MvdGVycmFzX210LmNzdlwiKVxuaGVhZCh0ZXJyYXMpXG5zdW1tYXJ5KHRlcnJhcykifQ==
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variável</th>
+<th>O que é</th>
+<th>Unidade</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>imovel</code></td>
+<td>Identificador do imóvel</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td><code>preco_ha</code></td>
+<td>Preço de mercado do hectare</td>
+<td>R$ mil/ha</td>
+</tr>
+<tr class="odd">
+<td><code>produtividade</code></td>
+<td>Produtividade média de soja nas últimas três safras</td>
+<td>sacas/ha</td>
+</tr>
+<tr class="even">
+<td><code>aptidao</code></td>
+<td>Índice de aptidão agrícola</td>
+<td>0 a 100</td>
+</tr>
+<tr class="odd">
+<td><code>distancia_km</code></td>
+<td>Distância rodoviária até o entreposto mais próximo</td>
+<td>km</td>
+</tr>
+<tr class="even">
+<td><code>irrigacao</code></td>
+<td>1 se o imóvel tem área irrigada, 0 caso contrário</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td><code>area_ha</code></td>
+<td>Área total do imóvel</td>
+<td>ha</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="etapa-1-conhecer-os-dados-e-especificar" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Etapa 1 — Conhecer os dados e especificar</h1>
+<div class="callout callout-style-default callout-tip callout-empty-content callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
+<span class="screen-reader-only">Dica</span>Para a 1ª apresentação
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Cada <strong>linha</strong> é um dia; cada <strong>coluna</strong>, uma variável. Repare na estrutura: <code>data</code> e <code>dia</code> identificam a observação; <code>temperatura</code> (°C) e <code>chuva</code> (mm) descrevem o clima; <code>panfletos</code>, <code>preco</code> e <code>vendas</code> descrevem o negócio. Em econometria, <code>vendas</code> será nossa <strong>variável dependente</strong> (o que queremos explicar) e as demais, candidatas a <strong>variáveis explicativas</strong>.</p>
+
 </div>
 </div>
-<section id="exercício-1-o-tamanho-da-base" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="exercício-1-o-tamanho-da-base"><span class="header-section-number">2.1</span> Exercício 1 — o tamanho da base</h3>
-<p>Descubra quantos dias (linhas) a base contém.</p>
-<div class="cell" data-exercise="ex_nrow">
+<p>Antes de estimar qualquer coisa, olhe os dados.</p>
+<div class="cell">
 <div>
 <div id="webr-2" class="exercise-cell">
 
 </div>
 <script type="webr-2-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiX19fX19fKGxpbW9uYWRhKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxuZ2dwbG90KHRlcnJhcywgYWVzKHByb2R1dGl2aWRhZGUsIHByZWNvX2hhKSkgK1xuICBnZW9tX3BvaW50KGFscGhhID0gMC42LCBjb2xvdXIgPSBcIiMxRTI3NjFcIikgK1xuICBsYWJzKHggPSBcIlByb2R1dGl2aWRhZGUgKHNhY2FzL2hhKVwiLCB5ID0gXCJQcmXDp28gKFIkIG1pbC9oYSlcIikgK1xuICB0aGVtZV9taW5pbWFsKCkifQ==
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>A função <code>nrow()</code> devolve o número de linhas de um <em>data frame</em>. (A prima dela, <code>ncol()</code>, devolve o número de colunas.)</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(limonada)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="resumo-estatístico" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="resumo-estatístico"><span class="header-section-number">3</span> Resumo estatístico</h2>
-<p>A função <code>summary()</code> aplica-se ao <em>data frame</em> inteiro e devolve, para cada coluna numérica, seis números: mínimo, primeiro quartil, mediana, média, terceiro quartil e máximo. Para colunas de texto, ela apenas informa quantos valores existem. É o retrato inicial da base — o primeiro lugar onde procuramos valores estranhos.</p>
 <div class="cell">
 <div>
 <div id="webr-3" class="exercise-cell">
 
 </div>
 <script type="webr-3-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic3VtbWFyeShsaW1vbmFkYSkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZ2dwbG90KHRlcnJhcywgYWVzKGRpc3RhbmNpYV9rbSwgcHJlY29faGEpKSArXG4gIGdlb21fcG9pbnQoYWxwaGEgPSAwLjYsIGNvbG91ciA9IFwiIzFFMjc2MVwiKSArXG4gIGxhYnMoeCA9IFwiRGlzdMOibmNpYSBhdMOpIG8gZW50cmVwb3N0byAoa20pXCIsIHkgPSBcIlByZcOnbyAoUiQgbWlsL2hhKVwiKSArXG4gIHRoZW1lX21pbmltYWwoKSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>A temperatura vai de <strong>−9,4 °C a 39,4 °C</strong> (média de 16,0 °C) — o ano inteiro, com estações bem marcadas. As vendas variam de <strong>7 a 43 unidades</strong> por dia (média de 25,3). E há um detalhe fácil de passar batido: o <strong>preço</strong> tem mediana 1,20, mas máximo <strong>2,00</strong>. Ou seja, <strong>o preço mudou em alguns dias</strong>. Guarde essa informação: ela será a chave da última seção.</p>
-</div>
-</div>
-<section id="exercício-2-o-dia-mais-quente" class="level3" data-number="3.1">
-<h3 data-number="3.1" class="anchored" data-anchor-id="exercício-2-o-dia-mais-quente"><span class="header-section-number">3.1</span> Exercício 2 — o dia mais quente</h3>
-<p>Qual foi a temperatura máxima registrada no ano? Complete o código.</p>
-<p>O cifrão <code>$</code> serve para acessar <strong>uma coluna</strong> do <em>data frame</em>: <code>limonada$temperatura</code> é o vetor com as 365 temperaturas. A função <code>max()</code> devolve o maior valor de um vetor.</p>
-<div class="cell" data-exercise="ex_maisquente">
+<div class="cell">
 <div>
 <div id="webr-4" class="exercise-cell">
 
 </div>
 <script type="webr-4-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibWF4KGxpbW9uYWRhJF9fX19fXykifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZ2dwbG90KHRlcnJhcywgYWVzKGZhY3RvcihpcnJpZ2FjYW8pLCBwcmVjb19oYSkpICtcbiAgZ2VvbV9ib3hwbG90KGZpbGwgPSBcIiMxRTI3NjFcIiwgYWxwaGEgPSAwLjcpICtcbiAgbGFicyh4ID0gXCJJcnJpZ2HDp8OjbyAoMCA9IG7Do28sIDEgPSBzaW0pXCIsIHkgPSBcIlByZcOnbyAoUiQgbWlsL2hhKVwiKSArXG4gIHRoZW1lX21pbmltYWwoKSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-7" class="callout-7-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>A coluna se chama <code>temperatura</code>. Depois, para ver o dia inteiro em que isso ocorreu, experimente <code>limonada[which.max(limonada$temperatura), ]</code> — a função <code>which.max()</code> devolve a <em>posição</em> do maior valor.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-8" class="callout-8-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">max</span>(limonada<span class="sc">$</span>temperatura)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>limonada[<span class="fu">which.max</span>(limonada<span class="sc">$</span>temperatura), ]</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="criando-uma-variável-a-receita" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="criando-uma-variável-a-receita"><span class="header-section-number">4</span> Criando uma variável: a receita</h2>
-<p>Os dados registram preço e quantidade, mas não a receita. Vamos criá-la. Neste bloco aparecem quatro novidades:</p>
-<ul>
-<li><code>library(dplyr)</code> <strong>carrega um pacote</strong> — um conjunto de funções extras. O <code>dplyr</code> é o pacote mais usado para manipular tabelas no R. Carregue-o uma vez por sessão.</li>
-<li><code>|&gt;</code> é o <strong>pipe</strong> (“cano”): ele pega o resultado da esquerda e o entrega como primeiro argumento da função da direita. Leia como “então”: <code>limonada |&gt; mutate(...)</code> é o mesmo que <code>mutate(limonada, ...)</code>, mas fica mais legível quando encadeamos várias operações.</li>
-<li><code>mutate()</code> <strong>cria ou altera colunas</strong> — aqui, a coluna <code>receita</code>.</li>
-<li><code>summarise()</code> <strong>resume a tabela numa única linha</strong>, aplicando funções de agregação como <code>sum()</code> (soma).</li>
-</ul>
 <div class="cell">
 <div>
 <div id="webr-5" class="exercise-cell">
 
 </div>
 <script type="webr-5-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShkcGx5cilcbmxpbW9uYWRhIDwtIGxpbW9uYWRhIHw+IG11dGF0ZShyZWNlaXRhID0gcHJlY28gKiB2ZW5kYXMpXG5saW1vbmFkYSB8PiBzdW1tYXJpc2UodG90YWxfcGFuZmxldG9zID0gc3VtKHBhbmZsZXRvcyksXG4gICAgICAgICAgICAgICAgICAgICAgcmVjZWl0YV90b3RhbCAgID0gc3VtKHJlY2VpdGEpKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicm91bmQoY29yKHRlcnJhc1ssIGMoXCJwcmVjb19oYVwiLFwicHJvZHV0aXZpZGFkZVwiLFwiYXB0aWRhb1wiLFwiZGlzdGFuY2lhX2ttXCIsXCJhcmVhX2hhXCIpXSksIDMpIn0=
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
+<span class="screen-reader-only">Nota</span>O que você precisa responder
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>No ano, Rosie distribuiu <strong>14.704 panfletos</strong> e faturou <strong>12.734,80</strong>. Criar variáveis derivadas a partir das existentes é rotina em econometria — é assim que se constroem indicadores como renda <em>per capita</em>, produtividade ou margem.</p>
+<ol type="1">
+<li>Descreva a amostra: quantos imóveis, qual a faixa de preços, qual a proporção de imóveis irrigados.</li>
+<li>Qual variável parece ter a relação mais forte com o preço? A relação é <strong>linear</strong> em todos os casos? Olhe com atenção o gráfico da distância.</li>
+<li>Na matriz de correlações, há algum par de variáveis explicativas que chama atenção? Por quê isso pode ser um problema?</li>
+<li><code>area_ha</code> deveria entrar no modelo? Argumente economicamente antes de olhar qualquer estatística.</li>
+<li>Escreva a equação que você vai estimar e justifique <strong>cada</strong> variável incluída.</li>
+</ol>
 </div>
 </div>
-<section id="exercício-3-a-receita-média-diária" class="level3" data-number="4.1">
-<h3 data-number="4.1" class="anchored" data-anchor-id="exercício-3-a-receita-média-diária"><span class="header-section-number">4.1</span> Exercício 3 — a receita média diária</h3>
-<p>Calcule a receita média por dia.</p>
-<div class="cell" data-exercise="ex_receitamedia">
+<hr>
+</section>
+<section id="etapa-2-estimar-e-diagnosticar-multicolinearidade" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Etapa 2 — Estimar e diagnosticar multicolinearidade</h1>
+<div class="callout callout-style-default callout-tip callout-empty-content callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Para a 1ª apresentação
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+<div class="cell">
 <div>
 <div id="webr-6" class="exercise-cell">
 
 </div>
 <script type="webr-6-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiX19fX19fKGxpbW9uYWRhJHJlY2VpdGEpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibW9kZWxvMSA8LSBsbShwcmVjb19oYSB+IHByb2R1dGl2aWRhZGUgKyBhcHRpZGFvICsgZGlzdGFuY2lhX2ttICsgaXJyaWdhY2FvLCBkYXRhID0gdGVycmFzKVxuc3VtbWFyeShtb2RlbG8xKSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-10" class="callout-10-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>A média é obtida com <code>mean()</code>. Outras funções de resumo úteis: <code>median()</code> (mediana), <code>sd()</code> (desvio-padrão) e <code>range()</code> (mínimo e máximo).</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-11" class="callout-11-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(limonada<span class="sc">$</span>receita)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="filtrar-e-ordenar-o-dia-mais-frio" class="level2" data-number="5">
-<h2 data-number="5" class="anchored" data-anchor-id="filtrar-e-ordenar-o-dia-mais-frio"><span class="header-section-number">5</span> Filtrar e ordenar: o dia mais frio</h2>
-<p>Perguntas concretas exigem recortes. Aqui queremos o dia útil mais frio do ano. As funções envolvidas:</p>
-<ul>
-<li><code>c()</code> <strong>combina valores</strong> num vetor — usamos para listar os cinco dias úteis.</li>
-<li><code>filter()</code> <strong>mantém apenas as linhas</strong> que satisfazem uma condição.</li>
-<li><code>%in%</code> testa se um valor <strong>pertence a um conjunto</strong>: <code>dia %in% dias</code> é verdadeiro quando o dia da linha está na nossa lista.</li>
-<li><code>arrange()</code> <strong>ordena as linhas</strong> (do menor para o maior; use <code>desc()</code> para inverter).</li>
-<li><code>select()</code> <strong>escolhe quais colunas</strong> exibir.</li>
-<li><code>head(5)</code> mostra apenas <strong>as cinco primeiras</strong> linhas do resultado.</li>
-</ul>
 <div class="cell">
 <div>
 <div id="webr-7" class="exercise-cell">
 
 </div>
 <script type="webr-7-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZGlhcyA8LSBjKFwiU2VndW5kYVwiLFwiVGVyw6dhXCIsXCJRdWFydGFcIixcIlF1aW50YVwiLFwiU2V4dGFcIilcbmxpbW9uYWRhIHw+XG4gIGZpbHRlcihkaWEgJWluJSBkaWFzKSB8PlxuICBhcnJhbmdlKHRlbXBlcmF0dXJhKSB8PlxuICBzZWxlY3QoZGF0YSwgZGlhLCB0ZW1wZXJhdHVyYSwgdmVuZGFzKSB8PlxuICBoZWFkKDUpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShjYXIpXG52aWYobW9kZWxvMSkifQ==
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>O dia útil mais frio foi uma <strong>terça-feira, 5 de dezembro, com −5,6 °C</strong> — e apenas <strong>10 vendas</strong>, bem abaixo da média de 25,3. Note que os cinco dias mais frios estão todos entre as menores vendas: é a primeira pista da relação entre temperatura e vendas.</p>
-</div>
-</div>
-<section id="exercício-4-o-fim-de-semana-vende-mais" class="level3" data-number="5.1">
-<h3 data-number="5.1" class="anchored" data-anchor-id="exercício-4-o-fim-de-semana-vende-mais"><span class="header-section-number">5.1</span> Exercício 4 — o fim de semana vende mais?</h3>
-<p>Compare as vendas médias entre fins de semana e dias úteis. Aqui aparece <code>group_by()</code>, que <strong>divide os dados em grupos</strong> antes de resumir: combinado com <code>summarise()</code>, produz uma estatística para cada grupo. A função <code>n()</code> conta quantas observações há em cada um.</p>
-<div class="cell" data-exercise="ex_fimdesemana">
+<div class="cell">
 <div>
 <div id="webr-8" class="exercise-cell">
 
 </div>
 <script type="webr-8-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGltb25hZGEgfD5cbiAgbXV0YXRlKGZpbV9kZV9zZW1hbmEgPSBfX19fX18gJWluJSBjKFwiU8OhYmFkb1wiLFwiRG9taW5nb1wiKSkgfD5cbiAgZ3JvdXBfYnkoZmltX2RlX3NlbWFuYSkgfD5cbiAgc3VtbWFyaXNlKGRpYXMgPSBuKCksIHZlbmRhc19tZWRpYSA9IG1lYW4odmVuZGFzKSkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBjb21vIGNhZGEgdmFyacOhdmVsIHNlIGNvbXBvcnRhIHNvemluaGFcbnN1bW1hcnkobG0ocHJlY29faGEgfiBwcm9kdXRpdmlkYWRlLCBkYXRhID0gdGVycmFzKSkkY29lZmZpY2llbnRzXG5zdW1tYXJ5KGxtKHByZWNvX2hhIH4gYXB0aWRhbywgZGF0YSA9IHRlcnJhcykpJGNvZWZmaWNpZW50cyJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-13" class="callout-13-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>A coluna que guarda o nome do dia da semana chama-se <code>dia</code>. O resultado de <code>dia %in% c("Sábado","Domingo")</code> é <code>TRUE</code> ou <code>FALSE</code> para cada linha.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-14" class="callout-14-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>limonada <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fim_de_semana =</span> dia <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Sábado"</span>,<span class="st">"Domingo"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fim_de_semana) <span class="sc">|&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">dias =</span> <span class="fu">n</span>(), <span class="at">vendas_media =</span> <span class="fu">mean</span>(vendas))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="medindo-associação-correlações" class="level2" data-number="6">
-<h2 data-number="6" class="anchored" data-anchor-id="medindo-associação-correlações"><span class="header-section-number">6</span> Medindo associação: correlações</h2>
-<p>A função <code>cor()</code> calcula o <strong>coeficiente de correlação linear</strong> (de Pearson) entre dois vetores numéricos. Ela recebe duas colunas — acessadas com o <code>$</code> — e devolve um único número entre −1 e 1, que resume a força e o <strong>sinal</strong> da associação.</p>
 <div class="cell">
 <div>
 <div id="webr-9" class="exercise-cell">
 
 </div>
 <script type="webr-9-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29yKGxpbW9uYWRhJHRlbXBlcmF0dXJhLCBsaW1vbmFkYSR2ZW5kYXMpXG5jb3IobGltb25hZGEkY2h1dmEsIGxpbW9uYWRhJHZlbmRhcykifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlIG8gcXVlIGFjb250ZWNlIHNlIHVtYSBkZWxhcyBzYWlyIGRvIG1vZGVsb1xubW9kZWxvX3NlbV9hcHRpZGFvIDwtIGxtKHByZWNvX2hhIH4gcHJvZHV0aXZpZGFkZSArIGRpc3RhbmNpYV9rbSArIGlycmlnYWNhbywgZGF0YSA9IHRlcnJhcylcbnN1bW1hcnkobW9kZWxvX3NlbV9hcHRpZGFvKSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
+<span class="screen-reader-only">Nota</span>O que você precisa responder
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A correlação entre temperatura e vendas é <strong>0,99</strong> — altíssima e positiva: dias quentes vendem mais. Entre chuva e vendas é <strong>−0,91</strong>: dias chuvosos vendem menos. Atenção ao que a correlação <strong>não</strong> diz: ela mede associação linear, não relação de causa e efeito, e não informa <em>quanto</em> as vendas sobem por grau a mais. Responder a isso é justamente o papel da regressão.</p>
+<ol type="1">
+<li>Apresente a tabela de resultados do <code>modelo1</code> no formato de um artigo: coeficiente, erro-padrão, estatística t e valor-p.&nbsp;Interprete o sinal e a magnitude de <strong>cada</strong> coeficiente em termos econômicos — o que significa, em reais por hectare, cada um deles?</li>
+<li>O que os VIF indicam? Compare com os limiares que discutimos em aula.</li>
+<li>Compare o coeficiente da produtividade no <code>modelo1</code> e no <code>modelo_sem_aptidao</code>. Ele muda muito. <strong>Qual dos dois está certo?</strong> Justifique — e note que esta é a pergunta mais difícil do projeto.</li>
+<li>Retirar a <code>aptidao</code> resolveu a multicolinearidade. Que problema essa decisão pode ter criado no lugar? Relacione com o que a Aplicação sobre multicolinearidade mostrou.</li>
+<li>Que decisão você toma: mantém as duas variáveis, retira uma, ou combina as duas? Defenda a escolha à luz do <strong>objetivo</strong> do trabalho.</li>
+</ol>
 </div>
 </div>
-<section id="exercício-5-panfletos-e-vendas" class="level3" data-number="6.1">
-<h3 data-number="6.1" class="anchored" data-anchor-id="exercício-5-panfletos-e-vendas"><span class="header-section-number">6.1</span> Exercício 5 — panfletos e vendas</h3>
-<p>Calcule a correlação entre os panfletos distribuídos e as vendas.</p>
-<div class="cell" data-exercise="ex_panfletos">
+<hr>
+</section>
+<section id="etapa-3-heterocedasticidade-e-autocorrelação" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Etapa 3 — Heterocedasticidade e autocorrelação</h1>
+<div class="callout callout-style-default callout-tip callout-empty-content callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Para a 2ª apresentação
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+<div class="cell">
 <div>
 <div id="webr-10" class="exercise-cell">
 
 </div>
 <script type="webr-10-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29yKGxpbW9uYWRhJF9fX19fXywgbGltb25hZGEkdmVuZGFzKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoidGVycmFzJHJlc2lkdW8gPC0gcmVzaWQobW9kZWxvMSlcbmdncGxvdCh0ZXJyYXMsIGFlcyhmaXR0ZWQobW9kZWxvMSksIHJlc2lkdW8pKSArXG4gIGdlb21fcG9pbnQoYWxwaGEgPSAwLjYsIGNvbG91ciA9IFwiI0MwMzkyQlwiKSArXG4gIGdlb21faGxpbmUoeWludGVyY2VwdCA9IDAsIGxpbmV0eXBlID0gXCJkYXNoZWRcIikgK1xuICBsYWJzKHggPSBcIlZhbG9yZXMgYWp1c3RhZG9zXCIsIHkgPSBcIlJlc8OtZHVvXCIpICtcbiAgdGhlbWVfbWluaW1hbCgpIn0=
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-16-contents" aria-controls="callout-16" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-16" class="callout-16-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>A coluna se chama <code>panfletos</code>. Lembre-se de que a ordem dos argumentos não altera o resultado de <code>cor()</code>.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-17" class="callout-17-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(limonada<span class="sc">$</span>panfletos, limonada<span class="sc">$</span>vendas)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="visualizando-a-relação" class="level2" data-number="7">
-<h2 data-number="7" class="anchored" data-anchor-id="visualizando-a-relação"><span class="header-section-number">7</span> Visualizando a relação</h2>
-<p>Números resumem; gráficos revelam. Usaremos o pacote <strong>ggplot2</strong>, em que um gráfico é montado por camadas somadas com <code>+</code>:</p>
-<ul>
-<li><code>ggplot(dados, aes(x, y))</code> <strong>inicia o gráfico</strong> e define o mapeamento estético — <code>aes()</code> diz qual coluna vai em cada eixo.</li>
-<li><code>geom_point()</code> desenha <strong>os pontos</strong>; <code>alpha = 0.6</code> os deixa levemente transparentes, o que ajuda quando há sobreposição.</li>
-<li><code>geom_smooth(method = "lm", se = FALSE)</code> acrescenta a <strong>reta ajustada por mínimos quadrados</strong> (<code>lm</code> de <em>linear model</em>), sem a faixa de confiança.</li>
-<li><code>labs()</code> define <strong>rótulos</strong> dos eixos e título; <code>theme_minimal()</code> aplica uma aparência limpa.</li>
-</ul>
 <div class="cell">
 <div>
 <div id="webr-11" class="exercise-cell">
 
 </div>
 <script type="webr-11-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxuZ2dwbG90KGxpbW9uYWRhLCBhZXModGVtcGVyYXR1cmEsIHZlbmRhcykpICtcbiAgZ2VvbV9wb2ludChhbHBoYSA9IDAuNiwgY29sb3IgPSBcIiMxRTI3NjFcIikgK1xuICBnZW9tX3Ntb290aChtZXRob2QgPSBcImxtXCIsIHNlID0gRkFMU0UsIGNvbG9yID0gXCIjQjg1MDQyXCIpICtcbiAgbGFicyh4ID0gXCJUZW1wZXJhdHVyYSAowrBDKVwiLCB5ID0gXCJWZW5kYXNcIixcbiAgICAgICB0aXRsZSA9IFwiVmVuZGFzIGRlIGxpbW9uYWRhIGUgdGVtcGVyYXR1cmFcIikgK1xuICB0aGVtZV9taW5pbWFsKGJhc2Vfc2l6ZSA9IDEzKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZ2dwbG90KHRlcnJhcywgYWVzKHByb2R1dGl2aWRhZGUsIHJlc2lkdW8pKSArXG4gIGdlb21fcG9pbnQoYWxwaGEgPSAwLjYsIGNvbG91ciA9IFwiI0MwMzkyQlwiKSArXG4gIGdlb21faGxpbmUoeWludGVyY2VwdCA9IDAsIGxpbmV0eXBlID0gXCJkYXNoZWRcIikgK1xuICBsYWJzKHggPSBcIlByb2R1dGl2aWRhZGUgKHNhY2FzL2hhKVwiLCB5ID0gXCJSZXPDrWR1b1wiKSArXG4gIHRoZW1lX21pbmltYWwoKSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Como ler essa saída
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Os pontos sobem quase em linha reta: a relação é forte, positiva e <strong>aproximadamente linear</strong> — condição que torna o modelo de regressão linear adequado. A reta vermelha é o embrião do que estimaremos formalmente nas próximas aulas; sua <strong>inclinação</strong> dirá quantas unidades a mais se vende por grau adicional de temperatura.</p>
-</div>
-</div>
-<section id="exercício-6-o-gráfico-da-chuva" class="level3" data-number="7.1">
-<h3 data-number="7.1" class="anchored" data-anchor-id="exercício-6-o-gráfico-da-chuva"><span class="header-section-number">7.1</span> Exercício 6 — o gráfico da chuva</h3>
-<p>Refaça o gráfico colocando a <strong>chuva</strong> no eixo horizontal e observe como o sinal da relação muda.</p>
-<div class="cell" data-exercise="ex_grafico_chuva">
+<div class="cell">
 <div>
 <div id="webr-12" class="exercise-cell">
 
 </div>
 <script type="webr-12-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZ2dwbG90KGxpbW9uYWRhLCBhZXMoX19fX19fLCB2ZW5kYXMpKSArXG4gIGdlb21fcG9pbnQoYWxwaGEgPSAwLjYsIGNvbG9yID0gXCIjMUUyNzYxXCIpICtcbiAgZ2VvbV9zbW9vdGgobWV0aG9kID0gXCJsbVwiLCBzZSA9IEZBTFNFLCBjb2xvciA9IFwiI0I4NTA0MlwiKSArXG4gIGxhYnMoeCA9IFwiQ2h1dmEgKG1tKVwiLCB5ID0gXCJWZW5kYXNcIikgK1xuICB0aGVtZV9taW5pbWFsKGJhc2Vfc2l6ZSA9IDEzKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShsbXRlc3QpXG5icHRlc3QobW9kZWxvMSlcbmJwdGVzdChtb2RlbG8xLCB+IHByb2R1dGl2aWRhZGUgKyBJKHByb2R1dGl2aWRhZGVeMikgKyBhcHRpZGFvICsgSShhcHRpZGFvXjIpICtcbiAgICAgICAgIGRpc3RhbmNpYV9rbSArIEkoZGlzdGFuY2lhX2ttXjIpICsgaXJyaWdhY2FvLCBkYXRhID0gdGVycmFzKSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-19" class="callout-19-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Basta trocar <code>temperatura</code> por <code>chuva</code> dentro de <code>aes()</code> — o resto do código permanece igual.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-20-contents" aria-controls="callout-20" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-20" class="callout-20-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(limonada, <span class="fu">aes</span>(chuva, vendas)) <span class="sc">+</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">color =</span> <span class="st">"#1E2761"</span>) <span class="sc">+</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"#B85042"</span>) <span class="sc">+</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Chuva (mm)"</span>, <span class="at">y =</span> <span class="st">"Vendas"</span>) <span class="sc">+</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="o-paradoxo-do-preço" class="level2" data-number="8">
-<h2 data-number="8" class="anchored" data-anchor-id="o-paradoxo-do-preço"><span class="header-section-number">8</span> O paradoxo do preço</h2>
-<p>Vimos que o preço não é constante: na maior parte dos dias custa 1,20, mas em alguns sobe para 2,00. O que será que acontece com as vendas nesses dias?</p>
-<p>Vamos usar <code>group_by(preco)</code> para <strong>separar os dias pelas faixas de preço</strong> e <code>summarise()</code> para calcular, em cada grupo, quantos dias há (<code>n()</code>) e a venda média (<code>mean()</code>).</p>
 <div class="cell">
 <div>
 <div id="webr-13" class="exercise-cell">
 
 </div>
 <script type="webr-13-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGltb25hZGEgfD5cbiAgZ3JvdXBfYnkocHJlY28pIHw+XG4gIHN1bW1hcmlzZShkaWFzID0gbigpLCB2ZW5kYXNfbWVkaWEgPSBtZWFuKHZlbmRhcykpIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZHd0ZXN0KG1vZGVsbzEpIn0=
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Aviso</span>Algo está errado?
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Nos dias em que a limonada custa <strong>2,00</strong>, Rosie vende <strong>mais</strong> (média de 33,1) do que nos dias em que custa <strong>1,20</strong> (média de 23,7). A correlação entre preço e vendas é <strong>positiva</strong>.</p>
-<p>Isso contraria a lei da demanda, que ensina o contrário: preço maior, quantidade menor. Podemos concluir que <strong>aumentar o preço faz vender mais</strong>?</p>
-</div>
-</div>
-<p>Antes de concluir qualquer coisa, vale investigar <strong>em que dias</strong> ela resolve cobrar mais caro. Repetimos o agrupamento, agora resumindo a temperatura média de cada faixa.</p>
 <div class="cell">
 <div>
 <div id="webr-14" class="exercise-cell">
 
 </div>
 <script type="webr-14-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGltb25hZGEgfD5cbiAgZ3JvdXBfYnkocHJlY28pIHw+XG4gIHN1bW1hcmlzZSh0ZW1wZXJhdHVyYV9tZWRpYSA9IG1lYW4odGVtcGVyYXR1cmEpKSJ9
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShzYW5kd2ljaClcbmNvZWZ0ZXN0KG1vZGVsbzEsIHZjb3YgPSB2Y292SEMobW9kZWxvMSwgdHlwZSA9IFwiSEMzXCIpKSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>O enigma resolvido: viés de variável omitida
+<span class="screen-reader-only">Nota</span>O que você precisa responder
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Nos dias de preço 2,00 a temperatura média é de <strong>26,0 °C</strong>; nos de 1,20, apenas <strong>13,9 °C</strong>. Rosie cobra mais caro <strong>justamente nos dias quentes</strong> — e são os dias quentes que trazem a freguesia.</p>
-<p>A temperatura é uma <strong>variável omitida</strong>: ela afeta as vendas <em>e</em> está associada ao preço. Ao comparar apenas preço e vendas, atribuímos ao preço um efeito que na verdade é da temperatura. O resultado é uma correlação positiva enganosa — um caso clássico de <strong>viés de variável omitida</strong>, e a razão pela qual <strong>correlação não é causalidade</strong>.</p>
-<p>A solução é estimar o efeito do preço <strong>mantendo a temperatura constante</strong> — isto é, comparar dias de mesma temperatura. É exatamente isso que a <strong>regressão múltipla</strong> faz, e é para lá que vamos nas próximas unidades.</p>
+<ol type="1">
+<li>Os dois gráficos de resíduos mostram algum padrão? Descreva o que você vê e diga contra qual variável o padrão é mais nítido.</li>
+<li>Reporte os dois testes com estatística e valor-p.&nbsp;Qual a diferença entre o Breusch-Pagan simples e a versão com os quadrados? Por que a segunda é chamada de teste de White?</li>
+<li><strong>O teste de Durbin-Watson faz sentido nesta base?</strong> Justifique a partir da natureza dos dados. Se não faz, explique o que ele estaria testando e por que o resultado é irrelevante aqui.</li>
+<li>Compare a tabela com erros-padrão clássicos e a tabela com HC3. O que mudou nos coeficientes? O que mudou nos erros-padrão? <strong>Alguma conclusão sobre significância se altera?</strong> Olhe a produtividade com atenção.</li>
+<li>Qual correção você adota — erros robustos, mínimos quadrados ponderados ou transformação da variável? Justifique. Se optar por MQP, diga qual ponderação usaria e como a escolheu.</li>
+</ol>
 </div>
 </div>
-<section id="exercício-7-medindo-o-paradoxo" class="level3" data-number="8.1">
-<h3 data-number="8.1" class="anchored" data-anchor-id="exercício-7-medindo-o-paradoxo"><span class="header-section-number">8.1</span> Exercício 7 — medindo o paradoxo</h3>
-<p>Calcule a correlação entre preço e vendas e confirme, com um número, o paradoxo que acabamos de discutir.</p>
-<div class="cell" data-exercise="ex_corpreco">
+<hr>
+</section>
+<section id="etapa-4-especificação-e-modelo-final" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Etapa 4 — Especificação e modelo final</h1>
+<div class="callout callout-style-default callout-tip callout-empty-content callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Para a 3ª apresentação
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+<div class="cell">
 <div>
 <div id="webr-15" class="exercise-cell">
 
 </div>
 <script type="webr-15-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29yKGxpbW9uYWRhJHByZWNvLCBsaW1vbmFkYSRfX19fX18pIn0=
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmVzZXR0ZXN0KG1vZGVsbzEsIHBvd2VyID0gMjozLCB0eXBlID0gXCJmaXR0ZWRcIikifQ==
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-23-contents" aria-controls="callout-23" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-23" class="callout-23-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>A variável dependente é <code>vendas</code>. O resultado deve ficar em torno de 0,51 — positivo, ao contrário do que a teoria da demanda prevê.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled" title="Solução">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-24-contents" aria-controls="callout-24" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>Solução
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-24" class="callout-24-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(limonada<span class="sc">$</span>preco, limonada<span class="sc">$</span>vendas)</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="glossário-as-funções-deste-laboratório" class="level2" data-number="9">
-<h2 data-number="9" class="anchored" data-anchor-id="glossário-as-funções-deste-laboratório"><span class="header-section-number">9</span> Glossário: as funções deste laboratório</h2>
-<p>Guarde esta tabela — são as funções que usaremos o semestre inteiro.</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Função / símbolo</th>
-<th>O que faz</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>&lt;-</code></td>
-<td>Atribui: guarda um resultado num objeto.</td>
-</tr>
-<tr class="even">
-<td><code>$</code></td>
-<td>Acessa uma coluna do <em>data frame</em> (<code>limonada$vendas</code>).</td>
-</tr>
-<tr class="odd">
-<td><code>\|&gt;</code></td>
-<td><em>Pipe</em>: passa o resultado adiante; leia como “então”.</td>
-</tr>
-<tr class="even">
-<td><code>read.csv()</code></td>
-<td>Lê um arquivo de dados em formato CSV.</td>
-</tr>
-<tr class="odd">
-<td><code>head()</code></td>
-<td>Mostra as primeiras linhas.</td>
-</tr>
-<tr class="even">
-<td><code>nrow()</code> / <code>ncol()</code></td>
-<td>Número de linhas / de colunas.</td>
-</tr>
-<tr class="odd">
-<td><code>summary()</code></td>
-<td>Resumo estatístico de todas as colunas.</td>
-</tr>
-<tr class="even">
-<td><code>mean()</code> / <code>median()</code> / <code>sd()</code></td>
-<td>Média / mediana / desvio-padrão.</td>
-</tr>
-<tr class="odd">
-<td><code>max()</code> / <code>min()</code> / <code>which.max()</code></td>
-<td>Maior / menor valor e a posição do maior.</td>
-</tr>
-<tr class="even">
-<td><code>sum()</code></td>
-<td>Soma dos valores.</td>
-</tr>
-<tr class="odd">
-<td><code>c()</code></td>
-<td>Combina valores num vetor.</td>
-</tr>
-<tr class="even">
-<td><code>library()</code></td>
-<td>Carrega um pacote de funções.</td>
-</tr>
-<tr class="odd">
-<td><code>mutate()</code></td>
-<td>Cria ou altera colunas.</td>
-</tr>
-<tr class="even">
-<td><code>filter()</code></td>
-<td>Seleciona linhas por uma condição.</td>
-</tr>
-<tr class="odd">
-<td><code>%in%</code></td>
-<td>Testa se o valor pertence a um conjunto.</td>
-</tr>
-<tr class="even">
-<td><code>arrange()</code></td>
-<td>Ordena as linhas.</td>
-</tr>
-<tr class="odd">
-<td><code>select()</code></td>
-<td>Escolhe colunas.</td>
-</tr>
-<tr class="even">
-<td><code>group_by()</code> + <code>summarise()</code></td>
-<td>Calcula estatísticas por grupo.</td>
-</tr>
-<tr class="odd">
-<td><code>n()</code></td>
-<td>Conta observações do grupo.</td>
-</tr>
-<tr class="even">
-<td><code>cor()</code></td>
-<td>Correlação linear entre duas variáveis.</td>
-</tr>
-<tr class="odd">
-<td><code>ggplot()</code> + <code>aes()</code></td>
-<td>Inicia o gráfico e mapeia as variáveis aos eixos.</td>
-</tr>
-<tr class="even">
-<td><code>geom_point()</code> / <code>geom_smooth()</code></td>
-<td>Camada de pontos / de reta ajustada.</td>
-</tr>
-<tr class="odd">
-<td><code>labs()</code> / <code>theme_minimal()</code></td>
-<td>Rótulos / aparência do gráfico.</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="o-que-vem-a-seguir" class="level2" data-number="10">
-<h2 data-number="10" class="anchored" data-anchor-id="o-que-vem-a-seguir"><span class="header-section-number">10</span> O que vem a seguir</h2>
-<p>Neste laboratório você importou dados, descreveu-os, criou variáveis, filtrou, ordenou, mediu correlações e visualizou relações. E, sobretudo, esbarrou no limite dessas ferramentas: elas <strong>descrevem associações</strong>, mas não isolam efeitos.</p>
-<p>Na próxima unidade formalizaremos essa intuição com o <strong>modelo de regressão linear</strong>, que permite estimar de quanto varia a venda para cada grau a mais de temperatura — e, com a regressão múltipla, separar o efeito do preço do efeito do clima.</p>
-</section>
-<section id="exercícios-avaliativos" class="level2" data-number="11">
-<h2 data-number="11" class="anchored" data-anchor-id="exercícios-avaliativos"><span class="header-section-number">11</span> Exercícios avaliativos</h2>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Vale nota
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>As respostas destes exercícios são cobradas no <strong>questionário da disciplina, no SIGAA</strong>. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — <strong>sem a solução</strong>. Anote os valores obtidos antes de responder no SIGAA.</p>
-</div>
-</div>
-<section id="questão-1" class="level3" data-number="11.1">
-<h3 data-number="11.1" class="anchored" data-anchor-id="questão-1"><span class="header-section-number">11.1</span> Questão 1</h3>
-<p>Na base Limonada, crie a variável receita (preco x vendas) e calcule a CORRELAÇÃO entre temperatura e receita.</p>
 <div class="cell">
 <div>
 <div id="webr-16" class="exercise-cell">
 
 </div>
 <script type="webr-16-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibW9kZWxvMiA8LSBsbShwcmVjb19oYSB+IHByb2R1dGl2aWRhZGUgKyBhcHRpZGFvICsgbG9nKGRpc3RhbmNpYV9rbSkgKyBpcnJpZ2FjYW8sIGRhdGEgPSB0ZXJyYXMpXG5zdW1tYXJ5KG1vZGVsbzIpXG5yZXNldHRlc3QobW9kZWxvMiwgcG93ZXIgPSAyOjMsIHR5cGUgPSBcImZpdHRlZFwiKSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-26-contents" aria-controls="callout-26" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-26" class="callout-26-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Atenção: 0,99 é a correlação entre temperatura e VENDAS (vista na página). Aqui pede-se a correlação com a RECEITA (preco x vendas).</p>
-</div>
-</div>
-</div>
-</section>
-<section id="questão-2" class="level3" data-number="11.2">
-<h3 data-number="11.2" class="anchored" data-anchor-id="questão-2"><span class="header-section-number">11.2</span> Questão 2</h3>
-<p>Na base Limonada, em quantos dias do ano as vendas foram MAIORES que 35 unidades?</p>
 <div class="cell">
 <div>
 <div id="webr-17" class="exercise-cell">
 
 </div>
 <script type="webr-17-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY29lZnRlc3QobW9kZWxvMiwgdmNvdiA9IHZjb3ZIQyhtb2RlbG8yLCB0eXBlID0gXCJIQzNcIikpXG5icHRlc3QobW9kZWxvMilcbkFJQyhtb2RlbG8xLCBtb2RlbG8yKSJ9
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-27-contents" aria-controls="callout-27" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-27" class="callout-27-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Use uma condição lógica: sum(limonada$vendas &gt; 35). Cuidado: 62 é o número de dias com preço 2,00 e 10 é o de dias com 40 ou mais vendas.</p>
-</div>
-</div>
-</div>
-</section>
-<section id="questão-3" class="level3" data-number="11.3">
-<h3 data-number="11.3" class="anchored" data-anchor-id="questão-3"><span class="header-section-number">11.3</span> Questão 3</h3>
-<p>Julgue a afirmativa: na base Limonada, a correlação entre PANFLETOS e vendas é MAIS FORTE do que a correlação entre TEMPERATURA e vendas.</p>
 <div class="cell">
 <div>
 <div id="webr-18" class="exercise-cell">
 
 </div>
 <script type="webr-18-contents">
-eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBxdWFudG8gdmFsZSBlc3RhciBtYWlzIHBlcnRvIGRvIGVudHJlcG9zdG8sIHNlZ3VuZG8gY2FkYSBtb2RlbG9cbm5vdm9zIDwtIGRhdGEuZnJhbWUocHJvZHV0aXZpZGFkZSA9IDYwLCBhcHRpZGFvID0gNjgsIGlycmlnYWNhbyA9IDAsXG4gICAgICAgICAgICAgICAgICAgIGRpc3RhbmNpYV9rbSA9IGMoMTAsIDUwLCAxNTAsIDMwMCkpXG5kYXRhLmZyYW1lKGRpc3RhbmNpYV9rbSA9IG5vdm9zJGRpc3RhbmNpYV9rbSxcbiAgICAgICAgICAgbW9kZWxvMSA9IHJvdW5kKHByZWRpY3QobW9kZWxvMSwgbm92b3MpLCAyKSxcbiAgICAgICAgICAgbW9kZWxvMiA9IHJvdW5kKHByZWRpY3QobW9kZWxvMiwgbm92b3MpLCAyKSkifQ==
 </script>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-28-contents" aria-controls="callout-28" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Dica</span>Dica
+<span class="screen-reader-only">Nota</span>O que você precisa responder
 </div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-28" class="callout-28-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Calcule as duas correlações com <code>cor()</code> e compare os valores em módulo. Lembre que ambas as variáveis crescem no verão.</p>
+<ol type="1">
+<li>O RESET rejeita a especificação do <code>modelo1</code>? E a do <code>modelo2</code>? Reporte as estatísticas e explique, em uma frase, o que o teste faz.</li>
+<li>O que justifica <strong>economicamente</strong> entrar com a distância em logaritmo em vez de em nível? Pense no que acontece com o frete quando se sai de 10 km para 20 km, e de 200 km para 210 km.</li>
+<li>Como se interpreta o coeficiente de <code>log(distancia_km)</code>? Cuidado: não é “reais por quilômetro”.</li>
+<li>A tabela de previsões compara os dois modelos em quatro distâncias. Onde eles mais discordam? Que erro de avaliação um perito cometeria usando o <code>modelo1</code> para avaliar um imóvel próximo ao entreposto?</li>
+<li>Monte a <strong>tabela final</strong> do trabalho, com as três especificações lado a lado (modelo1, modelo2, modelo2 com erros robustos) e escreva o parágrafo de resultados — no formato dos que você viu nas Aplicações.</li>
+<li>Feche com as limitações: o que este modelo <strong>não</strong> permite afirmar sobre o preço da terra?</li>
+</ol>
 </div>
+</div>
+<hr>
+<section id="o-que-entregar" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="o-que-entregar"><span class="header-section-number">4.1</span> O que entregar</h2>
+<p>Em cada apresentação, de 10 a 15 minutos:</p>
+<ul>
+<li><strong>Slides</strong>, não código. O R é a ferramenta, não o produto.</li>
+<li><strong>Tabelas formatadas</strong> com coeficiente, erro-padrão e significância — nunca o <code>summary()</code> colado.</li>
+<li><strong>Gráficos</strong> legendados, com eixos nomeados e unidades.</li>
+<li><strong>Interpretação econômica</strong> de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.</li>
+<li>Ao final da 3ª apresentação, um <strong>documento de 4 a 6 páginas</strong> reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Como este projeto é avaliado
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:</p>
+<ul>
+<li>se você <strong>leu</strong> corretamente cada saída;</li>
+<li>se <strong>justificou</strong> cada decisão de modelagem com argumento econômico, e não com regra de bolso;</li>
+<li>se <strong>reconheceu os limites</strong> do que os dados permitem concluir;</li>
+<li>e se a conclusão final é <strong>honesta</strong> em relação aos problemas que sobraram sem solução.</li>
+</ul>
+<p>Um trabalho que termina dizendo “o modelo apresenta multicolinearidade que não foi possível eliminar, e por isso os coeficientes individuais devem ser lidos com cautela” vale mais do que um que esconde o problema.</p>
 </div>
 </div>
 
 
 <script type="webr-data">
-eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiJdLCJyZXBvcyI6W119LCJyZW5kZXJfZGYiOiJkZWZhdWx0In0=
+eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiIsImNhciIsImxtdGVzdCIsInNhbmR3aWNoIl0sInJlcG9zIjpbXX0sInJlbmRlcl9kZiI6ImRlZmF1bHQifQ==
 </script>
 <script type="ojs-module-contents">
 eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTg7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE4ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTgtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xOC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xOCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTgsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xNyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTc7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xNyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE3ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTctY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xNy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xNyA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTcsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTY7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE2ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTYtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xNi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xNiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTYsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTU7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE1ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTUtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xNS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xNSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTUsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xNCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTQ7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xNCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE0ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTQtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xNC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xNCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTQsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTM7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEzID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTMtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMyA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTMsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTI7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEyID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTItY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTIsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzExID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTA7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEwID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTAtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTAsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC05IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV85O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItOSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzkgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici05LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItOS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV85ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl85LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfODtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTgiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl84ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItOC1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTgtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfOCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfOCwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTciLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzc7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici03IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNyA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTctY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici03LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzcgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzcsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC02IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV82O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzYgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici02LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItNi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV82ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl82LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfNTtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl81ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItNS1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTUtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfNSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfNSwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTQiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzQ7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici00IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNCA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTQtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici00LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzQgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzQsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0zIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV8zO1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzMgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici0zLWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8zID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8zLCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMjtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTIiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl8yID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMi1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTItY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMiwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTEiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfMSA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xLWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzEgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXByZWx1ZGUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ3ZWJST2pzID0ge1xuICBjb25zdCB7IFdlYlIsIENoYW5uZWxUeXBlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lLldlYlI7XG4gIGNvbnN0IHtcbiAgICBXZWJSRXZhbHVhdG9yLFxuICAgIFdlYlJFbnZpcm9ubWVudE1hbmFnZXIsXG4gICAgc2V0dXBSLFxuICAgIGI2NERlY29kZSxcbiAgICBjb2xsYXBzZVBhdGhcbiAgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG5cbiAgY29uc3Qgc3RhdHVzQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLXN0YXR1c1wiKTtcbiAgY29uc3QgaW5kaWNhdG9yQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLWluZGljYXRvclwiKTtcbiAgaW5kaWNhdG9yQ29udGFpbmVyLmNsYXNzTGlzdC5yZW1vdmUoXCJkLW5vbmVcIik7XG5cbiAgbGV0IHN0YXR1c1RleHQgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIHN0YXR1c1RleHQuY2xhc3NMaXN0ID0gXCJleGVyY2lzZS1sb2FkaW5nLWRldGFpbHNcIjtcbiAgc3RhdHVzVGV4dCA9IHN0YXR1c0NvbnRhaW5lci5hcHBlbmRDaGlsZChzdGF0dXNUZXh0KTtcbiAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBJbml0aWFsaXNlYDtcblxuICAvLyBIb2lzdCBpbmRpY2F0b3Igb3V0IGZyb20gZmluYWwgc2xpZGUgd2hlbiBydW5uaW5nIHVuZGVyIHJldmVhbFxuICBjb25zdCByZXZlYWxTdGF0dXMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKFwiLnJldmVhbCAuZXhlcmNpc2UtbG9hZGluZy1pbmRpY2F0b3JcIik7XG4gIGlmIChyZXZlYWxTdGF0dXMpIHtcbiAgICByZXZlYWxTdGF0dXMucmVtb3ZlKCk7XG4gICAgZG9jdW1lbnQucXVlcnlTZWxlY3RvcihcIi5yZXZlYWwgPiAuc2xpZGVzXCIpLmFwcGVuZENoaWxkKHJldmVhbFN0YXR1cyk7XG4gIH1cblxuICAvLyBNYWtlIGFueSByZXZlYWwgc2xpZGVzIHdpdGggbGl2ZSBjZWxscyBzY3JvbGxhYmxlXG4gIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoXCIucmV2ZWFsIC5leGVyY2lzZS1jZWxsXCIpLmZvckVhY2goKGVsKSA9PiB7XG4gICAgZWwuY2xvc2VzdCgnc2VjdGlvbi5zbGlkZScpLmNsYXNzTGlzdC5hZGQoXCJzY3JvbGxhYmxlXCIpO1xuICB9KVxuXG4gIC8vIHdlYlIgc3VwcGxlbWVudGFsIGRhdGEgYW5kIG9wdGlvbnNcbiAgY29uc3QgZGF0YUNvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici1kYXRhXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgZGF0YSA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKGRhdGFDb250ZW50KSk7XG5cbiAgLy8gR3JhYiBsaXN0IG9mIHJlc291cmNlcyB0byBiZSBkb3dubG9hZGVkXG4gIGNvbnN0IGZpbGVzQ29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ2ZnMtZmlsZVxcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGZpbGVzID0gSlNPTi5wYXJzZShiNjREZWNvZGUoZmlsZXNDb250ZW50KSk7XG5cbiAgLy8gSW5pdGlhbGlzZSB3ZWJSIGFuZCBzZXR1cCBmb3IgUiBjb2RlIGV2YWx1YXRpb25cbiAgbGV0IHdlYlJQcm9taXNlID0gKGFzeW5jICh3ZWJSKSA9PiB7XG4gICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyB3ZWJSYDtcbiAgICBhd2FpdCB3ZWJSLmluaXQoKTtcblxuICAgIC8vIEluc3RhbGwgcHJvdmlkZWQgbGlzdCBvZiBwYWNrYWdlc1xuICAgIC8vIEVuc3VyZSB3ZWJSIGRlZmF1bHQgcmVwbyBpcyBpbmNsdWRlZFxuICAgIGRhdGEucGFja2FnZXMucmVwb3MucHVzaChcImh0dHBzOi8vcmVwby5yLXdhc20ub3JnXCIpXG4gICAgYXdhaXQgZGF0YS5wYWNrYWdlcy5wa2dzLm1hcCgocGtnKSA9PiAoKSA9PiB7XG4gICAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYERvd25sb2FkaW5nIHBhY2thZ2U6ICR7cGtnfWA7XG4gICAgICByZXR1cm4gd2ViUi5ldmFsUlZvaWQoYFxuICAgICAgICB3ZWJyOjppbnN0YWxsKHBrZywgcmVwb3MgPSByZXBvcylcbiAgICAgICAgbGlicmFyeShwa2csIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSlcbiAgICAgIGAsIHsgZW52OiB7XG4gICAgICAgIHBrZzogcGtnLFxuICAgICAgICByZXBvczogZGF0YS5wYWNrYWdlcy5yZXBvcyxcbiAgICAgIH19KTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIC8vIERvd25sb2FkIGFuZCBpbnN0YWxsIHJlc291cmNlc1xuICAgIGF3YWl0IGZpbGVzLm1hcCgoZmlsZSkgPT4gYXN5bmMgKCkgPT4ge1xuICAgICAgY29uc3QgbmFtZSA9IGZpbGUuc3Vic3RyaW5nKGZpbGUubGFzdEluZGV4T2YoJy8nKSArIDEpO1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyByZXNvdXJjZTogJHtuYW1lfWA7XG4gICAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKGZpbGUpO1xuICAgICAgaWYgKCFyZXNwb25zZS5vaykge1xuICAgICAgICB0aHJvdyBuZXcgRXJyb3IoYENhbid0IGRvd25sb2FkIFxcYCR7ZmlsZX1cXGAuIEVycm9yICR7cmVzcG9uc2Uuc3RhdHVzfTogXCIke3Jlc3BvbnNlLnN0YXR1c1RleHR9XCIuYCk7XG4gICAgICB9XG4gICAgICBjb25zdCBkYXRhID0gYXdhaXQgcmVzcG9uc2UuYXJyYXlCdWZmZXIoKTtcblxuICAgICAgLy8gU3RvcmUgVVJMcyBpbiB0aGUgY3dkIHdpdGhvdXQgYW55IHN1YmRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGlmIChmaWxlLmluY2x1ZGVzKFwiOi8vXCIpKSB7XG4gICAgICAgIGZpbGUgPSBuYW1lO1xuICAgICAgfVxuXG4gICAgICAvLyBDb2xsYXBzZSBoaWdoZXIgZGlyZWN0b3J5IHN0cnVjdHVyZVxuICAgICAgZmlsZSA9IGNvbGxhcHNlUGF0aChmaWxlKTtcblxuICAgICAgLy8gQ3JlYXRlIGRpcmVjdG9yeSB0cmVlLCBpZ25vcmluZyBcImRpcmVjdG9yeSBleGlzdHNcIiBWRlMgZXJyb3JzXG4gICAgICBjb25zdCBwYXJ0cyA9IGZpbGUuc3BsaXQoJy8nKS5zbGljZSgwLCAtMSk7XG4gICAgICBsZXQgcGF0aCA9ICcnO1xuICAgICAgd2hpbGUgKHBhcnRzLmxlbmd0aCA+IDApIHtcbiAgICAgICAgcGF0aCArPSBwYXJ0cy5zaGlmdCgpICsgJy8nO1xuICAgICAgICBjb25zdCBhbmFseXNpcyA9IGF3YWl0IHdlYlIuRlMuYW5hbHl6ZVBhdGgocGF0aCk7XG4gICAgICAgIGlmICghYW5hbHlzaXMuZXhpc3RzKSB7XG4gICAgICAgICAgdHJ5IHtcbiAgICAgICAgICAgIGF3YWl0IHdlYlIuRlMubWtkaXIocGF0aCk7XG4gICAgICAgICAgfSBjYXRjaCAoZSkge1xuICAgICAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBGaWxlc3lzdGVtIEVycm9yOiBcIiR7ZS5tZXNzYWdlfVwiLmApO1xuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgfVxuXG4gICAgICAvLyBXcml0ZSB0aGlzIGZpbGUgdG8gdGhlIFZGU1xuICAgICAgcmV0dXJuIGF3YWl0IHdlYlIuRlMud3JpdGVGaWxlKGZpbGUsIG5ldyBVaW50OEFycmF5KGRhdGEpKTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgSW5zdGFsbGluZyB3ZWJSIHNoaW1zYDtcbiAgICBhd2FpdCB3ZWJSLmV2YWxSVm9pZChgd2Vicjo6c2hpbV9pbnN0YWxsKClgKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgV2ViUiBlbnZpcm9ubWVudCBzZXR1cGA7XG4gICAgYXdhaXQgc2V0dXBSKHdlYlIsIGRhdGEpO1xuXG4gICAgc3RhdHVzVGV4dC5yZW1vdmUoKTtcbiAgICBpZiAoc3RhdHVzQ29udGFpbmVyLmNoaWxkcmVuLmxlbmd0aCA9PSAwKSB7XG4gICAgICBzdGF0dXNDb250YWluZXIucGFyZW50Tm9kZS5yZW1vdmUoKTtcbiAgICB9XG4gICAgcmV0dXJuIHdlYlI7XG4gIH0pKG5ldyBXZWJSKGRhdGEub3B0aW9ucykpO1xuXG4gIC8vIEtlZXAgdHJhY2sgb2YgaW5pdGlhbCBPSlMgYmxvY2sgcmVuZGVyXG4gIGNvbnN0IHJlbmRlcmVkT2pzID0ge307XG5cbiAgY29uc3QgcHJvY2VzcyA9IGFzeW5jIChjb250ZXh0LCBpbnB1dHMpID0+IHtcbiAgICBjb25zdCB3ZWJSID0gYXdhaXQgd2ViUlByb21pc2U7XG4gICAgY29uc3QgZXZhbHVhdG9yID0gbmV3IFdlYlJFdmFsdWF0b3Iod2ViUiwgY29udGV4dClcbiAgICBhd2FpdCBldmFsdWF0b3IucHJvY2VzcyhpbnB1dHMpO1xuICAgIHJldHVybiBldmFsdWF0b3IuY29udGFpbmVyO1xuICB9XG5cbiAgcmV0dXJuIHtcbiAgICBwcm9jZXNzLFxuICAgIHdlYlJQcm9taXNlLFxuICAgIHJlbmRlcmVkT2pzLFxuICB9O1xufVxuIn1dfQ==
