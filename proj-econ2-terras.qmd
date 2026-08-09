@@ -1,0 +1,282 @@
+---
+title: "Projeto 1 — O que determina o preço da terra em Mato Grosso"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a especificação, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, a correção adotada e o efeito dela sobre a inferência |
+| **3ª** | Especificação | O teste RESET, o modelo final e a comparação antes/depois |
+
+Cada etapa abaixo corresponde a uma dessas entregas.
+:::
+
+## O caso
+
+Mato Grosso concentra a maior área plantada de soja do país, e o preço da terra agrícola é uma das variáveis mais acompanhadas pelo setor — por produtores que querem expandir, por bancos que aceitam a terra como garantia e pelo poder público, que a usa como base para tributação e para desapropriações.
+
+A pergunta que você vai responder é a de qualquer avaliador de imóveis rurais:
+
+> **Quanto vale um hectare, e o que explica a diferença de preço entre um imóvel e outro?**
+
+Quatro candidatas óbvias, todas com justificativa econômica:
+
+- **Produtividade da terra.** Terra que produz mais soja gera mais receita por hectare, e o preço deveria capitalizar essa renda futura.
+- **Aptidão agrícola.** Um índice técnico de qualidade do solo, relevo e regime de chuvas — mede o potencial da terra, não o que ela de fato produziu.
+- **Distância até o entreposto.** Quanto mais longe do armazém ou do ponto de embarque, maior o frete e menor o preço líquido recebido pelo produtor. É a lógica de von Thünen, de 1826, e ela continua valendo.
+- **Irrigação.** Área irrigada permite segunda safra segura e reduz o risco climático.
+
+## A base
+
+Os dados vêm do **Painel de Preços de Terras Agrícolas de Mato Grosso (PPTA-MT)**, levantamento de 2024, com **220 imóveis rurais** distribuídos pelas principais regiões produtoras do estado.
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza dos levantamentos de preços de terras publicados por instituições do setor. Os imóveis não existem, e os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira — e há pelo menos uma que a maioria dos trabalhos publicados não trata corretamente.
+:::
+
+```{webr}
+terras <- read.csv("dados/terras_mt.csv")
+head(terras)
+summary(terras)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `imovel` | Identificador do imóvel | — |
+| `preco_ha` | Preço de mercado do hectare | R\$ mil/ha |
+| `produtividade` | Produtividade média de soja nas últimas três safras | sacas/ha |
+| `aptidao` | Índice de aptidão agrícola | 0 a 100 |
+| `distancia_km` | Distância rodoviária até o entreposto mais próximo | km |
+| `irrigacao` | 1 se o imóvel tem área irrigada, 0 caso contrário | — |
+| `area_ha` | Área total do imóvel | ha |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+Antes de estimar qualquer coisa, olhe os dados.
+
+```{webr}
+library(ggplot2)
+ggplot(terras, aes(produtividade, preco_ha)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Produtividade (sacas/ha)", y = "Preço (R$ mil/ha)") +
+  theme_minimal()
+```
+
+```{webr}
+ggplot(terras, aes(distancia_km, preco_ha)) +
+  geom_point(alpha = 0.6, colour = "#1E2761") +
+  labs(x = "Distância até o entreposto (km)", y = "Preço (R$ mil/ha)") +
+  theme_minimal()
+```
+
+```{webr}
+ggplot(terras, aes(factor(irrigacao), preco_ha)) +
+  geom_boxplot(fill = "#1E2761", alpha = 0.7) +
+  labs(x = "Irrigação (0 = não, 1 = sim)", y = "Preço (R$ mil/ha)") +
+  theme_minimal()
+```
+
+```{webr}
+round(cor(terras[, c("preco_ha","produtividade","aptidao","distancia_km","area_ha")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva a amostra: quantos imóveis, qual a faixa de preços, qual a proporção de imóveis irrigados.
+2. Qual variável parece ter a relação mais forte com o preço? A relação é **linear** em todos os casos? Olhe com atenção o gráfico da distância.
+3. Na matriz de correlações, há algum par de variáveis explicativas que chama atenção? Por quê isso pode ser um problema?
+4. `area_ha` deveria entrar no modelo? Argumente economicamente antes de olhar qualquer estatística.
+5. Escreva a equação que você vai estimar e justifique **cada** variável incluída.
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(preco_ha ~ produtividade + aptidao + distancia_km + irrigacao, data = terras)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+```
+
+```{webr}
+# como cada variável se comporta sozinha
+summary(lm(preco_ha ~ produtividade, data = terras))$coefficients
+summary(lm(preco_ha ~ aptidao, data = terras))$coefficients
+```
+
+```{webr}
+# e o que acontece se uma delas sair do modelo
+modelo_sem_aptidao <- lm(preco_ha ~ produtividade + distancia_km + irrigacao, data = terras)
+summary(modelo_sem_aptidao)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados do `modelo1` no formato de um artigo: coeficiente, erro-padrão, estatística t e valor-p. Interprete o sinal e a magnitude de **cada** coeficiente em termos econômicos — o que significa, em reais por hectare, cada um deles?
+2. O que os VIF indicam? Compare com os limiares que discutimos em aula.
+3. Compare o coeficiente da produtividade no `modelo1` e no `modelo_sem_aptidao`. Ele muda muito. **Qual dos dois está certo?** Justifique — e note que esta é a pergunta mais difícil do projeto.
+4. Retirar a `aptidao` resolveu a multicolinearidade. Que problema essa decisão pode ter criado no lugar? Relacione com o que a Aplicação sobre multicolinearidade mostrou.
+5. Que decisão você toma: mantém as duas variáveis, retira uma, ou combina as duas? Defenda a escolha à luz do **objetivo** do trabalho.
+:::
+
+---
+
+# Etapa 3 — Heterocedasticidade e autocorrelação
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+terras$residuo <- resid(modelo1)
+ggplot(terras, aes(fitted(modelo1), residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Valores ajustados", y = "Resíduo") +
+  theme_minimal()
+```
+
+```{webr}
+ggplot(terras, aes(produtividade, residuo)) +
+  geom_point(alpha = 0.6, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Produtividade (sacas/ha)", y = "Resíduo") +
+  theme_minimal()
+```
+
+```{webr}
+library(lmtest)
+bptest(modelo1)
+bptest(modelo1, ~ produtividade + I(produtividade^2) + aptidao + I(aptidao^2) +
+         distancia_km + I(distancia_km^2) + irrigacao, data = terras)
+```
+
+```{webr}
+dwtest(modelo1)
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1, vcov = vcovHC(modelo1, type = "HC3"))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Os dois gráficos de resíduos mostram algum padrão? Descreva o que você vê e diga contra qual variável o padrão é mais nítido.
+2. Reporte os dois testes com estatística e valor-p. Qual a diferença entre o Breusch-Pagan simples e a versão com os quadrados? Por que a segunda é chamada de teste de White?
+3. **O teste de Durbin-Watson faz sentido nesta base?** Justifique a partir da natureza dos dados. Se não faz, explique o que ele estaria testando e por que o resultado é irrelevante aqui.
+4. Compare a tabela com erros-padrão clássicos e a tabela com HC3. O que mudou nos coeficientes? O que mudou nos erros-padrão? **Alguma conclusão sobre significância se altera?** Olhe a produtividade com atenção.
+5. Qual correção você adota — erros robustos, mínimos quadrados ponderados ou transformação da variável? Justifique. Se optar por MQP, diga qual ponderação usaria e como a escolheu.
+:::
+
+---
+
+# Etapa 4 — Especificação e modelo final
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+resettest(modelo1, power = 2:3, type = "fitted")
+```
+
+```{webr}
+modelo2 <- lm(preco_ha ~ produtividade + aptidao + log(distancia_km) + irrigacao, data = terras)
+summary(modelo2)
+resettest(modelo2, power = 2:3, type = "fitted")
+```
+
+```{webr}
+coeftest(modelo2, vcov = vcovHC(modelo2, type = "HC3"))
+bptest(modelo2)
+AIC(modelo1, modelo2)
+```
+
+```{webr}
+# quanto vale estar mais perto do entreposto, segundo cada modelo
+novos <- data.frame(produtividade = 60, aptidao = 68, irrigacao = 0,
+                    distancia_km = c(10, 50, 150, 300))
+data.frame(distancia_km = novos$distancia_km,
+           modelo1 = round(predict(modelo1, novos), 2),
+           modelo2 = round(predict(modelo2, novos), 2))
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O RESET rejeita a especificação do `modelo1`? E a do `modelo2`? Reporte as estatísticas e explique, em uma frase, o que o teste faz.
+2. O que justifica **economicamente** entrar com a distância em logaritmo em vez de em nível? Pense no que acontece com o frete quando se sai de 10 km para 20 km, e de 200 km para 210 km.
+3. Como se interpreta o coeficiente de `log(distancia_km)`? Cuidado: não é "reais por quilômetro".
+4. A tabela de previsões compara os dois modelos em quatro distâncias. Onde eles mais discordam? Que erro de avaliação um perito cometeria usando o `modelo1` para avaliar um imóvel próximo ao entreposto?
+5. Monte a **tabela final** do trabalho, com as três especificações lado a lado (modelo1, modelo2, modelo2 com erros robustos) e escreva o parágrafo de resultados — no formato dos que você viu nas Aplicações.
+6. Feche com as limitações: o que este modelo **não** permite afirmar sobre o preço da terra?
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina dizendo "o modelo apresenta multicolinearidade que não foi possível eliminar, e por isso os coeficientes individuais devem ser lidos com cautela" vale mais do que um que esconde o problema.
+:::
