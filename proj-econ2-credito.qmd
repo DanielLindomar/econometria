@@ -57,6 +57,7 @@ O que é real é o problema econométrico. As dificuldades que você vai encontr
 
 ```{webr}
 meses <- read.csv("dados/credito_rural.csv")
+meses$tempo <- 1:nrow(meses)          # contador de períodos, usado adiante
 head(meses)
 summary(meses)
 ```
@@ -135,6 +136,10 @@ summary(lm(credito_rural ~ pib_agro, data = meses))$coefficients
 ```
 
 ```{webr}
+# substitua 999 pelo número do mês em que VOCÊ suspeita da quebra
+# (a série começa em janeiro de 2009: o mês 1 é 2009-01, o mês 13 é 2010-01, e assim por diante)
+mes_da_quebra <- 999   # <- TROQUE este número; com 999 a dummy fica só de zeros e o R devolve NA
+meses$quebra <- as.numeric(meses$tempo >= mes_da_quebra)
 modelo_quebra <- lm(credito_rural ~ juros_reais + pib_agro + preco_soja + quebra, data = meses)
 summary(modelo_quebra)
 ```
@@ -158,7 +163,6 @@ summary(modelo_quebra)
 :::
 
 ```{webr}
-meses$tempo <- 1:nrow(meses)
 meses$residuo <- resid(modelo1)
 ggplot(meses, aes(tempo, residuo)) +
   geom_line(colour = "#C0392B") +
@@ -213,6 +217,10 @@ resettest(modelo1, power = 2:3, type = "fitted")
 ```
 
 ```{webr}
+# substitua 999 pelo número do mês em que VOCÊ suspeita da quebra
+# (a série começa em janeiro de 2009: o mês 1 é 2009-01, o mês 13 é 2010-01, e assim por diante)
+mes_da_quebra <- 999   # <- TROQUE este número; com 999 a dummy fica só de zeros e o R devolve NA
+meses$quebra <- as.numeric(meses$tempo >= mes_da_quebra)
 modelo_quebra <- lm(credito_rural ~ juros_reais + pib_agro + preco_soja + quebra, data = meses)
 summary(modelo_quebra)
 resettest(modelo_quebra, power = 2:3, type = "fitted")

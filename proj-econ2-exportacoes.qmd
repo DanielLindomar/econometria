@@ -57,6 +57,7 @@ O que é real é o problema econométrico. As dificuldades que você vai encontr
 
 ```{webr}
 meses <- read.csv("dados/exportacoes_soja.csv")
+meses$tempo <- 1:nrow(meses)          # contador de períodos, usado adiante
 head(meses)
 summary(meses)
 ```
@@ -158,7 +159,6 @@ summary(modelo_loglog)
 :::
 
 ```{webr}
-meses$tempo <- 1:nrow(meses)
 meses$residuo <- resid(modelo1)
 ggplot(meses, aes(tempo, residuo)) +
   geom_line(colour = "#C0392B") +
