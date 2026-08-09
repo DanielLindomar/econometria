@@ -185,7 +185,9 @@ coeftest(modelo1, vcov = NeweyWest(modelo1, lag = 4, prewhite = FALSE))
 
 ```{webr}
 library(prais)
-prais_winsten(icms_mi ~ massa_salarial + preco_combustivel + indice_varejo, data = meses, index = "tempo")
+pw <- prais_winsten(icms_mi ~ massa_salarial + preco_combustivel + indice_varejo,
+                    data = meses, index = "tempo")
+summary(pw)
 ```
 
 ::: {.callout-note}

@@ -185,7 +185,9 @@ coeftest(modelo1, vcov = NeweyWest(modelo1, lag = 4, prewhite = FALSE))
 
 ```{webr}
 library(prais)
-prais_winsten(exportacoes_mi_t ~ preco_chicago + cambio + producao_mi_t, data = meses, index = "tempo")
+pw <- prais_winsten(exportacoes_mi_t ~ preco_chicago + cambio + producao_mi_t,
+                    data = meses, index = "tempo")
+summary(pw)
 ```
 
 ::: {.callout-note}
