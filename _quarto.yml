@@ -37,6 +37,12 @@ website:
           - aplic-econ2-u1.qmd
           - aplic-econ2-u2.qmd
           - aplic-econ2-u3.qmd
+      - text: "Teoria"
+        menu:
+          - teoria-modelo.qmd
+          - teoria-nao-viesado.qmd
+          - teoria-consistencia.qmd
+          - teoria-eficiencia.qmd
       - text: "Projetos"
         menu:
           - proj-econ2-terras.qmd

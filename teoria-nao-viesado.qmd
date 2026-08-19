@@ -1,0 +1,214 @@
+---
+title: "Não-tendenciosidade do estimador de MQO"
+subtitle: "Prova de que E(β̂) = β, e o que acontece quando a exogeneidade falha"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - ggplot2
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+## O que se quer provar
+
+Sob as hipóteses **H1** (linearidade), **H2** (posto completo) e **H3** (exogeneidade estrita),
+
+$$
+E(\hat{\beta}) = \beta
+$$
+
+Em palavras: se repetíssemos a amostragem infinitas vezes, a média das estimativas seria o parâmetro verdadeiro. Não que uma estimativa específica acerte — ela quase nunca acerta —, mas que o procedimento não erra sistematicamente para cima nem para baixo.
+
+## A demonstração
+
+Partimos da identidade estabelecida na [página anterior](teoria-modelo.qmd):
+
+$$
+\hat{\beta} = \beta + (X'X)^{-1}X'u
+$$
+
+Tome a esperança condicional em $X$:
+
+$$
+E(\hat{\beta} \mid X) = E\big[\beta + (X'X)^{-1}X'u \;\big|\; X\big]
+$$
+
+O termo $\beta$ é constante e sai da esperança. No segundo termo, condicionado a $X$, a matriz $(X'X)^{-1}X'$ é **conhecida** — pode ser tratada como constante e posta para fora:
+
+$$
+E(\hat{\beta} \mid X) = \beta + (X'X)^{-1}X' \, E(u \mid X)
+$$
+
+Por **H3**, $E(u \mid X) = 0$. Logo:
+
+$$
+E(\hat{\beta} \mid X) = \beta + (X'X)^{-1}X' \cdot 0 = \beta
+$$
+
+Falta passar da esperança condicional para a incondicional. Pela **lei das esperanças iteradas**:
+
+$$
+E(\hat{\beta}) = E\big[E(\hat{\beta} \mid X)\big] = E(\beta) = \beta \qquad \blacksquare
+$$
+
+::: {.callout-tip}
+## Três observações sobre a prova
+
+**H4 e H5 não apareceram.** A prova não usou nem homocedasticidade nem normalidade. É por isso que heterocedasticidade e autocorrelação **não enviesam** o MQO — elas atacam a variância, não a média. Se você corrigiu erros-padrão por White em algum projeto e viu o coeficiente permanecer intacto até a última casa decimal, foi este teorema em ação.
+
+**H2 apareceu, ainda que em silêncio.** Sem posto completo, $(X'X)^{-1}$ não existe e a primeira linha da prova é indefinida.
+
+**O passo decisivo é retirar $(X'X)^{-1}X'$ da esperança.** Isso só é legítimo porque estamos condicionando em $X$. Quando $X$ e $u$ são correlacionados, essa manobra continua válida — mas o que sobra, $E(u|X)$, deixa de ser zero. É exatamente aí que a coisa desanda.
+:::
+
+## Quando a hipótese falha
+
+Se $E(u \mid X) \neq 0$, a prova para no penúltimo passo e sobra um termo:
+
+$$
+E(\hat{\beta} \mid X) = \beta + \underbrace{(X'X)^{-1}X'\,E(u \mid X)}_{\text{viés}}
+$$
+
+### O caso da variável omitida
+
+Suponha que o modelo verdadeiro tenha dois blocos de regressores,
+
+$$
+y = X_1\beta_1 + X_2\beta_2 + u, \qquad E(u \mid X_1, X_2) = 0
+$$
+
+mas você estime apenas com $X_1$. O erro do modelo mal especificado é $v = X_2\beta_2 + u$, e portanto
+
+$$
+E(\hat{\beta}_1) = \beta_1 + (X_1'X_1)^{-1}X_1'X_2 \, \beta_2
+$$
+
+Chame de $\hat{\delta} = (X_1'X_1)^{-1}X_1'X_2$ os coeficientes da regressão auxiliar de $X_2$ contra $X_1$. Então
+
+$$
+\boxed{\;\text{viés} = \hat{\delta} \cdot \beta_2\;}
+$$
+
+O viés é o produto de duas coisas: **quanto a variável omitida importa** ($\beta_2$) e **quanto ela se relaciona com a variável mantida** ($\hat{\delta}$). Se qualquer um dos dois for zero, não há viés — omitir variável irrelevante, ou variável ortogonal às demais, é inofensivo.
+
+::: {.callout-note}
+## Você já viu esse número
+
+Na Aplicação sobre o retorno da educação, o coeficiente da escolaridade passou de 1,35 para 1,18 quando a experiência foi omitida. A fórmula previa: efeito da experiência (0,28) vezes a relação entre experiência e escolaridade (−0,56) = **−0,16**. A diferença observada foi de −0,17.
+
+Aquilo não era coincidência numérica. Era esta fórmula.
+:::
+
+## Verificação por simulação
+
+A prova diz que a **média** de $\hat{\beta}$ sobre amostras repetidas é $\beta$. Vamos gerar 3.000 amostras do mesmo processo e olhar.
+
+O processo gerador é conhecido:
+
+$$
+y = 2{,}0 + 0{,}8\,x_2 - 1{,}5\,x_3 + u, \qquad u \sim N(0;\ 2^2)
+$$
+
+```{webr}
+set.seed(11)
+n <- 200; R <- 3000
+beta <- c(2.0, 0.8, -1.5); sigma <- 2
+
+# X fixo em amostras repetidas, como supõe o modelo clássico
+x2 <- rnorm(n, 5, 2); x3 <- rnorm(n, 0, 1)
+X  <- cbind(1, x2, x3)
+XtXi <- solve(crossprod(X))
+
+# 3.000 amostras de uma vez: cada coluna de U é um vetor de erros
+U <- matrix(rnorm(n * R, 0, sigma), nrow = n)
+Y <- as.vector(X %*% beta) + U
+B <- XtXi %*% crossprod(X, Y)      # 3 x R: uma estimativa por coluna
+
+round(rowMeans(B), 4)              # média das 3.000 estimativas
+round(beta, 4)                     # valores verdadeiros
+```
+
+```{webr}
+library(ggplot2)
+ggplot(data.frame(b2 = B[2, ]), aes(b2)) +
+  geom_histogram(bins = 45, fill = "#1E2761", alpha = 0.8) +
+  geom_vline(xintercept = beta[2], colour = "#C0392B", linewidth = 1.2) +
+  labs(title = "Distribuição de 3.000 estimativas de β₂",
+       subtitle = "A linha vermelha é o valor verdadeiro",
+       x = expression(hat(beta)[2]), y = "Frequência") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## O que observar
+
+A média das estimativas fica em torno de **0,800**, contra 0,800 verdadeiro. A pequena diferença que sobra é ruído de Monte Carlo — com mais replicações, ela encolhe.
+
+O histograma está **centrado** na linha vermelha. Repare que estimativas individuais erram bastante: há amostras que devolvem 0,65 e amostras que devolvem 0,95. Não-tendenciosidade não promete que uma estimativa acerte; promete que o centro da distribuição está no lugar certo.
+
+É uma promessa mais modesta do que parece — e é tudo o que se pode ter com uma amostra.
+:::
+
+## Agora violando a exogeneidade
+
+Vamos repetir o experimento correlacionando o erro com $x_2$, o que quebra H3:
+
+$$
+u_i = \varepsilon_i + 0{,}9\,(x_{i2} - 5), \qquad \varepsilon_i \sim N(0;\ 2^2)
+$$
+
+```{webr}
+U_viola <- U + 0.9 * (x2 - 5)          # agora E(u|X) ≠ 0
+Y_viola <- as.vector(X %*% beta) + U_viola
+B_viola <- XtXi %*% crossprod(X, Y_viola)
+
+round(rowMeans(B_viola), 4)            # média das estimativas
+round(rowMeans(B_viola) - beta, 4)     # viés
+```
+
+```{webr}
+comp <- rbind(
+  data.frame(b2 = B[2, ],       caso = "H3 válida"),
+  data.frame(b2 = B_viola[2, ], caso = "H3 violada")
+)
+ggplot(comp, aes(b2, fill = caso)) +
+  geom_histogram(bins = 45, alpha = 0.7, position = "identity") +
+  geom_vline(xintercept = beta[2], colour = "#C0392B", linewidth = 1.2) +
+  labs(title = "O que a exogeneidade sustenta",
+       subtitle = "A linha vermelha é o valor verdadeiro de β₂",
+       x = expression(hat(beta)[2]), y = "Frequência", fill = NULL) +
+  theme_minimal()
+```
+
+::: {.callout-important}
+## O que observar
+
+A distribuição inteira **se deslocou**. O viés de $\hat{\beta}_2$ fica em torno de **+0,90** — exatamente o coeficiente com que introduzimos a correlação entre $u$ e $x_2$. A fórmula do viés não é aproximação: ela prevê o valor.
+
+Duas coisas merecem atenção.
+
+A primeira: a distribuição deslocada é **igualmente estreita**. O estimador continua preciso — ele estima com confiança um número errado. Nenhum erro-padrão, nenhum intervalo de confiança, nenhum teste vai denunciar isso. Os intervalos de 95% construídos a partir dessas amostras conteriam o valor verdadeiro em quase nenhuma delas.
+
+A segunda: $\hat{\beta}_3$ permaneceu não-viesado. A violação atingiu só o coeficiente da variável correlacionada com o erro — e isso é sorte do desenho, porque $x_2$ e $x_3$ são ortogonais aqui. Com regressores correlacionados, o viés contamina todos.
+
+É por isso que violação de H3 é a mais grave de todas: ela não aparece em diagnóstico nenhum, e a única defesa é o argumento econômico sobre o que ficou de fora do modelo.
+:::
+
+## Exercício
+
+Altere o coeficiente que liga o erro a $x_2$ — troque `0.9` por `-0.4` — e verifique se o viés estimado bate com o novo valor. Depois experimente `0`, que restaura H3.
+
+```{webr}
+coef_violacao <- 0.9      # experimente -0.4, depois 0
+
+U_exp <- U + coef_violacao * (x2 - 5)
+B_exp <- XtXi %*% crossprod(X, as.vector(X %*% beta) + U_exp)
+round(rowMeans(B_exp) - beta, 4)
+```
+
+---
+
+Próxima página: [Consistência](teoria-consistencia.qmd) — o que acontece com $\hat{\beta}$ quando a amostra cresce, e por que existe estimador viesado que ainda assim converge para o parâmetro certo.

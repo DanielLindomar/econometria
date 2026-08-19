@@ -1,0 +1,208 @@
+---
+title: "Consistência do estimador de MQO"
+subtitle: "Prova de que plim β̂ = β, e por que isso não é o mesmo que não-tendenciosidade"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - ggplot2
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+## O que se quer provar
+
+$$
+\operatorname{plim}_{n \to \infty} \hat{\beta} = \beta
+$$
+
+Em palavras: à medida que a amostra cresce, a probabilidade de $\hat{\beta}$ estar arbitrariamente próximo de $\beta$ tende a 1. Formalmente, para qualquer $\varepsilon > 0$,
+
+$$
+\lim_{n \to \infty} P\big(|\hat{\beta} - \beta| > \varepsilon\big) = 0
+$$
+
+::: {.callout-important}
+## Consistência e não-tendenciosidade são coisas diferentes
+
+**Não-tendenciosidade** é uma propriedade de **amostra finita**: para qualquer $n$, a média das estimativas é $\beta$.
+
+**Consistência** é uma propriedade **assintótica**: só diz o que acontece quando $n \to \infty$. Não afirma nada sobre a sua amostra de 200 observações.
+
+As duas são logicamente independentes. Existe estimador não-viesado e inconsistente, e — mais comum na prática — estimador viesado e consistente. Você vai ver um exemplo do segundo tipo no fim desta página.
+:::
+
+## A demonstração
+
+Retome a identidade fundamental:
+
+$$
+\hat{\beta} = \beta + (X'X)^{-1}X'u
+$$
+
+O problema é que $X'X$ e $X'u$ crescem sem limite com $n$ — ambos são somas de $n$ termos. Tomar o limite dessas quantidades diretamente não leva a lugar nenhum. A saída é **normalizar por $n$**, dividindo e multiplicando:
+
+$$
+\hat{\beta} = \beta + \left(\frac{X'X}{n}\right)^{-1} \left(\frac{X'u}{n}\right)
+$$
+
+Agora os dois termos entre parênteses são **médias**, e médias têm limite bem comportado. Escreva-os explicitamente:
+
+$$
+\frac{X'X}{n} = \frac{1}{n}\sum_{i=1}^{n} x_i x_i',
+\qquad
+\frac{X'u}{n} = \frac{1}{n}\sum_{i=1}^{n} x_i u_i
+$$
+
+onde $x_i$ é a $i$-ésima linha de $X$, escrita como vetor coluna $k \times 1$.
+
+Duas condições bastam.
+
+**Condição A.** A lei dos grandes números aplicada à primeira média:
+
+$$
+\operatorname{plim} \frac{X'X}{n} = E(x_i x_i') = Q
+$$
+
+com $Q$ **finita e positiva definida** — em particular, invertível. É a versão assintótica da hipótese de posto completo: os regressores precisam continuar variando e não colapsar em dependência linear conforme a amostra cresce.
+
+**Condição B.** A lei dos grandes números aplicada à segunda média:
+
+$$
+\operatorname{plim} \frac{X'u}{n} = E(x_i u_i) = 0
+$$
+
+Esta é a **condição de ortogonalidade**: os regressores não se correlacionam com o erro.
+
+Pela propriedade do limite em probabilidade — que, ao contrário da esperança, atravessa funções contínuas —
+
+$$
+\operatorname{plim} \hat{\beta} = \beta + \left[\operatorname{plim} \frac{X'X}{n}\right]^{-1} \operatorname{plim} \frac{X'u}{n} = \beta + Q^{-1} \cdot 0 = \beta \qquad \blacksquare
+$$
+
+::: {.callout-tip}
+## A diferença que a prova revela
+
+A não-tendenciosidade exigiu $E(u \mid X) = 0$ — **exogeneidade estrita**, uma condição sobre a distribuição condicional inteira, envolvendo todas as observações de $X$ ao mesmo tempo.
+
+A consistência exigiu apenas $E(x_i u_i) = 0$ — **ortogonalidade**, uma condição sobre covariâncias, observação a observação.
+
+A segunda é mais fraca que a primeira. Toda vez que a exogeneidade estrita vale, a ortogonalidade também vale; o contrário não é verdade.
+
+É essa folga que abre espaço para estimadores viesados e consistentes — e ela importa muito em séries temporais, onde a exogeneidade estrita quase nunca se sustenta.
+
+Repare também que $\operatorname{plim}$ atravessa a inversa e o produto, o que a esperança não faz: em geral $E(1/Z) \neq 1/E(Z)$. É essa propriedade que torna a prova da consistência mais simples que a da não-tendenciosidade, apesar de o resultado parecer mais forte.
+:::
+
+## Verificação: a distribuição colapsa
+
+Se $\hat{\beta}$ converge para $\beta$, então a distribuição das estimativas deve **encolher em torno do valor verdadeiro** conforme $n$ cresce. Vamos ver.
+
+```{webr}
+set.seed(21)
+beta <- c(2.0, 0.8, -1.5); sigma <- 2; R <- 500
+
+estima <- function(n, R) {
+  x2 <- rnorm(n, 5, 2); x3 <- rnorm(n, 0, 1)
+  X  <- cbind(1, x2, x3)
+  U  <- matrix(rnorm(n * R, 0, sigma), nrow = n)
+  Y  <- as.vector(X %*% beta) + U
+  (solve(crossprod(X)) %*% crossprod(X, Y))[2, ]   # só β₂
+}
+
+tamanhos <- c(20, 100, 1000, 5000)
+res <- do.call(rbind, lapply(tamanhos, function(n)
+  data.frame(n = n, b2 = estima(n, R))))
+
+# média e desvio-padrão por tamanho de amostra
+aggregate(b2 ~ n, data = res, FUN = function(v) round(c(media = mean(v), dp = sd(v)), 4))
+```
+
+```{webr}
+library(ggplot2)
+ggplot(res, aes(b2, colour = factor(n))) +
+  geom_density(linewidth = 0.9) +
+  geom_vline(xintercept = beta[2], linetype = "dashed") +
+  coord_cartesian(xlim = c(0.4, 1.2)) +
+  labs(title = "Distribuição de β₂ para amostras crescentes",
+       subtitle = "A linha tracejada é o valor verdadeiro",
+       x = expression(hat(beta)[2]), y = "Densidade", colour = "n") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## O que observar
+
+Quatro curvas, todas centradas em 0,8 — porque o estimador é não-viesado em **qualquer** tamanho de amostra. O que muda é a largura.
+
+O desvio-padrão cai de aproximadamente **0,22** com $n = 20$ para cerca de **0,014** com $n = 5.000$. Repare no padrão: multiplicar a amostra por 100 divide o desvio-padrão por 10 — de $n = 20$ para $n = 1.000$, ele cai de 0,22 para 0,032, isto é, por um fator de $\sqrt{50} \approx 7$. É a taxa $1/\sqrt{n}$, que aparece na fórmula $\operatorname{Var}(\hat{\beta}) = \sigma^2 (X'X)^{-1}$ — quando $X'X$ cresce proporcionalmente a $n$, sua inversa encolhe na mesma proporção.
+
+Consistência é isso: a curva colapsando sobre a linha tracejada. Levada ao limite, ela vira um espeto sobre o valor verdadeiro.
+
+E note o custo: para reduzir o erro pela metade, é preciso **quadruplicar** a amostra. Precisão em econometria é cara.
+:::
+
+## Viesado, porém consistente
+
+O exemplo mais importante da distinção aparece em séries temporais. Considere um processo autorregressivo de primeira ordem:
+
+$$
+y_t = \rho \, y_{t-1} + \varepsilon_t, \qquad |\rho| < 1, \quad \varepsilon_t \sim \text{ruído branco}
+$$
+
+Aqui o regressor é a própria variável dependente defasada. A ortogonalidade $E(y_{t-1}\varepsilon_t) = 0$ vale — o erro de hoje não se correlaciona com o valor de ontem. Logo, **o MQO é consistente**.
+
+Mas a exogeneidade estrita $E(\varepsilon_t \mid y_1, \dots, y_T) = 0$ **falha**, e falha de modo óbvio: $\varepsilon_t$ entra na formação de $y_t$, que é regressor da observação seguinte. Logo, **o MQO é viesado**.
+
+Hurwicz (1950) mostrou que o viés é aproximadamente $-(1 + 3\rho)/n$ — negativo, o que significa que o MQO **subestima** a persistência em amostras pequenas.
+
+```{webr}
+set.seed(33)
+rho <- 0.7
+
+simula_ar1 <- function(n, R = 400) {
+  sapply(1:R, function(i) {
+    # filter() gera o AR(1) sem laço — bem mais rápido no navegador
+    e <- as.numeric(stats::filter(rnorm(n + 50), rho, method = "recursive"))
+    y    <- e[51:(n + 50)]          # descarta o transiente
+    ylag <- e[50:(n + 49)]
+    sum(ylag * y) / sum(ylag^2)     # MQO sem intercepto
+  })
+}
+
+for (n in c(25, 100, 1000)) {
+  est <- simula_ar1(n)
+  cat("n =", format(n, width = 5),
+      " média de rho_hat =", round(mean(est), 4),
+      " viés =", round(mean(est) - rho, 4),
+      " (aprox. teórica:", round(-(1 + 3*rho)/n, 4), ")\n")
+}
+```
+
+::: {.callout-important}
+## O que observar
+
+Com $n = 25$, a estimativa média fica em torno de **0,65** contra 0,70 verdadeiro — viés de aproximadamente $-0{,}05$, próximo da aproximação de Hurwicz. Com $n = 1.000$, o viés praticamente desaparece.
+
+O estimador é **viesado em toda amostra finita** e **consistente**. As duas coisas ao mesmo tempo, sem contradição.
+
+A consequência prática vale registrar: em modelos dinâmicos com amostras curtas, o MQO subestima sistematicamente a persistência da série. Quem estima um AR(1) com 30 observações e reporta $\hat{\rho} = 0{,}6$ provavelmente está diante de um processo mais persistente do que isso.
+:::
+
+## Quando a consistência também falha
+
+A ortogonalidade $E(x_i u_i) = 0$ é fraca, mas não é gratuita. Ela falha nos mesmos casos que preocupam a econometria aplicada:
+
+| Situação | Por que $E(x_i u_i) \neq 0$ |
+|---|---|
+| Variável omitida correlacionada | O erro contém a variável ausente, que se relaciona com o regressor |
+| Erro de medida na explicativa | O erro de medida entra no termo de erro e no regressor observado |
+| Simultaneidade | $y$ e $x$ se determinam mutuamente |
+
+Nesses casos, aumentar a amostra **não resolve** — a estimativa converge, com precisão crescente, para o número errado. É a situação que justifica variáveis instrumentais, e a razão pela qual "consegui mais dados" não é resposta para problema de endogeneidade.
+
+---
+
+Próxima página: [Eficiência](teoria-eficiencia.qmd) — o teorema de Gauss-Markov, e por que "melhor estimador linear não-viesado" só significa alguma coisa quando se conhece o concorrente.

@@ -1,0 +1,189 @@
+---
+title: "O modelo linear em forma matricial"
+subtitle: "As hipóteses do modelo clássico e o que cada uma garante"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Por que esta seção existe
+
+Nos laboratórios e nas aplicações você estimou. Aqui você vai ver **por que aquilo funciona** — e, mais importante, sob quais condições deixa de funcionar.
+
+As três propriedades que justificam o uso do MQO — não-tendenciosidade, consistência e eficiência — não são artigos de fé. São teoremas, cada um com hipóteses explícitas. Esta página estabelece a notação e as hipóteses; as três seguintes provam cada propriedade e a verificam por simulação no seu navegador.
+:::
+
+## O modelo
+
+Com $n$ observações e $k$ regressores (contando o intercepto), o modelo de regressão linear múltipla é
+
+$$
+y_i = \beta_1 + \beta_2 x_{i2} + \beta_3 x_{i3} + \cdots + \beta_k x_{ik} + u_i,
+\qquad i = 1, \dots, n
+$$
+
+Escrever isso $n$ vezes é impraticável. Empilhando as observações:
+
+$$
+\underbrace{\begin{bmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{bmatrix}}_{y \; (n \times 1)}
+=
+\underbrace{\begin{bmatrix}
+1 & x_{12} & \cdots & x_{1k} \\
+1 & x_{22} & \cdots & x_{2k} \\
+\vdots & \vdots & \ddots & \vdots \\
+1 & x_{n2} & \cdots & x_{nk}
+\end{bmatrix}}_{X \; (n \times k)}
+\underbrace{\begin{bmatrix} \beta_1 \\ \beta_2 \\ \vdots \\ \beta_k \end{bmatrix}}_{\beta \; (k \times 1)}
++
+\underbrace{\begin{bmatrix} u_1 \\ u_2 \\ \vdots \\ u_n \end{bmatrix}}_{u \; (n \times 1)}
+$$
+
+ou, simplesmente,
+
+$$
+y = X\beta + u
+$$
+
+A primeira coluna de $X$ é de uns — é ela que produz o intercepto. Cada **linha** de $X$ é uma observação; cada **coluna**, uma variável.
+
+## O estimador de mínimos quadrados
+
+O MQO escolhe $\hat{\beta}$ que minimiza a soma dos quadrados dos resíduos:
+
+$$
+S(\hat{\beta}) = \hat{u}'\hat{u} = (y - X\hat{\beta})'(y - X\hat{\beta})
+$$
+
+Expandindo e derivando em relação a $\hat{\beta}$:
+
+$$
+\frac{\partial S}{\partial \hat{\beta}} = -2X'y + 2X'X\hat{\beta} = 0
+$$
+
+o que dá as **equações normais** $X'X\hat{\beta} = X'y$ e, desde que $X'X$ seja invertível,
+
+$$
+\boxed{\;\hat{\beta} = (X'X)^{-1}X'y\;}
+$$
+
+::: {.callout-tip}
+## A identidade que sustenta as três provas
+
+Substitua $y = X\beta + u$ na expressão do estimador:
+
+$$
+\hat{\beta} = (X'X)^{-1}X'(X\beta + u) = (X'X)^{-1}X'X\beta + (X'X)^{-1}X'u
+$$
+
+Como $(X'X)^{-1}X'X = I$,
+
+$$
+\boxed{\;\hat{\beta} = \beta + (X'X)^{-1}X'u\;}
+$$
+
+Guarde esta linha. **As três provas que virão são leituras diferentes dela.**
+
+O estimador é igual ao parâmetro verdadeiro mais um termo que depende do erro. A não-tendenciosidade pergunta se esse termo tem média zero; a consistência, se ele desaparece quando $n$ cresce; a eficiência, quão disperso ele é.
+:::
+
+## As hipóteses do modelo clássico
+
+### H1 — Linearidade nos parâmetros
+
+$$
+y = X\beta + u
+$$
+
+O modelo é linear **nos parâmetros**, não necessariamente nas variáveis. $y = \beta_1 + \beta_2 \ln x + u$ satisfaz H1; $y = \beta_1 + x^{\beta_2} + u$ não.
+
+É por isso que as transformações que você usou nos laboratórios — log-log, log-lin, termos quadráticos — continuam dentro do modelo clássico.
+
+### H2 — Posto completo
+
+$$
+\operatorname{rank}(X) = k < n
+$$
+
+Nenhuma coluna de $X$ é combinação linear exata das demais, e há mais observações que parâmetros. Sem isso, $X'X$ é singular e $(X'X)^{-1}$ não existe — o estimador simplesmente não está definido.
+
+Esta é a hipótese que a **multicolinearidade perfeita** viola. A multicolinearidade que você encontrou nos projetos é *imperfeita*: $X'X$ é invertível, mas está próxima da singularidade, e por isso a inversa tem elementos enormes na diagonal — de onde vêm os erros-padrão inflados.
+
+### H3 — Exogeneidade estrita
+
+$$
+E(u \mid X) = 0
+$$
+
+Conhecidos **todos** os valores de todas as variáveis explicativas, o erro tem média zero. É a hipótese mais forte da lista e a mais fácil de violar: variável omitida correlacionada com um regressor, erro de medida na explicativa, simultaneidade entre $y$ e $x$ — cada um desses quebra H3.
+
+### H4 — Homocedasticidade e ausência de autocorrelação
+
+$$
+\operatorname{Var}(u \mid X) = \sigma^2 I_n
+$$
+
+A matriz de variância-covariância dos erros é escalar: todos os erros têm a mesma variância $\sigma^2$ (diagonal constante) e não se correlacionam entre si (fora da diagonal, zeros).
+
+$$
+\operatorname{Var}(u \mid X) =
+\begin{bmatrix}
+\sigma^2 & 0 & \cdots & 0 \\
+0 & \sigma^2 & \cdots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \cdots & \sigma^2
+\end{bmatrix}
+$$
+
+Heterocedasticidade quebra a primeira parte; autocorrelação, a segunda. São exatamente os dois problemas diagnosticados em Econometria II.
+
+### H5 — Normalidade
+
+$$
+u \mid X \sim N(0, \sigma^2 I_n)
+$$
+
+::: {.callout-important}
+## H5 não é necessária para nenhuma das três propriedades
+
+Este é o ponto que mais se confunde na graduação. A normalidade **não** entra na prova da não-tendenciosidade, nem na da consistência, nem no teorema de Gauss-Markov.
+
+Ela serve para outra coisa: garantir que $\hat{\beta}$ tenha distribuição normal **exata** em amostras finitas, o que valida os testes $t$ e $F$ com $n$ pequeno. Sem H5, esses testes continuam válidos, mas apenas assintoticamente — por causa do Teorema Central do Limite.
+
+Em amostras grandes, portanto, H5 é dispensável. Em amostras pequenas e com erros muito assimétricos, os valores-p reportados devem ser lidos com reserva.
+:::
+
+## O que cada hipótese compra
+
+| Propriedade | Hipóteses necessárias | Vale para |
+|---|---|---|
+| $\hat{\beta}$ existe e é único | H1, H2 | qualquer $n$ |
+| **Não-tendenciosidade** | H1, H2, H3 | qualquer $n$ |
+| **Eficiência** (Gauss-Markov) | H1, H2, H3, H4 | qualquer $n$ |
+| **Consistência** | H1, H2 + ortogonalidade + condições de momentos | $n \to \infty$ |
+| Testes $t$ e $F$ exatos | H1 a H5 | qualquer $n$ |
+
+::: {.callout-note}
+## Leia a tabela na diagonal
+
+Repare no que ela organiza:
+
+**Heterocedasticidade** viola apenas H4. Logo, o estimador continua não-viesado e consistente — perde só a eficiência e a validade dos erros-padrão convencionais. Foi exatamente o que a Aplicação sobre White mostrou numericamente.
+
+**Multicolinearidade imperfeita** não viola hipótese nenhuma. Todas as propriedades permanecem. O que ela produz é variância grande — e por isso o problema é de informação amostral, não de especificação.
+
+**Variável omitida correlacionada** viola H3, a mais séria da lista. Aí nem a não-tendenciosidade nem a consistência sobrevivem, e nenhuma correção de erro-padrão resolve.
+:::
+
+## O caminho daqui
+
+| Página | O que prova | Verificação |
+|---|---|---|
+| [Não-tendenciosidade](teoria-nao-viesado.qmd) | $E(\hat{\beta}) = \beta$ | Monte Carlo com e sem exogeneidade |
+| [Consistência](teoria-consistencia.qmd) | $\operatorname{plim} \hat{\beta} = \beta$ | Distribuição para $n$ crescente |
+| [Eficiência](teoria-eficiencia.qmd) | $\operatorname{Var}(\tilde{\beta}) - \operatorname{Var}(\hat{\beta}) \succeq 0$ | MQO contra um concorrente não-viesado |
+
+Cada uma traz a demonstração algébrica e, logo abaixo, um experimento que você roda no navegador para ver a propriedade acontecer — ou falhar, quando a hipótese é violada.

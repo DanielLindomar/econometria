@@ -1,0 +1,248 @@
+---
+title: "Eficiência: o teorema de Gauss-Markov"
+subtitle: "Prova de que o MQO tem a menor variância entre os estimadores lineares não-viesados"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - ggplot2
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+## O que se quer provar
+
+Sob **H1** a **H4**, o estimador de MQO é o **melhor estimador linear não-viesado** — na sigla consagrada em inglês, BLUE (*best linear unbiased estimator*).
+
+"Melhor" significa **menor variância**. Formalmente: para qualquer outro estimador $\tilde{\beta}$ que seja linear em $y$ e não-viesado,
+
+$$
+\operatorname{Var}(\tilde{\beta} \mid X) - \operatorname{Var}(\hat{\beta} \mid X) \;\succeq\; 0
+$$
+
+isto é, a diferença é uma matriz semidefinida positiva.
+
+::: {.callout-note}
+## Por que "semidefinida positiva" e não simplesmente "maior"
+
+Com vários regressores, $\operatorname{Var}(\hat{\beta})$ é uma **matriz** $k \times k$, e matrizes não se ordenam como números.
+
+Dizer que $A - B \succeq 0$ implica, em particular, que todos os elementos da diagonal de $A$ são maiores ou iguais aos de $B$ — ou seja, cada coeficiente individual é estimado com variância menor ou igual pelo MQO. Mas a afirmação é mais forte: qualquer **combinação linear** dos parâmetros, $c'\beta$, também é estimada com variância mínima pelo MQO. Isso cobre previsões, somas de coeficientes e testes de restrição.
+:::
+
+## A variância do MQO
+
+Antes do teorema, o resultado auxiliar. Da identidade $\hat{\beta} - \beta = (X'X)^{-1}X'u$:
+
+$$
+\operatorname{Var}(\hat{\beta} \mid X) = E\big[(\hat{\beta} - \beta)(\hat{\beta} - \beta)' \mid X\big]
+= E\big[(X'X)^{-1}X' u u' X (X'X)^{-1} \mid X\big]
+$$
+
+Condicionado a $X$, as matrizes $(X'X)^{-1}X'$ saem da esperança:
+
+$$
+= (X'X)^{-1}X' \, E(uu' \mid X) \, X (X'X)^{-1}
+$$
+
+Por **H4**, $E(uu' \mid X) = \sigma^2 I$:
+
+$$
+= \sigma^2 (X'X)^{-1}X'X(X'X)^{-1}
+$$
+
+$$
+\boxed{\;\operatorname{Var}(\hat{\beta} \mid X) = \sigma^2 (X'X)^{-1}\;}
+$$
+
+É desta fórmula que sai tudo o que você usa na prática: a raiz do elemento $(j,j)$ é o erro-padrão de $\hat{\beta}_j$, e é ele que aparece na coluna `Std. Error` do `summary()`. Quando $X'X$ está próxima da singularidade — multicolinearidade —, sua inversa tem elementos grandes, e é por isso que os erros-padrão explodem.
+
+## A demonstração
+
+**Passo 1 — Escrever o concorrente.**
+
+Todo estimador linear em $y$ pode ser escrito como $\tilde{\beta} = Cy$, para alguma matriz $C$ de dimensão $k \times n$ que dependa apenas de $X$. Sem perda de generalidade, escreva
+
+$$
+C = (X'X)^{-1}X' + D
+$$
+
+onde $D$ é uma matriz $k \times n$ qualquer. Se $D = 0$, recuperamos o MQO; qualquer outro $D$ define um concorrente diferente.
+
+**Passo 2 — Impor a não-tendenciosidade.**
+
+$$
+\tilde{\beta} = Cy = C(X\beta + u) = CX\beta + Cu
+$$
+
+$$
+E(\tilde{\beta} \mid X) = CX\beta = \big[(X'X)^{-1}X' + D\big]X\beta = \big[I + DX\big]\beta
+$$
+
+Para que isso seja igual a $\beta$ **para todo** $\beta$, é necessário e suficiente que
+
+$$
+\boxed{\;DX = 0\;}
+$$
+
+Esta é a restrição que a não-tendenciosidade impõe ao concorrente. Guarde-a: é ela que faz a prova funcionar.
+
+**Passo 3 — Calcular a variância do concorrente.**
+
+Com $DX = 0$, temos $\tilde{\beta} - \beta = Cu$, e portanto
+
+$$
+\operatorname{Var}(\tilde{\beta} \mid X) = C \, E(uu' \mid X) \, C' = \sigma^2 CC'
+$$
+
+Expandindo $CC'$:
+
+$$
+CC' = \big[(X'X)^{-1}X' + D\big]\big[X(X'X)^{-1} + D'\big]
+$$
+
+$$
+= \underbrace{(X'X)^{-1}X'X(X'X)^{-1}}_{(X'X)^{-1}}
++ \underbrace{(X'X)^{-1}\underbrace{X'D'}_{(DX)' = 0}}_{0}
++ \underbrace{\underbrace{DX}_{0}(X'X)^{-1}}_{0}
++ DD'
+$$
+
+Os dois termos cruzados **se anulam** por causa de $DX = 0$. Sobra:
+
+$$
+\operatorname{Var}(\tilde{\beta} \mid X) = \sigma^2\big[(X'X)^{-1} + DD'\big]
+$$
+
+**Passo 4 — Comparar.**
+
+$$
+\operatorname{Var}(\tilde{\beta} \mid X) - \operatorname{Var}(\hat{\beta} \mid X) = \sigma^2 DD'
+$$
+
+Para qualquer vetor $c \neq 0$, tem-se $c'DD'c = (D'c)'(D'c) = \|D'c\|^2 \geq 0$. Portanto $DD'$ é semidefinida positiva, e
+
+$$
+\operatorname{Var}(\tilde{\beta} \mid X) \succeq \operatorname{Var}(\hat{\beta} \mid X) \qquad \blacksquare
+$$
+
+A igualdade vale se e somente se $D = 0$ — ou seja, se o concorrente **for** o MQO.
+
+::: {.callout-tip}
+## O que a prova ensina além do resultado
+
+**A elegância está no passo 3.** A não-tendenciosidade obriga $DX = 0$; essa mesma restrição elimina os termos cruzados; o que sobra é necessariamente não-negativo. O teorema se resolve sozinho depois que se impõe a condição certa.
+
+**H4 é indispensável aqui.** Ela entrou em $E(uu'|X) = \sigma^2 I$. Sob heterocedasticidade, $E(uu'|X) = \Omega \neq \sigma^2 I$, os termos cruzados não se anulam, e o MQO **deixa de ser BLUE** — quem assume o posto é o estimador de mínimos quadrados generalizados. Foi por isso que, no projeto sobre custo de produção, o MQP com a ponderação correta produziu erros-padrão menores que o MQO.
+
+**Cada palavra da sigla é uma limitação.** "Melhor" *entre os lineares*: pode haver estimador não-linear com variância menor. "Entre os não-viesados": estimadores viesados podem ter erro quadrático médio menor — é a lógica da regressão de crista, usada justamente contra multicolinearidade. Gauss-Markov não diz que o MQO é o melhor estimador possível; diz que é o melhor dentro de uma classe bem delimitada.
+:::
+
+## Verificação por simulação
+
+Para comparar o MQO com um concorrente, precisamos construir um que seja **linear e não-viesado** — do contrário a comparação é desonesta.
+
+A prova nos dá a receita: basta escolher $D$ com $DX = 0$. Há um jeito sistemático de fazer isso usando a **matriz aniquiladora**
+
+$$
+M = I - X(X'X)^{-1}X'
+$$
+
+que tem a propriedade $MX = 0$. Logo, para qualquer matriz $A$ de dimensão $k \times n$, a escolha $D = AM$ satisfaz $DX = AMX = 0$ automaticamente.
+
+Isso gera uma **família inteira** de estimadores lineares não-viesados: $\tilde{\beta} = \hat{\beta} + AMy$. O teorema afirma que todos eles têm variância maior que a do MQO.
+
+```{webr}
+set.seed(11)
+n <- 200; R <- 3000
+beta <- c(2.0, 0.8, -1.5); sigma <- 2
+
+x2 <- rnorm(n, 5, 2); x3 <- rnorm(n, 0, 1)
+X  <- cbind(1, x2, x3)
+XtXi <- solve(crossprod(X))
+
+# matriz aniquiladora e o concorrente
+M <- diag(n) - X %*% XtXi %*% t(X)
+A <- matrix(rnorm(3 * n, 0, 0.005), nrow = 3)
+D <- A %*% M
+
+max(abs(D %*% X))        # deve ser ~0: confirma que β~ é não-viesado
+```
+
+```{webr}
+U <- matrix(rnorm(n * R, 0, sigma), nrow = n)
+Y <- as.vector(X %*% beta) + U
+
+B_mqo <- XtXi %*% crossprod(X, Y)     # MQO
+B_alt <- B_mqo + D %*% Y              # concorrente linear não-viesado
+
+round(rbind(MQO = rowMeans(B_mqo), Alternativo = rowMeans(B_alt),
+            Verdadeiro = beta), 4)
+```
+
+```{webr}
+round(rbind(MQO = apply(B_mqo, 1, var), Alternativo = apply(B_alt, 1, var)), 6)
+round(apply(B_alt, 1, var) / apply(B_mqo, 1, var), 2)   # razão das variâncias
+```
+
+::: {.callout-tip}
+## O que observar
+
+As **médias** dos dois estimadores coincidem com os valores verdadeiros — o concorrente é de fato não-viesado, como a construção $DX = 0$ garantia.
+
+As **variâncias** não coincidem. A do concorrente é maior em todos os coeficientes, com razões em torno de 1,1 a 4 vezes. Nenhuma delas é menor — e, pelo teorema, nenhuma jamais será, para nenhuma escolha de $A$.
+
+Experimente trocar a escala de `A` de `0.005` para `0.02` e rode de novo: o concorrente piora ainda mais. Troque para `0` e ele vira exatamente o MQO, com razão 1,00.
+:::
+
+## A fórmula prevê o número
+
+O teorema não afirma apenas que a variância do concorrente é maior. Ele diz **quanto** maior: exatamente $\sigma^2 DD'$. Podemos conferir.
+
+```{webr}
+var_teorica_mqo <- sigma^2 * diag(XtXi)
+var_teorica_alt <- sigma^2 * (diag(XtXi) + diag(D %*% t(D)))
+
+round(rbind(
+  `MQO — teórica`          = var_teorica_mqo,
+  `MQO — simulada`         = apply(B_mqo, 1, var),
+  `Alternativo — teórica`  = var_teorica_alt,
+  `Alternativo — simulada` = apply(B_alt, 1, var)
+), 6)
+```
+
+::: {.callout-important}
+## O que observar
+
+As linhas teóricas e simuladas batem até a terceira ou quarta casa decimal. A diferença que sobra é ruído de Monte Carlo.
+
+Isso é mais forte do que confirmar a desigualdade do teorema: confirma a **fórmula exata** da variância de cada estimador. A álgebra do passo 3 previu, antes de qualquer simulação, o número que as 3.000 amostras produziriam.
+
+É o tipo de acordo entre teoria e experimento que torna defensável confiar na fórmula $\sigma^2(X'X)^{-1}$ quando você tem uma única amostra e nenhuma possibilidade de repetir o experimento.
+:::
+
+## O que sobra quando as hipóteses caem
+
+| Hipótese violada | Não-viesado | Consistente | BLUE | Erros-padrão válidos |
+|---|---|---|---|---|
+| Nenhuma | sim | sim | sim | sim |
+| H4 (heterocedasticidade) | **sim** | **sim** | não | não — usar robustos |
+| H4 (autocorrelação) | **sim** | **sim** | não | não — usar Newey-West |
+| H3 (endogeneidade) | não | não | não | não |
+| H5 (não-normalidade) | **sim** | **sim** | **sim** | só assintoticamente |
+
+::: {.callout-note}
+## Como ler esta tabela
+
+As duas primeiras colunas explicam por que heterocedasticidade e autocorrelação, apesar de sérias, são problemas **administráveis**: o coeficiente continua estimando a coisa certa, e basta corrigir a medida de incerteza.
+
+A linha de H3 é diferente em natureza. Ali não há correção de erro-padrão que salve, porque o alvo do estimador mudou. É a única linha em que a resposta é reformular o modelo, não ajustar a inferência.
+
+E a última linha é a que mais surpreende quem aprendeu a testar normalidade dos resíduos por hábito: violar H5 não custa nenhuma das três propriedades.
+:::
+
+---
+
+Retornar ao [modelo e às hipóteses](teoria-modelo.qmd) · Ver [não-tendenciosidade](teoria-nao-viesado.qmd) · Ver [consistência](teoria-consistencia.qmd)

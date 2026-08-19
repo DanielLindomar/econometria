@@ -65,6 +65,17 @@ Cada aplicação replica a **ideia** de um artigo de referência com dados simul
 | Heterocedasticidade | [O coeficiente está certo, o erro-padrão está errado](aplic-econ2-u2.qmd) | White (1980) |
 | Especificação | [A reta que recomendaria adubar até a falência](aplic-econ2-u3.qmd) | Ramsey (1969) — teste RESET |
 
+## Teoria — as propriedades do estimador de MQO
+
+Por que o método dos mínimos quadrados é o que se usa? A resposta são três teoremas, cada um com hipóteses explícitas — e cada página traz a demonstração em notação matricial **e** um experimento que você roda no navegador para ver a propriedade acontecer, ou falhar quando a hipótese é violada.
+
+| Página | O que demonstra | Hipóteses necessárias |
+|---|---|---|
+| [O modelo e as hipóteses](teoria-modelo.qmd) | Notação matricial, o estimador e as cinco hipóteses | — |
+| [Não-tendenciosidade](teoria-nao-viesado.qmd) | $E(\hat{\beta}) = \beta$ | H1, H2, H3 |
+| [Consistência](teoria-consistencia.qmd) | $\operatorname{plim} \hat{\beta} = \beta$ | H1, H2 + ortogonalidade |
+| [Eficiência (Gauss-Markov)](teoria-eficiencia.qmd) | O MQO tem a menor variância entre os lineares não-viesados | H1 a H4 |
+
 ## Projetos — Econometria II
 
 Dez casos para o **projeto avaliado** da disciplina. Você escolhe um e o apresenta **três vezes** ao longo do semestre, acrescentando a cada apresentação a camada estudada em aula: multicolinearidade, depois heterocedasticidade e autocorrelação, e por fim especificação.
