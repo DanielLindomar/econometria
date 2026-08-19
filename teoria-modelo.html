@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop">
 
-<title>Projeto 10 — Prevendo a arrecadação de ICMS – Econometria Interativa · UNEMAT</title>
+<title>O modelo linear em forma matricial – Econometria Interativa · UNEMAT</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -94,8 +95,36 @@ background: #1E2761;
 </style>
 <script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
 <link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
-<meta name="robots" content="noindex, nofollow">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -357,14 +386,20 @@ background: #1E2761;
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Projeto 10 — Prevendo a arrecadação de ICMS</h1>
-            <p class="subtitle lead">Gabarito do professor — não divulgar aos alunos</p>
+      <h1 class="title">O modelo linear em forma matricial</h1>
+            <p class="subtitle lead">As hipóteses do modelo clássico e o que cada uma garante</p>
                       </div>
   </div>
     
   
   <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Autor</div>
+      <div class="quarto-title-meta-contents">
+               <p>Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop </p>
+            </div>
+    </div>
       
     
       
@@ -379,11 +414,18 @@ background: #1E2761;
     <h2 id="toc-title">Nesta página</h2>
    
   <ul>
-  <li><a href="#ficha-do-caso" id="toc-ficha-do-caso" class="nav-link active" data-scroll-target="#ficha-do-caso">Ficha do caso</a></li>
-  <li><a href="#processo-gerador-dos-dados" id="toc-processo-gerador-dos-dados" class="nav-link" data-scroll-target="#processo-gerador-dos-dados">Processo gerador dos dados</a></li>
-  <li><a href="#modelo-1-o-que-o-aluno-estima-primeiro" id="toc-modelo-1-o-que-o-aluno-estima-primeiro" class="nav-link" data-scroll-target="#modelo-1-o-que-o-aluno-estima-primeiro">Modelo 1 — o que o aluno estima primeiro</a></li>
-  <li><a href="#modelo-2-alternativa-sugerida-sem-a-massa-salarial" id="toc-modelo-2-alternativa-sugerida-sem-a-massa-salarial" class="nav-link" data-scroll-target="#modelo-2-alternativa-sugerida-sem-a-massa-salarial">Modelo 2 — alternativa sugerida (sem a massa salarial)</a></li>
-  <li><a href="#onde-o-aluno-costuma-errar" id="toc-onde-o-aluno-costuma-errar" class="nav-link" data-scroll-target="#onde-o-aluno-costuma-errar">Onde o aluno costuma errar</a></li>
+  <li><a href="#o-modelo" id="toc-o-modelo" class="nav-link active" data-scroll-target="#o-modelo"><span class="header-section-number">1</span> O modelo</a></li>
+  <li><a href="#o-estimador-de-mínimos-quadrados" id="toc-o-estimador-de-mínimos-quadrados" class="nav-link" data-scroll-target="#o-estimador-de-mínimos-quadrados"><span class="header-section-number">2</span> O estimador de mínimos quadrados</a></li>
+  <li><a href="#as-hipóteses-do-modelo-clássico" id="toc-as-hipóteses-do-modelo-clássico" class="nav-link" data-scroll-target="#as-hipóteses-do-modelo-clássico"><span class="header-section-number">3</span> As hipóteses do modelo clássico</a>
+  <ul class="collapse">
+  <li><a href="#h1-linearidade-nos-parâmetros" id="toc-h1-linearidade-nos-parâmetros" class="nav-link" data-scroll-target="#h1-linearidade-nos-parâmetros"><span class="header-section-number">3.1</span> H1 — Linearidade nos parâmetros</a></li>
+  <li><a href="#h2-posto-completo" id="toc-h2-posto-completo" class="nav-link" data-scroll-target="#h2-posto-completo"><span class="header-section-number">3.2</span> H2 — Posto completo</a></li>
+  <li><a href="#h3-exogeneidade-estrita" id="toc-h3-exogeneidade-estrita" class="nav-link" data-scroll-target="#h3-exogeneidade-estrita"><span class="header-section-number">3.3</span> H3 — Exogeneidade estrita</a></li>
+  <li><a href="#h4-homocedasticidade-e-ausência-de-autocorrelação" id="toc-h4-homocedasticidade-e-ausência-de-autocorrelação" class="nav-link" data-scroll-target="#h4-homocedasticidade-e-ausência-de-autocorrelação"><span class="header-section-number">3.4</span> H4 — Homocedasticidade e ausência de autocorrelação</a></li>
+  <li><a href="#h5-normalidade" id="toc-h5-normalidade" class="nav-link" data-scroll-target="#h5-normalidade"><span class="header-section-number">3.5</span> H5 — Normalidade</a></li>
+  </ul></li>
+  <li><a href="#o-que-cada-hipótese-compra" id="toc-o-que-cada-hipótese-compra" class="nav-link" data-scroll-target="#o-que-cada-hipótese-compra"><span class="header-section-number">4</span> O que cada hipótese compra</a></li>
+  <li><a href="#o-caminho-daqui" id="toc-o-caminho-daqui" class="nav-link" data-scroll-target="#o-caminho-daqui"><span class="header-section-number">5</span> O caminho daqui</a></li>
   </ul>
 </nav>
     </div>
@@ -394,199 +436,240 @@ background: #1E2761;
 
 
 
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<div class="logo-topo">
+<p><img src="logo-unemat.png" class="img-fluid" width="110"></p>
 </div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Importante</span>Uso restrito
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Esta página é o gabarito de <strong>Projeto 10</strong> e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas <strong>qualquer pessoa com o endereço a acessa</strong> — não distribua o link.</p>
-</div>
-</div>
-<section id="ficha-do-caso" class="level2">
-<h2 class="anchored" data-anchor-id="ficha-do-caso">Ficha do caso</h2>
-<table class="caption-top table">
-<tbody>
-<tr class="odd">
-<td>Página do aluno</td>
-<td><a href="proj-econ2-icms.html"><code>proj-econ2-icms.html</code></a></td>
-</tr>
-<tr class="even">
-<td>Base</td>
-<td><code>dados/icms_mt.csv</code> — 192 observações, série temporal</td>
-</tr>
-<tr class="odd">
-<td>Foco</td>
-<td>multicolinearidade e autocorrelação</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="processo-gerador-dos-dados" class="level2">
-<h2 class="anchored" data-anchor-id="processo-gerador-dos-dados">Processo gerador dos dados</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Nota</span>A equação verdadeira
+<span class="screen-reader-only">Nota</span>Por que esta seção existe
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>icms_mi = 120 + 1,35<em>massa_salarial + 22</em>preco_combustivel + 0,85<em>indice_varejo + 9,5</em>saz_mes + e_t</p>
-<p>e_t = 0,66*e_{t-1} + v_t, v_t ~ N(0; 11^2)</p>
-<p>massa_salarial e indice_varejo compartilham tendencia -&gt; VIF ~17. SAZONALIDADE mensal forte (dezembro e o pico). A sazonalidade NAO esta no modelo sugerido: e a principal fonte de estrutura nos residuos.</p>
+<p>Nos laboratórios e nas aplicações você estimou. Aqui você vai ver <strong>por que aquilo funciona</strong> — e, mais importante, sob quais condições deixa de funcionar.</p>
+<p>As três propriedades que justificam o uso do MQO — não-tendenciosidade, consistência e eficiência — não são artigos de fé. São teoremas, cada um com hipóteses explícitas. Esta página estabelece a notação e as hipóteses; as três seguintes provam cada propriedade e a verificam por simulação no seu navegador.</p>
+</div>
+</div>
+<section id="o-modelo" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="o-modelo"><span class="header-section-number">1</span> O modelo</h2>
+<p>Com <span class="math inline">\(n\)</span> observações e <span class="math inline">\(k\)</span> regressores (contando o intercepto), o modelo de regressão linear múltipla é</p>
+<p><span class="math display">\[
+y_i = \beta_1 + \beta_2 x_{i2} + \beta_3 x_{i3} + \cdots + \beta_k x_{ik} + u_i,
+\qquad i = 1, \dots, n
+\]</span></p>
+<p>Escrever isso <span class="math inline">\(n\)</span> vezes é impraticável. Empilhando as observações:</p>
+<p><span class="math display">\[
+\underbrace{\begin{bmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{bmatrix}}_{y \; (n \times 1)}
+=
+\underbrace{\begin{bmatrix}
+1 &amp; x_{12} &amp; \cdots &amp; x_{1k} \\
+1 &amp; x_{22} &amp; \cdots &amp; x_{2k} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+1 &amp; x_{n2} &amp; \cdots &amp; x_{nk}
+\end{bmatrix}}_{X \; (n \times k)}
+\underbrace{\begin{bmatrix} \beta_1 \\ \beta_2 \\ \vdots \\ \beta_k \end{bmatrix}}_{\beta \; (k \times 1)}
++
+\underbrace{\begin{bmatrix} u_1 \\ u_2 \\ \vdots \\ u_n \end{bmatrix}}_{u \; (n \times 1)}
+\]</span></p>
+<p>ou, simplesmente,</p>
+<p><span class="math display">\[
+y = X\beta + u
+\]</span></p>
+<p>A primeira coluna de <span class="math inline">\(X\)</span> é de uns — é ela que produz o intercepto. Cada <strong>linha</strong> de <span class="math inline">\(X\)</span> é uma observação; cada <strong>coluna</strong>, uma variável.</p>
+</section>
+<section id="o-estimador-de-mínimos-quadrados" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="o-estimador-de-mínimos-quadrados"><span class="header-section-number">2</span> O estimador de mínimos quadrados</h2>
+<p>O MQO escolhe <span class="math inline">\(\hat{\beta}\)</span> que minimiza a soma dos quadrados dos resíduos:</p>
+<p><span class="math display">\[
+S(\hat{\beta}) = \hat{u}'\hat{u} = (y - X\hat{\beta})'(y - X\hat{\beta})
+\]</span></p>
+<p>Expandindo e derivando em relação a <span class="math inline">\(\hat{\beta}\)</span>:</p>
+<p><span class="math display">\[
+\frac{\partial S}{\partial \hat{\beta}} = -2X'y + 2X'X\hat{\beta} = 0
+\]</span></p>
+<p>o que dá as <strong>equações normais</strong> <span class="math inline">\(X'X\hat{\beta} = X'y\)</span> e, desde que <span class="math inline">\(X'X\)</span> seja invertível,</p>
+<p><span class="math display">\[
+\boxed{\;\hat{\beta} = (X'X)^{-1}X'y\;}
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>A identidade que sustenta as três provas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Substitua <span class="math inline">\(y = X\beta + u\)</span> na expressão do estimador:</p>
+<p><span class="math display">\[
+\hat{\beta} = (X'X)^{-1}X'(X\beta + u) = (X'X)^{-1}X'X\beta + (X'X)^{-1}X'u
+\]</span></p>
+<p>Como <span class="math inline">\((X'X)^{-1}X'X = I\)</span>,</p>
+<p><span class="math display">\[
+\boxed{\;\hat{\beta} = \beta + (X'X)^{-1}X'u\;}
+\]</span></p>
+<p>Guarde esta linha. <strong>As três provas que virão são leituras diferentes dela.</strong></p>
+<p>O estimador é igual ao parâmetro verdadeiro mais um termo que depende do erro. A não-tendenciosidade pergunta se esse termo tem média zero; a consistência, se ele desaparece quando <span class="math inline">\(n\)</span> cresce; a eficiência, quão disperso ele é.</p>
 </div>
 </div>
 </section>
-<section id="modelo-1-o-que-o-aluno-estima-primeiro" class="level2">
-<h2 class="anchored" data-anchor-id="modelo-1-o-que-o-aluno-estima-primeiro">Modelo 1 — o que o aluno estima primeiro</h2>
-<p><code>icms_mi ~ massa_salarial + preco_combustivel + indice_varejo</code></p>
+<section id="as-hipóteses-do-modelo-clássico" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="as-hipóteses-do-modelo-clássico"><span class="header-section-number">3</span> As hipóteses do modelo clássico</h2>
+<section id="h1-linearidade-nos-parâmetros" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="h1-linearidade-nos-parâmetros"><span class="header-section-number">3.1</span> H1 — Linearidade nos parâmetros</h3>
+<p><span class="math display">\[
+y = X\beta + u
+\]</span></p>
+<p>O modelo é linear <strong>nos parâmetros</strong>, não necessariamente nas variáveis. <span class="math inline">\(y = \beta_1 + \beta_2 \ln x + u\)</span> satisfaz H1; <span class="math inline">\(y = \beta_1 + x^{\beta_2} + u\)</span> não.</p>
+<p>É por isso que as transformações que você usou nos laboratórios — log-log, log-lin, termos quadráticos — continuam dentro do modelo clássico.</p>
+</section>
+<section id="h2-posto-completo" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="h2-posto-completo"><span class="header-section-number">3.2</span> H2 — Posto completo</h3>
+<p><span class="math display">\[
+\operatorname{rank}(X) = k &lt; n
+\]</span></p>
+<p>Nenhuma coluna de <span class="math inline">\(X\)</span> é combinação linear exata das demais, e há mais observações que parâmetros. Sem isso, <span class="math inline">\(X'X\)</span> é singular e <span class="math inline">\((X'X)^{-1}\)</span> não existe — o estimador simplesmente não está definido.</p>
+<p>Esta é a hipótese que a <strong>multicolinearidade perfeita</strong> viola. A multicolinearidade que você encontrou nos projetos é <em>imperfeita</em>: <span class="math inline">\(X'X\)</span> é invertível, mas está próxima da singularidade, e por isso a inversa tem elementos enormes na diagonal — de onde vêm os erros-padrão inflados.</p>
+</section>
+<section id="h3-exogeneidade-estrita" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="h3-exogeneidade-estrita"><span class="header-section-number">3.3</span> H3 — Exogeneidade estrita</h3>
+<p><span class="math display">\[
+E(u \mid X) = 0
+\]</span></p>
+<p>Conhecidos <strong>todos</strong> os valores de todas as variáveis explicativas, o erro tem média zero. É a hipótese mais forte da lista e a mais fácil de violar: variável omitida correlacionada com um regressor, erro de medida na explicativa, simultaneidade entre <span class="math inline">\(y\)</span> e <span class="math inline">\(x\)</span> — cada um desses quebra H3.</p>
+</section>
+<section id="h4-homocedasticidade-e-ausência-de-autocorrelação" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="h4-homocedasticidade-e-ausência-de-autocorrelação"><span class="header-section-number">3.4</span> H4 — Homocedasticidade e ausência de autocorrelação</h3>
+<p><span class="math display">\[
+\operatorname{Var}(u \mid X) = \sigma^2 I_n
+\]</span></p>
+<p>A matriz de variância-covariância dos erros é escalar: todos os erros têm a mesma variância <span class="math inline">\(\sigma^2\)</span> (diagonal constante) e não se correlacionam entre si (fora da diagonal, zeros).</p>
+<p><span class="math display">\[
+\operatorname{Var}(u \mid X) =
+\begin{bmatrix}
+\sigma^2 &amp; 0 &amp; \cdots &amp; 0 \\
+0 &amp; \sigma^2 &amp; \cdots &amp; 0 \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+0 &amp; 0 &amp; \cdots &amp; \sigma^2
+\end{bmatrix}
+\]</span></p>
+<p>Heterocedasticidade quebra a primeira parte; autocorrelação, a segunda. São exatamente os dois problemas diagnosticados em Econometria II.</p>
+</section>
+<section id="h5-normalidade" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="h5-normalidade"><span class="header-section-number">3.5</span> H5 — Normalidade</h3>
+<p><span class="math display">\[
+u \mid X \sim N(0, \sigma^2 I_n)
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>H5 não é necessária para nenhuma das três propriedades
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Este é o ponto que mais se confunde na graduação. A normalidade <strong>não</strong> entra na prova da não-tendenciosidade, nem na da consistência, nem no teorema de Gauss-Markov.</p>
+<p>Ela serve para outra coisa: garantir que <span class="math inline">\(\hat{\beta}\)</span> tenha distribuição normal <strong>exata</strong> em amostras finitas, o que valida os testes <span class="math inline">\(t\)</span> e <span class="math inline">\(F\)</span> com <span class="math inline">\(n\)</span> pequeno. Sem H5, esses testes continuam válidos, mas apenas assintoticamente — por causa do Teorema Central do Limite.</p>
+<p>Em amostras grandes, portanto, H5 é dispensável. Em amostras pequenas e com erros muito assimétricos, os valores-p reportados devem ser lidos com reserva.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="o-que-cada-hipótese-compra" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="o-que-cada-hipótese-compra"><span class="header-section-number">4</span> O que cada hipótese compra</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Variável</th>
-<th>Coef.</th>
-<th>Erro-padrão</th>
-<th>t</th>
-<th>p</th>
-<th>se HC3</th>
-<th>t HC3</th>
+<th>Propriedade</th>
+<th>Hipóteses necessárias</th>
+<th>Vale para</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>const</code></td>
-<td><strong>77.1508</strong></td>
-<td>15.7761</td>
-<td>4.89</td>
-<td>0.0000</td>
-<td>16.3416</td>
-<td>4.72</td>
+<td><span class="math inline">\(\hat{\beta}\)</span> existe e é único</td>
+<td>H1, H2</td>
+<td>qualquer <span class="math inline">\(n\)</span></td>
 </tr>
 <tr class="even">
-<td><code>massa_salarial</code></td>
-<td><strong>0.6089</strong></td>
-<td>0.3046</td>
-<td>2.00</td>
-<td>0.0471</td>
-<td>0.2815</td>
-<td>2.16</td>
+<td><strong>Não-tendenciosidade</strong></td>
+<td>H1, H2, H3</td>
+<td>qualquer <span class="math inline">\(n\)</span></td>
 </tr>
 <tr class="odd">
-<td><code>preco_combustivel</code></td>
-<td><strong>12.8649</strong></td>
-<td>4.6238</td>
-<td>2.78</td>
-<td>0.0059</td>
-<td>4.0100</td>
-<td>3.21</td>
+<td><strong>Eficiência</strong> (Gauss-Markov)</td>
+<td>H1, H2, H3, H4</td>
+<td>qualquer <span class="math inline">\(n\)</span></td>
 </tr>
 <tr class="even">
-<td><code>indice_varejo</code></td>
-<td><strong>2.4239</strong></td>
-<td>0.2582</td>
-<td>9.39</td>
-<td>0.0000</td>
-<td>0.2639</td>
-<td>9.18</td>
+<td><strong>Consistência</strong></td>
+<td>H1, H2 + ortogonalidade + condições de momentos</td>
+<td><span class="math inline">\(n \to \infty\)</span></td>
+</tr>
+<tr class="odd">
+<td>Testes <span class="math inline">\(t\)</span> e <span class="math inline">\(F\)</span> exatos</td>
+<td>H1 a H5</td>
+<td>qualquer <span class="math inline">\(n\)</span></td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li><strong>R²</strong> 0.9142 · <strong>R² ajustado</strong> 0.9128 · <strong>σ</strong> 14.345 · <strong>AIC</strong> 1571.6</li>
-<li><strong>VIF</strong> <code>massa_salarial</code> 16.74, <code>preco_combustivel</code> 14.89, <code>indice_varejo</code> 8.11</li>
-<li><strong>Breusch-Pagan</strong> p = 0.0432 · <strong>White</strong> p = 0.0105</li>
-<li><strong>Durbin-Watson</strong> 0.840</li>
-<li><strong>Breusch-Godfrey</strong> 4 defasagens p = 1.91e-13 · 12 defasagens p = 3.52e-10</li>
-<li><strong>RESET</strong> potência 2: F = 0.01, p = 0.9377 · potência 3: F = 0.25, p = 0.7768</li>
-</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Leia a tabela na diagonal
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Repare no que ela organiza:</p>
+<p><strong>Heterocedasticidade</strong> viola apenas H4. Logo, o estimador continua não-viesado e consistente — perde só a eficiência e a validade dos erros-padrão convencionais. Foi exatamente o que a Aplicação sobre White mostrou numericamente.</p>
+<p><strong>Multicolinearidade imperfeita</strong> não viola hipótese nenhuma. Todas as propriedades permanecem. O que ela produz é variância grande — e por isso o problema é de informação amostral, não de especificação.</p>
+<p><strong>Variável omitida correlacionada</strong> viola H3, a mais séria da lista. Aí nem a não-tendenciosidade nem a consistência sobrevivem, e nenhuma correção de erro-padrão resolve.</p>
+</div>
+</div>
 </section>
-<section id="modelo-2-alternativa-sugerida-sem-a-massa-salarial" class="level2">
-<h2 class="anchored" data-anchor-id="modelo-2-alternativa-sugerida-sem-a-massa-salarial">Modelo 2 — alternativa sugerida (sem a massa salarial)</h2>
-<p><code>icms_mi ~ indice_varejo + preco_combustivel</code></p>
+<section id="o-caminho-daqui" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="o-caminho-daqui"><span class="header-section-number">5</span> O caminho daqui</h2>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Variável</th>
-<th>Coef.</th>
-<th>Erro-padrão</th>
-<th>t</th>
-<th>p</th>
-<th>se HC3</th>
-<th>t HC3</th>
+<th>Página</th>
+<th>O que prova</th>
+<th>Verificação</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>const</code></td>
-<td><strong>90.4549</strong></td>
-<td>14.4161</td>
-<td>6.27</td>
-<td>0.0000</td>
-<td>15.7370</td>
-<td>5.75</td>
+<td><a href="./teoria-nao-viesado.html">Não-tendenciosidade</a></td>
+<td><span class="math inline">\(E(\hat{\beta}) = \beta\)</span></td>
+<td>Monte Carlo com e sem exogeneidade</td>
 </tr>
 <tr class="even">
-<td><code>indice_varejo</code></td>
-<td><strong>2.6369</strong></td>
-<td>0.2371</td>
-<td>11.12</td>
-<td>0.0000</td>
-<td>0.2334</td>
-<td>11.30</td>
+<td><a href="./teoria-consistencia.html">Consistência</a></td>
+<td><span class="math inline">\(\operatorname{plim} \hat{\beta} = \beta\)</span></td>
+<td>Distribuição para <span class="math inline">\(n\)</span> crescente</td>
 </tr>
 <tr class="odd">
-<td><code>preco_combustivel</code></td>
-<td><strong>19.7065</strong></td>
-<td>3.1331</td>
-<td>6.29</td>
-<td>0.0000</td>
-<td>2.9322</td>
-<td>6.72</td>
+<td><a href="./teoria-eficiencia.html">Eficiência</a></td>
+<td><span class="math inline">\(\operatorname{Var}(\tilde{\beta}) - \operatorname{Var}(\hat{\beta}) \succeq 0\)</span></td>
+<td>MQO contra um concorrente não-viesado</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li><strong>R²</strong> 0.9124 · <strong>R² ajustado</strong> 0.9115 · <strong>σ</strong> 14.458 · <strong>AIC</strong> 1573.6</li>
-<li><strong>VIF</strong> <code>indice_varejo</code> 6.73, <code>preco_combustivel</code> 6.73</li>
-<li><strong>Breusch-Pagan</strong> p = 0.0153 · <strong>White</strong> p = 0.0111</li>
-<li><strong>Durbin-Watson</strong> 0.838</li>
-<li><strong>Breusch-Godfrey</strong> 4 defasagens p = 1.55e-13 · 12 defasagens p = 2.31e-10</li>
-<li><strong>RESET</strong> potência 2: F = 0.57, p = 0.4507 · potência 3: F = 0.49, p = 0.6158</li>
-</ul>
-</section>
-<section id="onde-o-aluno-costuma-errar" class="level2">
-<h2 class="anchored" data-anchor-id="onde-o-aluno-costuma-errar">Onde o aluno costuma errar</h2>
-<ol type="1">
-<li>Interpretar os coeficientes individuais apesar do VIF de 17.</li>
-<li>Nao perceber que, para PREVISAO, a multicolinearidade e irrelevante — este e o ponto do caso.</li>
-<li>Esquecer as dummies mensais e atribuir toda a estrutura dos residuos a autocorrelacao.</li>
-<li>Avaliar a previsao dentro da amostra.</li>
-</ol>
+<p>Cada uma traz a demonstração algébrica e, logo abaixo, um experimento que você roda no navegador para ver a propriedade acontecer — ou falhar, quando a hipótese é violada.</p>
 
 
 <script type="ojs-module-contents">
