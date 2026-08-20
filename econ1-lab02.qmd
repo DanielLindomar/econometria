@@ -55,7 +55,11 @@ limonada |>
 ::: {.callout-tip}
 ## Como ler essa saída
 
-Junho é o pico do ano: **1.056 limonadas** vendidas — exatamente o valor que a Tabela Dinâmica do Excel mostra. Repare no formato da tabela: uma linha por mês, uma coluna por medida. É o "resumo por dimensão" que usaremos o tempo todo.
+Julho é o pico do ano, com **1.113 limonadas** vendidas, seguido de perto por junho (**1.056**). Os dois meses de verão concentram as vendas, e dezembro e janeiro empatam na lanterna com 462 — menos da metade do pico.
+
+Repare no formato da tabela: uma linha por mês, uma coluna por medida. É o "resumo por dimensão" que usaremos o tempo todo, e é exatamente o que a Tabela Dinâmica do Excel produz.
+
+Guarde a diferença entre julho e junho: são só 57 limonadas, ou 5%. Quando dois meses ficam tão próximos, dizer qual é "o pico" depende de conferir o número — não de olhar o gráfico.
 :::
 
 ### Exercício 1 — total por dia da semana
