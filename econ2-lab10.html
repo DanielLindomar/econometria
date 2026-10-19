@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR" xml:lang="pt-BR"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop">
+
+<title>Laboratório 10 — Dados em painel – Econometria Interativa · UNEMAT</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-b776bd1e4a60a76b452808fdebd8c1cf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
+<link href="site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Nenhum resultado",
+    "search-matching-documents-text": "documentos correspondentes",
+    "search-copy-link-title": "Copiar link para a busca",
+    "search-hide-matches-text": "Esconder correspondências adicionais",
+    "search-more-match-text": "mais correspondência neste documento",
+    "search-more-matches-text": "mais correspondências neste documento",
+    "search-clear-button-title": "Limpar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Procurar"
+  }
+}</script>
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: white;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: white;
+background: #1E2761;
+      }
+</style>
+<script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Econometria Interativa · UNEMAT</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Procurar"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Alternar de navegação" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Início</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-econometria-i" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Econometria I</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-econometria-i">    
+        <li>
+    <a class="dropdown-item" href="./econ1-lab01.html">
+ <span class="dropdown-text">Laboratório 1 — Explorando dados</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab02.html">
+ <span class="dropdown-text">Laboratório 2 — Analisando e visualizando dados</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab03.html">
+ <span class="dropdown-text">Laboratório 3 — Introdução à estatística</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab04.html">
+ <span class="dropdown-text">Laboratório 4 — Análise de regressão</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab05.html">
+ <span class="dropdown-text">Laboratório 5 — Formas funcionais</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab06.html">
+ <span class="dropdown-text">Laboratório 6 — Variáveis qualitativas</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab07.html">
+ <span class="dropdown-text">Laboratório 7 — Econometria de séries temporais</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab08.html">
+ <span class="dropdown-text">Laboratório 8 — Modelos de volatilidade</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab09.html">
+ <span class="dropdown-text">Laboratório 9 — Previsão econômica</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-econometria-ii" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Econometria II</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-econometria-ii">    
+        <li>
+    <a class="dropdown-item" href="./econ2-lab07.html">
+ <span class="dropdown-text">Laboratório 7 — Multicolinearidade</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ2-lab08.html">
+ <span class="dropdown-text">Laboratório 8 — Heterocedasticidade e autocorrelação</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ2-lab09.html">
+ <span class="dropdown-text">Laboratório 9 — Especificação do modelo</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ2-lab10.html">
+ <span class="dropdown-text">Laboratório 10 — Dados em painel</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-aplicações" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Aplicações</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-aplicações">    
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u1.html">
+ <span class="dropdown-text">Aplicação 1 — Quanto vale um ano a mais de estudo?</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u2.html">
+ <span class="dropdown-text">Aplicação 2 — Quanto rende uma máquina a mais? E um trabalhador a mais?</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u3.html">
+ <span class="dropdown-text">Aplicação 3 — O piso salarial destrói empregos?</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u4.html">
+ <span class="dropdown-text">Aplicação 4 — Uma regressão perfeita entre duas coisas sem relação</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u5.html">
+ <span class="dropdown-text">Aplicação 5 — Por que o risco vem em ondas</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u6.html">
+ <span class="dropdown-text">Aplicação 6 — O modelo que ajusta melhor é o que prevê pior</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ2-u1.html">
+ <span class="dropdown-text">Aplicação 7 — O modelo é ótimo, mas nenhuma variável presta</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ2-u2.html">
+ <span class="dropdown-text">Aplicação 8 — O coeficiente está certo, o erro-padrão está errado</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ2-u3.html">
+ <span class="dropdown-text">Aplicação 9 — A reta que recomendaria adubar até a falência</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ2-u4.html">
+ <span class="dropdown-text">Aplicação 10 — O viés do bom gestor</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-teoria" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Teoria</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-teoria">    
+        <li>
+    <a class="dropdown-item" href="./teoria-modelo.html">
+ <span class="dropdown-text">O modelo linear em forma matricial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./teoria-nao-viesado.html">
+ <span class="dropdown-text">Não-tendenciosidade do estimador de MQO</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./teoria-consistencia.html">
+ <span class="dropdown-text">Consistência do estimador de MQO</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./teoria-eficiencia.html">
+ <span class="dropdown-text">Eficiência: o teorema de Gauss-Markov</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./teoria-painel.html">
+ <span class="dropdown-text">Os estimadores de dados em painel</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projetos" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Projetos</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-projetos">    
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-terras.html">
+ <span class="dropdown-text">Projeto 1 — O que determina o preço da terra em Mato Grosso</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-saude.html">
+ <span class="dropdown-text">Projeto 2 — Por que uns municípios gastam mais em saúde que outros</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-ideb.html">
+ <span class="dropdown-text">Projeto 3 — O que explica o desempenho das escolas</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-custo-soja.html">
+ <span class="dropdown-text">Projeto 4 — Quanto custa produzir uma saca de soja</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-imoveis.html">
+ <span class="dropdown-text">Projeto 5 — Quanto vale um apartamento em Sinop</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-energia.html">
+ <span class="dropdown-text">Projeto 6 — A demanda industrial por energia elétrica</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-repasse.html">
+ <span class="dropdown-text">Projeto 7 — Quanto o dólar pesa no preço da comida</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-exportacoes.html">
+ <span class="dropdown-text">Projeto 8 — O que move as exportações de soja</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-credito.html">
+ <span class="dropdown-text">Projeto 9 — Crédito rural e taxa de juros</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-icms.html">
+ <span class="dropdown-text">Projeto 10 — Prevendo a arrecadação de ICMS</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-painel.html">
+ <span class="dropdown-text">Projeto 11 — Crédito rural e produtividade da soja: um painel de municípios</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-curso-de-r" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Curso de R</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-curso-de-r">    
+        <li>
+    <a class="dropdown-item" href="./r-aula01.html">
+ <span class="dropdown-text">Aula 1 — Introdução ao R</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula02.html">
+ <span class="dropdown-text">Aula 2 — Estrutura dos dados</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula03.html">
+ <span class="dropdown-text">Aula 3 — Regressão linear simples</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula04.html">
+ <span class="dropdown-text">Aula 4 — Regressão múltipla</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula05.html">
+ <span class="dropdown-text">Aula 5 — Formas funcionais</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula06.html">
+ <span class="dropdown-text">Aula 6 — Variáveis qualitativas</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula07.html">
+ <span class="dropdown-text">Aula 7 — Heterocedasticidade</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula08.html">
+ <span class="dropdown-text">Aula 8 — Autocorrelação</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula09.html">
+ <span class="dropdown-text">Aula 9 — Especificação da regressão</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula10.html">
+ <span class="dropdown-text">Aula 10 — Análise de séries de tempo</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula11.html">
+ <span class="dropdown-text">Aula 11 — Machine Learning no R</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Laboratório 10 — Dados em painel</h1>
+            <p class="subtitle lead">Econometria II · Unidade 7 — Econometria de dados em painel</p>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Autor</div>
+      <div class="quarto-title-meta-contents">
+               <p>Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop </p>
+            </div>
+    </div>
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Nesta página</h2>
+   
+  <ul>
+  <li><a href="#declarando-o-painel" id="toc-declarando-o-painel" class="nav-link active" data-scroll-target="#declarando-o-painel"><span class="header-section-number">1</span> Declarando o painel</a></li>
+  <li><a href="#duas-fontes-de-variação" id="toc-duas-fontes-de-variação" class="nav-link" data-scroll-target="#duas-fontes-de-variação"><span class="header-section-number">2</span> Duas fontes de variação</a></li>
+  <li><a href="#o-ponto-de-partida-mqo-agrupado" id="toc-o-ponto-de-partida-mqo-agrupado" class="nav-link" data-scroll-target="#o-ponto-de-partida-mqo-agrupado"><span class="header-section-number">3</span> O ponto de partida: MQO agrupado</a></li>
+  <li><a href="#o-modelo-com-efeito-individual" id="toc-o-modelo-com-efeito-individual" class="nav-link" data-scroll-target="#o-modelo-com-efeito-individual"><span class="header-section-number">4</span> O modelo com efeito individual</a></li>
+  <li><a href="#eliminando-o-efeito-individual" id="toc-eliminando-o-efeito-individual" class="nav-link" data-scroll-target="#eliminando-o-efeito-individual"><span class="header-section-number">5</span> Eliminando o efeito individual</a>
+  <ul class="collapse">
+  <li><a href="#primeiras-diferenças" id="toc-primeiras-diferenças" class="nav-link" data-scroll-target="#primeiras-diferenças"><span class="header-section-number">5.1</span> Primeiras diferenças</a></li>
+  <li><a href="#efeitos-fixos-transformação-within" id="toc-efeitos-fixos-transformação-within" class="nav-link" data-scroll-target="#efeitos-fixos-transformação-within"><span class="header-section-number">5.2</span> Efeitos fixos (transformação <em>within</em>)</a></li>
+  </ul></li>
+  <li><a href="#modelando-o-efeito-individual-efeitos-aleatórios" id="toc-modelando-o-efeito-individual-efeitos-aleatórios" class="nav-link" data-scroll-target="#modelando-o-efeito-individual-efeitos-aleatórios"><span class="header-section-number">6</span> Modelando o efeito individual: efeitos aleatórios</a></li>
+  <li><a href="#qual-escolher-o-teste-de-hausman" id="toc-qual-escolher-o-teste-de-hausman" class="nav-link" data-scroll-target="#qual-escolher-o-teste-de-hausman"><span class="header-section-number">7</span> Qual escolher? O teste de Hausman</a></li>
+  <li><a href="#erros-padrão-agrupados" id="toc-erros-padrão-agrupados" class="nav-link" data-scroll-target="#erros-padrão-agrupados"><span class="header-section-number">8</span> Erros-padrão agrupados</a></li>
+  <li><a href="#exercícios" id="toc-exercícios" class="nav-link" data-scroll-target="#exercícios"><span class="header-section-number">9</span> Exercícios</a>
+  <ul class="collapse">
+  <li><a href="#exercício-1-quem-identifica-o-efeito" id="toc-exercício-1-quem-identifica-o-efeito" class="nav-link" data-scroll-target="#exercício-1-quem-identifica-o-efeito"><span class="header-section-number">9.1</span> Exercício 1 — quem identifica o efeito</a></li>
+  <li><a href="#exercício-2-efeitos-fixos-à-mão" id="toc-exercício-2-efeitos-fixos-à-mão" class="nav-link" data-scroll-target="#exercício-2-efeitos-fixos-à-mão"><span class="header-section-number">9.2</span> Exercício 2 — efeitos fixos à mão</a></li>
+  <li><a href="#exercício-3-a-variável-dummy-por-indivíduo" id="toc-exercício-3-a-variável-dummy-por-indivíduo" class="nav-link" data-scroll-target="#exercício-3-a-variável-dummy-por-indivíduo"><span class="header-section-number">9.3</span> Exercício 3 — a variável dummy por indivíduo</a></li>
+  <li><a href="#exercício-4-o-papel-das-dummies-de-ano" id="toc-exercício-4-o-papel-das-dummies-de-ano" class="nav-link" data-scroll-target="#exercício-4-o-papel-das-dummies-de-ano"><span class="header-section-number">9.4</span> Exercício 4 — o papel das dummies de ano</a></li>
+  </ul></li>
+  <li><a href="#glossário-funções-novas-deste-laboratório" id="toc-glossário-funções-novas-deste-laboratório" class="nav-link" data-scroll-target="#glossário-funções-novas-deste-laboratório"><span class="header-section-number">10</span> Glossário — funções novas deste laboratório</a></li>
+  <li><a href="#exercícios-avaliativos" id="toc-exercícios-avaliativos" class="nav-link" data-scroll-target="#exercícios-avaliativos"><span class="header-section-number">11</span> Exercícios avaliativos</a>
+  <ul class="collapse">
+  <li><a href="#questão-1" id="toc-questão-1" class="nav-link" data-scroll-target="#questão-1"><span class="header-section-number">11.1</span> Questão 1</a></li>
+  <li><a href="#questão-2" id="toc-questão-2" class="nav-link" data-scroll-target="#questão-2"><span class="header-section-number">11.2</span> Questão 2</a></li>
+  <li><a href="#questão-3" id="toc-questão-3" class="nav-link" data-scroll-target="#questão-3"><span class="header-section-number">11.3</span> Questão 3</a></li>
+  <li><a href="#questão-4" id="toc-questão-4" class="nav-link" data-scroll-target="#questão-4"><span class="header-section-number">11.4</span> Questão 4</a></li>
+  <li><a href="#questão-5" id="toc-questão-5" class="nav-link" data-scroll-target="#questão-5"><span class="header-section-number">11.5</span> Questão 5</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="logo-topo">
+<p><img src="logo-unemat.png" class="img-fluid" width="110"></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Objetivos de aprendizagem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Ao final deste laboratório você será capaz de:</p>
+<ul>
+<li>reconhecer a <strong>estrutura</strong> de um painel e declará-la no R;</li>
+<li>entender por que o MQO agrupado (<em>pooled</em>) falha quando há <strong>heterogeneidade não observada</strong>;</li>
+<li>estimar por <strong>primeiras diferenças</strong>, <strong>efeitos fixos</strong> e <strong>efeitos aleatórios</strong>, e saber o que cada um consegue e não consegue estimar;</li>
+<li>escolher entre efeitos fixos e aleatórios com o <strong>teste de Hausman</strong>;</li>
+<li>incluir <strong>efeitos de tempo</strong> e usar <strong>erros-padrão agrupados</strong> (<em>clustered</em>).</li>
+</ul>
+</div>
+</div>
+<p>Até aqui cada observação era um indivíduo num momento, ou um momento para um indivíduo. Dados em painel juntam as duas dimensões: <strong>as mesmas unidades observadas em vários períodos</strong>. Isso abre uma possibilidade que nem o corte transversal nem a série temporal oferecem: controlar por tudo o que é <strong>fixo</strong> em cada unidade — mesmo sem observar.</p>
+<div class="callout callout-style-default callout-important callout-empty-content callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Comece por aqui
+</div>
+</div>
+<div class="callout-body-container callout-body">
+
+</div>
+</div>
+<div class="cell">
+<div>
+<div id="webr-1" class="exercise-cell">
+
+</div>
+<script type="webr-1-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShkcGx5cilcbmxpYnJhcnkocGxtKVxubGlicmFyeSh3b29sZHJpZGdlKVxuZGF0YSh3YWdlcGFuKVxud2FnZXBhbiB8PiBzZWxlY3QobnIsIHllYXIsIGx3YWdlLCBlZHVjLCBibGFjaywgZXhwZXIsIG1hcnJpZWQsIHVuaW9uKSB8PiBoZWFkKDEwKSJ9
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>A base
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>wagepan</code> acompanha <strong>545 homens jovens</strong> do mercado de trabalho americano durante <strong>8 anos</strong> (1980–1987), totalizando 4.360 observações. É a base dos exemplos de painel de Wooldridge, capítulo 14 — o que permite conferir cada resultado deste laboratório com a Tabela 14.2 do livro.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variável</th>
+<th>O que é</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>nr</code></td>
+<td>Identificador do trabalhador</td>
+</tr>
+<tr class="even">
+<td><code>year</code></td>
+<td>Ano</td>
+</tr>
+<tr class="odd">
+<td><code>lwage</code></td>
+<td>Logaritmo do salário-hora</td>
+</tr>
+<tr class="even">
+<td><code>educ</code></td>
+<td>Anos de escolaridade</td>
+</tr>
+<tr class="odd">
+<td><code>black</code>, <code>hisp</code></td>
+<td>Dummies de raça/etnia</td>
+</tr>
+<tr class="even">
+<td><code>exper</code>, <code>expersq</code></td>
+<td>Experiência e seu quadrado</td>
+</tr>
+<tr class="odd">
+<td><code>married</code></td>
+<td>1 se casado naquele ano</td>
+</tr>
+<tr class="even">
+<td><code>union</code></td>
+<td>1 se sindicalizado naquele ano</td>
+</tr>
+</tbody>
+</table>
+<p>Repare nas três primeiras linhas: o trabalhador 13 aparece em 1980, 1981, 1982… Cada linha é um <strong>par</strong> (indivíduo, ano). É isso que define um painel.</p>
+</div>
+</div>
+<section id="declarando-o-painel" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="declarando-o-painel"><span class="header-section-number">1</span> Declarando o painel</h2>
+<p>O R precisa saber qual coluna identifica a unidade e qual identifica o tempo.</p>
+<div class="cell">
+<div>
+<div id="webr-2" class="exercise-cell">
+
+</div>
+<script type="webr-2-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicCA8LSBwZGF0YS5mcmFtZSh3YWdlcGFuLCBpbmRleCA9IGMoXCJuclwiLCBcInllYXJcIikpXG5wZGltKHApIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>pdim()</code> descreve as dimensões: <strong>n = 545</strong> indivíduos, <strong>T = 8</strong> períodos, <strong>N = 4.360</strong> observações. E informa que o painel é <strong>balanceado</strong> — todos os indivíduos têm todos os anos. Painéis reais costumam ser desbalanceados, e o <code>plm</code> lida com isso; mas o balanceado é mais simples para começar.</p>
+<p>A partir daqui, use sempre <code>p</code>, e não <code>wagepan</code>. É o objeto <code>pdata.frame</code> que carrega a informação de quem é quem e quando.</p>
+</div>
+</div>
+</section>
+<section id="duas-fontes-de-variação" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="duas-fontes-de-variação"><span class="header-section-number">2</span> Duas fontes de variação</h2>
+<p>Antes de estimar, entenda de onde vem a informação. Cada variável varia de dois jeitos: <strong>entre</strong> indivíduos (<em>between</em>) e <strong>dentro</strong> de cada indivíduo ao longo do tempo (<em>within</em>).</p>
+<div class="cell">
+<div>
+<div id="webr-3" class="exercise-cell">
+
+</div>
+<script type="webr-3-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoid2FnZXBhbiB8PlxuICBncm91cF9ieShucikgfD5cbiAgbXV0YXRlKGx3YWdlX21lZGlhID0gbWVhbihsd2FnZSksIHVuaW9uX21lZGlhID0gbWVhbih1bmlvbiksIGVkdWNfbWVkaWEgPSBtZWFuKGVkdWMpKSB8PlxuICB1bmdyb3VwKCkgfD5cbiAgc3VtbWFyaXNlKFxuICAgIGx3YWdlX2JldHdlZW4gPSBzZChsd2FnZV9tZWRpYSksIGx3YWdlX3dpdGhpbiA9IHNkKGx3YWdlIC0gbHdhZ2VfbWVkaWEpLFxuICAgIHVuaW9uX2JldHdlZW4gPSBzZCh1bmlvbl9tZWRpYSksIHVuaW9uX3dpdGhpbiA9IHNkKHVuaW9uIC0gdW5pb25fbWVkaWEpLFxuICAgIGVkdWNfYmV0d2VlbiAgPSBzZChlZHVjX21lZGlhKSwgIGVkdWNfd2l0aGluICA9IHNkKGVkdWMgLSBlZHVjX21lZGlhKVxuICApIHw+IHJvdW5kKDMpIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O salário varia nas duas dimensões, com magnitudes parecidas (0,39 entre, 0,36 dentro). O status sindical também: há gente que entra e sai do sindicato ao longo dos oito anos.</p>
+<p>A escolaridade é diferente: <code>educ_within = 0</code>. <strong>Ninguém muda de escolaridade</strong> nesta amostra — ela é a mesma nos oito anos de cada trabalhador. Guarde isso. É o que vai impedir o estimador de efeitos fixos de dizer qualquer coisa sobre o retorno da educação.</p>
+</div>
+</div>
+<div class="cell">
+<div>
+<div id="webr-4" class="exercise-cell">
+
+</div>
+<script type="webr-4-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoid2FnZXBhbiB8PlxuICBncm91cF9ieShucikgfD5cbiAgc3VtbWFyaXNlKHByb3Bfc2luZCA9IG1lYW4odW5pb24pKSB8PlxuICBzdW1tYXJpc2Uoc2VtcHJlID0gc3VtKHByb3Bfc2luZCA9PSAxKSwgbnVuY2EgPSBzdW0ocHJvcF9zaW5kID09IDApLFxuICAgICAgICAgICAgbXVkYW0gID0gc3VtKHByb3Bfc2luZCA+IDAgJiBwcm9wX3NpbmQgPCAxKSkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Dos 545 trabalhadores, 34 estão sindicalizados nos oito anos, 265 nunca estão, e <strong>246 mudam de status</strong> ao longo do período. São esses 246 que vão identificar o efeito do sindicato no estimador de efeitos fixos — os outros 299 não contribuem com nenhuma informação sobre ele.</p>
+</div>
+</div>
+</section>
+<section id="o-ponto-de-partida-mqo-agrupado" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="o-ponto-de-partida-mqo-agrupado"><span class="header-section-number">3</span> O ponto de partida: MQO agrupado</h2>
+<p>Empilhe tudo e rode uma regressão comum, como se fossem 4.360 observações independentes.</p>
+<div class="cell">
+<div>
+<div id="webr-5" class="exercise-cell">
+
+</div>
+<script type="webr-5-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicG9vbGVkIDwtIHBsbShsd2FnZSB+IGVkdWMgKyBibGFjayArIGhpc3AgKyBleHBlciArIGV4cGVyc3EgKyBtYXJyaWVkICsgdW5pb24gKyBmYWN0b3IoeWVhciksXG4gICAgICAgICAgICAgIGRhdGEgPSBwLCBtb2RlbCA9IFwicG9vbGluZ1wiKVxuc3VtbWFyeShwb29sZWQpJGNvZWZmaWNpZW50c1sxOjgsIF0ifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O retorno da educação fica em torno de <strong>9,1%</strong> por ano de estudo. Ser casado está associado a cerca de <strong>10,8%</strong> a mais de salário, e ser sindicalizado a <strong>18,3%</strong>.</p>
+<p>São os números da coluna “Pooled OLS” da Tabela 14.2 do Wooldridge. E eles têm um problema de interpretação que este laboratório inteiro existe para resolver.</p>
+<p>Pense no que o modelo está supondo. Que, controladas as variáveis incluídas, dois trabalhadores quaisquer são comparáveis. Mas há coisas que não estão no modelo e que são <strong>fixas em cada pessoa</strong>: habilidade, motivação, qualidade da escola que frequentou, rede de contatos da família. Se essas coisas se correlacionam com <code>union</code> ou com <code>married</code> — e é razoável que se correlacionem —, o coeficiente está contaminado. Quem se sindicaliza pode ser diferente de quem não se sindicaliza em dimensões que o modelo não vê.</p>
+</div>
+</div>
+</section>
+<section id="o-modelo-com-efeito-individual" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="o-modelo-com-efeito-individual"><span class="header-section-number">4</span> O modelo com efeito individual</h2>
+<p>O que o painel permite é escrever o erro em duas partes:</p>
+<p><span class="math display">\[
+\ln(\text{salário}_{it}) = \beta_1 x_{it1} + \cdots + \beta_k x_{itk} + a_i + u_{it}
+\]</span></p>
+<p>O termo <span class="math inline">\(a_i\)</span> é o <strong>efeito individual</strong>: tudo o que é fixo no trabalhador <span class="math inline">\(i\)</span> e não está no modelo. O termo <span class="math inline">\(u_{it}\)</span> é o erro comum, que varia de ano para ano.</p>
+<p>A pergunta que organiza o resto do laboratório é uma só: <strong><span class="math inline">\(a_i\)</span> se correlaciona com os regressores ou não?</strong></p>
+<p>Se sim, o MQO agrupado é viesado, e é preciso <strong>eliminar</strong> <span class="math inline">\(a_i\)</span>. Se não, ele é apenas ineficiente, e dá para fazer melhor <strong>modelando</strong> <span class="math inline">\(a_i\)</span>.</p>
+</section>
+<section id="eliminando-o-efeito-individual" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="eliminando-o-efeito-individual"><span class="header-section-number">5</span> Eliminando o efeito individual</h2>
+<section id="primeiras-diferenças" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="primeiras-diferenças"><span class="header-section-number">5.1</span> Primeiras diferenças</h3>
+<p>A ideia mais simples: subtraia de cada observação a do ano anterior. O que é fixo some.</p>
+<p><span class="math display">\[
+\Delta \ln(\text{salário}_{it}) = \beta_1 \Delta x_{it1} + \cdots + \Delta u_{it}
+\]</span></p>
+<div class="cell">
+<div>
+<div id="webr-6" class="exercise-cell">
+
+</div>
+<script type="webr-6-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZmQgPC0gcGxtKGx3YWdlIH4gZXhwZXJzcSArIG1hcnJpZWQgKyB1bmlvbiwgZGF0YSA9IHAsIG1vZGVsID0gXCJmZFwiKVxuc3VtbWFyeShmZCkkY29lZmZpY2llbnRzIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Repare primeiro no que <strong>não está</strong> na equação: <code>educ</code>, <code>black</code>, <code>hisp</code> e <code>exper</code>. Elas foram excluídas de propósito, porque a diferença de uma variável que não muda no tempo é zero — ela desaparece junto com <span class="math inline">\(a_i\)</span>. (A experiência cresce exatamente 1 por ano para todo mundo, então sua diferença é constante e colide com o intercepto.)</p>
+<p>O efeito do sindicato cai para cerca de <strong>4,2%</strong>, contra os 18% do MQO agrupado. É menos de um quarto. E o de ser casado cai para <strong>5,8%</strong>.</p>
+<p>A diferença entre os dois resultados <em>é</em> a heterogeneidade não observada. O MQO agrupado atribuía ao sindicato um prêmio que, em boa parte, pertence a características fixas dos trabalhadores que se sindicalizam.</p>
+<p>Note também que sobraram <strong>3.815 observações</strong>: perdeu-se o primeiro ano de cada um dos 545 trabalhadores, porque não há ano anterior para diferenciar.</p>
+</div>
+</div>
+</section>
+<section id="efeitos-fixos-transformação-within" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="efeitos-fixos-transformação-within"><span class="header-section-number">5.2</span> Efeitos fixos (transformação <em>within</em>)</h3>
+<p>Em vez de subtrair o ano anterior, subtraia a <strong>média do indivíduo</strong> ao longo dos oito anos. O efeito fixo some do mesmo jeito, mas sem perder o primeiro ano. (A demonstração de por que essa transformação elimina <span class="math inline">\(a_i\)</span> sem exigir nenhuma hipótese sobre ele está na página de <a href="./teoria-painel.html">teoria dos estimadores de painel</a>.)</p>
+<p><span class="math display">\[
+\ln(\text{salário}_{it}) - \overline{\ln(\text{salário}_i)} = \beta_1 (x_{it1} - \bar{x}_{i1}) + \cdots + (u_{it} - \bar{u}_i)
+\]</span></p>
+<div class="cell">
+<div>
+<div id="webr-7" class="exercise-cell">
+
+</div>
+<script type="webr-7-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZmUgPC0gcGxtKGx3YWdlIH4gZXhwZXJzcSArIG1hcnJpZWQgKyB1bmlvbiArIGZhY3Rvcih5ZWFyKSwgZGF0YSA9IHAsIG1vZGVsID0gXCJ3aXRoaW5cIilcbnN1bW1hcnkoZmUpJGNvZWZmaWNpZW50c1sxOjMsIF0ifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O prêmio sindical fica em <strong>8,0%</strong> e o de ser casado em <strong>4,7%</strong> — compare com a coluna “Fixed Effects” da Tabela 14.2.</p>
+<p>Com as dummies de ano incluídas, o coeficiente de <code>expersq</code> fica negativo (−0,0052), indicando retornos decrescentes à experiência. Sem elas, ele sai positivo — porque passa a absorver o crescimento geral dos salários no período. É o Exercício 4.</p>
+<p>Os dois estimadores que eliminam <span class="math inline">\(a_i\)</span> concordam na mensagem: o efeito do sindicato é pequeno, bem menor do que o MQO agrupado sugeria. Diferem na magnitude (4,2% contra 8,0%) por usarem a informação de modo diferente, e a escolha entre eles é assunto da teoria — com <span class="math inline">\(T = 2\)</span> são idênticos; com <span class="math inline">\(T &gt; 2\)</span>, o de efeitos fixos é mais eficiente se <span class="math inline">\(u_{it}\)</span> não for autocorrelacionado.</p>
+</div>
+</div>
+<div class="cell">
+<div>
+<div id="webr-8" class="exercise-cell">
+
+</div>
+<script type="webr-8-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic3VtbWFyeShmZSkkci5zcXVhcmVkXG5oZWFkKGZpeGVmKGZlKSkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O R² reportado é o <strong>R² within</strong>: quanto da variação <em>dentro</em> de cada indivíduo o modelo explica. Não é comparável ao R² do MQO agrupado.</p>
+<p>A função <code>fixef()</code> devolve os <span class="math inline">\(a_i\)</span> estimados — um para cada um dos 545 trabalhadores. São os interceptos individuais. Eles não costumam ser o objeto de interesse, mas estão lá: o efeito fixo não é descartado, é <strong>estimado e removido</strong>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>O preço dos efeitos fixos
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O estimador de efeitos fixos <strong>não pode estimar o efeito de nada que seja constante no tempo</strong>. Educação, raça, sexo, região de nascimento — tudo isso é absorvido por <span class="math inline">\(a_i\)</span> e desaparece.</p>
+<p>Isso não é defeito; é a lógica do método. Se você precisa estimar o retorno da educação com esta base, efeitos fixos não é a ferramenta. Essa limitação é o principal argumento prático a favor do estimador seguinte.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="modelando-o-efeito-individual-efeitos-aleatórios" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="modelando-o-efeito-individual-efeitos-aleatórios"><span class="header-section-number">6</span> Modelando o efeito individual: efeitos aleatórios</h2>
+<p>Suponha agora que <span class="math inline">\(a_i\)</span> <strong>não</strong> se correlaciona com nenhum regressor — é só mais um componente aleatório do erro. Nesse caso, eliminá-lo é jogar informação fora. O estimador de efeitos aleatórios o mantém e trata o erro composto <span class="math inline">\(a_i + u_{it}\)</span> por mínimos quadrados generalizados.</p>
+<div class="cell">
+<div>
+<div id="webr-9" class="exercise-cell">
+
+</div>
+<script type="webr-9-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmUgPC0gcGxtKGx3YWdlIH4gZWR1YyArIGJsYWNrICsgaGlzcCArIGV4cGVyICsgZXhwZXJzcSArIG1hcnJpZWQgKyB1bmlvbiArIGZhY3Rvcih5ZWFyKSxcbiAgICAgICAgICBkYXRhID0gcCwgbW9kZWwgPSBcInJhbmRvbVwiKVxuc3VtbWFyeShyZSkkY29lZmZpY2llbnRzWzE6OCwgXSJ9
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Agora <code>educ</code>, <code>black</code> e <code>hisp</code> <strong>voltaram</strong>: efeitos aleatórios estima variáveis constantes no tempo, porque não as elimina.</p>
+<p>O prêmio sindical fica em <strong>10,6%</strong> — entre os 18% do agrupado e os 8% dos efeitos fixos. O de casado, em <strong>6,4%</strong>. Compare com a coluna “Random Effects” da Tabela 14.2.</p>
+<p>Essa posição intermediária não é coincidência. O estimador de efeitos aleatórios é uma transformação <em>quase-within</em>: em vez de subtrair a média individual inteira, subtrai uma fração <span class="math inline">\(\theta\)</span> dela.</p>
+</div>
+</div>
+<div class="cell">
+<div>
+<div id="webr-10" class="exercise-cell">
+
+</div>
+<script type="webr-10-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic3VtbWFyeShyZSkkZXJjb21wIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A saída decompõe a variância do erro em duas partes: a do efeito individual (<span class="math inline">\(\sigma_a^2 \approx 0{,}105\)</span>) e a idiossincrática (<span class="math inline">\(\sigma_u^2 \approx 0{,}123\)</span>). O parâmetro <strong>theta ≈ 0,643</strong> é a fração da média individual que o estimador subtrai.</p>
+<p>A interpretação organiza os três estimadores numa régua:</p>
+<ul>
+<li><span class="math inline">\(\theta = 0\)</span>: não subtrai nada → <strong>MQO agrupado</strong></li>
+<li><span class="math inline">\(\theta = 1\)</span>: subtrai a média inteira → <strong>efeitos fixos</strong></li>
+<li><span class="math inline">\(\theta = 0{,}643\)</span>: subtrai 64% → <strong>efeitos aleatórios</strong></li>
+</ul>
+<p>Quanto maior <span class="math inline">\(\sigma_a^2\)</span> em relação a <span class="math inline">\(\sigma_u^2\)</span>, e quanto maior <span class="math inline">\(T\)</span>, mais <span class="math inline">\(\theta\)</span> se aproxima de 1 e mais efeitos aleatórios se parece com efeitos fixos.</p>
+</div>
+</div>
+</section>
+<section id="qual-escolher-o-teste-de-hausman" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="qual-escolher-o-teste-de-hausman"><span class="header-section-number">7</span> Qual escolher? O teste de Hausman</h2>
+<p>Os dois estimadores respondem a hipóteses diferentes sobre <span class="math inline">\(a_i\)</span>. Sob a hipótese de que <span class="math inline">\(a_i\)</span> <strong>não se correlaciona</strong> com os regressores, ambos são consistentes, mas efeitos aleatórios é mais eficiente. Se <span class="math inline">\(a_i\)</span> <strong>se correlaciona</strong>, só efeitos fixos é consistente.</p>
+<p>O teste de Hausman compara os dois: se as estimativas forem parecidas, a correlação provavelmente não existe e vale usar o mais eficiente. Se forem muito diferentes, algo está errado com efeitos aleatórios.</p>
+<div class="cell">
+<div>
+<div id="webr-11" class="exercise-cell">
+
+</div>
+<script type="webr-11-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicGh0ZXN0KGZlLCByZSkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A hipótese nula é a de que <strong>efeitos aleatórios é consistente</strong> (ou seja, <span class="math inline">\(a_i\)</span> não se correlaciona com os regressores). O valor-p fica bem abaixo de 0,05: <strong>rejeitamos</strong>.</p>
+<p>A conclusão para esta base: há heterogeneidade não observada correlacionada com os regressores, efeitos aleatórios está viesado, e o estimador adequado é o de <strong>efeitos fixos</strong> — mesmo com o custo de não estimar o retorno da educação.</p>
+<p>O teste compara apenas os coeficientes que ambos os modelos estimam. Por isso <code>educ</code>, <code>black</code> e <code>hisp</code> não entram: efeitos fixos não os tem.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Uma leitura mais cuidadosa do Hausman
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Rejeitar a nula é informativo: diz que os dois estimadores discordam mais do que o acaso explicaria. <strong>Não rejeitar</strong> é menos conclusivo — pode significar que <span class="math inline">\(a_i\)</span> é mesmo não correlacionado, ou apenas que o teste não tem poder para detectar a diferença nesta amostra.</p>
+<p>Na prática aplicada, a escolha costuma ser guiada pela teoria antes do teste: se há razão para acreditar que características fixas não observadas se relacionam com os regressores — e em economia quase sempre há —, efeitos fixos é o ponto de partida, e o Hausman serve de confirmação.</p>
+</div>
+</div>
+</section>
+<section id="erros-padrão-agrupados" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="erros-padrão-agrupados"><span class="header-section-number">8</span> Erros-padrão agrupados</h2>
+<p>Há um problema que nenhum dos estimadores acima resolve sozinho. As oito observações do mesmo trabalhador não são independentes: se ele teve um ano bom, provavelmente o seguinte também foi. O erro <span class="math inline">\(u_{it}\)</span> é <strong>autocorrelacionado dentro do indivíduo</strong>, e isso subestima os erros-padrão convencionais.</p>
+<p>A correção é agrupar (<em>cluster</em>) os erros por indivíduo, o que permite qualquer correlação dentro do grupo e assume independência entre grupos.</p>
+<div class="cell">
+<div>
+<div id="webr-12" class="exercise-cell">
+
+</div>
+<script type="webr-12-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShsbXRlc3QpXG5jb2VmdGVzdChmZSwgdmNvdiA9IHZjb3ZIQyhmZSwgdHlwZSA9IFwiSEMxXCIsIGNsdXN0ZXIgPSBcImdyb3VwXCIpKVsxOjMsIF0ifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Como ler essa saída
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Os coeficientes não mudam — a correção é só na inferência. O erro-padrão de <code>union</code> sobe de 0,0193 para cerca de <strong>0,0227</strong>, e o de <code>married</code> de 0,0183 para <strong>0,0210</strong>. Aumentos de 15% a 20%.</p>
+<p>No MQO agrupado o estrago é maior: o erro-padrão de <code>union</code> sobe <strong>60%</strong> quando agrupado, porque ali a correlação dentro do indivíduo não foi tratada de nenhuma forma.</p>
+<p>Em painel, reportar erros agrupados pela unidade é o padrão da literatura aplicada. Com 545 grupos, a correção assintótica funciona bem; com menos de 50 grupos, ela se torna frágil e há correções adicionais.</p>
+</div>
+</div>
+</section>
+<section id="exercícios" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="exercícios"><span class="header-section-number">9</span> Exercícios</h2>
+<section id="exercício-1-quem-identifica-o-efeito" class="level3" data-number="9.1">
+<h3 data-number="9.1" class="anchored" data-anchor-id="exercício-1-quem-identifica-o-efeito"><span class="header-section-number">9.1</span> Exercício 1 — quem identifica o efeito</h3>
+<p>Estime o efeito do sindicato por efeitos fixos usando <strong>apenas</strong> os 246 trabalhadores que mudam de status sindical. Compare com a estimativa na amostra completa.</p>
+<div class="cell" data-exercise="lab10_ex1">
+<div>
+<div id="webr-13" class="exercise-cell">
+
+</div>
+<script type="webr-13-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibXVkYW0gPC0gd2FnZXBhbiB8PlxuICBncm91cF9ieShucikgfD5cbiAgc3VtbWFyaXNlKHByb3AgPSBtZWFuKHVuaW9uKSkgfD5cbiAgZmlsdGVyKHByb3AgPiAwICYgcHJvcCA8IDEpIHw+XG4gIHB1bGwobnIpXG5cbnBfbXVkYW0gPC0gcGRhdGEuZnJhbWUoZmlsdGVyKHdhZ2VwYW4sIG5yICVpbiUgX19fX19fKSwgaW5kZXggPSBjKFwibnJcIiwgXCJ5ZWFyXCIpKVxuZmVfbXVkYW0gPC0gcGxtKGx3YWdlIH4gZXhwZXJzcSArIG1hcnJpZWQgKyB1bmlvbiArIGZhY3Rvcih5ZWFyKSwgZGF0YSA9IF9fX19fXywgbW9kZWwgPSBcIndpdGhpblwiKVxuYyhhbW9zdHJhX2NvbXBsZXRhID0gY29lZihmZSlbXCJ1bmlvblwiXSwgc29fcXVlbV9tdWRhID0gY29lZihmZV9tdWRhbSlbXCJ1bmlvblwiXSkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-17" class="callout-17-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As lacunas são <code>mudam</code> e <code>p_mudam</code>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-18-contents" aria-controls="callout-18" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-18" class="callout-18-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>mudam <span class="ot">&lt;-</span> wagepan <span class="sc">|&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(nr) <span class="sc">|&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">prop =</span> <span class="fu">mean</span>(union)) <span class="sc">|&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(prop <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> prop <span class="sc">&lt;</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(nr)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>p_mudam <span class="ot">&lt;-</span> <span class="fu">pdata.frame</span>(<span class="fu">filter</span>(wagepan, nr <span class="sc">%in%</span> mudam), <span class="at">index =</span> <span class="fu">c</span>(<span class="st">"nr"</span>, <span class="st">"year"</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>fe_mudam <span class="ot">&lt;-</span> <span class="fu">plm</span>(lwage <span class="sc">~</span> expersq <span class="sc">+</span> married <span class="sc">+</span> union <span class="sc">+</span> <span class="fu">factor</span>(year), <span class="at">data =</span> p_mudam, <span class="at">model =</span> <span class="st">"within"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">amostra_completa =</span> <span class="fu">coef</span>(fe)[<span class="st">"union"</span>], <span class="at">so_quem_muda =</span> <span class="fu">coef</span>(fe_mudam)[<span class="st">"union"</span>])</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Os dois coeficientes são praticamente iguais. Não é coincidência: os 299 trabalhadores que nunca mudam de status têm <code>union - media(union) = 0</code> em todos os anos, e por isso <strong>não contribuem nada</strong> para a estimativa within do efeito do sindicato. Eles ajudam a estimar os outros coeficientes, mas o do sindicato vem inteiramente de quem mudou.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-2-efeitos-fixos-à-mão" class="level3" data-number="9.2">
+<h3 data-number="9.2" class="anchored" data-anchor-id="exercício-2-efeitos-fixos-à-mão"><span class="header-section-number">9.2</span> Exercício 2 — efeitos fixos à mão</h3>
+<p>O estimador de efeitos fixos é um MQO comum aplicado aos dados <strong>centrados</strong> na média individual. Reproduza-o sem o <code>plm</code>.</p>
+<div class="cell" data-exercise="lab10_ex2">
+<div>
+<div id="webr-14" class="exercise-cell">
+
+</div>
+<script type="webr-14-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiY2VudHJhZG8gPC0gd2FnZXBhbiB8PlxuICBncm91cF9ieShucikgfD5cbiAgbXV0YXRlKGx3YWdlX2MgICA9IGx3YWdlIC0gbWVhbihsd2FnZSksXG4gICAgICAgICBtYXJyaWVkX2MgPSBtYXJyaWVkIC0gbWVhbihfX19fX18pLFxuICAgICAgICAgdW5pb25fYyAgID0gdW5pb24gLSBtZWFuKF9fX19fXykpIHw+XG4gIHVuZ3JvdXAoKVxuXG5tYW51YWwgPC0gbG0obHdhZ2VfYyB+IG1hcnJpZWRfYyArIHVuaW9uX2MgLSAxLCBkYXRhID0gY2VudHJhZG8pXG5mZV9zaW1wbGVzIDwtIHBsbShsd2FnZSB+IG1hcnJpZWQgKyB1bmlvbiwgZGF0YSA9IHAsIG1vZGVsID0gXCJ3aXRoaW5cIilcbnJiaW5kKG1hbnVhbCA9IGNvZWYobWFudWFsKSwgcGxtID0gY29lZihmZV9zaW1wbGVzKSkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-19-contents" aria-controls="callout-19" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-19" class="callout-19-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As lacunas são <code>married</code> e <code>union</code>. O <code>- 1</code> tira o intercepto, que é zero por construção em dados centrados.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-20-contents" aria-controls="callout-20" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-20" class="callout-20-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>centrado <span class="ot">&lt;-</span> wagepan <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(nr) <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lwage_c   =</span> lwage <span class="sc">-</span> <span class="fu">mean</span>(lwage),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">married_c =</span> married <span class="sc">-</span> <span class="fu">mean</span>(married),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">union_c   =</span> union <span class="sc">-</span> <span class="fu">mean</span>(union)) <span class="sc">|&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>manual <span class="ot">&lt;-</span> <span class="fu">lm</span>(lwage_c <span class="sc">~</span> married_c <span class="sc">+</span> union_c <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> centrado)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>fe_simples <span class="ot">&lt;-</span> <span class="fu">plm</span>(lwage <span class="sc">~</span> married <span class="sc">+</span> union, <span class="at">data =</span> p, <span class="at">model =</span> <span class="st">"within"</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">manual =</span> <span class="fu">coef</span>(manual), <span class="at">plm =</span> <span class="fu">coef</span>(fe_simples))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Os coeficientes coincidem até a última casa. O <code>plm</code> não faz mágica: centra os dados e roda MQO. A única diferença está nos <strong>erros-padrão</strong> — o <code>lm()</code> manual não sabe que 545 parâmetros (os <span class="math inline">\(a_i\)</span>) foram estimados implicitamente e usa graus de liberdade errados. Por isso, para inferência, use o <code>plm</code>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-3-a-variável-dummy-por-indivíduo" class="level3" data-number="9.3">
+<h3 data-number="9.3" class="anchored" data-anchor-id="exercício-3-a-variável-dummy-por-indivíduo"><span class="header-section-number">9.3</span> Exercício 3 — a variável dummy por indivíduo</h3>
+<p>Há um terceiro jeito de obter efeitos fixos: incluir uma dummy para cada trabalhador. Faça isso com uma subamostra pequena e confirme que dá o mesmo resultado.</p>
+<div class="cell" data-exercise="lab10_ex3">
+<div>
+<div id="webr-15" class="exercise-cell">
+
+</div>
+<script type="webr-15-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic3ViIDwtIGZpbHRlcih3YWdlcGFuLCBuciAlaW4lIHVuaXF1ZSh3YWdlcGFuJG5yKVsxOjQwXSlcbnBfc3ViIDwtIHBkYXRhLmZyYW1lKHN1YiwgaW5kZXggPSBjKFwibnJcIiwgXCJ5ZWFyXCIpKVxuXG5sc2R2ICAgPC0gbG0obHdhZ2UgfiBtYXJyaWVkICsgdW5pb24gKyBmYWN0b3IoX19fX19fKSwgZGF0YSA9IHN1YilcbndpdGhpbiA8LSBwbG0obHdhZ2UgfiBtYXJyaWVkICsgdW5pb24sIGRhdGEgPSBwX3N1YiwgbW9kZWwgPSBcIndpdGhpblwiKVxucmJpbmQoTFNEViA9IGNvZWYobHNkdilbYyhcIm1hcnJpZWRcIiwgXCJ1bmlvblwiKV0sIHdpdGhpbiA9IGNvZWYod2l0aGluKSkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-21-contents" aria-controls="callout-21" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-21" class="callout-21-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A lacuna é <code>nr</code> — uma dummy por trabalhador. Com 545 indivíduos seriam 545 dummies; por isso o exercício usa só 40.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-22-contents" aria-controls="callout-22" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-22" class="callout-22-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sub <span class="ot">&lt;-</span> <span class="fu">filter</span>(wagepan, nr <span class="sc">%in%</span> <span class="fu">unique</span>(wagepan<span class="sc">$</span>nr)[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>])</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>p_sub <span class="ot">&lt;-</span> <span class="fu">pdata.frame</span>(sub, <span class="at">index =</span> <span class="fu">c</span>(<span class="st">"nr"</span>, <span class="st">"year"</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>lsdv   <span class="ot">&lt;-</span> <span class="fu">lm</span>(lwage <span class="sc">~</span> married <span class="sc">+</span> union <span class="sc">+</span> <span class="fu">factor</span>(nr), <span class="at">data =</span> sub)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>within <span class="ot">&lt;-</span> <span class="fu">plm</span>(lwage <span class="sc">~</span> married <span class="sc">+</span> union, <span class="at">data =</span> p_sub, <span class="at">model =</span> <span class="st">"within"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">LSDV =</span> <span class="fu">coef</span>(lsdv)[<span class="fu">c</span>(<span class="st">"married"</span>, <span class="st">"union"</span>)], <span class="at">within =</span> <span class="fu">coef</span>(within))</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Idênticos. O estimador com dummies (LSDV, <em>least squares dummy variable</em>) e a transformação within são <strong>o mesmo estimador</strong> — é o teorema de Frisch-Waugh-Lovell em ação. A diferença é computacional: com milhares de indivíduos, centrar é viável e estimar milhares de dummies não é.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercício-4-o-papel-das-dummies-de-ano" class="level3" data-number="9.4">
+<h3 data-number="9.4" class="anchored" data-anchor-id="exercício-4-o-papel-das-dummies-de-ano"><span class="header-section-number">9.4</span> Exercício 4 — o papel das dummies de ano</h3>
+<p>Estime efeitos fixos <strong>sem</strong> as dummies de ano e compare o coeficiente de <code>expersq</code> com o modelo que as inclui.</p>
+<div class="cell" data-exercise="lab10_ex4">
+<div>
+<div id="webr-16" class="exercise-cell">
+
+</div>
+<script type="webr-16-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiZmVfc2VtX2FubyA8LSBwbG0obHdhZ2UgfiBleHBlcnNxICsgbWFycmllZCArIHVuaW9uLCBkYXRhID0gcCwgbW9kZWwgPSBcIl9fX19fX1wiKVxucmJpbmQoc2VtX2FubyA9IGNvZWYoZmVfc2VtX2FubylbXCJleHBlcnNxXCJdLCBjb21fYW5vID0gY29lZihmZSlbXCJleHBlcnNxXCJdKSJ9
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-23-contents" aria-controls="callout-23" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-23" class="callout-23-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A lacuna é <code>"within"</code>. O sinal de <code>expersq</code> muda — pense no que mais cresce a cada ano além da experiência.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Solução">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-24-contents" aria-controls="callout-24" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Solução
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-24" class="callout-24-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fe_sem_ano <span class="ot">&lt;-</span> <span class="fu">plm</span>(lwage <span class="sc">~</span> expersq <span class="sc">+</span> married <span class="sc">+</span> union, <span class="at">data =</span> p, <span class="at">model =</span> <span class="st">"within"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">sem_ano =</span> <span class="fu">coef</span>(fe_sem_ano)[<span class="st">"expersq"</span>], <span class="at">com_ano =</span> <span class="fu">coef</span>(fe)[<span class="st">"expersq"</span>])</span></code></pre></div><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Sem as dummies, <code>expersq</code> é <strong>positivo</strong> (0,0037); com elas, <strong>negativo</strong> (−0,0052). A diferença é a tendência: os salários reais cresceram no período para todo mundo, e sem as dummies de ano o único regressor que cresce monotonicamente com o tempo — a experiência ao quadrado — absorve esse crescimento.</p>
+<p>As dummies de ano são o <strong>efeito fixo de tempo</strong>: capturam tudo o que afeta todos os indivíduos igualmente num dado ano (inflação, ciclo econômico, mudança de legislação). O modelo com efeitos de indivíduo <em>e</em> de tempo é chamado de <em>two-way fixed effects</em>, e é o padrão em aplicações.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="glossário-funções-novas-deste-laboratório" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="glossário-funções-novas-deste-laboratório"><span class="header-section-number">10</span> Glossário — funções novas deste laboratório</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Função</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pdata.frame()</code> (plm)</td>
+<td>Declara a estrutura do painel: quem é a unidade e quem é o tempo.</td>
+</tr>
+<tr class="even">
+<td><code>pdim()</code> (plm)</td>
+<td>Dimensões do painel e se é balanceado.</td>
+</tr>
+<tr class="odd">
+<td><code>plm(..., model = )</code> (plm)</td>
+<td>Estima o modelo: <code>"pooling"</code>, <code>"fd"</code>, <code>"within"</code> ou <code>"random"</code>.</td>
+</tr>
+<tr class="even">
+<td><code>fixef()</code> (plm)</td>
+<td>Extrai os efeitos fixos individuais estimados.</td>
+</tr>
+<tr class="odd">
+<td><code>phtest()</code> (plm)</td>
+<td>Teste de Hausman: H0 = efeitos aleatórios é consistente.</td>
+</tr>
+<tr class="even">
+<td><code>vcovHC(..., cluster = "group")</code> (plm)</td>
+<td>Matriz de covariância agrupada por indivíduo.</td>
+</tr>
+<tr class="odd">
+<td><code>summary(re)$ercomp</code></td>
+<td>Decomposição da variância e o parâmetro theta do RE.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="exercícios-avaliativos" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="exercícios-avaliativos"><span class="header-section-number">11</span> Exercícios avaliativos</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Vale nota
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>As respostas destes exercícios são cobradas no <strong>questionário da disciplina, no SIGAA</strong>. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — <strong>sem a solução</strong>. Anote os valores obtidos antes de responder no SIGAA.</p>
+</div>
+</div>
+<section id="questão-1" class="level3" data-number="11.1">
+<h3 data-number="11.1" class="anchored" data-anchor-id="questão-1"><span class="header-section-number">11.1</span> Questão 1</h3>
+<p>Estime o modelo <code>lwage ~ married + union</code> por MQO agrupado e por efeitos fixos (sem dummies de ano). Qual o coeficiente de <code>union</code> em cada um, e qual a razão entre eles?</p>
+<div class="cell">
+<div>
+<div id="webr-17" class="exercise-cell">
+
+</div>
+<script type="webr-17-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-26-contents" aria-controls="callout-26" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-26" class="callout-26-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Use <code>model = "pooling"</code> e <code>model = "within"</code> com a mesma fórmula. A razão pooled/FE diz quantas vezes o MQO agrupado exagera o efeito.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="questão-2" class="level3" data-number="11.2">
+<h3 data-number="11.2" class="anchored" data-anchor-id="questão-2"><span class="header-section-number">11.2</span> Questão 2</h3>
+<p>No modelo de efeitos aleatórios com todas as variáveis e as dummies de ano, qual o valor de <strong>theta</strong>? E o que aconteceria com ele se o painel tivesse 20 anos em vez de 8, mantidas as variâncias?</p>
+<div class="cell">
+<div>
+<div id="webr-18" class="exercise-cell">
+
+</div>
+<script type="webr-18-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-27-contents" aria-controls="callout-27" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-27" class="callout-27-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>summary(re)$ercomp</code> mostra theta. A fórmula é <span class="math inline">\(\theta = 1 - \sqrt{\sigma_u^2 / (T\sigma_a^2 + \sigma_u^2)}\)</span> — recalcule com <span class="math inline">\(T = 20\)</span>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="questão-3" class="level3" data-number="11.3">
+<h3 data-number="11.3" class="anchored" data-anchor-id="questão-3"><span class="header-section-number">11.3</span> Questão 3</h3>
+<p>Estime o efeito de <code>married</code> por primeiras diferenças e por efeitos fixos, ambos <strong>com</strong> dummies de ano. Qual a diferença entre os dois coeficientes?</p>
+<div class="cell">
+<div>
+<div id="webr-19" class="exercise-cell">
+
+</div>
+<script type="webr-19-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-28-contents" aria-controls="callout-28" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-28" class="callout-28-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Com <code>model = "fd"</code>, inclua <code>factor(year)</code> na fórmula também. Quantas observações cada modelo usa?</p>
+</div>
+</div>
+</div>
+</section>
+<section id="questão-4" class="level3" data-number="11.4">
+<h3 data-number="11.4" class="anchored" data-anchor-id="questão-4"><span class="header-section-number">11.4</span> Questão 4</h3>
+<p>No modelo de efeitos fixos com dummies de ano, qual o erro-padrão de <code>union</code> com a correção agrupada por indivíduo usando <code>type = "HC0"</code>? Ele é significativo a 1%?</p>
+<div class="cell">
+<div>
+<div id="webr-20" class="exercise-cell">
+
+</div>
+<script type="webr-20-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-29-contents" aria-controls="callout-29" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-29" class="callout-29-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Troque <code>"HC1"</code> por <code>"HC0"</code> no <code>vcovHC()</code> e leia a coluna de erro-padrão e o valor-p na saída do <code>coeftest()</code>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="questão-5" class="level3" data-number="11.5">
+<h3 data-number="11.5" class="anchored" data-anchor-id="questão-5"><span class="header-section-number">11.5</span> Questão 5</h3>
+<p>Rode o teste de Hausman comparando efeitos fixos e aleatórios no modelo <code>lwage ~ expersq + married + union</code> (sem dummies de ano). Qual a estatística do teste e quantos graus de liberdade ela tem?</p>
+<div class="cell">
+<div>
+<div id="webr-21" class="exercise-cell">
+
+</div>
+<script type="webr-21-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoiIyBlc2NyZXZhIHNldSBjw7NkaWdvIGFxdWkifQ==
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Dica">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-30-contents" aria-controls="callout-30" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Dica
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-30" class="callout-30-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Estime os dois modelos com exatamente a mesma fórmula antes de chamar <code>phtest()</code>. Os graus de liberdade são o número de coeficientes comparados.</p>
+</div>
+</div>
+</div>
+
+
+<script type="webr-data">
+eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImRwbHlyIiwiZ2dwbG90MiIsInBsbSIsImxtdGVzdCIsIndvb2xkcmlkZ2UiXSwicmVwb3MiOltdfSwicmVuZGVyX2RmIjoiZGVmYXVsdCJ9
+</script>
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0yMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMjE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0yMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzIxID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMjEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0yMS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8yMSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMjEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0yMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMjA7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0yMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzIwID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMjAtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0yMC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8yMCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMjAsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xOSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTk7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xOSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE5ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTktY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xOS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xOSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTksIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTg7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE4ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTgtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xOC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xOCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTgsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xNyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTc7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xNyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE3ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTctY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xNy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xNyA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTcsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTY7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE2ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTYtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xNi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xNiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTYsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTU7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE1ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTUtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xNS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xNSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTUsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xNCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTQ7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xNCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzE0ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTQtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xNC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xNCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTQsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTM7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEzID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTMtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMyA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTMsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTI7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEyID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTItY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTIsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzExID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMTA7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xMCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEwID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMTAtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xMC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xMCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMTAsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC05IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV85O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItOSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzkgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici05LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItOS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV85ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl85LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtOCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfODtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTgiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl84ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItOC1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTgtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfOCA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfOCwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTciLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzc7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici03IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNyA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTctY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici03LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzcgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzcsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC02IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV82O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItNiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzYgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici02LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItNi1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV82ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl82LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtNSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfNTtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl81ID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItNS1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTUtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfNSA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfNSwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTQiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzQ7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici00IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfNCA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTQtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici00LWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzQgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzQsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0zIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV8zO1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzMgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici0zLWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItMy1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8zID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8zLCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtMiIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMjtcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTIiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl8yID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMi1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTItY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfMiA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMiwge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTEiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzE7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0xIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfMSA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTEtY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0xLWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzEgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzEsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXByZWx1ZGUiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ3ZWJST2pzID0ge1xuICBjb25zdCB7IFdlYlIsIENoYW5uZWxUeXBlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lLldlYlI7XG4gIGNvbnN0IHtcbiAgICBXZWJSRXZhbHVhdG9yLFxuICAgIFdlYlJFbnZpcm9ubWVudE1hbmFnZXIsXG4gICAgc2V0dXBSLFxuICAgIGI2NERlY29kZSxcbiAgICBjb2xsYXBzZVBhdGhcbiAgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG5cbiAgY29uc3Qgc3RhdHVzQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLXN0YXR1c1wiKTtcbiAgY29uc3QgaW5kaWNhdG9yQ29udGFpbmVyID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoXCJleGVyY2lzZS1sb2FkaW5nLWluZGljYXRvclwiKTtcbiAgaW5kaWNhdG9yQ29udGFpbmVyLmNsYXNzTGlzdC5yZW1vdmUoXCJkLW5vbmVcIik7XG5cbiAgbGV0IHN0YXR1c1RleHQgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KFwiZGl2XCIpXG4gIHN0YXR1c1RleHQuY2xhc3NMaXN0ID0gXCJleGVyY2lzZS1sb2FkaW5nLWRldGFpbHNcIjtcbiAgc3RhdHVzVGV4dCA9IHN0YXR1c0NvbnRhaW5lci5hcHBlbmRDaGlsZChzdGF0dXNUZXh0KTtcbiAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBJbml0aWFsaXNlYDtcblxuICAvLyBIb2lzdCBpbmRpY2F0b3Igb3V0IGZyb20gZmluYWwgc2xpZGUgd2hlbiBydW5uaW5nIHVuZGVyIHJldmVhbFxuICBjb25zdCByZXZlYWxTdGF0dXMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKFwiLnJldmVhbCAuZXhlcmNpc2UtbG9hZGluZy1pbmRpY2F0b3JcIik7XG4gIGlmIChyZXZlYWxTdGF0dXMpIHtcbiAgICByZXZlYWxTdGF0dXMucmVtb3ZlKCk7XG4gICAgZG9jdW1lbnQucXVlcnlTZWxlY3RvcihcIi5yZXZlYWwgPiAuc2xpZGVzXCIpLmFwcGVuZENoaWxkKHJldmVhbFN0YXR1cyk7XG4gIH1cblxuICAvLyBNYWtlIGFueSByZXZlYWwgc2xpZGVzIHdpdGggbGl2ZSBjZWxscyBzY3JvbGxhYmxlXG4gIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoXCIucmV2ZWFsIC5leGVyY2lzZS1jZWxsXCIpLmZvckVhY2goKGVsKSA9PiB7XG4gICAgZWwuY2xvc2VzdCgnc2VjdGlvbi5zbGlkZScpLmNsYXNzTGlzdC5hZGQoXCJzY3JvbGxhYmxlXCIpO1xuICB9KVxuXG4gIC8vIHdlYlIgc3VwcGxlbWVudGFsIGRhdGEgYW5kIG9wdGlvbnNcbiAgY29uc3QgZGF0YUNvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici1kYXRhXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgZGF0YSA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKGRhdGFDb250ZW50KSk7XG5cbiAgLy8gR3JhYiBsaXN0IG9mIHJlc291cmNlcyB0byBiZSBkb3dubG9hZGVkXG4gIGNvbnN0IGZpbGVzQ29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ2ZnMtZmlsZVxcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGZpbGVzID0gSlNPTi5wYXJzZShiNjREZWNvZGUoZmlsZXNDb250ZW50KSk7XG5cbiAgLy8gSW5pdGlhbGlzZSB3ZWJSIGFuZCBzZXR1cCBmb3IgUiBjb2RlIGV2YWx1YXRpb25cbiAgbGV0IHdlYlJQcm9taXNlID0gKGFzeW5jICh3ZWJSKSA9PiB7XG4gICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyB3ZWJSYDtcbiAgICBhd2FpdCB3ZWJSLmluaXQoKTtcblxuICAgIC8vIEluc3RhbGwgcHJvdmlkZWQgbGlzdCBvZiBwYWNrYWdlc1xuICAgIC8vIEVuc3VyZSB3ZWJSIGRlZmF1bHQgcmVwbyBpcyBpbmNsdWRlZFxuICAgIGRhdGEucGFja2FnZXMucmVwb3MucHVzaChcImh0dHBzOi8vcmVwby5yLXdhc20ub3JnXCIpXG4gICAgYXdhaXQgZGF0YS5wYWNrYWdlcy5wa2dzLm1hcCgocGtnKSA9PiAoKSA9PiB7XG4gICAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYERvd25sb2FkaW5nIHBhY2thZ2U6ICR7cGtnfWA7XG4gICAgICByZXR1cm4gd2ViUi5ldmFsUlZvaWQoYFxuICAgICAgICB3ZWJyOjppbnN0YWxsKHBrZywgcmVwb3MgPSByZXBvcylcbiAgICAgICAgbGlicmFyeShwa2csIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSlcbiAgICAgIGAsIHsgZW52OiB7XG4gICAgICAgIHBrZzogcGtnLFxuICAgICAgICByZXBvczogZGF0YS5wYWNrYWdlcy5yZXBvcyxcbiAgICAgIH19KTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIC8vIERvd25sb2FkIGFuZCBpbnN0YWxsIHJlc291cmNlc1xuICAgIGF3YWl0IGZpbGVzLm1hcCgoZmlsZSkgPT4gYXN5bmMgKCkgPT4ge1xuICAgICAgY29uc3QgbmFtZSA9IGZpbGUuc3Vic3RyaW5nKGZpbGUubGFzdEluZGV4T2YoJy8nKSArIDEpO1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyByZXNvdXJjZTogJHtuYW1lfWA7XG4gICAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKGZpbGUpO1xuICAgICAgaWYgKCFyZXNwb25zZS5vaykge1xuICAgICAgICB0aHJvdyBuZXcgRXJyb3IoYENhbid0IGRvd25sb2FkIFxcYCR7ZmlsZX1cXGAuIEVycm9yICR7cmVzcG9uc2Uuc3RhdHVzfTogXCIke3Jlc3BvbnNlLnN0YXR1c1RleHR9XCIuYCk7XG4gICAgICB9XG4gICAgICBjb25zdCBkYXRhID0gYXdhaXQgcmVzcG9uc2UuYXJyYXlCdWZmZXIoKTtcblxuICAgICAgLy8gU3RvcmUgVVJMcyBpbiB0aGUgY3dkIHdpdGhvdXQgYW55IHN1YmRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGlmIChmaWxlLmluY2x1ZGVzKFwiOi8vXCIpKSB7XG4gICAgICAgIGZpbGUgPSBuYW1lO1xuICAgICAgfVxuXG4gICAgICAvLyBDb2xsYXBzZSBoaWdoZXIgZGlyZWN0b3J5IHN0cnVjdHVyZVxuICAgICAgZmlsZSA9IGNvbGxhcHNlUGF0aChmaWxlKTtcblxuICAgICAgLy8gQ3JlYXRlIGRpcmVjdG9yeSB0cmVlLCBpZ25vcmluZyBcImRpcmVjdG9yeSBleGlzdHNcIiBWRlMgZXJyb3JzXG4gICAgICBjb25zdCBwYXJ0cyA9IGZpbGUuc3BsaXQoJy8nKS5zbGljZSgwLCAtMSk7XG4gICAgICBsZXQgcGF0aCA9ICcnO1xuICAgICAgd2hpbGUgKHBhcnRzLmxlbmd0aCA+IDApIHtcbiAgICAgICAgcGF0aCArPSBwYXJ0cy5zaGlmdCgpICsgJy8nO1xuICAgICAgICBjb25zdCBhbmFseXNpcyA9IGF3YWl0IHdlYlIuRlMuYW5hbHl6ZVBhdGgocGF0aCk7XG4gICAgICAgIGlmICghYW5hbHlzaXMuZXhpc3RzKSB7XG4gICAgICAgICAgdHJ5IHtcbiAgICAgICAgICAgIGF3YWl0IHdlYlIuRlMubWtkaXIocGF0aCk7XG4gICAgICAgICAgfSBjYXRjaCAoZSkge1xuICAgICAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBGaWxlc3lzdGVtIEVycm9yOiBcIiR7ZS5tZXNzYWdlfVwiLmApO1xuICAgICAgICAgIH1cbiAgICAgICAgfVxuICAgICAgfVxuXG4gICAgICAvLyBXcml0ZSB0aGlzIGZpbGUgdG8gdGhlIFZGU1xuICAgICAgcmV0dXJuIGF3YWl0IHdlYlIuRlMud3JpdGVGaWxlKGZpbGUsIG5ldyBVaW50OEFycmF5KGRhdGEpKTtcbiAgICB9KS5yZWR1Y2UoKGN1ciwgbmV4dCkgPT4gY3VyLnRoZW4obmV4dCksIFByb21pc2UucmVzb2x2ZSgpKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgSW5zdGFsbGluZyB3ZWJSIHNoaW1zYDtcbiAgICBhd2FpdCB3ZWJSLmV2YWxSVm9pZChgd2Vicjo6c2hpbV9pbnN0YWxsKClgKTtcblxuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgV2ViUiBlbnZpcm9ubWVudCBzZXR1cGA7XG4gICAgYXdhaXQgc2V0dXBSKHdlYlIsIGRhdGEpO1xuXG4gICAgc3RhdHVzVGV4dC5yZW1vdmUoKTtcbiAgICBpZiAoc3RhdHVzQ29udGFpbmVyLmNoaWxkcmVuLmxlbmd0aCA9PSAwKSB7XG4gICAgICBzdGF0dXNDb250YWluZXIucGFyZW50Tm9kZS5yZW1vdmUoKTtcbiAgICB9XG4gICAgcmV0dXJuIHdlYlI7XG4gIH0pKG5ldyBXZWJSKGRhdGEub3B0aW9ucykpO1xuXG4gIC8vIEtlZXAgdHJhY2sgb2YgaW5pdGlhbCBPSlMgYmxvY2sgcmVuZGVyXG4gIGNvbnN0IHJlbmRlcmVkT2pzID0ge307XG5cbiAgY29uc3QgcHJvY2VzcyA9IGFzeW5jIChjb250ZXh0LCBpbnB1dHMpID0+IHtcbiAgICBjb25zdCB3ZWJSID0gYXdhaXQgd2ViUlByb21pc2U7XG4gICAgY29uc3QgZXZhbHVhdG9yID0gbmV3IFdlYlJFdmFsdWF0b3Iod2ViUiwgY29udGV4dClcbiAgICBhd2FpdCBldmFsdWF0b3IucHJvY2VzcyhpbnB1dHMpO1xuICAgIHJldHVybiBldmFsdWF0b3IuY29udGFpbmVyO1xuICB9XG5cbiAgcmV0dXJuIHtcbiAgICBwcm9jZXNzLFxuICAgIHdlYlJQcm9taXNlLFxuICAgIHJlbmRlcmVkT2pzLFxuICB9O1xufVxuIn1dfQ==
+</script>
+<div id="exercise-loading-indicator" class="exercise-loading-indicator d-none d-flex align-items-center gap-2">
+<div id="exercise-loading-status" class="d-flex gap-2">
+
+</div>
+<div class="spinner-grow spinner-grow-sm">
+
+</div>
+</div>
+<script type="vfs-file">
+WyJkYWRvcy8vcGliX3JlYWwuY3N2IiwiZGFkb3MvL3JlcGFzc2VfY2FtYmlhbC5jc3YiLCJkYWRvcy8vY3Jlc2NpbWVudG8uY3N2IiwiZGFkb3MvL2ljbXNfbXQuY3N2IiwiZGFkb3MvL2Z1bmNhb19wdWxtb25hci5jc3YiLCJkYWRvcy8vc2FsYXJpb19zaW5vcC5jc3YiLCJkYWRvcy8vdGVtcGVyYXR1cmFfY29ycG9yYWwuY3N2IiwiZGFkb3MvL2NvbnN1bW9fZmFtaWxpYXMuY3N2IiwiZGFkb3MvL3BkX2VtcHJlc2FzLmNzdiIsImRhZG9zLy90ZXJyYXNfbXQuY3N2IiwiZGFkb3MvL2xpbW9uYWRhLmNzdiIsImRhZG9zLy92ZW5kYXNfbWFxdWluYXMuY3N2IiwiZGFkb3MvL2VuZXJnaWFfaW5kdXN0cmlhbC5jc3YiLCJkYWRvcy8vZ2FzdG9fYWxpbWVudGFjYW8uY3N2IiwiZGFkb3MvL2lkZWJfZXNjb2xhcy5jc3YiLCJkYWRvcy8vc2FsYXJpb19ob3JhLmNzdiIsImRhZG9zLy9uYXRhbGlkYWRlLmNzdiIsImRhZG9zLy9jb25zdHJ1Y29lcy5jc3YiLCJkYWRvcy8vZGlhYmV0ZXMuY3N2IiwiZGFkb3MvL2RpYW1hbnRlcy5jc3YiLCJkYWRvcy8vbGFuY2hvbmV0ZXMuY3N2IiwiZGFkb3MvL2NvbnN1bW8uY3N2IiwiZGFkb3MvL2ludmVzdGltZW50by5jc3YiLCJkYWRvcy8vdmVuZGFzX3JvdXBhcy5jc3YiLCJkYWRvcy8vZGNwLmNzdiIsImRhZG9zLy9zYXVkZV9tdW5pY2lwaW9zLmNzdiIsImRhZG9zLy9jcmVkaXRvX3J1cmFsLmNzdiIsImRhZG9zLy9lbXByZWdvLmNzdiIsImRhZG9zLy9zb2phX3BhaW5lbC5jc3YiLCJkYWRvcy8vZXNwdXJpYS5jc3YiLCJkYWRvcy8vaW5kdXN0cmlhX210LmNzdiIsImRhZG9zLy9jdXN0b19zb2phLmNzdiIsImRhZG9zLy9tYXJpbmhhLmNzdiIsImRhZG9zLy9pbW92ZWlzX3Npbm9wLmNzdiIsImRhZG9zLy9zb2phX211bmljaXBpb3NfbXQuY3N2IiwiZGFkb3MvL3NhbGFyaW9faG9yYTIuY3N2IiwiZGFkb3MvL2luZHVzdHJpYS5jc3YiLCJkYWRvcy8vZXhwb3J0YWNvZXNfc29qYS5jc3YiLCJkYWRvcy8vYWR1Ym9fcHJvZHV0aXZpZGFkZS5jc3YiLCJkYWRvcy8vZnVuY2FvX3Byb2R1Y2FvLmNzdiIsImRhZG9zLy9ob3Jhc190cmFiYWxoby5jc3YiLCJkYWRvcy8vY29ycnVwY2FvLmNzdiIsImRhZG9zLy9jdXN0b19tZWRpby5jc3YiLCJkYWRvcy8vYWJvcnRvLmNzdiIsImRhZG9zLy9wcmVzc2FvX2FydGVyaWFsLmNzdiIsImRhZG9zLy9zZXJpZXNfdGVtcG8uY3N2IiwiZGFkb3MvL2ZlcnRpbGlkYWRlLmNzdiIsImRhZG9zLy9yZXRvcm5vX2Fjb2VzLmNzdiIsImRhZG9zLy9yZXRvcm5vc19zb2phLmNzdiIsImxvZ28tdW5lbWF0LnBuZyJd
+</script>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W119
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../..";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiada");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiada");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/DanielLindomar\.github\.io\/econometria\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Econometria I e II · Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel · UNEMAT — Campus de Sinop</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

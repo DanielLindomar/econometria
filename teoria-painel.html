@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR" xml:lang="pt-BR"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop">
+
+<title>Os estimadores de dados em painel – Econometria Interativa · UNEMAT</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-b776bd1e4a60a76b452808fdebd8c1cf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
+<link href="site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Nenhum resultado",
+    "search-matching-documents-text": "documentos correspondentes",
+    "search-copy-link-title": "Copiar link para a busca",
+    "search-hide-matches-text": "Esconder correspondências adicionais",
+    "search-more-match-text": "mais correspondência neste documento",
+    "search-more-matches-text": "mais correspondências neste documento",
+    "search-clear-button-title": "Limpar",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Procurar"
+  }
+}</script>
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: white;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: white;
+background: #1E2761;
+      }
+</style>
+<script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Econometria Interativa · UNEMAT</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Procurar"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Alternar de navegação" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Início</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-econometria-i" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Econometria I</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-econometria-i">    
+        <li>
+    <a class="dropdown-item" href="./econ1-lab01.html">
+ <span class="dropdown-text">Laboratório 1 — Explorando dados</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab02.html">
+ <span class="dropdown-text">Laboratório 2 — Analisando e visualizando dados</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab03.html">
+ <span class="dropdown-text">Laboratório 3 — Introdução à estatística</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab04.html">
+ <span class="dropdown-text">Laboratório 4 — Análise de regressão</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab05.html">
+ <span class="dropdown-text">Laboratório 5 — Formas funcionais</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab06.html">
+ <span class="dropdown-text">Laboratório 6 — Variáveis qualitativas</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab07.html">
+ <span class="dropdown-text">Laboratório 7 — Econometria de séries temporais</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab08.html">
+ <span class="dropdown-text">Laboratório 8 — Modelos de volatilidade</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ1-lab09.html">
+ <span class="dropdown-text">Laboratório 9 — Previsão econômica</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-econometria-ii" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Econometria II</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-econometria-ii">    
+        <li>
+    <a class="dropdown-item" href="./econ2-lab07.html">
+ <span class="dropdown-text">Laboratório 7 — Multicolinearidade</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ2-lab08.html">
+ <span class="dropdown-text">Laboratório 8 — Heterocedasticidade e autocorrelação</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ2-lab09.html">
+ <span class="dropdown-text">Laboratório 9 — Especificação do modelo</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./econ2-lab10.html">
+ <span class="dropdown-text">Laboratório 10 — Dados em painel</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-aplicações" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Aplicações</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-aplicações">    
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u1.html">
+ <span class="dropdown-text">Aplicação 1 — Quanto vale um ano a mais de estudo?</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u2.html">
+ <span class="dropdown-text">Aplicação 2 — Quanto rende uma máquina a mais? E um trabalhador a mais?</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u3.html">
+ <span class="dropdown-text">Aplicação 3 — O piso salarial destrói empregos?</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u4.html">
+ <span class="dropdown-text">Aplicação 4 — Uma regressão perfeita entre duas coisas sem relação</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u5.html">
+ <span class="dropdown-text">Aplicação 5 — Por que o risco vem em ondas</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ1-u6.html">
+ <span class="dropdown-text">Aplicação 6 — O modelo que ajusta melhor é o que prevê pior</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ2-u1.html">
+ <span class="dropdown-text">Aplicação 7 — O modelo é ótimo, mas nenhuma variável presta</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ2-u2.html">
+ <span class="dropdown-text">Aplicação 8 — O coeficiente está certo, o erro-padrão está errado</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ2-u3.html">
+ <span class="dropdown-text">Aplicação 9 — A reta que recomendaria adubar até a falência</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ2-u4.html">
+ <span class="dropdown-text">Aplicação 10 — O viés do bom gestor</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-teoria" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Teoria</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-teoria">    
+        <li>
+    <a class="dropdown-item" href="./teoria-modelo.html">
+ <span class="dropdown-text">O modelo linear em forma matricial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./teoria-nao-viesado.html">
+ <span class="dropdown-text">Não-tendenciosidade do estimador de MQO</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./teoria-consistencia.html">
+ <span class="dropdown-text">Consistência do estimador de MQO</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./teoria-eficiencia.html">
+ <span class="dropdown-text">Eficiência: o teorema de Gauss-Markov</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./teoria-painel.html">
+ <span class="dropdown-text">Os estimadores de dados em painel</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projetos" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Projetos</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-projetos">    
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-terras.html">
+ <span class="dropdown-text">Projeto 1 — O que determina o preço da terra em Mato Grosso</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-saude.html">
+ <span class="dropdown-text">Projeto 2 — Por que uns municípios gastam mais em saúde que outros</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-ideb.html">
+ <span class="dropdown-text">Projeto 3 — O que explica o desempenho das escolas</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-custo-soja.html">
+ <span class="dropdown-text">Projeto 4 — Quanto custa produzir uma saca de soja</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-imoveis.html">
+ <span class="dropdown-text">Projeto 5 — Quanto vale um apartamento em Sinop</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-energia.html">
+ <span class="dropdown-text">Projeto 6 — A demanda industrial por energia elétrica</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-repasse.html">
+ <span class="dropdown-text">Projeto 7 — Quanto o dólar pesa no preço da comida</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-exportacoes.html">
+ <span class="dropdown-text">Projeto 8 — O que move as exportações de soja</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-credito.html">
+ <span class="dropdown-text">Projeto 9 — Crédito rural e taxa de juros</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-icms.html">
+ <span class="dropdown-text">Projeto 10 — Prevendo a arrecadação de ICMS</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-painel.html">
+ <span class="dropdown-text">Projeto 11 — Crédito rural e produtividade da soja: um painel de municípios</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-curso-de-r" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Curso de R</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-curso-de-r">    
+        <li>
+    <a class="dropdown-item" href="./r-aula01.html">
+ <span class="dropdown-text">Aula 1 — Introdução ao R</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula02.html">
+ <span class="dropdown-text">Aula 2 — Estrutura dos dados</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula03.html">
+ <span class="dropdown-text">Aula 3 — Regressão linear simples</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula04.html">
+ <span class="dropdown-text">Aula 4 — Regressão múltipla</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula05.html">
+ <span class="dropdown-text">Aula 5 — Formas funcionais</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula06.html">
+ <span class="dropdown-text">Aula 6 — Variáveis qualitativas</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula07.html">
+ <span class="dropdown-text">Aula 7 — Heterocedasticidade</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula08.html">
+ <span class="dropdown-text">Aula 8 — Autocorrelação</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula09.html">
+ <span class="dropdown-text">Aula 9 — Especificação da regressão</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula10.html">
+ <span class="dropdown-text">Aula 10 — Análise de séries de tempo</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./r-aula11.html">
+ <span class="dropdown-text">Aula 11 — Machine Learning no R</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Os estimadores de dados em painel</h1>
+            <p class="subtitle lead">Por que a transformação within elimina o efeito individual, quando efeitos aleatórios é melhor, e o que o Hausman testa</p>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Autor</div>
+      <div class="quarto-title-meta-contents">
+               <p>Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop </p>
+            </div>
+    </div>
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Nesta página</h2>
+   
+  <ul>
+  <li><a href="#o-modelo-com-efeito-individual" id="toc-o-modelo-com-efeito-individual" class="nav-link active" data-scroll-target="#o-modelo-com-efeito-individual"><span class="header-section-number">1</span> O modelo com efeito individual</a></li>
+  <li><a href="#por-que-o-mqo-agrupado-falha" id="toc-por-que-o-mqo-agrupado-falha" class="nav-link" data-scroll-target="#por-que-o-mqo-agrupado-falha"><span class="header-section-number">2</span> Por que o MQO agrupado falha</a></li>
+  <li><a href="#eliminando-o-efeito-individual-a-transformação-within" id="toc-eliminando-o-efeito-individual-a-transformação-within" class="nav-link" data-scroll-target="#eliminando-o-efeito-individual-a-transformação-within"><span class="header-section-number">3</span> Eliminando o efeito individual: a transformação <em>within</em></a>
+  <ul class="collapse">
+  <li><a href="#a-matriz-que-centra-na-média" id="toc-a-matriz-que-centra-na-média" class="nav-link" data-scroll-target="#a-matriz-que-centra-na-média"><span class="header-section-number">3.1</span> A matriz que centra na média</a></li>
+  <li><a href="#a-prova" id="toc-a-prova" class="nav-link" data-scroll-target="#a-prova"><span class="header-section-number">3.2</span> A prova</a></li>
+  <li><a href="#primeiras-diferenças" id="toc-primeiras-diferenças" class="nav-link" data-scroll-target="#primeiras-diferenças"><span class="header-section-number">3.3</span> Primeiras diferenças</a></li>
+  </ul></li>
+  <li><a href="#modelando-o-efeito-individual-efeitos-aleatórios" id="toc-modelando-o-efeito-individual-efeitos-aleatórios" class="nav-link" data-scroll-target="#modelando-o-efeito-individual-efeitos-aleatórios"><span class="header-section-number">4</span> Modelando o efeito individual: efeitos aleatórios</a>
+  <ul class="collapse">
+  <li><a href="#a-forma-que-o-gls-assume" id="toc-a-forma-que-o-gls-assume" class="nav-link" data-scroll-target="#a-forma-que-o-gls-assume"><span class="header-section-number">4.1</span> A forma que o GLS assume</a></li>
+  </ul></li>
+  <li><a href="#o-teste-de-hausman" id="toc-o-teste-de-hausman" class="nav-link" data-scroll-target="#o-teste-de-hausman"><span class="header-section-number">5</span> O teste de Hausman</a></li>
+  <li><a href="#verificação-por-simulação" id="toc-verificação-por-simulação" class="nav-link" data-scroll-target="#verificação-por-simulação"><span class="header-section-number">6</span> Verificação por simulação</a></li>
+  <li><a href="#o-que-fica" id="toc-o-que-fica" class="nav-link" data-scroll-target="#o-que-fica"><span class="header-section-number">7</span> O que fica</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="logo-topo">
+<p><img src="logo-unemat.png" class="img-fluid" width="110"></p>
+</div>
+<section id="o-modelo-com-efeito-individual" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="o-modelo-com-efeito-individual"><span class="header-section-number">1</span> O modelo com efeito individual</h2>
+<p>Com <span class="math inline">\(N\)</span> unidades observadas em <span class="math inline">\(T\)</span> períodos, o modelo de painel é</p>
+<p><span class="math display">\[
+y_{it} = x_{it}'\beta + \alpha_i + u_{it}, \qquad i = 1, \dots, N; \quad t = 1, \dots, T
+\]</span></p>
+<p>O termo <span class="math inline">\(\alpha_i\)</span> é o <strong>efeito individual</strong>: tudo o que é constante na unidade <span class="math inline">\(i\)</span> e não está em <span class="math inline">\(x_{it}\)</span>. O termo <span class="math inline">\(u_{it}\)</span> é o erro idiossincrático, que varia de período para período.</p>
+<p>Empilhando as <span class="math inline">\(T\)</span> observações da unidade <span class="math inline">\(i\)</span>:</p>
+<p><span class="math display">\[
+\underbrace{y_i}_{T \times 1} = \underbrace{X_i}_{T \times k}\,\beta + \underbrace{\iota_T}_{T \times 1}\,\alpha_i + \underbrace{u_i}_{T \times 1}
+\]</span></p>
+<p>onde <span class="math inline">\(\iota_T\)</span> é um vetor de uns. E empilhando as <span class="math inline">\(N\)</span> unidades, com <span class="math inline">\(D\)</span> a matriz <span class="math inline">\(NT \times N\)</span> de dummies individuais — a coluna <span class="math inline">\(i\)</span> tem uns nas linhas da unidade <span class="math inline">\(i\)</span> e zeros nas demais:</p>
+<p><span class="math display">\[
+y = X\beta + D\alpha + u
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>A pergunta que organiza tudo
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Toda a teoria de painel gira em torno de uma única pergunta: <strong><span class="math inline">\(\alpha_i\)</span> se correlaciona com <span class="math inline">\(x_{it}\)</span>?</strong></p>
+<p>Se <strong>não</strong>, <span class="math inline">\(\alpha_i\)</span> é só uma componente a mais do erro, e o problema é de eficiência — como aproveitar melhor a estrutura.</p>
+<p>Se <strong>sim</strong>, <span class="math inline">\(\alpha_i\)</span> é uma variável omitida, e o problema é de viés — como se livrar dela.</p>
+<p>As duas respostas levam a estimadores diferentes, e o teste de Hausman é o que decide entre elas.</p>
+</div>
+</div>
+</section>
+<section id="por-que-o-mqo-agrupado-falha" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="por-que-o-mqo-agrupado-falha"><span class="header-section-number">2</span> Por que o MQO agrupado falha</h2>
+<p>Ignore <span class="math inline">\(\alpha_i\)</span> e estime <span class="math inline">\(y = X\beta + \text{erro}\)</span> por MQO. Substituindo <span class="math inline">\(y\)</span>:</p>
+<p><span class="math display">\[
+\hat{\beta}_{P} = (X'X)^{-1}X'y = \beta + (X'X)^{-1}X'D\alpha + (X'X)^{-1}X'u
+\]</span></p>
+<p>O último termo tem esperança zero sob exogeneidade de <span class="math inline">\(u\)</span>. O problema é o do meio:</p>
+<p><span class="math display">\[
+E(\hat{\beta}_{P} \mid X) = \beta + (X'X)^{-1}X'\,E(D\alpha \mid X)
+\]</span></p>
+<p>Se <span class="math inline">\(E(\alpha_i \mid X_i) = 0\)</span> — o efeito individual não se relaciona com os regressores —, o viés some. Se não, <span class="math inline">\(\hat{\beta}_P\)</span> é <strong>viesado e inconsistente</strong>: aumentar <span class="math inline">\(N\)</span> ou <span class="math inline">\(T\)</span> não resolve, porque o termo <span class="math inline">\((X'X)^{-1}X'D\alpha\)</span> não desaparece no limite.</p>
+<p>É o viés de variável omitida da página sobre <a href="./teoria-nao-viesado.html">não-tendenciosidade</a>, com <span class="math inline">\(D\alpha\)</span> no papel da variável omitida. A diferença é que <span class="math inline">\(\alpha_i\)</span> não é observável por natureza — não há como “incluí-la” no modelo.</p>
+</section>
+<section id="eliminando-o-efeito-individual-a-transformação-within" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="eliminando-o-efeito-individual-a-transformação-within"><span class="header-section-number">3</span> Eliminando o efeito individual: a transformação <em>within</em></h2>
+<section id="a-matriz-que-centra-na-média" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="a-matriz-que-centra-na-média"><span class="header-section-number">3.1</span> A matriz que centra na média</h3>
+<p>Defina, para uma unidade, a matriz <span class="math inline">\(T \times T\)</span></p>
+<p><span class="math display">\[
+Q_T = I_T - \frac{1}{T}\iota_T\iota_T'
+\]</span></p>
+<p>Multiplicada por um vetor <span class="math inline">\(z_i\)</span> de <span class="math inline">\(T\)</span> observações, ela devolve os <strong>desvios em relação à média da unidade</strong>:</p>
+<p><span class="math display">\[
+Q_T z_i = z_i - \iota_T \bar{z}_i, \qquad \bar{z}_i = \frac{1}{T}\sum_{t=1}^{T} z_{it}
+\]</span></p>
+<p>Duas propriedades são tudo o que a prova precisa:</p>
+<p><span class="math display">\[
+Q_T \iota_T = \iota_T - \frac{1}{T}\iota_T(\iota_T'\iota_T) = \iota_T - \frac{T}{T}\iota_T = 0
+\]</span></p>
+<p><span class="math display">\[
+Q_T Q_T = Q_T, \qquad Q_T' = Q_T
+\]</span></p>
+<p>A primeira diz que <span class="math inline">\(Q_T\)</span> <strong>aniquila constantes</strong>. A segunda, que é idempotente e simétrica — uma projeção.</p>
+<p>Para o painel inteiro, a matriz é <span class="math inline">\(Q = I_N \otimes Q_T\)</span>, bloco-diagonal com <span class="math inline">\(Q_T\)</span> repetida <span class="math inline">\(N\)</span> vezes. Ela centra cada unidade na sua própria média. E como <span class="math inline">\(D = I_N \otimes \iota_T\)</span>,</p>
+<p><span class="math display">\[
+QD = (I_N \otimes Q_T)(I_N \otimes \iota_T) = I_N \otimes Q_T\iota_T = I_N \otimes 0 = 0
+\]</span></p>
+</section>
+<section id="a-prova" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="a-prova"><span class="header-section-number">3.2</span> A prova</h3>
+<p>Aplique <span class="math inline">\(Q\)</span> aos dois lados do modelo:</p>
+<p><span class="math display">\[
+Qy = QX\beta + \underbrace{QD\alpha}_{= \, 0} + Qu
+\]</span></p>
+<p><strong>O efeito individual desapareceu</strong> — não porque foi estimado, mas porque a transformação o aniquila algebricamente. O que sobra é um modelo linear nos dados centrados:</p>
+<p><span class="math display">\[
+\tilde{y} = \tilde{X}\beta + \tilde{u}, \qquad \tilde{y} = Qy,\ \tilde{X} = QX,\ \tilde{u} = Qu
+\]</span></p>
+<p>O estimador de efeitos fixos é o MQO nesse modelo:</p>
+<p><span class="math display">\[
+\boxed{\;\hat{\beta}_{FE} = (X'QX)^{-1}X'Qy\;}
+\]</span></p>
+<p>(usando <span class="math inline">\(Q'Q = Q\)</span>). Substituindo <span class="math inline">\(Qy = QX\beta + Qu\)</span>:</p>
+<p><span class="math display">\[
+\hat{\beta}_{FE} = \beta + (X'QX)^{-1}X'Qu
+\]</span></p>
+<p>e portanto</p>
+<p><span class="math display">\[
+E(\hat{\beta}_{FE} \mid X) = \beta + (X'QX)^{-1}X'Q\,E(u \mid X) = \beta
+\]</span></p>
+<p>sob a hipótese de <strong>exogeneidade estrita de <span class="math inline">\(u\)</span></strong>: <span class="math inline">\(E(u_{it} \mid X_i) = 0\)</span> para todo <span class="math inline">\(t\)</span>. <span class="math inline">\(\qquad \blacksquare\)</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>O que a prova exigiu — e o que não exigiu
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A exogeneidade estrita recaiu sobre <span class="math inline">\(u_{it}\)</span>, <strong>não sobre <span class="math inline">\(\alpha_i\)</span></strong>. Em nenhum momento foi preciso supor que <span class="math inline">\(\alpha_i\)</span> é independente de <span class="math inline">\(X\)</span>. Ele podia ser arbitrariamente correlacionado com os regressores — e foi eliminado do mesmo jeito.</p>
+<p>É esta a vantagem decisiva dos efeitos fixos: o estimador é não-viesado <strong>qualquer que seja</strong> a relação entre a heterogeneidade não observada e os regressores. O viés de gestão de Mundlak, o viés de habilidade na equação de salários, qualquer característica fixa omitida — tudo é absorvido.</p>
+<p>O preço aparece na matriz <span class="math inline">\(X'QX\)</span>. Se uma coluna de <span class="math inline">\(X\)</span> for constante no tempo para cada unidade, <span class="math inline">\(Q\)</span> a transforma em zeros, <span class="math inline">\(X'QX\)</span> fica singular, e o coeficiente não existe. Efeitos fixos não estima o que não varia dentro da unidade.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Frisch-Waugh-Lovell em ação
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Há outro caminho para o mesmo estimador: incluir as <span class="math inline">\(N\)</span> dummies de <span class="math inline">\(D\)</span> como regressores e rodar MQO em <span class="math inline">\(y = X\beta + D\alpha + u\)</span> — o estimador LSDV. Pelo teorema de Frisch-Waugh-Lovell, o coeficiente de <span class="math inline">\(X\)</span> nessa regressão é idêntico ao da regressão de <span class="math inline">\(Qy\)</span> em <span class="math inline">\(QX\)</span>, porque <span class="math inline">\(Q = I - D(D'D)^{-1}D'\)</span> é exatamente a matriz aniquiladora de <span class="math inline">\(D\)</span>.</p>
+<p>É por isso que o Exercício 3 do Laboratório 10 deu coeficientes iguais. Centrar na média e incluir uma dummy por indivíduo são <strong>a mesma operação</strong>, escrita de duas maneiras.</p>
+</div>
+</div>
+</section>
+<section id="primeiras-diferenças" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="primeiras-diferenças"><span class="header-section-number">3.3</span> Primeiras diferenças</h3>
+<p>Há outra transformação que aniquila <span class="math inline">\(\iota_T\)</span>: a matriz de diferenças <span class="math inline">\(\Delta\)</span>, de dimensão <span class="math inline">\((T-1) \times T\)</span>, com <span class="math inline">\(-1\)</span> e <span class="math inline">\(1\)</span> em posições adjacentes. Como <span class="math inline">\(\Delta \iota_T = 0\)</span>, aplicá-la ao modelo elimina <span class="math inline">\(\alpha_i\)</span> do mesmo jeito, e</p>
+<p><span class="math display">\[
+\hat{\beta}_{FD} = (X'\Delta'\Delta X)^{-1}X'\Delta'\Delta y
+\]</span></p>
+<p>é não-viesado sob a mesma hipótese. Com <span class="math inline">\(T = 2\)</span> os dois estimadores coincidem. Com <span class="math inline">\(T &gt; 2\)</span>, diferem: efeitos fixos é mais eficiente se <span class="math inline">\(u_{it}\)</span> for não autocorrelacionado; primeiras diferenças é mais eficiente se <span class="math inline">\(u_{it}\)</span> for um passeio aleatório. Na prática, a comparação entre os dois é um diagnóstico informal da estrutura de <span class="math inline">\(u\)</span>.</p>
+</section>
+</section>
+<section id="modelando-o-efeito-individual-efeitos-aleatórios" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="modelando-o-efeito-individual-efeitos-aleatórios"><span class="header-section-number">4</span> Modelando o efeito individual: efeitos aleatórios</h2>
+<p>Suponha agora <span class="math inline">\(E(\alpha_i \mid X_i) = 0\)</span>. Então <span class="math inline">\(\alpha_i\)</span> não é variável omitida — é componente do erro. O erro composto é <span class="math inline">\(v_{it} = \alpha_i + u_{it}\)</span>, e o MQO agrupado é não-viesado. Mas é ineficiente, porque ignora a estrutura de <span class="math inline">\(v\)</span>.</p>
+<p>Para uma unidade, com <span class="math inline">\(\alpha_i \sim (0, \sigma_\alpha^2)\)</span> e <span class="math inline">\(u_{it} \sim (0, \sigma_u^2)\)</span> independentes:</p>
+<p><span class="math display">\[
+\Omega = \operatorname{Var}(v_i) = \sigma_\alpha^2\,\iota_T\iota_T' + \sigma_u^2\,I_T =
+\begin{bmatrix}
+\sigma_\alpha^2 + \sigma_u^2 &amp; \sigma_\alpha^2 &amp; \cdots \\
+\sigma_\alpha^2 &amp; \sigma_\alpha^2 + \sigma_u^2 &amp; \cdots \\
+\vdots &amp; \vdots &amp; \ddots
+\end{bmatrix}
+\]</span></p>
+<p>Todas as observações da mesma unidade são correlacionadas, com correlação <span class="math inline">\(\rho = \sigma_\alpha^2/(\sigma_\alpha^2 + \sigma_u^2)\)</span>. O estimador eficiente é o de mínimos quadrados generalizados:</p>
+<p><span class="math display">\[
+\hat{\beta}_{RE} = (X'\Omega_N^{-1}X)^{-1}X'\Omega_N^{-1}y, \qquad \Omega_N = I_N \otimes \Omega
+\]</span></p>
+<section id="a-forma-que-o-gls-assume" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="a-forma-que-o-gls-assume"><span class="header-section-number">4.1</span> A forma que o GLS assume</h3>
+<p>Pode-se mostrar que <span class="math inline">\(\Omega^{-1/2}\)</span> é proporcional a</p>
+<p><span class="math display">\[
+I_T - \theta\,\frac{1}{T}\iota_T\iota_T', \qquad \theta = 1 - \sqrt{\frac{\sigma_u^2}{T\sigma_\alpha^2 + \sigma_u^2}}
+\]</span></p>
+<p>Compare com <span class="math inline">\(Q_T = I_T - \frac{1}{T}\iota_T\iota_T'\)</span>. A matriz do GLS é a <strong>mesma transformação, mas subtraindo só uma fração <span class="math inline">\(\theta\)</span> da média</strong>. O estimador de efeitos aleatórios é um MQO em dados <em>quase-centrados</em>:</p>
+<p><span class="math display">\[
+y_{it} - \theta\bar{y}_i = (x_{it} - \theta\bar{x}_i)'\beta + (v_{it} - \theta\bar{v}_i)
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>Os três estimadores numa régua
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>O parâmetro <span class="math inline">\(\theta\)</span> unifica tudo:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><span class="math inline">\(\theta\)</span></th>
+<th>Transformação</th>
+<th>Estimador</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(0\)</span></td>
+<td>nenhuma</td>
+<td>MQO agrupado</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(1\)</span></td>
+<td>subtrai a média inteira</td>
+<td>efeitos fixos</td>
+</tr>
+<tr class="odd">
+<td>entre <span class="math inline">\(0\)</span> e <span class="math inline">\(1\)</span></td>
+<td>subtrai uma fração</td>
+<td>efeitos aleatórios</td>
+</tr>
+</tbody>
+</table>
+<p>E a fórmula de <span class="math inline">\(\theta\)</span> diz quando cada extremo é aproximado. Se <span class="math inline">\(\sigma_\alpha^2 \to 0\)</span> (não há efeito individual), <span class="math inline">\(\theta \to 0\)</span> e RE vira pooled. Se <span class="math inline">\(T \to \infty\)</span> ou <span class="math inline">\(\sigma_\alpha^2 \gg \sigma_u^2\)</span>, <span class="math inline">\(\theta \to 1\)</span> e RE vira FE.</p>
+<p>No <code>wagepan</code>, <span class="math inline">\(\theta = 0{,}64\)</span>; no painel de soja da Aplicação, <span class="math inline">\(0{,}73\)</span>. Em ambos, RE está mais perto de FE do que de pooled — o que é típico de painéis com efeito individual forte.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Por que RE é mais eficiente que FE — quando é válido
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sob <span class="math inline">\(E(\alpha_i \mid X_i) = 0\)</span>, os dois estimadores são não-viesados, mas RE é o GLS e, pelo teorema de Gauss-Markov generalizado, tem a menor variância entre os lineares não-viesados.</p>
+<p>A intuição está no que cada um descarta. Efeitos fixos usa <strong>apenas</strong> a variação dentro das unidades — joga fora toda a informação de como as unidades diferem entre si. Efeitos aleatórios usa as duas fontes, ponderadas por <span class="math inline">\(\theta\)</span>. Quando <span class="math inline">\(\alpha_i\)</span> não se correlaciona com <span class="math inline">\(X\)</span>, a variação entre unidades é informação legítima sobre <span class="math inline">\(\beta\)</span>, e desperdiçá-la custa precisão.</p>
+<p>Quando <span class="math inline">\(\alpha_i\)</span> <strong>se</strong> correlaciona com <span class="math inline">\(X\)</span>, essa mesma variação entre unidades é justamente a fonte do viés — e descartá-la é o que torna FE consistente. RE, ao usá-la, herda uma fração <span class="math inline">\((1 - \theta)\)</span> do viés do pooled.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="o-teste-de-hausman" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="o-teste-de-hausman"><span class="header-section-number">5</span> O teste de Hausman</h2>
+<p>Os dois estimadores respondem a hipóteses diferentes:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th><span class="math inline">\(E(\alpha_i \mid X_i) = 0\)</span></th>
+<th><span class="math inline">\(E(\alpha_i \mid X_i) \neq 0\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\hat{\beta}_{FE}\)</span></td>
+<td>consistente, ineficiente</td>
+<td><strong>consistente</strong></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\hat{\beta}_{RE}\)</span></td>
+<td>consistente, <strong>eficiente</strong></td>
+<td>inconsistente</td>
+</tr>
+</tbody>
+</table>
+<p>Sob a hipótese nula, ambos convergem para <span class="math inline">\(\beta\)</span>, e a diferença <span class="math inline">\(\hat{\beta}_{FE} - \hat{\beta}_{RE}\)</span> deve ser pequena. Sob a alternativa, só FE converge, e a diferença é sistemática.</p>
+<p>Hausman (1978) mostrou um resultado que torna o teste simples de calcular. Se <span class="math inline">\(\hat{\beta}_{RE}\)</span> é eficiente, então sua covariância com a diferença é zero — se não fosse, seria possível combinar os dois e obter um estimador ainda mais eficiente, contradizendo a eficiência. Logo:</p>
+<p><span class="math display">\[
+\operatorname{Var}(\hat{\beta}_{FE} - \hat{\beta}_{RE}) = \operatorname{Var}(\hat{\beta}_{FE}) - \operatorname{Var}(\hat{\beta}_{RE})
+\]</span></p>
+<p>E a estatística</p>
+<p><span class="math display">\[
+\boxed{\;H = (\hat{\beta}_{FE} - \hat{\beta}_{RE})'\big[\widehat{\operatorname{Var}}(\hat{\beta}_{FE}) - \widehat{\operatorname{Var}}(\hat{\beta}_{RE})\big]^{-1}(\hat{\beta}_{FE} - \hat{\beta}_{RE}) \;\sim\; \chi^2_k\;}
+\]</span></p>
+<p>sob <span class="math inline">\(H_0\)</span>, onde <span class="math inline">\(k\)</span> é o número de coeficientes <strong>comuns</strong> aos dois estimadores — as variáveis constantes no tempo ficam de fora, porque FE não as estima.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Lendo o resultado
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Rejeitar <span class="math inline">\(H_0\)</span></strong> é informativo: a diferença entre os estimadores é grande demais para ser acaso, RE está contaminado, use FE.</p>
+<p><strong>Não rejeitar</strong> é menos conclusivo. Pode significar que <span class="math inline">\(\alpha_i\)</span> é de fato não correlacionado — ou que a amostra não tem poder para detectar a diferença. Em aplicações econômicas, onde quase sempre há razão teórica para esperar correlação, muitos autores partem de FE e tratam o Hausman como confirmação, não como critério de escolha.</p>
+<p>Há ainda um detalhe técnico: a diferença de matrizes de covariância pode não ser positiva definida em amostras finitas, o que produz estatísticas negativas. Versões robustas do teste, baseadas em regressão auxiliar, contornam isso.</p>
+</div>
+</div>
+</section>
+<section id="verificação-por-simulação" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="verificação-por-simulação"><span class="header-section-number">6</span> Verificação por simulação</h2>
+<p>A teoria afirma três coisas que uma simulação consegue mostrar lado a lado:</p>
+<ol type="1">
+<li>Quando <span class="math inline">\(\alpha_i\)</span> <strong>não</strong> se correlaciona com <span class="math inline">\(X\)</span>, os três estimadores são não-viesados e RE é o mais preciso.</li>
+<li>Quando <span class="math inline">\(\alpha_i\)</span> <strong>se</strong> correlaciona com <span class="math inline">\(X\)</span>, pooled e RE são viesados e só FE acerta.</li>
+<li>O viés de RE é uma fração do viés do pooled.</li>
+</ol>
+<div class="cell">
+<div>
+<div id="webr-1" class="exercise-cell">
+
+</div>
+<script type="webr-1-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2V0LnNlZWQoMTk3OClcbk4gPC0gMTAwOyBUdCA8LSA1OyBSIDwtIDEwMDBcbmJldGEgPC0gMS4wOyBzaWdfYSA8LSAyLjA7IHNpZ191IDwtIDEuMFxudGhldGEgPC0gMSAtIHNxcnQoc2lnX3VeMiAvIChUdCAqIHNpZ19hXjIgKyBzaWdfdV4yKSlcbnRoZXRhIn0=
+</script>
+</div>
+</div>
+<div class="cell">
+<div>
+<div id="webr-2" class="exercise-cell">
+
+</div>
+<script type="webr-2-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoic2ltdWxhIDwtIGZ1bmN0aW9uKGNvcnJlbGFjaW9uYWRvKSB7XG4gIHJlcyA8LSBtYXRyaXgoTkEsIFIsIDMsIGRpbW5hbWVzID0gbGlzdChOVUxMLCBjKFwicG9vbGVkXCIsIFwiRkVcIiwgXCJSRVwiKSkpXG4gIGlkICA8LSByZXAoMTpOLCBlYWNoID0gVHQpXG4gIGZvciAociBpbiAxOlIpIHtcbiAgICBhbHBoYSAgPC0gcm5vcm0oTiwgMCwgc2lnX2EpXG4gICAgeF9iYXNlIDwtIHJub3JtKE4pICsgaWYgKGNvcnJlbGFjaW9uYWRvKSAwLjggKiBhbHBoYSBlbHNlIDBcbiAgICB4IDwtIHhfYmFzZVtpZF0gKyBybm9ybShOICogVHQpXG4gICAgeSA8LSBiZXRhICogeCArIGFscGhhW2lkXSArIHJub3JtKE4gKiBUdCwgMCwgc2lnX3UpXG5cbiAgICAjIHBvb2xlZFxuICAgIHJlc1tyLCAxXSA8LSBjb2VmKC5sbS5maXQoY2JpbmQoMSwgeCksIHkpKVsyXVxuICAgICMgd2l0aGluOiBjZW50cmFyIG5hIG3DqWRpYSBkbyBpbmRpdsOtZHVvXG4gICAgeHcgPC0geCAtIGF2ZSh4LCBpZCk7IHl3IDwtIHkgLSBhdmUoeSwgaWQpXG4gICAgcmVzW3IsIDJdIDwtIHN1bSh4dyAqIHl3KSAvIHN1bSh4d14yKVxuICAgICMgUkU6IHF1YXNlLWNlbnRyYXIgY29tIHRoZXRhXG4gICAgeHEgPC0geCAtIHRoZXRhICogYXZlKHgsIGlkKTsgeXEgPC0geSAtIHRoZXRhICogYXZlKHksIGlkKVxuICAgIHJlc1tyLCAzXSA8LSBjb2VmKC5sbS5maXQoY2JpbmQoMSAtIHRoZXRhLCB4cSksIHlxKSlbMl1cbiAgfVxuICByZXNcbn1cbkEgPC0gc2ltdWxhKGNvcnJlbGFjaW9uYWRvID0gRkFMU0UpXG5CIDwtIHNpbXVsYShjb3JyZWxhY2lvbmFkbyA9IFRSVUUpIn0=
+</script>
+</div>
+</div>
+<div class="cell">
+<div>
+<div id="webr-3" class="exercise-cell">
+
+</div>
+<script type="webr-3-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoicmVzdW1vIDwtIGZ1bmN0aW9uKG0pIHJiaW5kKG1lZGlhID0gY29sTWVhbnMobSksIHZpZXMgPSBjb2xNZWFucyhtKSAtIGJldGEsIGRwID0gYXBwbHkobSwgMiwgc2QpKVxuY2F0KFwiQ2Vuw6FyaW8gQSDigJQgYWxwaGEgTsODTyBjb3JyZWxhY2lvbmFkbyBjb20geFxcblwiKTsgcm91bmQocmVzdW1vKEEpLCA0KVxuY2F0KFwiXFxuQ2Vuw6FyaW8gQiDigJQgYWxwaGEgY29ycmVsYWNpb25hZG8gY29tIHhcXG5cIik7ICAgcm91bmQocmVzdW1vKEIpLCA0KSJ9
+</script>
+</div>
+</div>
+<div class="cell">
+<div>
+<div id="webr-4" class="exercise-cell">
+
+</div>
+<script type="webr-4-contents">
+eyJhdHRyIjp7ImVkaXQiOnRydWUsImV2YWwiOnRydWV9LCJjb2RlIjoibGlicmFyeShnZ3Bsb3QyKVxuZGFkb3MgPC0gcmJpbmQoXG4gIGRhdGEuZnJhbWUoY2VuYXJpbyA9IFwiQTogYWxwaGEgbsOjbyBjb3JyZWxhY2lvbmFkb1wiLCBlc3RpbWFkb3IgPSByZXAoY29sbmFtZXMoQSksIGVhY2ggPSBSKSwgYiA9IGFzLnZlY3RvcihBKSksXG4gIGRhdGEuZnJhbWUoY2VuYXJpbyA9IFwiQjogYWxwaGEgY29ycmVsYWNpb25hZG9cIiwgICAgIGVzdGltYWRvciA9IHJlcChjb2xuYW1lcyhCKSwgZWFjaCA9IFIpLCBiID0gYXMudmVjdG9yKEIpKVxuKVxuZ2dwbG90KGRhZG9zLCBhZXMoYiwgY29sb3VyID0gZXN0aW1hZG9yKSkgK1xuICBnZW9tX2RlbnNpdHkobGluZXdpZHRoID0gMC45KSArXG4gIGdlb21fdmxpbmUoeGludGVyY2VwdCA9IGJldGEsIGxpbmV0eXBlID0gXCJkYXNoZWRcIikgK1xuICBmYWNldF93cmFwKH4gY2VuYXJpbywgbmNvbCA9IDEpICtcbiAgbGFicyh0aXRsZSA9IFwiRGlzdHJpYnVpw6fDo28gZGUgMS4wMDAgZXN0aW1hdGl2YXMgZGUgzrJcIixcbiAgICAgICBzdWJ0aXRsZSA9IFwiQSBsaW5oYSB0cmFjZWphZGEgw6kgbyB2YWxvciB2ZXJkYWRlaXJvXCIsXG4gICAgICAgeCA9IGV4cHJlc3Npb24oaGF0KGJldGEpKSwgeSA9IFwiRGVuc2lkYWRlXCIsIGNvbG91ciA9IE5VTEwpICtcbiAgdGhlbWVfbWluaW1hbCgpIn0=
+</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Dica</span>O que observar
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>No cenário A</strong>, as três curvas estão centradas em 1,0. O pooled é a mais larga (desvio-padrão em torno de 0,11): ignora a correlação dentro da unidade e paga em precisão. FE e RE são bem mais estreitas (cerca de 0,05), com RE ligeiramente mais precisa — a vantagem do GLS, pequena aqui porque <span class="math inline">\(\theta = 0{,}78\)</span> deixa os dois estimadores parecidos.</p>
+<p><strong>No cenário B</strong>, só a curva de FE continua centrada em 1,0. A do pooled desloca para cerca de <strong>1,70</strong> — viés de 70%. A de RE desloca para cerca de <strong>1,15</strong> — viés de 15%, que é aproximadamente <span class="math inline">\((1 - \theta) \approx 0{,}22\)</span> do viés do pooled, como a teoria previa.</p>
+<p>E repare que o viés não alarga as curvas. O pooled viesado é <strong>mais preciso</strong> que o pooled não viesado do cenário A. Precisão e acerto são coisas diferentes, e um erro-padrão pequeno não é evidência de que o estimador está apontando para o lugar certo.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Importante</span>Três lições que só a simulação permite
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>1. FE não precisou saber nada sobre <span class="math inline">\(\alpha_i\)</span>.</strong> O código que gera o cenário B cria uma correlação forte entre o efeito individual e o regressor, e o estimador within não recebeu essa informação. Ele só centrou os dados. A prova dizia que <span class="math inline">\(QD = 0\)</span> bastava, e bastou.</p>
+<p><strong>2. A eficiência de RE é real, mas condicional.</strong> No cenário A ela aparece; no B ela se perde num estimador que converge para o número errado. Um estimador eficiente de uma quantidade que não é <span class="math inline">\(\beta\)</span> não tem utilidade. É por isso que a ordem das perguntas importa: primeiro “é consistente?”, só depois “é eficiente?”.</p>
+<p><strong>3. O Hausman detectaria o cenário B com facilidade.</strong> Com diferenças de 0,15 entre FE e RE e desvios-padrão de 0,05, a estatística seria enorme. O teste existe para formalizar a comparação que você acabou de ver no gráfico.</p>
+</div>
+</div>
+</section>
+<section id="o-que-fica" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="o-que-fica"><span class="header-section-number">7</span> O que fica</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Estimador</th>
+<th>Elimina <span class="math inline">\(\alpha_i\)</span>?</th>
+<th>Exige <span class="math inline">\(E(\alpha_i \mid X_i) = 0\)</span>?</th>
+<th>Estima variáveis fixas no tempo?</th>
+<th>Quando usar</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MQO agrupado</td>
+<td>não</td>
+<td>sim</td>
+<td>sim</td>
+<td>quase nunca em painel</td>
+</tr>
+<tr class="even">
+<td>Primeiras diferenças</td>
+<td>sim</td>
+<td>não</td>
+<td>não</td>
+<td><span class="math inline">\(T\)</span> pequeno, ou <span class="math inline">\(u\)</span> muito persistente</td>
+</tr>
+<tr class="odd">
+<td>Efeitos fixos</td>
+<td>sim</td>
+<td>não</td>
+<td>não</td>
+<td>padrão quando há heterogeneidade correlacionada</td>
+</tr>
+<tr class="even">
+<td>Efeitos aleatórios</td>
+<td>não</td>
+<td>sim</td>
+<td>sim</td>
+<td>quando o Hausman não rejeita e há interesse nas variáveis fixas</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>Voltar à <a href="./teoria-modelo.html">teoria do MQO</a> · Ver o <a href="./econ2-lab10.html">Laboratório 10</a> · Ver a <a href="./aplic-econ2-u4.html">Aplicação sobre Mundlak</a></p>
+
+
+<script type="webr-data">
+eyJvcHRpb25zIjp7ImJhc2VVcmwiOiJodHRwczovL3dlYnIuci13YXNtLm9yZy92MC42LjAvIn0sInBhY2thZ2VzIjp7InBrZ3MiOlsiZXZhbHVhdGUiLCJrbml0ciIsImh0bWx0b29scyIsImdncGxvdDIiXSwicmVwb3MiOltdfSwicmVuZGVyX2RmIjoiZGVmYXVsdCJ9
+</script>
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3siY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC00IiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV80O1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItNCIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzQgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici00LWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItNC1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV80ID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl80LCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici13aWRnZXQtMyIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6IntcbiAgLy8gV2FpdCBmb3Igb3V0cHV0IHRvIGJlIHdyaXR0ZW4gdG8gdGhlIERPTSwgdGhlbiB0cmlnZ2VyIHdpZGdldCByZW5kZXJpbmdcbiAgYXdhaXQgX3dlYnJfdmFsdWVfMztcbiAgaWYgKHdpbmRvdy5IVE1MV2lkZ2V0cykge1xuICAgIHdpbmRvdy5IVE1MV2lkZ2V0cy5zdGF0aWNSZW5kZXIoKTtcbiAgfVxuICBpZiAod2luZG93LlBhZ2VkVGFibGVEb2MpIHtcbiAgICB3aW5kb3cuUGFnZWRUYWJsZURvYy5pbml0QWxsKCk7XG4gIH1cbn1cbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLTMiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0Iiwic291cmNlIjoidmlld29mIF93ZWJyX2VkaXRvcl8zID0ge1xuICBjb25zdCB7IFdlYlJFeGVyY2lzZUVkaXRvciwgYjY0RGVjb2RlIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuICBjb25zdCBzY3JpcHRDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItMy1jb250ZW50c1xcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGJsb2NrID0gSlNPTi5wYXJzZShiNjREZWNvZGUoc2NyaXB0Q29udGVudCkpO1xuXG4gIGNvbnN0IG9wdGlvbnMgPSBPYmplY3QuYXNzaWduKHsgaWQ6IGB3ZWJyLTMtY29udGVudHNgIH0sIGJsb2NrLmF0dHIpO1xuICBjb25zdCBlZGl0b3IgPSBuZXcgV2ViUkV4ZXJjaXNlRWRpdG9yKHdlYlJPanMud2ViUlByb21pc2UsIGJsb2NrLmNvZGUsIG9wdGlvbnMpO1xuXG4gIHJldHVybiBlZGl0b3IuY29udGFpbmVyO1xufVxuX3dlYnJfdmFsdWVfMyA9IHdlYlJPanMucHJvY2Vzcyhfd2Vicl9lZGl0b3JfMywge30pO1xuIn0seyJjZWxsTmFtZSI6IndlYnItd2lkZ2V0LTIiLCJpbmxpbmUiOmZhbHNlLCJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJ7XG4gIC8vIFdhaXQgZm9yIG91dHB1dCB0byBiZSB3cml0dGVuIHRvIHRoZSBET00sIHRoZW4gdHJpZ2dlciB3aWRnZXQgcmVuZGVyaW5nXG4gIGF3YWl0IF93ZWJyX3ZhbHVlXzI7XG4gIGlmICh3aW5kb3cuSFRNTFdpZGdldHMpIHtcbiAgICB3aW5kb3cuSFRNTFdpZGdldHMuc3RhdGljUmVuZGVyKCk7XG4gIH1cbiAgaWYgKHdpbmRvdy5QYWdlZFRhYmxlRG9jKSB7XG4gICAgd2luZG93LlBhZ2VkVGFibGVEb2MuaW5pdEFsbCgpO1xuICB9XG59XG4ifSx7ImNlbGxOYW1lIjoid2Vici0yIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldCIsInNvdXJjZSI6InZpZXdvZiBfd2Vicl9lZGl0b3JfMiA9IHtcbiAgY29uc3QgeyBXZWJSRXhlcmNpc2VFZGl0b3IsIGI2NERlY29kZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZTtcbiAgY29uc3Qgc2NyaXB0Q29udGVudCA9IGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoYHNjcmlwdFt0eXBlPVxcXCJ3ZWJyLTItY29udGVudHNcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBibG9jayA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKHNjcmlwdENvbnRlbnQpKTtcblxuICBjb25zdCBvcHRpb25zID0gT2JqZWN0LmFzc2lnbih7IGlkOiBgd2Vici0yLWNvbnRlbnRzYCB9LCBibG9jay5hdHRyKTtcbiAgY29uc3QgZWRpdG9yID0gbmV3IFdlYlJFeGVyY2lzZUVkaXRvcih3ZWJST2pzLndlYlJQcm9taXNlLCBibG9jay5jb2RlLCBvcHRpb25zKTtcblxuICByZXR1cm4gZWRpdG9yLmNvbnRhaW5lcjtcbn1cbl93ZWJyX3ZhbHVlXzIgPSB3ZWJST2pzLnByb2Nlc3MoX3dlYnJfZWRpdG9yXzIsIHt9KTtcbiJ9LHsiY2VsbE5hbWUiOiJ3ZWJyLXdpZGdldC0xIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoie1xuICAvLyBXYWl0IGZvciBvdXRwdXQgdG8gYmUgd3JpdHRlbiB0byB0aGUgRE9NLCB0aGVuIHRyaWdnZXIgd2lkZ2V0IHJlbmRlcmluZ1xuICBhd2FpdCBfd2Vicl92YWx1ZV8xO1xuICBpZiAod2luZG93LkhUTUxXaWRnZXRzKSB7XG4gICAgd2luZG93LkhUTUxXaWRnZXRzLnN0YXRpY1JlbmRlcigpO1xuICB9XG4gIGlmICh3aW5kb3cuUGFnZWRUYWJsZURvYykge1xuICAgIHdpbmRvdy5QYWdlZFRhYmxlRG9jLmluaXRBbGwoKTtcbiAgfVxufVxuIn0seyJjZWxsTmFtZSI6IndlYnItMSIsImlubGluZSI6ZmFsc2UsIm1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJzb3VyY2UiOiJ2aWV3b2YgX3dlYnJfZWRpdG9yXzEgPSB7XG4gIGNvbnN0IHsgV2ViUkV4ZXJjaXNlRWRpdG9yLCBiNjREZWNvZGUgfSA9IHdpbmRvdy5fZXhlcmNpc2Vfb2pzX3J1bnRpbWU7XG4gIGNvbnN0IHNjcmlwdENvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwid2Vici0xLWNvbnRlbnRzXFxcIl1gKS50ZXh0Q29udGVudDtcbiAgY29uc3QgYmxvY2sgPSBKU09OLnBhcnNlKGI2NERlY29kZShzY3JpcHRDb250ZW50KSk7XG5cbiAgY29uc3Qgb3B0aW9ucyA9IE9iamVjdC5hc3NpZ24oeyBpZDogYHdlYnItMS1jb250ZW50c2AgfSwgYmxvY2suYXR0cik7XG4gIGNvbnN0IGVkaXRvciA9IG5ldyBXZWJSRXhlcmNpc2VFZGl0b3Iod2ViUk9qcy53ZWJSUHJvbWlzZSwgYmxvY2suY29kZSwgb3B0aW9ucyk7XG5cbiAgcmV0dXJuIGVkaXRvci5jb250YWluZXI7XG59XG5fd2Vicl92YWx1ZV8xID0gd2ViUk9qcy5wcm9jZXNzKF93ZWJyX2VkaXRvcl8xLCB7fSk7XG4ifSx7ImNlbGxOYW1lIjoid2Vici1wcmVsdWRlIiwiaW5saW5lIjpmYWxzZSwibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoid2ViUk9qcyA9IHtcbiAgY29uc3QgeyBXZWJSLCBDaGFubmVsVHlwZSB9ID0gd2luZG93Ll9leGVyY2lzZV9vanNfcnVudGltZS5XZWJSO1xuICBjb25zdCB7XG4gICAgV2ViUkV2YWx1YXRvcixcbiAgICBXZWJSRW52aXJvbm1lbnRNYW5hZ2VyLFxuICAgIHNldHVwUixcbiAgICBiNjREZWNvZGUsXG4gICAgY29sbGFwc2VQYXRoXG4gIH0gPSB3aW5kb3cuX2V4ZXJjaXNlX29qc19ydW50aW1lO1xuXG4gIGNvbnN0IHN0YXR1c0NvbnRhaW5lciA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKFwiZXhlcmNpc2UtbG9hZGluZy1zdGF0dXNcIik7XG4gIGNvbnN0IGluZGljYXRvckNvbnRhaW5lciA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKFwiZXhlcmNpc2UtbG9hZGluZy1pbmRpY2F0b3JcIik7XG4gIGluZGljYXRvckNvbnRhaW5lci5jbGFzc0xpc3QucmVtb3ZlKFwiZC1ub25lXCIpO1xuXG4gIGxldCBzdGF0dXNUZXh0ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudChcImRpdlwiKVxuICBzdGF0dXNUZXh0LmNsYXNzTGlzdCA9IFwiZXhlcmNpc2UtbG9hZGluZy1kZXRhaWxzXCI7XG4gIHN0YXR1c1RleHQgPSBzdGF0dXNDb250YWluZXIuYXBwZW5kQ2hpbGQoc3RhdHVzVGV4dCk7XG4gIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgSW5pdGlhbGlzZWA7XG5cbiAgLy8gSG9pc3QgaW5kaWNhdG9yIG91dCBmcm9tIGZpbmFsIHNsaWRlIHdoZW4gcnVubmluZyB1bmRlciByZXZlYWxcbiAgY29uc3QgcmV2ZWFsU3RhdHVzID0gZG9jdW1lbnQucXVlcnlTZWxlY3RvcihcIi5yZXZlYWwgLmV4ZXJjaXNlLWxvYWRpbmctaW5kaWNhdG9yXCIpO1xuICBpZiAocmV2ZWFsU3RhdHVzKSB7XG4gICAgcmV2ZWFsU3RhdHVzLnJlbW92ZSgpO1xuICAgIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3IoXCIucmV2ZWFsID4gLnNsaWRlc1wiKS5hcHBlbmRDaGlsZChyZXZlYWxTdGF0dXMpO1xuICB9XG5cbiAgLy8gTWFrZSBhbnkgcmV2ZWFsIHNsaWRlcyB3aXRoIGxpdmUgY2VsbHMgc2Nyb2xsYWJsZVxuICBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKFwiLnJldmVhbCAuZXhlcmNpc2UtY2VsbFwiKS5mb3JFYWNoKChlbCkgPT4ge1xuICAgIGVsLmNsb3Nlc3QoJ3NlY3Rpb24uc2xpZGUnKS5jbGFzc0xpc3QuYWRkKFwic2Nyb2xsYWJsZVwiKTtcbiAgfSlcblxuICAvLyB3ZWJSIHN1cHBsZW1lbnRhbCBkYXRhIGFuZCBvcHRpb25zXG4gIGNvbnN0IGRhdGFDb250ZW50ID0gZG9jdW1lbnQucXVlcnlTZWxlY3Rvcihgc2NyaXB0W3R5cGU9XFxcIndlYnItZGF0YVxcXCJdYCkudGV4dENvbnRlbnQ7XG4gIGNvbnN0IGRhdGEgPSBKU09OLnBhcnNlKGI2NERlY29kZShkYXRhQ29udGVudCkpO1xuXG4gIC8vIEdyYWIgbGlzdCBvZiByZXNvdXJjZXMgdG8gYmUgZG93bmxvYWRlZFxuICBjb25zdCBmaWxlc0NvbnRlbnQgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yKGBzY3JpcHRbdHlwZT1cXFwidmZzLWZpbGVcXFwiXWApLnRleHRDb250ZW50O1xuICBjb25zdCBmaWxlcyA9IEpTT04ucGFyc2UoYjY0RGVjb2RlKGZpbGVzQ29udGVudCkpO1xuXG4gIC8vIEluaXRpYWxpc2Ugd2ViUiBhbmQgc2V0dXAgZm9yIFIgY29kZSBldmFsdWF0aW9uXG4gIGxldCB3ZWJSUHJvbWlzZSA9IChhc3luYyAod2ViUikgPT4ge1xuICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgRG93bmxvYWRpbmcgd2ViUmA7XG4gICAgYXdhaXQgd2ViUi5pbml0KCk7XG5cbiAgICAvLyBJbnN0YWxsIHByb3ZpZGVkIGxpc3Qgb2YgcGFja2FnZXNcbiAgICAvLyBFbnN1cmUgd2ViUiBkZWZhdWx0IHJlcG8gaXMgaW5jbHVkZWRcbiAgICBkYXRhLnBhY2thZ2VzLnJlcG9zLnB1c2goXCJodHRwczovL3JlcG8uci13YXNtLm9yZ1wiKVxuICAgIGF3YWl0IGRhdGEucGFja2FnZXMucGtncy5tYXAoKHBrZykgPT4gKCkgPT4ge1xuICAgICAgc3RhdHVzVGV4dC50ZXh0Q29udGVudCA9IGBEb3dubG9hZGluZyBwYWNrYWdlOiAke3BrZ31gO1xuICAgICAgcmV0dXJuIHdlYlIuZXZhbFJWb2lkKGBcbiAgICAgICAgd2Vicjo6aW5zdGFsbChwa2csIHJlcG9zID0gcmVwb3MpXG4gICAgICAgIGxpYnJhcnkocGtnLCBjaGFyYWN0ZXIub25seSA9IFRSVUUpXG4gICAgICBgLCB7IGVudjoge1xuICAgICAgICBwa2c6IHBrZyxcbiAgICAgICAgcmVwb3M6IGRhdGEucGFja2FnZXMucmVwb3MsXG4gICAgICB9fSk7XG4gICAgfSkucmVkdWNlKChjdXIsIG5leHQpID0+IGN1ci50aGVuKG5leHQpLCBQcm9taXNlLnJlc29sdmUoKSk7XG5cbiAgICAvLyBEb3dubG9hZCBhbmQgaW5zdGFsbCByZXNvdXJjZXNcbiAgICBhd2FpdCBmaWxlcy5tYXAoKGZpbGUpID0+IGFzeW5jICgpID0+IHtcbiAgICAgIGNvbnN0IG5hbWUgPSBmaWxlLnN1YnN0cmluZyhmaWxlLmxhc3RJbmRleE9mKCcvJykgKyAxKTtcbiAgICAgIHN0YXR1c1RleHQudGV4dENvbnRlbnQgPSBgRG93bmxvYWRpbmcgcmVzb3VyY2U6ICR7bmFtZX1gO1xuICAgICAgY29uc3QgcmVzcG9uc2UgPSBhd2FpdCBmZXRjaChmaWxlKTtcbiAgICAgIGlmICghcmVzcG9uc2Uub2spIHtcbiAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBDYW4ndCBkb3dubG9hZCBcXGAke2ZpbGV9XFxgLiBFcnJvciAke3Jlc3BvbnNlLnN0YXR1c306IFwiJHtyZXNwb25zZS5zdGF0dXNUZXh0fVwiLmApO1xuICAgICAgfVxuICAgICAgY29uc3QgZGF0YSA9IGF3YWl0IHJlc3BvbnNlLmFycmF5QnVmZmVyKCk7XG5cbiAgICAgIC8vIFN0b3JlIFVSTHMgaW4gdGhlIGN3ZCB3aXRob3V0IGFueSBzdWJkaXJlY3Rvcnkgc3RydWN0dXJlXG4gICAgICBpZiAoZmlsZS5pbmNsdWRlcyhcIjovL1wiKSkge1xuICAgICAgICBmaWxlID0gbmFtZTtcbiAgICAgIH1cblxuICAgICAgLy8gQ29sbGFwc2UgaGlnaGVyIGRpcmVjdG9yeSBzdHJ1Y3R1cmVcbiAgICAgIGZpbGUgPSBjb2xsYXBzZVBhdGgoZmlsZSk7XG5cbiAgICAgIC8vIENyZWF0ZSBkaXJlY3RvcnkgdHJlZSwgaWdub3JpbmcgXCJkaXJlY3RvcnkgZXhpc3RzXCIgVkZTIGVycm9yc1xuICAgICAgY29uc3QgcGFydHMgPSBmaWxlLnNwbGl0KCcvJykuc2xpY2UoMCwgLTEpO1xuICAgICAgbGV0IHBhdGggPSAnJztcbiAgICAgIHdoaWxlIChwYXJ0cy5sZW5ndGggPiAwKSB7XG4gICAgICAgIHBhdGggKz0gcGFydHMuc2hpZnQoKSArICcvJztcbiAgICAgICAgY29uc3QgYW5hbHlzaXMgPSBhd2FpdCB3ZWJSLkZTLmFuYWx5emVQYXRoKHBhdGgpO1xuICAgICAgICBpZiAoIWFuYWx5c2lzLmV4aXN0cykge1xuICAgICAgICAgIHRyeSB7XG4gICAgICAgICAgICBhd2FpdCB3ZWJSLkZTLm1rZGlyKHBhdGgpO1xuICAgICAgICAgIH0gY2F0Y2ggKGUpIHtcbiAgICAgICAgICAgIHRocm93IG5ldyBFcnJvcihgRmlsZXN5c3RlbSBFcnJvcjogXCIke2UubWVzc2FnZX1cIi5gKTtcbiAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICAgIH1cblxuICAgICAgLy8gV3JpdGUgdGhpcyBmaWxlIHRvIHRoZSBWRlNcbiAgICAgIHJldHVybiBhd2FpdCB3ZWJSLkZTLndyaXRlRmlsZShmaWxlLCBuZXcgVWludDhBcnJheShkYXRhKSk7XG4gICAgfSkucmVkdWNlKChjdXIsIG5leHQpID0+IGN1ci50aGVuKG5leHQpLCBQcm9taXNlLnJlc29sdmUoKSk7XG5cbiAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYEluc3RhbGxpbmcgd2ViUiBzaGltc2A7XG4gICAgYXdhaXQgd2ViUi5ldmFsUlZvaWQoYHdlYnI6OnNoaW1faW5zdGFsbCgpYCk7XG5cbiAgICBzdGF0dXNUZXh0LnRleHRDb250ZW50ID0gYFdlYlIgZW52aXJvbm1lbnQgc2V0dXBgO1xuICAgIGF3YWl0IHNldHVwUih3ZWJSLCBkYXRhKTtcblxuICAgIHN0YXR1c1RleHQucmVtb3ZlKCk7XG4gICAgaWYgKHN0YXR1c0NvbnRhaW5lci5jaGlsZHJlbi5sZW5ndGggPT0gMCkge1xuICAgICAgc3RhdHVzQ29udGFpbmVyLnBhcmVudE5vZGUucmVtb3ZlKCk7XG4gICAgfVxuICAgIHJldHVybiB3ZWJSO1xuICB9KShuZXcgV2ViUihkYXRhLm9wdGlvbnMpKTtcblxuICAvLyBLZWVwIHRyYWNrIG9mIGluaXRpYWwgT0pTIGJsb2NrIHJlbmRlclxuICBjb25zdCByZW5kZXJlZE9qcyA9IHt9O1xuXG4gIGNvbnN0IHByb2Nlc3MgPSBhc3luYyAoY29udGV4dCwgaW5wdXRzKSA9PiB7XG4gICAgY29uc3Qgd2ViUiA9IGF3YWl0IHdlYlJQcm9taXNlO1xuICAgIGNvbnN0IGV2YWx1YXRvciA9IG5ldyBXZWJSRXZhbHVhdG9yKHdlYlIsIGNvbnRleHQpXG4gICAgYXdhaXQgZXZhbHVhdG9yLnByb2Nlc3MoaW5wdXRzKTtcbiAgICByZXR1cm4gZXZhbHVhdG9yLmNvbnRhaW5lcjtcbiAgfVxuXG4gIHJldHVybiB7XG4gICAgcHJvY2VzcyxcbiAgICB3ZWJSUHJvbWlzZSxcbiAgICByZW5kZXJlZE9qcyxcbiAgfTtcbn1cbiJ9XX0=
+</script>
+<div id="exercise-loading-indicator" class="exercise-loading-indicator d-none d-flex align-items-center gap-2">
+<div id="exercise-loading-status" class="d-flex gap-2">
+
+</div>
+<div class="spinner-grow spinner-grow-sm">
+
+</div>
+</div>
+<script type="vfs-file">
+WyJkYWRvcy8vcGliX3JlYWwuY3N2IiwiZGFkb3MvL3JlcGFzc2VfY2FtYmlhbC5jc3YiLCJkYWRvcy8vY3Jlc2NpbWVudG8uY3N2IiwiZGFkb3MvL2ljbXNfbXQuY3N2IiwiZGFkb3MvL2Z1bmNhb19wdWxtb25hci5jc3YiLCJkYWRvcy8vc2FsYXJpb19zaW5vcC5jc3YiLCJkYWRvcy8vdGVtcGVyYXR1cmFfY29ycG9yYWwuY3N2IiwiZGFkb3MvL2NvbnN1bW9fZmFtaWxpYXMuY3N2IiwiZGFkb3MvL3BkX2VtcHJlc2FzLmNzdiIsImRhZG9zLy90ZXJyYXNfbXQuY3N2IiwiZGFkb3MvL2xpbW9uYWRhLmNzdiIsImRhZG9zLy92ZW5kYXNfbWFxdWluYXMuY3N2IiwiZGFkb3MvL2VuZXJnaWFfaW5kdXN0cmlhbC5jc3YiLCJkYWRvcy8vZ2FzdG9fYWxpbWVudGFjYW8uY3N2IiwiZGFkb3MvL2lkZWJfZXNjb2xhcy5jc3YiLCJkYWRvcy8vc2FsYXJpb19ob3JhLmNzdiIsImRhZG9zLy9uYXRhbGlkYWRlLmNzdiIsImRhZG9zLy9jb25zdHJ1Y29lcy5jc3YiLCJkYWRvcy8vZGlhYmV0ZXMuY3N2IiwiZGFkb3MvL2RpYW1hbnRlcy5jc3YiLCJkYWRvcy8vbGFuY2hvbmV0ZXMuY3N2IiwiZGFkb3MvL2NvbnN1bW8uY3N2IiwiZGFkb3MvL2ludmVzdGltZW50by5jc3YiLCJkYWRvcy8vdmVuZGFzX3JvdXBhcy5jc3YiLCJkYWRvcy8vZGNwLmNzdiIsImRhZG9zLy9zYXVkZV9tdW5pY2lwaW9zLmNzdiIsImRhZG9zLy9jcmVkaXRvX3J1cmFsLmNzdiIsImRhZG9zLy9lbXByZWdvLmNzdiIsImRhZG9zLy9zb2phX3BhaW5lbC5jc3YiLCJkYWRvcy8vZXNwdXJpYS5jc3YiLCJkYWRvcy8vaW5kdXN0cmlhX210LmNzdiIsImRhZG9zLy9jdXN0b19zb2phLmNzdiIsImRhZG9zLy9tYXJpbmhhLmNzdiIsImRhZG9zLy9pbW92ZWlzX3Npbm9wLmNzdiIsImRhZG9zLy9zb2phX211bmljaXBpb3NfbXQuY3N2IiwiZGFkb3MvL3NhbGFyaW9faG9yYTIuY3N2IiwiZGFkb3MvL2luZHVzdHJpYS5jc3YiLCJkYWRvcy8vZXhwb3J0YWNvZXNfc29qYS5jc3YiLCJkYWRvcy8vYWR1Ym9fcHJvZHV0aXZpZGFkZS5jc3YiLCJkYWRvcy8vZnVuY2FvX3Byb2R1Y2FvLmNzdiIsImRhZG9zLy9ob3Jhc190cmFiYWxoby5jc3YiLCJkYWRvcy8vY29ycnVwY2FvLmNzdiIsImRhZG9zLy9jdXN0b19tZWRpby5jc3YiLCJkYWRvcy8vYWJvcnRvLmNzdiIsImRhZG9zLy9wcmVzc2FvX2FydGVyaWFsLmNzdiIsImRhZG9zLy9zZXJpZXNfdGVtcG8uY3N2IiwiZGFkb3MvL2ZlcnRpbGlkYWRlLmNzdiIsImRhZG9zLy9yZXRvcm5vX2Fjb2VzLmNzdiIsImRhZG9zLy9yZXRvcm5vc19zb2phLmNzdiIsImxvZ28tdW5lbWF0LnBuZyJd
+</script>
+</section>
+
+</main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W119
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../..";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiada");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiada");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/DanielLindomar\.github\.io\/econometria\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Econometria I e II · Prof.&nbsp;Dr.&nbsp;Lindomar Pegorini Daniel · UNEMAT — Campus de Sinop</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

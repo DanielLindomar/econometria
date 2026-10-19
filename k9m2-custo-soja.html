@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR" xml:lang="pt-BR"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.18">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -42,10 +42,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-7926b2efc965092d2eda8ac140af2bf5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-b776bd1e4a60a76b452808fdebd8c1cf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="site_libs/quarto-contrib/live-runtime/live-runtime.js" type="module"></script>
 <link href="site_libs/quarto-contrib/live-runtime/live-runtime.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
@@ -180,6 +180,10 @@ background: #1E2761;
     <a class="dropdown-item" href="./econ2-lab09.html">
  <span class="dropdown-text">Laboratório 9 — Especificação do modelo</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./econ2-lab10.html">
+ <span class="dropdown-text">Laboratório 10 — Dados em painel</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -223,6 +227,10 @@ background: #1E2761;
     <a class="dropdown-item" href="./aplic-econ2-u3.html">
  <span class="dropdown-text">Aplicação 9 — A reta que recomendaria adubar até a falência</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./aplic-econ2-u4.html">
+ <span class="dropdown-text">Aplicação 10 — O viés do bom gestor</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -245,6 +253,10 @@ background: #1E2761;
         <li>
     <a class="dropdown-item" href="./teoria-eficiencia.html">
  <span class="dropdown-text">Eficiência: o teorema de Gauss-Markov</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./teoria-painel.html">
+ <span class="dropdown-text">Os estimadores de dados em painel</span></a>
   </li>  
     </ul>
   </li>
@@ -292,6 +304,10 @@ background: #1E2761;
         <li>
     <a class="dropdown-item" href="./proj-econ2-icms.html">
  <span class="dropdown-text">Projeto 10 — Prevendo a arrecadação de ICMS</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./proj-econ2-painel.html">
+ <span class="dropdown-text">Projeto 11 — Crédito rural e produtividade da soja: um painel de municípios</span></a>
   </li>  
     </ul>
   </li>
@@ -616,7 +632,7 @@ eyJjb250ZW50cyI6W119
 </div>
 </div>
 <script type="vfs-file">
-WyJkYWRvcy8vbmF0YWxpZGFkZS5jc3YiLCJkYWRvcy8vcmV0b3Jub3Nfc29qYS5jc3YiLCJkYWRvcy8vbWFyaW5oYS5jc3YiLCJkYWRvcy8vZGNwLmNzdiIsImRhZG9zLy9lbmVyZ2lhX2luZHVzdHJpYWwuY3N2IiwiZGFkb3MvL2RpYW1hbnRlcy5jc3YiLCJkYWRvcy8vc2FsYXJpb19ob3JhLmNzdiIsImRhZG9zLy9mdW5jYW9fcHVsbW9uYXIuY3N2IiwiZGFkb3MvL2NvbnN1bW8uY3N2IiwiZGFkb3MvL2lkZWJfZXNjb2xhcy5jc3YiLCJkYWRvcy8vYWR1Ym9fcHJvZHV0aXZpZGFkZS5jc3YiLCJkYWRvcy8vY3JlZGl0b19ydXJhbC5jc3YiLCJkYWRvcy8vY29ycnVwY2FvLmNzdiIsImRhZG9zLy9nYXN0b19hbGltZW50YWNhby5jc3YiLCJkYWRvcy8vaW5kdXN0cmlhX210LmNzdiIsImRhZG9zLy9zZXJpZXNfdGVtcG8uY3N2IiwiZGFkb3MvL3NhbGFyaW9fc2lub3AuY3N2IiwiZGFkb3MvL2xhbmNob25ldGVzLmNzdiIsImRhZG9zLy9jdXN0b19tZWRpby5jc3YiLCJkYWRvcy8vcGRfZW1wcmVzYXMuY3N2IiwiZGFkb3MvL2ZlcnRpbGlkYWRlLmNzdiIsImRhZG9zLy9lbXByZWdvLmNzdiIsImRhZG9zLy9waWJfcmVhbC5jc3YiLCJkYWRvcy8vZnVuY2FvX3Byb2R1Y2FvLmNzdiIsImRhZG9zLy9yZXRvcm5vX2Fjb2VzLmNzdiIsImRhZG9zLy9zYXVkZV9tdW5pY2lwaW9zLmNzdiIsImRhZG9zLy92ZW5kYXNfcm91cGFzLmNzdiIsImRhZG9zLy9jdXN0b19zb2phLmNzdiIsImRhZG9zLy9pbW92ZWlzX3Npbm9wLmNzdiIsImRhZG9zLy9pY21zX210LmNzdiIsImRhZG9zLy9zYWxhcmlvX2hvcmEyLmNzdiIsImRhZG9zLy9saW1vbmFkYS5jc3YiLCJkYWRvcy8vcHJlc3Nhb19hcnRlcmlhbC5jc3YiLCJkYWRvcy8vdmVuZGFzX21hcXVpbmFzLmNzdiIsImRhZG9zLy9yZXBhc3NlX2NhbWJpYWwuY3N2IiwiZGFkb3MvL2VzcHVyaWEuY3N2IiwiZGFkb3MvL3RlcnJhc19tdC5jc3YiLCJkYWRvcy8vZXhwb3J0YWNvZXNfc29qYS5jc3YiLCJkYWRvcy8vaW5kdXN0cmlhLmNzdiIsImRhZG9zLy9hYm9ydG8uY3N2IiwiZGFkb3MvL2NvbnN0cnVjb2VzLmNzdiIsImRhZG9zLy9jb25zdW1vX2ZhbWlsaWFzLmNzdiIsImRhZG9zLy9jcmVzY2ltZW50by5jc3YiLCJkYWRvcy8vZGlhYmV0ZXMuY3N2IiwiZGFkb3MvL2ludmVzdGltZW50by5jc3YiLCJkYWRvcy8vdGVtcGVyYXR1cmFfY29ycG9yYWwuY3N2IiwiZGFkb3MvL2hvcmFzX3RyYWJhbGhvLmNzdiIsImxvZ28tdW5lbWF0LnBuZyJd
+WyJkYWRvcy8vcGliX3JlYWwuY3N2IiwiZGFkb3MvL3JlcGFzc2VfY2FtYmlhbC5jc3YiLCJkYWRvcy8vY3Jlc2NpbWVudG8uY3N2IiwiZGFkb3MvL2ljbXNfbXQuY3N2IiwiZGFkb3MvL2Z1bmNhb19wdWxtb25hci5jc3YiLCJkYWRvcy8vc2FsYXJpb19zaW5vcC5jc3YiLCJkYWRvcy8vdGVtcGVyYXR1cmFfY29ycG9yYWwuY3N2IiwiZGFkb3MvL2NvbnN1bW9fZmFtaWxpYXMuY3N2IiwiZGFkb3MvL3BkX2VtcHJlc2FzLmNzdiIsImRhZG9zLy90ZXJyYXNfbXQuY3N2IiwiZGFkb3MvL2xpbW9uYWRhLmNzdiIsImRhZG9zLy92ZW5kYXNfbWFxdWluYXMuY3N2IiwiZGFkb3MvL2VuZXJnaWFfaW5kdXN0cmlhbC5jc3YiLCJkYWRvcy8vZ2FzdG9fYWxpbWVudGFjYW8uY3N2IiwiZGFkb3MvL2lkZWJfZXNjb2xhcy5jc3YiLCJkYWRvcy8vc2FsYXJpb19ob3JhLmNzdiIsImRhZG9zLy9uYXRhbGlkYWRlLmNzdiIsImRhZG9zLy9jb25zdHJ1Y29lcy5jc3YiLCJkYWRvcy8vZGlhYmV0ZXMuY3N2IiwiZGFkb3MvL2RpYW1hbnRlcy5jc3YiLCJkYWRvcy8vbGFuY2hvbmV0ZXMuY3N2IiwiZGFkb3MvL2NvbnN1bW8uY3N2IiwiZGFkb3MvL2ludmVzdGltZW50by5jc3YiLCJkYWRvcy8vdmVuZGFzX3JvdXBhcy5jc3YiLCJkYWRvcy8vZGNwLmNzdiIsImRhZG9zLy9zYXVkZV9tdW5pY2lwaW9zLmNzdiIsImRhZG9zLy9jcmVkaXRvX3J1cmFsLmNzdiIsImRhZG9zLy9lbXByZWdvLmNzdiIsImRhZG9zLy9zb2phX3BhaW5lbC5jc3YiLCJkYWRvcy8vZXNwdXJpYS5jc3YiLCJkYWRvcy8vaW5kdXN0cmlhX210LmNzdiIsImRhZG9zLy9jdXN0b19zb2phLmNzdiIsImRhZG9zLy9tYXJpbmhhLmNzdiIsImRhZG9zLy9pbW92ZWlzX3Npbm9wLmNzdiIsImRhZG9zLy9zb2phX211bmljaXBpb3NfbXQuY3N2IiwiZGFkb3MvL3NhbGFyaW9faG9yYTIuY3N2IiwiZGFkb3MvL2luZHVzdHJpYS5jc3YiLCJkYWRvcy8vZXhwb3J0YWNvZXNfc29qYS5jc3YiLCJkYWRvcy8vYWR1Ym9fcHJvZHV0aXZpZGFkZS5jc3YiLCJkYWRvcy8vZnVuY2FvX3Byb2R1Y2FvLmNzdiIsImRhZG9zLy9ob3Jhc190cmFiYWxoby5jc3YiLCJkYWRvcy8vY29ycnVwY2FvLmNzdiIsImRhZG9zLy9jdXN0b19tZWRpby5jc3YiLCJkYWRvcy8vYWJvcnRvLmNzdiIsImRhZG9zLy9wcmVzc2FvX2FydGVyaWFsLmNzdiIsImRhZG9zLy9zZXJpZXNfdGVtcG8uY3N2IiwiZGFkb3MvL2ZlcnRpbGlkYWRlLmNzdiIsImRhZG9zLy9yZXRvcm5vX2Fjb2VzLmNzdiIsImRhZG9zLy9yZXRvcm5vc19zb2phLmNzdiIsImxvZ28tdW5lbWF0LnBuZyJd
 </script>
 </section>
 
