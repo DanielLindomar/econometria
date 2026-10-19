@@ -211,7 +211,7 @@ data.frame(
 ::: {.callout-tip}
 ## Como ler essa saída
 
-A última coluna traduz cada coeficiente em reais por quilo de fertilizante, a R\$ 120 a saca. O MQO agrupado promete **R\$ 12,83**; efeitos fixos entrega **R\$ 6,80**. A R\$ 4,00 o quilo, o lucro marginal cai de quase R\$ 9 para menos de R\$ 3.
+A última coluna traduz cada coeficiente em reais por quilo de fertilizante, a R\$ 120 a saca. O MQO agrupado promete **R\$ 12,83**; efeitos fixos entrega **R\$ 6,79**. A R\$ 4,00 o quilo, o lucro marginal cai de quase R\$ 9 para menos de R\$ 3.
 
 Os dois modelos recomendariam adubar, mas com intensidades muito diferentes. E se o preço do fertilizante subisse para R\$ 7, o agrupado continuaria dizendo "adube" enquanto o de efeitos fixos diria "não compensa". Erro de especificação aqui não é questão acadêmica — é a diferença entre uma recomendação técnica certa e uma que leva o produtor a gastar dinheiro à toa.
 :::
@@ -254,17 +254,17 @@ Estime por primeiras diferenças e compare com efeitos fixos.
 ```{webr}
 #| exercise: ap10_ex2
 fd <- plm(produtividade ~ adubo_kg + chuva_mm, data = p, model = "______")
-rbind(primeiras_diferencas = coef(fd), efeitos_fixos = coef(fe))
+rbind(primeiras_diferencas = coef(fd)[c("adubo_kg", "chuva_mm")], efeitos_fixos = coef(fe))
 ```
 
 ::: {.callout-tip collapse="true" title="Dica"}
-A lacuna é `"fd"`. Compare também o número de observações de cada modelo com `nobs()`.
+A lacuna é `"fd"`. O `plm` mantém um intercepto na equação em diferenças (a variação média anual comum a todas as propriedades), por isso selecionamos só os dois coeficientes de interesse. Compare também o número de observações de cada modelo com `nobs()`.
 :::
 
 ::: {.callout-note collapse="true" title="Solução"}
 ```r
 fd <- plm(produtividade ~ adubo_kg + chuva_mm, data = p, model = "fd")
-rbind(primeiras_diferencas = coef(fd), efeitos_fixos = coef(fe))
+rbind(primeiras_diferencas = coef(fd)[c("adubo_kg", "chuva_mm")], efeitos_fixos = coef(fe))
 ```
 
 Os dois ficam perto de 0,05 — ambos eliminam a propriedade, e por isso ambos escapam do viés. Primeiras diferenças usa 750 observações (perde a primeira safra de cada propriedade); efeitos fixos usa as 900. Com erros idiossincráticos sem autocorrelação, efeitos fixos é o mais eficiente dos dois.
@@ -325,7 +325,7 @@ Muda pouco, porque nesta simulação não há choque comum de safra. Em dados re
 Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: a estimativa agrupada e a de efeitos fixos com erros-padrão, o resultado do Hausman, a interpretação da diferença e a implicação para a recomendação de adubação.
 
 ::: {.callout-note collapse="true" title="Um parágrafo possível"}
-A estimação da resposta da produtividade da soja ao fertilizante, em painel de 150 propriedades mato-grossenses ao longo de seis safras, revela viés substancial no estimador agrupado: o coeficiente de 0,107 saca/ha por kg (e.p. 0,006) cai para 0,057 (e.p. 0,005) quando se controla pelo efeito fixo da propriedade. O teste de Hausman rejeita a consistência do estimador de efeitos aleatórios (p < 0,001), indicando correlação entre a heterogeneidade não observada e a dose aplicada — o viés de gestão descrito por Mundlak (1961). A chuva, exógena por natureza, apresenta coeficiente estável entre especificações (0,010 a 0,012). Em termos econômicos, o retorno marginal do fertilizante cai de R\$ 12,83 para R\$ 6,80 por kg, o que reduz pela metade a margem sobre o custo do insumo e altera a dose economicamente ótima.
+A estimação da resposta da produtividade da soja ao fertilizante, em painel de 150 propriedades mato-grossenses ao longo de seis safras, revela viés substancial no estimador agrupado: o coeficiente de 0,107 saca/ha por kg (e.p. 0,006) cai para 0,057 (e.p. 0,005) quando se controla pelo efeito fixo da propriedade. O teste de Hausman rejeita a consistência do estimador de efeitos aleatórios (p < 0,001), indicando correlação entre a heterogeneidade não observada e a dose aplicada — o viés de gestão descrito por Mundlak (1961). A chuva, exógena por natureza, apresenta coeficiente estável entre especificações (0,010 a 0,012). Em termos econômicos, o retorno marginal do fertilizante cai de R\$ 12,83 para R\$ 6,79 por kg, o que reduz pela metade a margem sobre o custo do insumo e altera a dose economicamente ótima.
 
 Repare no que o parágrafo faz: dá os dois números com erros-padrão, nomeia o teste e o mecanismo econômico do viés, usa a chuva como evidência de que o problema era específico do fertilizante, e termina na implicação prática.
 :::

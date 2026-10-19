@@ -212,11 +212,12 @@ ggplot(subset(municipios, municipio %in% escolhidos[1:6]), aes(ano, residuo, col
 
 ```{webr}
 # o resíduo de uma safra explica o resíduo da safra seguinte, no mesmo município?
+# (dplyr::lag explícito: o pacote plm, carregado na Etapa 1, tem uma função lag() própria)
 library(dplyr)
 res <- municipios |>
   arrange(municipio, ano) |>
   group_by(municipio) |>
-  mutate(residuo_anterior = lag(residuo)) |>
+  mutate(residuo_anterior = dplyr::lag(residuo)) |>
   ungroup()
 summary(lm(residuo ~ residuo_anterior, data = res))$coefficients
 ```

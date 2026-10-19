@@ -273,6 +273,7 @@ theta
 ```
 
 ```{webr}
+# 2 cenários x 1.000 réplicas: leva cerca de 15 segundos no navegador
 simula <- function(correlacionado) {
   res <- matrix(NA, R, 3, dimnames = list(NULL, c("pooled", "FE", "RE")))
   id  <- rep(1:N, each = Tt)

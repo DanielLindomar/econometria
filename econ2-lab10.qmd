@@ -170,7 +170,9 @@ summary(fd)$coefficients
 
 Repare primeiro no que **não está** na equação: `educ`, `black`, `hisp` e `exper`. Elas foram excluídas de propósito, porque a diferença de uma variável que não muda no tempo é zero — ela desaparece junto com $a_i$. (A experiência cresce exatamente 1 por ano para todo mundo, então sua diferença é constante e colide com o intercepto.)
 
-O efeito do sindicato cai para cerca de **4,2%**, contra os 18% do MQO agrupado. É menos de um quarto. E o de ser casado cai para **5,8%**.
+O efeito do sindicato cai para cerca de **4,3%**, contra os 18% do MQO agrupado. É menos de um quarto. E o de ser casado cai para **3,8%** — e deixa de ser significativo a 5%.
+
+Repare que o `plm` mantém um intercepto na equação em diferenças. Em diferenças, o intercepto é a **variação média anual** do salário comum a todos — cerca de 11,6% ao ano neste período —, e cumpre o papel que as dummies de ano cumprem no modelo em níveis.
 
 A diferença entre os dois resultados *é* a heterogeneidade não observada. O MQO agrupado atribuía ao sindicato um prêmio que, em boa parte, pertence a características fixas dos trabalhadores que se sindicalizam.
 
@@ -197,7 +199,7 @@ O prêmio sindical fica em **8,0%** e o de ser casado em **4,7%** — compare co
 
 Com as dummies de ano incluídas, o coeficiente de `expersq` fica negativo (−0,0052), indicando retornos decrescentes à experiência. Sem elas, ele sai positivo — porque passa a absorver o crescimento geral dos salários no período. É o Exercício 4.
 
-Os dois estimadores que eliminam $a_i$ concordam na mensagem: o efeito do sindicato é pequeno, bem menor do que o MQO agrupado sugeria. Diferem na magnitude (4,2% contra 8,0%) por usarem a informação de modo diferente, e a escolha entre eles é assunto da teoria — com $T = 2$ são idênticos; com $T > 2$, o de efeitos fixos é mais eficiente se $u_{it}$ não for autocorrelacionado.
+Os dois estimadores que eliminam $a_i$ concordam na mensagem: o efeito do sindicato é pequeno, bem menor do que o MQO agrupado sugeria. Diferem na magnitude (4,3% contra 8,0%) por usarem a informação de modo diferente, e a escolha entre eles é assunto da teoria — com $T = 2$ são idênticos; com $T > 2$, o de efeitos fixos é mais eficiente se $u_{it}$ não for autocorrelacionado.
 :::
 
 ```{webr}

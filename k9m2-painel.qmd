@@ -62,6 +62,7 @@ produtividade = 30 + **0,006**·credito_ha + 0,012·chuva_mm − 0,25·veranico_
 - Resíduo sobre resíduo defasado (mesmo município): **0.372**, t = 11.96
 - Decomposição do resíduo: parte permanente (média do município) sd 2.52 · oscilação de safra sd 2.85
 - Erro-padrão do crédito: clássico 0.00020 → HC1 0.00020 (não muda) → agrupado 0.00034 (+70%). O da argila dobra (0.0145 → 0.0305).
+- No FE + ano, o erro-padrão agrupado do crédito vai de 0.00039 para 0.00044; a conclusão não muda.
 
 **O crédito aparece com 11,7 sacas/ha por R\$ 1.000 — quase o dobro do verdadeiro.** Incluir dummies de ano no MQO agrupado não corrige nada: 0.01171 de novo. O viés é transversal.
 
@@ -83,17 +84,18 @@ Crédito varia sobretudo entre municípios (o que o FE descarta); clima varia so
 |---|---|---|---|---|---|---|---|
 | MQO agrupado | 960 | 0.01171 | 0.00020 | 11.71 | 0.0140 | −0.287 | 0.133 |
 | MQO agrupado + ano | 960 | 0.01171 | 0.00019 | 11.71 | 0.0110 | −0.283 | 0.135 |
-| Primeiras diferenças | 840 | 0.00724 | 0.00049 | 7.24 | 0.0158 | −0.274 | — |
+| Primeiras diferenças (`plm`, com intercepto = deriva comum) | 840 | 0.00598 | 0.00052 | 5.98 | 0.0154 | −0.273 | — |
+| Primeiras diferenças sem intercepto | 840 | 0.00724 | 0.00049 | 7.24 | 0.0158 | −0.274 | — |
 | Primeiras diferenças + ano | 840 | 0.00607 | 0.00035 | 6.07 | 0.0116 | −0.257 | — |
 | Efeitos fixos | 960 | 0.00960 | 0.00033 | 9.60 | 0.0158 | −0.271 | — |
 | **Efeitos fixos + ano** | 960 | **0.00628** | 0.00039 | **6.28** | 0.0119 | −0.258 | — |
-| Efeitos fixos + ano, ep agrupado | 960 | 0.00628 | 0.00047 | 6.28 | 0.0119 | −0.258 | — |
+| Efeitos fixos + ano, ep agrupado | 960 | 0.00628 | 0.00044 | 6.28 | 0.0119 | −0.258 | — |
 | Efeitos aleatórios | 960 | 0.01061 | 0.00026 | 10.61 | 0.0152 | −0.274 | 0.132 |
-| Efeitos aleatórios + ano | 960 | 0.00890 | 0.00031 | 8.90 | 0.0117 | −0.264 | 0.133 |
+| Efeitos aleatórios + ano | 960 | 0.00899 | 0.00031 | 8.99 | 0.0117 | −0.264 | 0.133 |
 
-Valores de MQO, FD e FE são exatos; os de efeitos aleatórios seguem Swamy-Arora (o padrão do `plm`) e podem diferir na 4ª casa.
+Valores conferidos na página publicada (webR/`plm` 2.6.7). O `plm` estima primeiras diferenças **com intercepto** — que, em diferenças, é a deriva comum da produtividade — e por isso dá 5,98 e não 7,24; os efeitos aleatórios seguem Swamy-Arora.
 
-- **Componentes do erro (RE sem ano):** σ²_u = 8.88 · σ²_α = 5.32 · **θ = 0.585**. Com dummies de ano: σ²_u = 4.75 · σ²_α = 6.26 · θ = 0.706 — os choques de safra saem do erro idiossincrático e θ se aproxima de 1.
+- **Componentes do erro (RE sem ano):** σ²_u = 8.88 · σ²_α = 5.32 · **θ = 0.585**. Com dummies de ano: σ²_u ≈ 4.7 · σ²_α ≈ 6.3 · θ ≈ 0.70 — os choques de safra saem do erro idiossincrático e θ se aproxima de 1.
 - **pFtest efeitos individuais** (FE vs pooled sem argila): F(119; 837) = 7.24, p < 1e-15
 - **pFtest efeitos de ano** (FE + ano vs FE): F(7; 830) = 105.2, p < 1e-15
 - **Hausman** sem ano: H = 48.7, gl = 3, p = 1.5e-10 · com ano: H = 124.9, gl = 10, p ≈ 0 → **rejeita; RE inconsistente; usar FE**
