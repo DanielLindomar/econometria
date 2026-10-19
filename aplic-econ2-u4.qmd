@@ -1,0 +1,375 @@
+---
+title: "Aplicação 10 — O viés do bom gestor"
+subtitle: "Econometria II · Dados em painel em uso"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - plm
+    - lmtest
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## O que é uma Aplicação
+
+Nos laboratórios você aprendeu a executar. Aqui você vai **usar** o que aprendeu para responder a uma pergunta de pesquisa, do jeito que um economista responde: estimando, organizando os resultados numa tabela e escrevendo o que eles significam.
+
+O esforço de estimação é pequeno — o código está quase todo pronto. O desafio é o que vem depois dele.
+:::
+
+## O problema
+
+Em 1961, Yair Mundlak publicou *Empirical Production Function Free of Management Bias* no *Journal of Farm Economics*, com dados de fazendas familiares de Israel. O título já diz o que ele encontrou e o que propôs fazer a respeito.
+
+O problema era este. Para estimar quanto um insumo — fertilizante, por exemplo — contribui para a produção, o procedimento usual era comparar fazendas: as que usam mais insumo produzem mais, e a inclinação dessa relação seria o retorno do insumo. Mundlak apontou a falha: **os fazendeiros não são iguais**. Alguns são melhores gestores — escolhem a época certa de plantio, controlam pragas a tempo, negociam melhor —, e essa capacidade não aparece em planilha nenhuma.
+
+O detalhe fatal é que o bom gestor **também usa mais insumo**, porque sabe o que está fazendo. Então, quando se compara fazendas, parte do que parece ser efeito do fertilizante é, na verdade, efeito do gestor que o aplicou. O coeficiente sai inflado. Mundlak chamou isso de *management bias* — viés de gestão.
+
+A solução que ele propôs: observar **a mesma fazenda ao longo de vários anos**. A capacidade do gestor não muda de um ano para outro; o uso de insumo, sim. Comparando cada fazenda com ela mesma, o gestor se cancela e sobra só o insumo. Foi a primeira formulação, na economia, do que hoje se chama estimador de **efeitos fixos**.
+
+::: {.callout-tip}
+## O que isso tem a ver com a unidade
+
+Tudo. O viés de gestão é o caso canônico de **heterogeneidade não observada correlacionada com os regressores** — a situação exata em que o MQO agrupado falha e em que efeitos fixos é a resposta.
+
+E repare na natureza do argumento: Mundlak não tinha como medir a qualidade da gestão. Ele não tentou medir. Encontrou um desenho de dados em que ela deixa de importar. É uma ideia que atravessa toda a econometria moderna.
+:::
+
+## Nossa versão
+
+Vamos reproduzir o problema com **150 propriedades produtoras de soja em Mato Grosso**, acompanhadas por **6 safras** (2019 a 2024). Para cada propriedade-safra, temos a produtividade, a dose de fertilizante, a chuva acumulada no ciclo e se a propriedade tem irrigação.
+
+::: {.callout-important}
+## Estes dados foram gerados por simulação
+
+Não são um levantamento de campo. Foram construídos por um processo que **eu conheço** — e, neste caso, isso é mais importante do que nunca.
+
+Nesta simulação existe uma variável que **você não vai ver**: a qualidade de gestão de cada propriedade. Ela afeta a produtividade e se correlaciona com o uso de fertilizante, exatamente como Mundlak descreveu. No fim da página eu revelo o efeito verdadeiro do fertilizante, e você vai poder verificar qual estimador chegou perto.
+
+Não role até lá antes de estimar.
+:::
+
+## Os dados
+
+```{webr}
+library(dplyr)
+library(plm)
+soja <- read.csv("dados/soja_painel.csv")
+head(soja, 8)
+```
+
+::: {.callout-tip}
+## O dicionário das variáveis
+
+| Variável | O que é | Varia no tempo? |
+|---|---|---|
+| `propriedade` | Identificador da propriedade | — |
+| `safra` | Ano da safra (2019 a 2024) | — |
+| `produtividade` | Produtividade de soja, em sacas/ha | sim |
+| `adubo_kg` | Fertilizante aplicado, em kg/ha | sim |
+| `chuva_mm` | Chuva acumulada no ciclo, em mm | sim |
+| `irrigacao` | 1 se a propriedade é irrigada | **não** |
+
+São 150 propriedades × 6 safras = 900 observações. A última coluna da tabela vai importar: `irrigacao` é uma característica da propriedade, igual em todas as safras.
+:::
+
+```{webr}
+p <- pdata.frame(soja, index = c("propriedade", "safra"))
+pdim(p)
+summary(soja[, c("produtividade", "adubo_kg", "chuva_mm")])
+```
+
+## Primeiro olhar: entre propriedades e dentro delas
+
+```{webr}
+library(ggplot2)
+ggplot(soja, aes(adubo_kg, produtividade)) +
+  geom_point(alpha = 0.3, colour = "#1E2761") +
+  geom_smooth(method = "lm", se = FALSE, colour = "#C0392B") +
+  labs(title = "Todas as observações empilhadas",
+       x = "Fertilizante (kg/ha)", y = "Produtividade (sacas/ha)") +
+  theme_minimal()
+```
+
+```{webr}
+# as mesmas observações, mas ligando os pontos de cada propriedade
+amostra <- soja |> filter(propriedade %in% unique(propriedade)[c(3, 17, 41, 58, 92, 120)])
+ggplot(amostra, aes(adubo_kg, produtividade, colour = propriedade)) +
+  geom_point(size = 2) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.7) +
+  labs(title = "Seis propriedades, cada uma com a sua reta",
+       x = "Fertilizante (kg/ha)", y = "Produtividade (sacas/ha)") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+No primeiro gráfico, a nuvem inteira sobe com inclinação forte. É o que o MQO agrupado vê.
+
+No segundo, cada propriedade tem a sua própria reta — e repare em duas coisas. As retas estão em **alturas diferentes**: há propriedades que produzem mais em qualquer dose de fertilizante. E as retas individuais são **mais rasas** do que a reta da nuvem inteira.
+
+A inclinação da nuvem mistura dois movimentos: o efeito do fertilizante *dentro* de cada propriedade e a diferença de altura *entre* propriedades. Se as propriedades mais altas também usam mais fertilizante, a inclinação agrupada sai maior do que a verdadeira. É o viés de Mundlak, desenhado.
+:::
+
+## Tentativa 1: MQO agrupado
+
+```{webr}
+pooled <- plm(produtividade ~ adubo_kg + chuva_mm + irrigacao, data = p, model = "pooling")
+summary(pooled)$coefficients
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O coeficiente do fertilizante fica em torno de **0,107**: cada quilo a mais por hectare estaria associado a 0,107 saca a mais. A chuva contribui com cerca de 0,010 saca por milímetro, e a irrigação com cerca de 4,3 sacas. Tudo significativo, R² de 0,34.
+
+Faça a conta que um produtor faria. Uma saca de soja a R\$ 120 e um quilo de fertilizante a R\$ 4: segundo este modelo, cada quilo aplicado rende 0,107 × 120 = **R\$ 12,83** e custa R\$ 4,00. Lucro de quase R\$ 9 por quilo. A recomendação seria adubar muito mais.
+
+Guarde esse número. Ele vai mudar.
+:::
+
+## Tentativa 2: eliminando a propriedade
+
+Se existe algo fixo em cada propriedade — gestão, solo, histórico — que afeta a produtividade e se correlaciona com a dose de fertilizante, a solução é compará-la com ela mesma.
+
+```{webr}
+fe <- plm(produtividade ~ adubo_kg + chuva_mm, data = p, model = "within")
+summary(fe)$coefficients
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O coeficiente do fertilizante **cai para cerca de 0,057** — quase a metade. O da chuva praticamente não muda (0,012).
+
+A diferença entre as duas tentativas não é refinamento estatístico. É a parte do coeficiente agrupado que pertencia à propriedade, e não ao fertilizante: quem usa mais adubo produz mais **também** porque é melhor gestor, e o estimador agrupado dava todo o crédito ao adubo.
+
+Repare também no que sumiu: `irrigacao` não está na saída. Como é constante em cada propriedade, foi absorvida pelo efeito fixo junto com a gestão. Efeitos fixos não consegue separar o efeito da irrigação do efeito de "ser a propriedade que tem irrigação".
+:::
+
+::: {.callout-important}
+## A chuva como grupo de controle
+
+A chuva é a variável que **não** sofreu com a mudança de estimador: cerca de 0,010 no agrupado, 0,012 nos efeitos fixos.
+
+Faz sentido. A chuva de uma safra não depende da qualidade do gestor — ela cai igualmente sobre bons e maus. Não há correlação entre chuva e o efeito fixo, logo não há viés a corrigir.
+
+Isso é um diagnóstico útil na prática: quando efeitos fixos muda muito um coeficiente e deixa outro intacto, o primeiro regressor estava correlacionado com a heterogeneidade e o segundo não. A comparação entre estimadores conta de onde vinha o problema.
+:::
+
+## Tentativa 3: efeitos aleatórios
+
+```{webr}
+re <- plm(produtividade ~ adubo_kg + chuva_mm + irrigacao, data = p, model = "random")
+summary(re)$coefficients
+summary(re)$ercomp
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O fertilizante fica em cerca de **0,066** — entre o agrupado (0,107) e os efeitos fixos (0,057), e mais perto deste último. O theta é de aproximadamente 0,73: o estimador subtrai 73% da média de cada propriedade.
+
+Efeitos aleatórios recuperou a `irrigacao` (cerca de 4,3 sacas), porque não elimina variáveis constantes no tempo. Mas o preço é visível no coeficiente do fertilizante: ele ainda carrega parte do viés, porque o estimador supõe que o efeito da propriedade **não se correlaciona** com os regressores — e essa é exatamente a hipótese que a história de Mundlak nega.
+:::
+
+## O teste de Hausman decide
+
+```{webr}
+phtest(fe, re)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O valor-p é da ordem de $10^{-8}$. Rejeitamos a hipótese de que efeitos aleatórios seja consistente.
+
+A leitura econômica: a diferença entre 0,057 e 0,066 é grande demais para ser acaso. Há algo fixo nas propriedades que se correlaciona com o uso de fertilizante — e o estimador que ignora isso está viesado. Fica efeitos fixos.
+:::
+
+## A tabela que vai para o artigo
+
+```{webr}
+library(lmtest)
+fe_cl <- coeftest(fe, vcov = vcovHC(fe, type = "HC1", cluster = "group"))
+data.frame(
+  estimador   = c("MQO agrupado", "Efeitos aleatórios", "Efeitos fixos", "EF, erro agrupado"),
+  adubo       = round(c(coef(pooled)["adubo_kg"], coef(re)["adubo_kg"], coef(fe)["adubo_kg"], fe_cl["adubo_kg", 1]), 4),
+  erro_padrao = round(c(summary(pooled)$coefficients["adubo_kg", 2], summary(re)$coefficients["adubo_kg", 2],
+                        summary(fe)$coefficients["adubo_kg", 2], fe_cl["adubo_kg", 2]), 4),
+  retorno_por_kg = round(c(coef(pooled)["adubo_kg"], coef(re)["adubo_kg"], coef(fe)["adubo_kg"], fe_cl["adubo_kg", 1]) * 120, 2)
+)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A última coluna traduz cada coeficiente em reais por quilo de fertilizante, a R\$ 120 a saca. O MQO agrupado promete **R\$ 12,83**; efeitos fixos entrega **R\$ 6,80**. A R\$ 4,00 o quilo, o lucro marginal cai de quase R\$ 9 para menos de R\$ 3.
+
+Os dois modelos recomendariam adubar, mas com intensidades muito diferentes. E se o preço do fertilizante subisse para R\$ 7, o agrupado continuaria dizendo "adube" enquanto o de efeitos fixos diria "não compensa". Erro de especificação aqui não é questão acadêmica — é a diferença entre uma recomendação técnica certa e uma que leva o produtor a gastar dinheiro à toa.
+:::
+
+## Exercícios
+
+Agora é com você. Cada exercício tem dica e solução — mas tente antes de abrir.
+
+### Exercício 1 — medindo a correlação que causa o viés
+
+Os efeitos fixos estimados são a melhor medida que temos da "qualidade" de cada propriedade. Verifique se eles se correlacionam com a dose média de fertilizante.
+
+```{webr}
+#| exercise: ap10_ex1
+qualidade <- data.frame(propriedade = names(fixef(fe)), efeito = as.numeric(fixef(fe)))
+dose_media <- soja |> group_by(propriedade) |> summarise(adubo_medio = mean(______))
+comparacao <- merge(qualidade, dose_media)
+cor(comparacao$efeito, comparacao$______)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As lacunas são `adubo_kg` e `adubo_medio`. Uma correlação positiva é a assinatura do viés de gestão.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+qualidade <- data.frame(propriedade = names(fixef(fe)), efeito = as.numeric(fixef(fe)))
+dose_media <- soja |> group_by(propriedade) |> summarise(adubo_medio = mean(adubo_kg))
+comparacao <- merge(qualidade, dose_media)
+cor(comparacao$efeito, comparacao$adubo_medio)
+```
+
+A correlação fica em torno de **0,4**, claramente positiva: propriedades com efeito fixo alto — as "boas" — usam mais fertilizante. É essa correlação que infla o MQO agrupado. Se ela fosse zero, agrupado, aleatórios e fixos dariam o mesmo coeficiente.
+:::
+
+### Exercício 2 — primeiras diferenças
+
+Estime por primeiras diferenças e compare com efeitos fixos.
+
+```{webr}
+#| exercise: ap10_ex2
+fd <- plm(produtividade ~ adubo_kg + chuva_mm, data = p, model = "______")
+rbind(primeiras_diferencas = coef(fd), efeitos_fixos = coef(fe))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `"fd"`. Compare também o número de observações de cada modelo com `nobs()`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+fd <- plm(produtividade ~ adubo_kg + chuva_mm, data = p, model = "fd")
+rbind(primeiras_diferencas = coef(fd), efeitos_fixos = coef(fe))
+```
+
+Os dois ficam perto de 0,05 — ambos eliminam a propriedade, e por isso ambos escapam do viés. Primeiras diferenças usa 750 observações (perde a primeira safra de cada propriedade); efeitos fixos usa as 900. Com erros idiossincráticos sem autocorrelação, efeitos fixos é o mais eficiente dos dois.
+:::
+
+### Exercício 3 — o que a irrigação vale
+
+Efeitos fixos não estima a irrigação. Há um caminho indireto: regredir os efeitos fixos estimados contra a dummy de irrigação.
+
+```{webr}
+#| exercise: ap10_ex3
+irrig <- soja |> group_by(propriedade) |> summarise(irrigacao = first(irrigacao))
+segunda_etapa <- merge(qualidade, irrig)
+summary(lm(efeito ~ ______, data = segunda_etapa))$coefficients
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `irrigacao`. O objeto `qualidade` foi criado no Exercício 1.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+irrig <- soja |> group_by(propriedade) |> summarise(irrigacao = first(irrigacao))
+segunda_etapa <- merge(qualidade, irrig)
+summary(lm(efeito ~ irrigacao, data = segunda_etapa))$coefficients
+```
+
+O coeficiente fica em torno de 4 sacas — parecido com o que agrupado e aleatórios estimavam. Mas atenção ao que esse número é: a diferença de efeito fixo entre propriedades irrigadas e não irrigadas, **sem controle por gestão**. Se propriedades irrigadas também tiverem gestores melhores, o número está contaminado do mesmo jeito que o coeficiente do fertilizante estava.
+
+É a limitação honesta do método: efeitos fixos protege os coeficientes das variáveis que variam no tempo e não tem o que dizer sobre as que não variam.
+:::
+
+### Exercício 4 — efeitos de safra
+
+Acrescente dummies de safra ao modelo de efeitos fixos. O coeficiente do fertilizante muda?
+
+```{webr}
+#| exercise: ap10_ex4
+fe_safra <- plm(produtividade ~ adubo_kg + chuva_mm + factor(______), data = p, model = "within")
+rbind(sem_dummies = coef(fe), com_dummies = coef(fe_safra)[1:2])
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `safra`. As dummies capturam choques comuns a todas as propriedades em cada ano — preço da soja, clima regional, pragas.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+fe_safra <- plm(produtividade ~ adubo_kg + chuva_mm + factor(safra), data = p, model = "within")
+rbind(sem_dummies = coef(fe), com_dummies = coef(fe_safra)[1:2])
+```
+
+Muda pouco, porque nesta simulação não há choque comum de safra. Em dados reais haveria — e a prática recomendada é incluir os dois efeitos, de unidade e de tempo, por padrão. O custo é de alguns graus de liberdade; o benefício é não atribuir ao fertilizante o que foi uma safra boa para todo mundo.
+:::
+
+### Exercício 5 — escrevendo o resultado
+
+Este exercício não tem código. Escreva, em até cinco linhas, o parágrafo de resultados que iria num artigo. Ele precisa conter: a estimativa agrupada e a de efeitos fixos com erros-padrão, o resultado do Hausman, a interpretação da diferença e a implicação para a recomendação de adubação.
+
+::: {.callout-note collapse="true" title="Um parágrafo possível"}
+A estimação da resposta da produtividade da soja ao fertilizante, em painel de 150 propriedades mato-grossenses ao longo de seis safras, revela viés substancial no estimador agrupado: o coeficiente de 0,107 saca/ha por kg (e.p. 0,006) cai para 0,057 (e.p. 0,005) quando se controla pelo efeito fixo da propriedade. O teste de Hausman rejeita a consistência do estimador de efeitos aleatórios (p < 0,001), indicando correlação entre a heterogeneidade não observada e a dose aplicada — o viés de gestão descrito por Mundlak (1961). A chuva, exógena por natureza, apresenta coeficiente estável entre especificações (0,010 a 0,012). Em termos econômicos, o retorno marginal do fertilizante cai de R\$ 12,83 para R\$ 6,80 por kg, o que reduz pela metade a margem sobre o custo do insumo e altera a dose economicamente ótima.
+
+Repare no que o parágrafo faz: dá os dois números com erros-padrão, nomeia o teste e o mecanismo econômico do viés, usa a chuva como evidência de que o problema era específico do fertilizante, e termina na implicação prática.
+:::
+
+## O que estava por trás dos dados
+
+Chegou a hora. A produtividade desta amostra foi gerada por esta equação:
+
+$$
+\text{produtividade}_{it} = 22 + 0{,}055\,\text{adubo}_{it} + 0{,}012\,\text{chuva}_{it} + 4{,}5\,\text{irrigação}_i + a_i + u_{it}
+$$
+
+com $a_i \sim N(0;\ 6^2)$ sendo a qualidade de gestão da propriedade — **não observada** — e $u_{it} \sim N(0;\ 4^2)$. E a peça central do desenho:
+
+$$
+\text{adubo}_{it} = 350 + 2{,}6\,a_i + \text{ruído}
+$$
+
+Os bons gestores aplicam mais fertilizante. É a correlação entre $a_i$ e o regressor que Mundlak identificou.
+
+| Estimador | adubo (verdadeiro: 0,055) | chuva (verdadeiro: 0,012) | irrigação (verdadeiro: 4,5) |
+|---|---|---|---|
+| MQO agrupado | **0,107** | 0,010 | 4,27 |
+| Efeitos aleatórios | **0,066** | 0,012 | 4,25 |
+| Primeiras diferenças | 0,052 | 0,011 | — |
+| **Efeitos fixos** | **0,057** | 0,012 | — |
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. O estimador agrupado errou por 94%, e nada na saída avisava.** Coeficiente significativo, sinal correto, R² razoável. Um relatório técnico baseado nele recomendaria uma dose de fertilizante economicamente errada, com toda a aparência de rigor. O viés de variável omitida não deixa rastro nos diagnósticos convencionais — e aqui a variável omitida sequer é mensurável.
+
+**2. Efeitos fixos recuperou o parâmetro sem nunca observar a gestão.** O intervalo de 95% dos efeitos fixos, de 0,046 a 0,067, contém o verdadeiro 0,055. O método não mediu o que estava faltando; construiu uma comparação em que o que estava faltando se cancela. Esta é a ideia de Mundlak, e ela não exige saber *o que* é o efeito fixo — só que ele é fixo.
+
+**3. A variável exógena serviu de testemunha.** A chuva saiu praticamente igual em todos os estimadores, porque não se correlaciona com a gestão. Quando um coeficiente muda muito entre agrupado e efeitos fixos e outro não muda, você aprendeu algo sobre a estrutura do problema — e esse tipo de comparação é um dos diagnósticos mais informativos da econometria de painel.
+:::
+
+## Voltando ao artigo
+
+Mundlak trabalhou com dados de 66 fazendas familiares israelenses entre 1954 e 1958, e estimou funções de produção Cobb-Douglas com e sem o controle por fazenda. Encontrou que o coeficiente do trabalho e o dos insumos comprados caíam de forma apreciável quando o efeito da fazenda era incluído — e interpretou a diferença exatamente como fizemos aqui.
+
+O artigo é hoje reconhecido como o ponto de partida da econometria de efeitos fixos. Em 1978, o próprio Mundlak voltaria ao tema em *On the Pooling of Time Series and Cross Section Data*, mostrando que a distinção entre efeitos fixos e aleatórios é, no fundo, uma pergunta sobre se $a_i$ se correlaciona com as médias dos regressores — a mesma pergunta que o teste de Hausman formaliza.
+
+Duas ressalvas que valem para o que você acabou de estimar:
+
+- **Efeitos fixos só protege contra o que é fixo.** Se a gestão melhorasse ao longo do tempo, e melhorasse junto com a dose de fertilizante, o viés voltaria. A hipótese é de que a heterogeneidade não observada seja constante no período, e ela merece defesa em qualquer aplicação.
+- **Eliminar $a_i$ tem um custo de informação.** Efeitos fixos usa só a variação dentro de cada propriedade. Se o fertilizante variasse pouco ao longo das safras, o estimador seria impreciso — e o pesquisador poderia ser tentado a voltar ao agrupado, que é mais preciso e errado. Precisão em torno do número errado não é virtude.

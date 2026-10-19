@@ -1,0 +1,353 @@
+---
+title: "Os estimadores de dados em painel"
+subtitle: "Por que a transformação within elimina o efeito individual, quando efeitos aleatórios é melhor, e o que o Hausman testa"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - ggplot2
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+## O modelo com efeito individual
+
+Com $N$ unidades observadas em $T$ períodos, o modelo de painel é
+
+$$
+y_{it} = x_{it}'\beta + \alpha_i + u_{it}, \qquad i = 1, \dots, N; \quad t = 1, \dots, T
+$$
+
+O termo $\alpha_i$ é o **efeito individual**: tudo o que é constante na unidade $i$ e não está em $x_{it}$. O termo $u_{it}$ é o erro idiossincrático, que varia de período para período.
+
+Empilhando as $T$ observações da unidade $i$:
+
+$$
+\underbrace{y_i}_{T \times 1} = \underbrace{X_i}_{T \times k}\,\beta + \underbrace{\iota_T}_{T \times 1}\,\alpha_i + \underbrace{u_i}_{T \times 1}
+$$
+
+onde $\iota_T$ é um vetor de uns. E empilhando as $N$ unidades, com $D$ a matriz $NT \times N$ de dummies individuais — a coluna $i$ tem uns nas linhas da unidade $i$ e zeros nas demais:
+
+$$
+y = X\beta + D\alpha + u
+$$
+
+::: {.callout-tip}
+## A pergunta que organiza tudo
+
+Toda a teoria de painel gira em torno de uma única pergunta: **$\alpha_i$ se correlaciona com $x_{it}$?**
+
+Se **não**, $\alpha_i$ é só uma componente a mais do erro, e o problema é de eficiência — como aproveitar melhor a estrutura.
+
+Se **sim**, $\alpha_i$ é uma variável omitida, e o problema é de viés — como se livrar dela.
+
+As duas respostas levam a estimadores diferentes, e o teste de Hausman é o que decide entre elas.
+:::
+
+## Por que o MQO agrupado falha
+
+Ignore $\alpha_i$ e estime $y = X\beta + \text{erro}$ por MQO. Substituindo $y$:
+
+$$
+\hat{\beta}_{P} = (X'X)^{-1}X'y = \beta + (X'X)^{-1}X'D\alpha + (X'X)^{-1}X'u
+$$
+
+O último termo tem esperança zero sob exogeneidade de $u$. O problema é o do meio:
+
+$$
+E(\hat{\beta}_{P} \mid X) = \beta + (X'X)^{-1}X'\,E(D\alpha \mid X)
+$$
+
+Se $E(\alpha_i \mid X_i) = 0$ — o efeito individual não se relaciona com os regressores —, o viés some. Se não, $\hat{\beta}_P$ é **viesado e inconsistente**: aumentar $N$ ou $T$ não resolve, porque o termo $(X'X)^{-1}X'D\alpha$ não desaparece no limite.
+
+É o viés de variável omitida da página sobre [não-tendenciosidade](teoria-nao-viesado.qmd), com $D\alpha$ no papel da variável omitida. A diferença é que $\alpha_i$ não é observável por natureza — não há como "incluí-la" no modelo.
+
+## Eliminando o efeito individual: a transformação *within*
+
+### A matriz que centra na média
+
+Defina, para uma unidade, a matriz $T \times T$
+
+$$
+Q_T = I_T - \frac{1}{T}\iota_T\iota_T'
+$$
+
+Multiplicada por um vetor $z_i$ de $T$ observações, ela devolve os **desvios em relação à média da unidade**:
+
+$$
+Q_T z_i = z_i - \iota_T \bar{z}_i, \qquad \bar{z}_i = \frac{1}{T}\sum_{t=1}^{T} z_{it}
+$$
+
+Duas propriedades são tudo o que a prova precisa:
+
+$$
+Q_T \iota_T = \iota_T - \frac{1}{T}\iota_T(\iota_T'\iota_T) = \iota_T - \frac{T}{T}\iota_T = 0
+$$
+
+$$
+Q_T Q_T = Q_T, \qquad Q_T' = Q_T
+$$
+
+A primeira diz que $Q_T$ **aniquila constantes**. A segunda, que é idempotente e simétrica — uma projeção.
+
+Para o painel inteiro, a matriz é $Q = I_N \otimes Q_T$, bloco-diagonal com $Q_T$ repetida $N$ vezes. Ela centra cada unidade na sua própria média. E como $D = I_N \otimes \iota_T$,
+
+$$
+QD = (I_N \otimes Q_T)(I_N \otimes \iota_T) = I_N \otimes Q_T\iota_T = I_N \otimes 0 = 0
+$$
+
+### A prova
+
+Aplique $Q$ aos dois lados do modelo:
+
+$$
+Qy = QX\beta + \underbrace{QD\alpha}_{= \, 0} + Qu
+$$
+
+**O efeito individual desapareceu** — não porque foi estimado, mas porque a transformação o aniquila algebricamente. O que sobra é um modelo linear nos dados centrados:
+
+$$
+\tilde{y} = \tilde{X}\beta + \tilde{u}, \qquad \tilde{y} = Qy,\ \tilde{X} = QX,\ \tilde{u} = Qu
+$$
+
+O estimador de efeitos fixos é o MQO nesse modelo:
+
+$$
+\boxed{\;\hat{\beta}_{FE} = (X'QX)^{-1}X'Qy\;}
+$$
+
+(usando $Q'Q = Q$). Substituindo $Qy = QX\beta + Qu$:
+
+$$
+\hat{\beta}_{FE} = \beta + (X'QX)^{-1}X'Qu
+$$
+
+e portanto
+
+$$
+E(\hat{\beta}_{FE} \mid X) = \beta + (X'QX)^{-1}X'Q\,E(u \mid X) = \beta
+$$
+
+sob a hipótese de **exogeneidade estrita de $u$**: $E(u_{it} \mid X_i) = 0$ para todo $t$. $\qquad \blacksquare$
+
+::: {.callout-important}
+## O que a prova exigiu — e o que não exigiu
+
+A exogeneidade estrita recaiu sobre $u_{it}$, **não sobre $\alpha_i$**. Em nenhum momento foi preciso supor que $\alpha_i$ é independente de $X$. Ele podia ser arbitrariamente correlacionado com os regressores — e foi eliminado do mesmo jeito.
+
+É esta a vantagem decisiva dos efeitos fixos: o estimador é não-viesado **qualquer que seja** a relação entre a heterogeneidade não observada e os regressores. O viés de gestão de Mundlak, o viés de habilidade na equação de salários, qualquer característica fixa omitida — tudo é absorvido.
+
+O preço aparece na matriz $X'QX$. Se uma coluna de $X$ for constante no tempo para cada unidade, $Q$ a transforma em zeros, $X'QX$ fica singular, e o coeficiente não existe. Efeitos fixos não estima o que não varia dentro da unidade.
+:::
+
+::: {.callout-note}
+## Frisch-Waugh-Lovell em ação
+
+Há outro caminho para o mesmo estimador: incluir as $N$ dummies de $D$ como regressores e rodar MQO em $y = X\beta + D\alpha + u$ — o estimador LSDV. Pelo teorema de Frisch-Waugh-Lovell, o coeficiente de $X$ nessa regressão é idêntico ao da regressão de $Qy$ em $QX$, porque $Q = I - D(D'D)^{-1}D'$ é exatamente a matriz aniquiladora de $D$.
+
+É por isso que o Exercício 3 do Laboratório 10 deu coeficientes iguais. Centrar na média e incluir uma dummy por indivíduo são **a mesma operação**, escrita de duas maneiras.
+:::
+
+### Primeiras diferenças
+
+Há outra transformação que aniquila $\iota_T$: a matriz de diferenças $\Delta$, de dimensão $(T-1) \times T$, com $-1$ e $1$ em posições adjacentes. Como $\Delta \iota_T = 0$, aplicá-la ao modelo elimina $\alpha_i$ do mesmo jeito, e
+
+$$
+\hat{\beta}_{FD} = (X'\Delta'\Delta X)^{-1}X'\Delta'\Delta y
+$$
+
+é não-viesado sob a mesma hipótese. Com $T = 2$ os dois estimadores coincidem. Com $T > 2$, diferem: efeitos fixos é mais eficiente se $u_{it}$ for não autocorrelacionado; primeiras diferenças é mais eficiente se $u_{it}$ for um passeio aleatório. Na prática, a comparação entre os dois é um diagnóstico informal da estrutura de $u$.
+
+## Modelando o efeito individual: efeitos aleatórios
+
+Suponha agora $E(\alpha_i \mid X_i) = 0$. Então $\alpha_i$ não é variável omitida — é componente do erro. O erro composto é $v_{it} = \alpha_i + u_{it}$, e o MQO agrupado é não-viesado. Mas é ineficiente, porque ignora a estrutura de $v$.
+
+Para uma unidade, com $\alpha_i \sim (0, \sigma_\alpha^2)$ e $u_{it} \sim (0, \sigma_u^2)$ independentes:
+
+$$
+\Omega = \operatorname{Var}(v_i) = \sigma_\alpha^2\,\iota_T\iota_T' + \sigma_u^2\,I_T =
+\begin{bmatrix}
+\sigma_\alpha^2 + \sigma_u^2 & \sigma_\alpha^2 & \cdots \\
+\sigma_\alpha^2 & \sigma_\alpha^2 + \sigma_u^2 & \cdots \\
+\vdots & \vdots & \ddots
+\end{bmatrix}
+$$
+
+Todas as observações da mesma unidade são correlacionadas, com correlação $\rho = \sigma_\alpha^2/(\sigma_\alpha^2 + \sigma_u^2)$. O estimador eficiente é o de mínimos quadrados generalizados:
+
+$$
+\hat{\beta}_{RE} = (X'\Omega_N^{-1}X)^{-1}X'\Omega_N^{-1}y, \qquad \Omega_N = I_N \otimes \Omega
+$$
+
+### A forma que o GLS assume
+
+Pode-se mostrar que $\Omega^{-1/2}$ é proporcional a
+
+$$
+I_T - \theta\,\frac{1}{T}\iota_T\iota_T', \qquad \theta = 1 - \sqrt{\frac{\sigma_u^2}{T\sigma_\alpha^2 + \sigma_u^2}}
+$$
+
+Compare com $Q_T = I_T - \frac{1}{T}\iota_T\iota_T'$. A matriz do GLS é a **mesma transformação, mas subtraindo só uma fração $\theta$ da média**. O estimador de efeitos aleatórios é um MQO em dados *quase-centrados*:
+
+$$
+y_{it} - \theta\bar{y}_i = (x_{it} - \theta\bar{x}_i)'\beta + (v_{it} - \theta\bar{v}_i)
+$$
+
+::: {.callout-tip}
+## Os três estimadores numa régua
+
+O parâmetro $\theta$ unifica tudo:
+
+| $\theta$ | Transformação | Estimador |
+|---|---|---|
+| $0$ | nenhuma | MQO agrupado |
+| $1$ | subtrai a média inteira | efeitos fixos |
+| entre $0$ e $1$ | subtrai uma fração | efeitos aleatórios |
+
+E a fórmula de $\theta$ diz quando cada extremo é aproximado. Se $\sigma_\alpha^2 \to 0$ (não há efeito individual), $\theta \to 0$ e RE vira pooled. Se $T \to \infty$ ou $\sigma_\alpha^2 \gg \sigma_u^2$, $\theta \to 1$ e RE vira FE.
+
+No `wagepan`, $\theta = 0{,}64$; no painel de soja da Aplicação, $0{,}73$. Em ambos, RE está mais perto de FE do que de pooled — o que é típico de painéis com efeito individual forte.
+:::
+
+::: {.callout-important}
+## Por que RE é mais eficiente que FE — quando é válido
+
+Sob $E(\alpha_i \mid X_i) = 0$, os dois estimadores são não-viesados, mas RE é o GLS e, pelo teorema de Gauss-Markov generalizado, tem a menor variância entre os lineares não-viesados.
+
+A intuição está no que cada um descarta. Efeitos fixos usa **apenas** a variação dentro das unidades — joga fora toda a informação de como as unidades diferem entre si. Efeitos aleatórios usa as duas fontes, ponderadas por $\theta$. Quando $\alpha_i$ não se correlaciona com $X$, a variação entre unidades é informação legítima sobre $\beta$, e desperdiçá-la custa precisão.
+
+Quando $\alpha_i$ **se** correlaciona com $X$, essa mesma variação entre unidades é justamente a fonte do viés — e descartá-la é o que torna FE consistente. RE, ao usá-la, herda uma fração $(1 - \theta)$ do viés do pooled.
+:::
+
+## O teste de Hausman
+
+Os dois estimadores respondem a hipóteses diferentes:
+
+| | $E(\alpha_i \mid X_i) = 0$ | $E(\alpha_i \mid X_i) \neq 0$ |
+|---|---|---|
+| $\hat{\beta}_{FE}$ | consistente, ineficiente | **consistente** |
+| $\hat{\beta}_{RE}$ | consistente, **eficiente** | inconsistente |
+
+Sob a hipótese nula, ambos convergem para $\beta$, e a diferença $\hat{\beta}_{FE} - \hat{\beta}_{RE}$ deve ser pequena. Sob a alternativa, só FE converge, e a diferença é sistemática.
+
+Hausman (1978) mostrou um resultado que torna o teste simples de calcular. Se $\hat{\beta}_{RE}$ é eficiente, então sua covariância com a diferença é zero — se não fosse, seria possível combinar os dois e obter um estimador ainda mais eficiente, contradizendo a eficiência. Logo:
+
+$$
+\operatorname{Var}(\hat{\beta}_{FE} - \hat{\beta}_{RE}) = \operatorname{Var}(\hat{\beta}_{FE}) - \operatorname{Var}(\hat{\beta}_{RE})
+$$
+
+E a estatística
+
+$$
+\boxed{\;H = (\hat{\beta}_{FE} - \hat{\beta}_{RE})'\big[\widehat{\operatorname{Var}}(\hat{\beta}_{FE}) - \widehat{\operatorname{Var}}(\hat{\beta}_{RE})\big]^{-1}(\hat{\beta}_{FE} - \hat{\beta}_{RE}) \;\sim\; \chi^2_k\;}
+$$
+
+sob $H_0$, onde $k$ é o número de coeficientes **comuns** aos dois estimadores — as variáveis constantes no tempo ficam de fora, porque FE não as estima.
+
+::: {.callout-note}
+## Lendo o resultado
+
+**Rejeitar $H_0$** é informativo: a diferença entre os estimadores é grande demais para ser acaso, RE está contaminado, use FE.
+
+**Não rejeitar** é menos conclusivo. Pode significar que $\alpha_i$ é de fato não correlacionado — ou que a amostra não tem poder para detectar a diferença. Em aplicações econômicas, onde quase sempre há razão teórica para esperar correlação, muitos autores partem de FE e tratam o Hausman como confirmação, não como critério de escolha.
+
+Há ainda um detalhe técnico: a diferença de matrizes de covariância pode não ser positiva definida em amostras finitas, o que produz estatísticas negativas. Versões robustas do teste, baseadas em regressão auxiliar, contornam isso.
+:::
+
+## Verificação por simulação
+
+A teoria afirma três coisas que uma simulação consegue mostrar lado a lado:
+
+1. Quando $\alpha_i$ **não** se correlaciona com $X$, os três estimadores são não-viesados e RE é o mais preciso.
+2. Quando $\alpha_i$ **se** correlaciona com $X$, pooled e RE são viesados e só FE acerta.
+3. O viés de RE é uma fração do viés do pooled.
+
+```{webr}
+set.seed(1978)
+N <- 100; Tt <- 5; R <- 1000
+beta <- 1.0; sig_a <- 2.0; sig_u <- 1.0
+theta <- 1 - sqrt(sig_u^2 / (Tt * sig_a^2 + sig_u^2))
+theta
+```
+
+```{webr}
+simula <- function(correlacionado) {
+  res <- matrix(NA, R, 3, dimnames = list(NULL, c("pooled", "FE", "RE")))
+  id  <- rep(1:N, each = Tt)
+  for (r in 1:R) {
+    alpha  <- rnorm(N, 0, sig_a)
+    x_base <- rnorm(N) + if (correlacionado) 0.8 * alpha else 0
+    x <- x_base[id] + rnorm(N * Tt)
+    y <- beta * x + alpha[id] + rnorm(N * Tt, 0, sig_u)
+
+    # pooled
+    res[r, 1] <- coef(.lm.fit(cbind(1, x), y))[2]
+    # within: centrar na média do indivíduo
+    xw <- x - ave(x, id); yw <- y - ave(y, id)
+    res[r, 2] <- sum(xw * yw) / sum(xw^2)
+    # RE: quase-centrar com theta
+    xq <- x - theta * ave(x, id); yq <- y - theta * ave(y, id)
+    res[r, 3] <- coef(.lm.fit(cbind(1 - theta, xq), yq))[2]
+  }
+  res
+}
+A <- simula(correlacionado = FALSE)
+B <- simula(correlacionado = TRUE)
+```
+
+```{webr}
+resumo <- function(m) rbind(media = colMeans(m), vies = colMeans(m) - beta, dp = apply(m, 2, sd))
+cat("Cenário A — alpha NÃO correlacionado com x\n"); round(resumo(A), 4)
+cat("\nCenário B — alpha correlacionado com x\n");   round(resumo(B), 4)
+```
+
+```{webr}
+library(ggplot2)
+dados <- rbind(
+  data.frame(cenario = "A: alpha não correlacionado", estimador = rep(colnames(A), each = R), b = as.vector(A)),
+  data.frame(cenario = "B: alpha correlacionado",     estimador = rep(colnames(B), each = R), b = as.vector(B))
+)
+ggplot(dados, aes(b, colour = estimador)) +
+  geom_density(linewidth = 0.9) +
+  geom_vline(xintercept = beta, linetype = "dashed") +
+  facet_wrap(~ cenario, ncol = 1) +
+  labs(title = "Distribuição de 1.000 estimativas de β",
+       subtitle = "A linha tracejada é o valor verdadeiro",
+       x = expression(hat(beta)), y = "Densidade", colour = NULL) +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## O que observar
+
+**No cenário A**, as três curvas estão centradas em 1,0. O pooled é a mais larga (desvio-padrão em torno de 0,11): ignora a correlação dentro da unidade e paga em precisão. FE e RE são bem mais estreitas (cerca de 0,05), com RE ligeiramente mais precisa — a vantagem do GLS, pequena aqui porque $\theta = 0{,}78$ deixa os dois estimadores parecidos.
+
+**No cenário B**, só a curva de FE continua centrada em 1,0. A do pooled desloca para cerca de **1,70** — viés de 70%. A de RE desloca para cerca de **1,15** — viés de 15%, que é aproximadamente $(1 - \theta) \approx 0{,}22$ do viés do pooled, como a teoria previa.
+
+E repare que o viés não alarga as curvas. O pooled viesado é **mais preciso** que o pooled não viesado do cenário A. Precisão e acerto são coisas diferentes, e um erro-padrão pequeno não é evidência de que o estimador está apontando para o lugar certo.
+:::
+
+::: {.callout-important}
+## Três lições que só a simulação permite
+
+**1. FE não precisou saber nada sobre $\alpha_i$.** O código que gera o cenário B cria uma correlação forte entre o efeito individual e o regressor, e o estimador within não recebeu essa informação. Ele só centrou os dados. A prova dizia que $QD = 0$ bastava, e bastou.
+
+**2. A eficiência de RE é real, mas condicional.** No cenário A ela aparece; no B ela se perde num estimador que converge para o número errado. Um estimador eficiente de uma quantidade que não é $\beta$ não tem utilidade. É por isso que a ordem das perguntas importa: primeiro "é consistente?", só depois "é eficiente?".
+
+**3. O Hausman detectaria o cenário B com facilidade.** Com diferenças de 0,15 entre FE e RE e desvios-padrão de 0,05, a estatística seria enorme. O teste existe para formalizar a comparação que você acabou de ver no gráfico.
+:::
+
+## O que fica
+
+| Estimador | Elimina $\alpha_i$? | Exige $E(\alpha_i \mid X_i) = 0$? | Estima variáveis fixas no tempo? | Quando usar |
+|---|---|---|---|---|
+| MQO agrupado | não | sim | sim | quase nunca em painel |
+| Primeiras diferenças | sim | não | não | $T$ pequeno, ou $u$ muito persistente |
+| Efeitos fixos | sim | não | não | padrão quando há heterogeneidade correlacionada |
+| Efeitos aleatórios | não | sim | sim | quando o Hausman não rejeita e há interesse nas variáveis fixas |
+
+---
+
+Voltar à [teoria do MQO](teoria-modelo.qmd) · Ver o [Laboratório 10](econ2-lab10.qmd) · Ver a [Aplicação sobre Mundlak](aplic-econ2-u4.qmd)

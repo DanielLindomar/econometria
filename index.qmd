@@ -41,6 +41,7 @@ As **aplicações** usam a ferramenta para responder a uma pergunta de pesquisa.
 | 7 | [Multicolinearidade](econ2-lab07.qmd) | Detecção e correção |
 | 8 | [Heterocedasticidade e autocorrelação](econ2-lab08.qmd) | Testes e erros-padrão robustos |
 | 9 | [Especificação do modelo](econ2-lab09.qmd) | RESET, variáveis omitidas e proxies |
+| 10 | [Dados em painel](econ2-lab10.qmd) | MQO agrupado, primeiras diferenças, efeitos fixos e aleatórios, Hausman |
 
 ## Aplicações — um artigo por unidade
 
@@ -64,10 +65,11 @@ Cada aplicação replica a **ideia** de um artigo de referência com dados simul
 | Multicolinearidade | [O modelo é ótimo, mas nenhuma variável presta](aplic-econ2-u1.qmd) | Farrar e Glauber (1967) |
 | Heterocedasticidade | [O coeficiente está certo, o erro-padrão está errado](aplic-econ2-u2.qmd) | White (1980) |
 | Especificação | [A reta que recomendaria adubar até a falência](aplic-econ2-u3.qmd) | Ramsey (1969) — teste RESET |
+| Dados em painel | [O viés do bom gestor](aplic-econ2-u4.qmd) | Mundlak (1961) — efeitos fixos |
 
 ## Teoria — as propriedades do estimador de MQO
 
-Por que o método dos mínimos quadrados é o que se usa? A resposta são três teoremas, cada um com hipóteses explícitas — e cada página traz a demonstração em notação matricial **e** um experimento que você roda no navegador para ver a propriedade acontecer, ou falhar quando a hipótese é violada.
+Por que o método dos mínimos quadrados é o que se usa? A resposta são três teoremas, cada um com hipóteses explícitas — e cada página traz a demonstração em notação matricial **e** um experimento que você roda no navegador para ver a propriedade acontecer, ou falhar quando a hipótese é violada. A última página estende os resultados aos estimadores de dados em painel.
 
 | Página | O que demonstra | Hipóteses necessárias |
 |---|---|---|
@@ -75,10 +77,11 @@ Por que o método dos mínimos quadrados é o que se usa? A resposta são três 
 | [Não-tendenciosidade](teoria-nao-viesado.qmd) | $E(\hat{\beta}) = \beta$ | H1, H2, H3 |
 | [Consistência](teoria-consistencia.qmd) | $\operatorname{plim} \hat{\beta} = \beta$ | H1, H2 + ortogonalidade |
 | [Eficiência (Gauss-Markov)](teoria-eficiencia.qmd) | O MQO tem a menor variância entre os lineares não-viesados | H1 a H4 |
+| [Estimadores de painel](teoria-painel.qmd) | Por que a transformação within elimina o efeito individual; quando efeitos aleatórios é melhor; o que o Hausman testa | exogeneidade estrita de $u$ |
 
 ## Projetos — Econometria II
 
-Dez casos para o **projeto avaliado** da disciplina. Você escolhe um e o apresenta **três vezes** ao longo do semestre, acrescentando a cada apresentação a camada estudada em aula: multicolinearidade, depois heterocedasticidade e autocorrelação, e por fim especificação.
+Onze casos para o **projeto avaliado** da disciplina. Você escolhe um e o apresenta **três vezes** ao longo do semestre, acrescentando a cada apresentação a camada estudada em aula: multicolinearidade, depois heterocedasticidade e autocorrelação, e por fim especificação — ou, no caso 11, dados em painel.
 
 ::: {.callout-important}
 ## Estas páginas não interpretam os resultados
@@ -98,8 +101,9 @@ Diferentemente dos laboratórios e das aplicações, aqui o código está pronto
 | 8 | [Exportações de soja](proj-econ2-exportacoes.qmd) | 156 meses | Autocorrelação e sazonalidade |
 | 9 | [Crédito rural e juros](proj-econ2-credito.qmd) | 200 meses | Quebra estrutural |
 | 10 | [Arrecadação de ICMS](proj-econ2-icms.qmd) | 192 meses | Multicolinearidade e previsão |
+| 11 | [Crédito rural e produtividade da soja](proj-econ2-painel.qmd) | 120 municípios × 8 safras | Dados em painel: efeitos fixos, aleatórios e Hausman |
 
-Os casos 1 a 5 são de **corte transversal** e os casos 6 a 10, de **série temporal** — a escolha determina quais diagnósticos fazem sentido no seu trabalho.
+Os casos 1 a 5 são de **corte transversal**, os casos 6 a 10, de **série temporal**, e o caso 11 é um **painel** (municípios acompanhados ao longo dos anos) — a escolha determina quais diagnósticos fazem sentido no seu trabalho.
 
 ## Curso de R — Unidade 7
 

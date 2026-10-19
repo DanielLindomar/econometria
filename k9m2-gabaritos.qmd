@@ -13,7 +13,7 @@ engine: knitr
 ::: {.callout-important}
 ## Página restrita
 
-Índice dos dez gabaritos. Cada um traz a equação verdadeira que gerou os dados, as saídas dos modelos com erros-padrão clássicos e robustos, os diagnósticos completos e os erros mais prováveis do aluno.
+Índice dos onze gabaritos. Cada um traz a equação verdadeira que gerou os dados, as saídas dos modelos com erros-padrão clássicos e robustos, os diagnósticos completos e os erros mais prováveis do aluno.
 
 Nenhuma destas páginas está no menu do site nem é indexada por buscadores — mas **quem tiver o endereço entra**. Guarde este link nos favoritos e não o compartilhe.
 :::
@@ -30,6 +30,7 @@ Nenhuma destas páginas está no menu do site nem é indexada por buscadores —
 | 8 | [O que move as exportações de soja](k9m2-exportacoes.html) | `k9m2-exportacoes.html` |
 | 9 | [Crédito rural e taxa de juros](k9m2-credito.html) | `k9m2-credito.html` |
 | 10 | [Prevendo a arrecadação de ICMS](k9m2-icms.html) | `k9m2-icms.html` |
+| 11 | [Crédito rural e produtividade da soja: um painel de municípios](k9m2-painel.html) | `k9m2-painel.html` |
 
 ## Como usar em aula
 

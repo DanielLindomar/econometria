@@ -1,0 +1,523 @@
+---
+title: "Laboratório 10 — Dados em painel"
+subtitle: "Econometria II · Unidade 7 — Econometria de dados em painel"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - plm
+    - lmtest
+    - wooldridge
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos de aprendizagem
+
+Ao final deste laboratório você será capaz de:
+
+- reconhecer a **estrutura** de um painel e declará-la no R;
+- entender por que o MQO agrupado (*pooled*) falha quando há **heterogeneidade não observada**;
+- estimar por **primeiras diferenças**, **efeitos fixos** e **efeitos aleatórios**, e saber o que cada um consegue e não consegue estimar;
+- escolher entre efeitos fixos e aleatórios com o **teste de Hausman**;
+- incluir **efeitos de tempo** e usar **erros-padrão agrupados** (*clustered*).
+:::
+
+Até aqui cada observação era um indivíduo num momento, ou um momento para um indivíduo. Dados em painel juntam as duas dimensões: **as mesmas unidades observadas em vários períodos**. Isso abre uma possibilidade que nem o corte transversal nem a série temporal oferecem: controlar por tudo o que é **fixo** em cada unidade — mesmo sem observar.
+
+::: {.callout-important}
+## Comece por aqui
+:::
+
+```{webr}
+library(dplyr)
+library(plm)
+library(wooldridge)
+data(wagepan)
+wagepan |> select(nr, year, lwage, educ, black, exper, married, union) |> head(10)
+```
+
+::: {.callout-tip}
+## A base
+
+`wagepan` acompanha **545 homens jovens** do mercado de trabalho americano durante **8 anos** (1980–1987), totalizando 4.360 observações. É a base dos exemplos de painel de Wooldridge, capítulo 14 — o que permite conferir cada resultado deste laboratório com a Tabela 14.2 do livro.
+
+| Variável | O que é |
+|---|---|
+| `nr` | Identificador do trabalhador |
+| `year` | Ano |
+| `lwage` | Logaritmo do salário-hora |
+| `educ` | Anos de escolaridade |
+| `black`, `hisp` | Dummies de raça/etnia |
+| `exper`, `expersq` | Experiência e seu quadrado |
+| `married` | 1 se casado naquele ano |
+| `union` | 1 se sindicalizado naquele ano |
+
+Repare nas três primeiras linhas: o trabalhador 13 aparece em 1980, 1981, 1982… Cada linha é um **par** (indivíduo, ano). É isso que define um painel.
+:::
+
+## Declarando o painel
+
+O R precisa saber qual coluna identifica a unidade e qual identifica o tempo.
+
+```{webr}
+p <- pdata.frame(wagepan, index = c("nr", "year"))
+pdim(p)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`pdim()` descreve as dimensões: **n = 545** indivíduos, **T = 8** períodos, **N = 4.360** observações. E informa que o painel é **balanceado** — todos os indivíduos têm todos os anos. Painéis reais costumam ser desbalanceados, e o `plm` lida com isso; mas o balanceado é mais simples para começar.
+
+A partir daqui, use sempre `p`, e não `wagepan`. É o objeto `pdata.frame` que carrega a informação de quem é quem e quando.
+:::
+
+## Duas fontes de variação
+
+Antes de estimar, entenda de onde vem a informação. Cada variável varia de dois jeitos: **entre** indivíduos (*between*) e **dentro** de cada indivíduo ao longo do tempo (*within*).
+
+```{webr}
+wagepan |>
+  group_by(nr) |>
+  mutate(lwage_media = mean(lwage), union_media = mean(union), educ_media = mean(educ)) |>
+  ungroup() |>
+  summarise(
+    lwage_between = sd(lwage_media), lwage_within = sd(lwage - lwage_media),
+    union_between = sd(union_media), union_within = sd(union - union_media),
+    educ_between  = sd(educ_media),  educ_within  = sd(educ - educ_media)
+  ) |> round(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O salário varia nas duas dimensões, com magnitudes parecidas (0,39 entre, 0,36 dentro). O status sindical também: há gente que entra e sai do sindicato ao longo dos oito anos.
+
+A escolaridade é diferente: `educ_within = 0`. **Ninguém muda de escolaridade** nesta amostra — ela é a mesma nos oito anos de cada trabalhador. Guarde isso. É o que vai impedir o estimador de efeitos fixos de dizer qualquer coisa sobre o retorno da educação.
+:::
+
+```{webr}
+wagepan |>
+  group_by(nr) |>
+  summarise(prop_sind = mean(union)) |>
+  summarise(sempre = sum(prop_sind == 1), nunca = sum(prop_sind == 0),
+            mudam  = sum(prop_sind > 0 & prop_sind < 1))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Dos 545 trabalhadores, 34 estão sindicalizados nos oito anos, 265 nunca estão, e **246 mudam de status** ao longo do período. São esses 246 que vão identificar o efeito do sindicato no estimador de efeitos fixos — os outros 299 não contribuem com nenhuma informação sobre ele.
+:::
+
+## O ponto de partida: MQO agrupado
+
+Empilhe tudo e rode uma regressão comum, como se fossem 4.360 observações independentes.
+
+```{webr}
+pooled <- plm(lwage ~ educ + black + hisp + exper + expersq + married + union + factor(year),
+              data = p, model = "pooling")
+summary(pooled)$coefficients[1:8, ]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O retorno da educação fica em torno de **9,1%** por ano de estudo. Ser casado está associado a cerca de **10,8%** a mais de salário, e ser sindicalizado a **18,3%**.
+
+São os números da coluna "Pooled OLS" da Tabela 14.2 do Wooldridge. E eles têm um problema de interpretação que este laboratório inteiro existe para resolver.
+
+Pense no que o modelo está supondo. Que, controladas as variáveis incluídas, dois trabalhadores quaisquer são comparáveis. Mas há coisas que não estão no modelo e que são **fixas em cada pessoa**: habilidade, motivação, qualidade da escola que frequentou, rede de contatos da família. Se essas coisas se correlacionam com `union` ou com `married` — e é razoável que se correlacionem —, o coeficiente está contaminado. Quem se sindicaliza pode ser diferente de quem não se sindicaliza em dimensões que o modelo não vê.
+:::
+
+## O modelo com efeito individual
+
+O que o painel permite é escrever o erro em duas partes:
+
+$$
+\ln(\text{salário}_{it}) = \beta_1 x_{it1} + \cdots + \beta_k x_{itk} + a_i + u_{it}
+$$
+
+O termo $a_i$ é o **efeito individual**: tudo o que é fixo no trabalhador $i$ e não está no modelo. O termo $u_{it}$ é o erro comum, que varia de ano para ano.
+
+A pergunta que organiza o resto do laboratório é uma só: **$a_i$ se correlaciona com os regressores ou não?**
+
+Se sim, o MQO agrupado é viesado, e é preciso **eliminar** $a_i$. Se não, ele é apenas ineficiente, e dá para fazer melhor **modelando** $a_i$.
+
+## Eliminando o efeito individual
+
+### Primeiras diferenças
+
+A ideia mais simples: subtraia de cada observação a do ano anterior. O que é fixo some.
+
+$$
+\Delta \ln(\text{salário}_{it}) = \beta_1 \Delta x_{it1} + \cdots + \Delta u_{it}
+$$
+
+```{webr}
+fd <- plm(lwage ~ expersq + married + union, data = p, model = "fd")
+summary(fd)$coefficients
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Repare primeiro no que **não está** na equação: `educ`, `black`, `hisp` e `exper`. Elas foram excluídas de propósito, porque a diferença de uma variável que não muda no tempo é zero — ela desaparece junto com $a_i$. (A experiência cresce exatamente 1 por ano para todo mundo, então sua diferença é constante e colide com o intercepto.)
+
+O efeito do sindicato cai para cerca de **4,2%**, contra os 18% do MQO agrupado. É menos de um quarto. E o de ser casado cai para **5,8%**.
+
+A diferença entre os dois resultados *é* a heterogeneidade não observada. O MQO agrupado atribuía ao sindicato um prêmio que, em boa parte, pertence a características fixas dos trabalhadores que se sindicalizam.
+
+Note também que sobraram **3.815 observações**: perdeu-se o primeiro ano de cada um dos 545 trabalhadores, porque não há ano anterior para diferenciar.
+:::
+
+### Efeitos fixos (transformação *within*)
+
+Em vez de subtrair o ano anterior, subtraia a **média do indivíduo** ao longo dos oito anos. O efeito fixo some do mesmo jeito, mas sem perder o primeiro ano. (A demonstração de por que essa transformação elimina $a_i$ sem exigir nenhuma hipótese sobre ele está na página de [teoria dos estimadores de painel](teoria-painel.qmd).)
+
+$$
+\ln(\text{salário}_{it}) - \overline{\ln(\text{salário}_i)} = \beta_1 (x_{it1} - \bar{x}_{i1}) + \cdots + (u_{it} - \bar{u}_i)
+$$
+
+```{webr}
+fe <- plm(lwage ~ expersq + married + union + factor(year), data = p, model = "within")
+summary(fe)$coefficients[1:3, ]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O prêmio sindical fica em **8,0%** e o de ser casado em **4,7%** — compare com a coluna "Fixed Effects" da Tabela 14.2.
+
+Com as dummies de ano incluídas, o coeficiente de `expersq` fica negativo (−0,0052), indicando retornos decrescentes à experiência. Sem elas, ele sai positivo — porque passa a absorver o crescimento geral dos salários no período. É o Exercício 4.
+
+Os dois estimadores que eliminam $a_i$ concordam na mensagem: o efeito do sindicato é pequeno, bem menor do que o MQO agrupado sugeria. Diferem na magnitude (4,2% contra 8,0%) por usarem a informação de modo diferente, e a escolha entre eles é assunto da teoria — com $T = 2$ são idênticos; com $T > 2$, o de efeitos fixos é mais eficiente se $u_{it}$ não for autocorrelacionado.
+:::
+
+```{webr}
+summary(fe)$r.squared
+head(fixef(fe))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O R² reportado é o **R² within**: quanto da variação *dentro* de cada indivíduo o modelo explica. Não é comparável ao R² do MQO agrupado.
+
+A função `fixef()` devolve os $a_i$ estimados — um para cada um dos 545 trabalhadores. São os interceptos individuais. Eles não costumam ser o objeto de interesse, mas estão lá: o efeito fixo não é descartado, é **estimado e removido**.
+:::
+
+::: {.callout-important}
+## O preço dos efeitos fixos
+
+O estimador de efeitos fixos **não pode estimar o efeito de nada que seja constante no tempo**. Educação, raça, sexo, região de nascimento — tudo isso é absorvido por $a_i$ e desaparece.
+
+Isso não é defeito; é a lógica do método. Se você precisa estimar o retorno da educação com esta base, efeitos fixos não é a ferramenta. Essa limitação é o principal argumento prático a favor do estimador seguinte.
+:::
+
+## Modelando o efeito individual: efeitos aleatórios
+
+Suponha agora que $a_i$ **não** se correlaciona com nenhum regressor — é só mais um componente aleatório do erro. Nesse caso, eliminá-lo é jogar informação fora. O estimador de efeitos aleatórios o mantém e trata o erro composto $a_i + u_{it}$ por mínimos quadrados generalizados.
+
+```{webr}
+re <- plm(lwage ~ educ + black + hisp + exper + expersq + married + union + factor(year),
+          data = p, model = "random")
+summary(re)$coefficients[1:8, ]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Agora `educ`, `black` e `hisp` **voltaram**: efeitos aleatórios estima variáveis constantes no tempo, porque não as elimina.
+
+O prêmio sindical fica em **10,6%** — entre os 18% do agrupado e os 8% dos efeitos fixos. O de casado, em **6,4%**. Compare com a coluna "Random Effects" da Tabela 14.2.
+
+Essa posição intermediária não é coincidência. O estimador de efeitos aleatórios é uma transformação *quase-within*: em vez de subtrair a média individual inteira, subtrai uma fração $\theta$ dela.
+:::
+
+```{webr}
+summary(re)$ercomp
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A saída decompõe a variância do erro em duas partes: a do efeito individual ($\sigma_a^2 \approx 0{,}105$) e a idiossincrática ($\sigma_u^2 \approx 0{,}123$). O parâmetro **theta ≈ 0,643** é a fração da média individual que o estimador subtrai.
+
+A interpretação organiza os três estimadores numa régua:
+
+- $\theta = 0$: não subtrai nada → **MQO agrupado**
+- $\theta = 1$: subtrai a média inteira → **efeitos fixos**
+- $\theta = 0{,}643$: subtrai 64% → **efeitos aleatórios**
+
+Quanto maior $\sigma_a^2$ em relação a $\sigma_u^2$, e quanto maior $T$, mais $\theta$ se aproxima de 1 e mais efeitos aleatórios se parece com efeitos fixos.
+:::
+
+## Qual escolher? O teste de Hausman
+
+Os dois estimadores respondem a hipóteses diferentes sobre $a_i$. Sob a hipótese de que $a_i$ **não se correlaciona** com os regressores, ambos são consistentes, mas efeitos aleatórios é mais eficiente. Se $a_i$ **se correlaciona**, só efeitos fixos é consistente.
+
+O teste de Hausman compara os dois: se as estimativas forem parecidas, a correlação provavelmente não existe e vale usar o mais eficiente. Se forem muito diferentes, algo está errado com efeitos aleatórios.
+
+```{webr}
+phtest(fe, re)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A hipótese nula é a de que **efeitos aleatórios é consistente** (ou seja, $a_i$ não se correlaciona com os regressores). O valor-p fica bem abaixo de 0,05: **rejeitamos**.
+
+A conclusão para esta base: há heterogeneidade não observada correlacionada com os regressores, efeitos aleatórios está viesado, e o estimador adequado é o de **efeitos fixos** — mesmo com o custo de não estimar o retorno da educação.
+
+O teste compara apenas os coeficientes que ambos os modelos estimam. Por isso `educ`, `black` e `hisp` não entram: efeitos fixos não os tem.
+:::
+
+::: {.callout-note}
+## Uma leitura mais cuidadosa do Hausman
+
+Rejeitar a nula é informativo: diz que os dois estimadores discordam mais do que o acaso explicaria. **Não rejeitar** é menos conclusivo — pode significar que $a_i$ é mesmo não correlacionado, ou apenas que o teste não tem poder para detectar a diferença nesta amostra.
+
+Na prática aplicada, a escolha costuma ser guiada pela teoria antes do teste: se há razão para acreditar que características fixas não observadas se relacionam com os regressores — e em economia quase sempre há —, efeitos fixos é o ponto de partida, e o Hausman serve de confirmação.
+:::
+
+## Erros-padrão agrupados
+
+Há um problema que nenhum dos estimadores acima resolve sozinho. As oito observações do mesmo trabalhador não são independentes: se ele teve um ano bom, provavelmente o seguinte também foi. O erro $u_{it}$ é **autocorrelacionado dentro do indivíduo**, e isso subestima os erros-padrão convencionais.
+
+A correção é agrupar (*cluster*) os erros por indivíduo, o que permite qualquer correlação dentro do grupo e assume independência entre grupos.
+
+```{webr}
+library(lmtest)
+coeftest(fe, vcov = vcovHC(fe, type = "HC1", cluster = "group"))[1:3, ]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Os coeficientes não mudam — a correção é só na inferência. O erro-padrão de `union` sobe de 0,0193 para cerca de **0,0227**, e o de `married` de 0,0183 para **0,0210**. Aumentos de 15% a 20%.
+
+No MQO agrupado o estrago é maior: o erro-padrão de `union` sobe **60%** quando agrupado, porque ali a correlação dentro do indivíduo não foi tratada de nenhuma forma.
+
+Em painel, reportar erros agrupados pela unidade é o padrão da literatura aplicada. Com 545 grupos, a correção assintótica funciona bem; com menos de 50 grupos, ela se torna frágil e há correções adicionais.
+:::
+
+## Exercícios
+
+### Exercício 1 — quem identifica o efeito
+
+Estime o efeito do sindicato por efeitos fixos usando **apenas** os 246 trabalhadores que mudam de status sindical. Compare com a estimativa na amostra completa.
+
+```{webr}
+#| exercise: lab10_ex1
+mudam <- wagepan |>
+  group_by(nr) |>
+  summarise(prop = mean(union)) |>
+  filter(prop > 0 & prop < 1) |>
+  pull(nr)
+
+p_mudam <- pdata.frame(filter(wagepan, nr %in% ______), index = c("nr", "year"))
+fe_mudam <- plm(lwage ~ expersq + married + union + factor(year), data = ______, model = "within")
+c(amostra_completa = coef(fe)["union"], so_quem_muda = coef(fe_mudam)["union"])
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As lacunas são `mudam` e `p_mudam`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+mudam <- wagepan |>
+  group_by(nr) |>
+  summarise(prop = mean(union)) |>
+  filter(prop > 0 & prop < 1) |>
+  pull(nr)
+
+p_mudam <- pdata.frame(filter(wagepan, nr %in% mudam), index = c("nr", "year"))
+fe_mudam <- plm(lwage ~ expersq + married + union + factor(year), data = p_mudam, model = "within")
+c(amostra_completa = coef(fe)["union"], so_quem_muda = coef(fe_mudam)["union"])
+```
+
+Os dois coeficientes são praticamente iguais. Não é coincidência: os 299 trabalhadores que nunca mudam de status têm `union - media(union) = 0` em todos os anos, e por isso **não contribuem nada** para a estimativa within do efeito do sindicato. Eles ajudam a estimar os outros coeficientes, mas o do sindicato vem inteiramente de quem mudou.
+:::
+
+### Exercício 2 — efeitos fixos à mão
+
+O estimador de efeitos fixos é um MQO comum aplicado aos dados **centrados** na média individual. Reproduza-o sem o `plm`.
+
+```{webr}
+#| exercise: lab10_ex2
+centrado <- wagepan |>
+  group_by(nr) |>
+  mutate(lwage_c   = lwage - mean(lwage),
+         married_c = married - mean(______),
+         union_c   = union - mean(______)) |>
+  ungroup()
+
+manual <- lm(lwage_c ~ married_c + union_c - 1, data = centrado)
+fe_simples <- plm(lwage ~ married + union, data = p, model = "within")
+rbind(manual = coef(manual), plm = coef(fe_simples))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As lacunas são `married` e `union`. O `- 1` tira o intercepto, que é zero por construção em dados centrados.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+centrado <- wagepan |>
+  group_by(nr) |>
+  mutate(lwage_c   = lwage - mean(lwage),
+         married_c = married - mean(married),
+         union_c   = union - mean(union)) |>
+  ungroup()
+
+manual <- lm(lwage_c ~ married_c + union_c - 1, data = centrado)
+fe_simples <- plm(lwage ~ married + union, data = p, model = "within")
+rbind(manual = coef(manual), plm = coef(fe_simples))
+```
+
+Os coeficientes coincidem até a última casa. O `plm` não faz mágica: centra os dados e roda MQO. A única diferença está nos **erros-padrão** — o `lm()` manual não sabe que 545 parâmetros (os $a_i$) foram estimados implicitamente e usa graus de liberdade errados. Por isso, para inferência, use o `plm`.
+:::
+
+### Exercício 3 — a variável dummy por indivíduo
+
+Há um terceiro jeito de obter efeitos fixos: incluir uma dummy para cada trabalhador. Faça isso com uma subamostra pequena e confirme que dá o mesmo resultado.
+
+```{webr}
+#| exercise: lab10_ex3
+sub <- filter(wagepan, nr %in% unique(wagepan$nr)[1:40])
+p_sub <- pdata.frame(sub, index = c("nr", "year"))
+
+lsdv   <- lm(lwage ~ married + union + factor(______), data = sub)
+within <- plm(lwage ~ married + union, data = p_sub, model = "within")
+rbind(LSDV = coef(lsdv)[c("married", "union")], within = coef(within))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `nr` — uma dummy por trabalhador. Com 545 indivíduos seriam 545 dummies; por isso o exercício usa só 40.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+sub <- filter(wagepan, nr %in% unique(wagepan$nr)[1:40])
+p_sub <- pdata.frame(sub, index = c("nr", "year"))
+
+lsdv   <- lm(lwage ~ married + union + factor(nr), data = sub)
+within <- plm(lwage ~ married + union, data = p_sub, model = "within")
+rbind(LSDV = coef(lsdv)[c("married", "union")], within = coef(within))
+```
+
+Idênticos. O estimador com dummies (LSDV, *least squares dummy variable*) e a transformação within são **o mesmo estimador** — é o teorema de Frisch-Waugh-Lovell em ação. A diferença é computacional: com milhares de indivíduos, centrar é viável e estimar milhares de dummies não é.
+:::
+
+### Exercício 4 — o papel das dummies de ano
+
+Estime efeitos fixos **sem** as dummies de ano e compare o coeficiente de `expersq` com o modelo que as inclui.
+
+```{webr}
+#| exercise: lab10_ex4
+fe_sem_ano <- plm(lwage ~ expersq + married + union, data = p, model = "______")
+rbind(sem_ano = coef(fe_sem_ano)["expersq"], com_ano = coef(fe)["expersq"])
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A lacuna é `"within"`. O sinal de `expersq` muda — pense no que mais cresce a cada ano além da experiência.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+fe_sem_ano <- plm(lwage ~ expersq + married + union, data = p, model = "within")
+rbind(sem_ano = coef(fe_sem_ano)["expersq"], com_ano = coef(fe)["expersq"])
+```
+
+Sem as dummies, `expersq` é **positivo** (0,0037); com elas, **negativo** (−0,0052). A diferença é a tendência: os salários reais cresceram no período para todo mundo, e sem as dummies de ano o único regressor que cresce monotonicamente com o tempo — a experiência ao quadrado — absorve esse crescimento.
+
+As dummies de ano são o **efeito fixo de tempo**: capturam tudo o que afeta todos os indivíduos igualmente num dado ano (inflação, ciclo econômico, mudança de legislação). O modelo com efeitos de indivíduo *e* de tempo é chamado de *two-way fixed effects*, e é o padrão em aplicações.
+:::
+
+## Glossário — funções novas deste laboratório
+
+| Função | O que faz |
+|---|---|
+| `pdata.frame()` (plm) | Declara a estrutura do painel: quem é a unidade e quem é o tempo. |
+| `pdim()` (plm) | Dimensões do painel e se é balanceado. |
+| `plm(..., model = )` (plm) | Estima o modelo: `"pooling"`, `"fd"`, `"within"` ou `"random"`. |
+| `fixef()` (plm) | Extrai os efeitos fixos individuais estimados. |
+| `phtest()` (plm) | Teste de Hausman: H0 = efeitos aleatórios é consistente. |
+| `vcovHC(..., cluster = "group")` (plm) | Matriz de covariância agrupada por indivíduo. |
+| `summary(re)$ercomp` | Decomposição da variância e o parâmetro theta do RE. |
+
+## Exercícios avaliativos
+
+::: {.callout-important}
+## Vale nota
+
+As respostas destes exercícios são cobradas no **questionário da disciplina, no SIGAA**. Cada enunciado abaixo corresponde a uma questão do questionário, na mesma ordem. Aqui você tem o espaço para rodar seu código e uma dica — **sem a solução**. Anote os valores obtidos antes de responder no SIGAA.
+:::
+
+### Questão 1
+
+Estime o modelo `lwage ~ married + union` por MQO agrupado e por efeitos fixos (sem dummies de ano). Qual o coeficiente de `union` em cada um, e qual a razão entre eles?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Use `model = "pooling"` e `model = "within"` com a mesma fórmula. A razão pooled/FE diz quantas vezes o MQO agrupado exagera o efeito.
+:::
+
+### Questão 2
+
+No modelo de efeitos aleatórios com todas as variáveis e as dummies de ano, qual o valor de **theta**? E o que aconteceria com ele se o painel tivesse 20 anos em vez de 8, mantidas as variâncias?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+`summary(re)$ercomp` mostra theta. A fórmula é $\theta = 1 - \sqrt{\sigma_u^2 / (T\sigma_a^2 + \sigma_u^2)}$ — recalcule com $T = 20$.
+:::
+
+### Questão 3
+
+Estime o efeito de `married` por primeiras diferenças e por efeitos fixos, ambos **com** dummies de ano. Qual a diferença entre os dois coeficientes?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Com `model = "fd"`, inclua `factor(year)` na fórmula também. Quantas observações cada modelo usa?
+:::
+
+### Questão 4
+
+No modelo de efeitos fixos com dummies de ano, qual o erro-padrão de `union` com a correção agrupada por indivíduo usando `type = "HC0"`? Ele é significativo a 1%?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Troque `"HC1"` por `"HC0"` no `vcovHC()` e leia a coluna de erro-padrão e o valor-p na saída do `coeftest()`.
+:::
+
+### Questão 5
+
+Rode o teste de Hausman comparando efeitos fixos e aleatórios no modelo `lwage ~ expersq + married + union` (sem dummies de ano). Qual a estatística do teste e quantos graus de liberdade ela tem?
+
+```{webr}
+# escreva seu código aqui
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Estime os dois modelos com exatamente a mesma fórmula antes de chamar `phtest()`. Os graus de liberdade são o número de coeficientes comparados.
+:::

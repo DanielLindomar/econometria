@@ -1,0 +1,355 @@
+---
+title: "Projeto 11 — Crédito rural e produtividade da soja: um painel de municípios"
+subtitle: "Econometria II · Projeto avaliado — diagnóstico e correção de um modelo de regressão"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - car
+    - lmtest
+    - sandwich
+    - plm
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-important}
+## Como funciona este projeto
+
+Esta página **não interpreta os resultados para você**. Ela entrega o caso, os dados e o código; a leitura dos resultados é o seu trabalho, e é ela que será avaliada.
+
+Você apresentará este mesmo caso **três vezes** ao longo do semestre, sempre acrescentando a camada que acabamos de estudar em aula:
+
+| Apresentação | Depois da unidade sobre | O que você leva |
+|---|---|---|
+| **1ª** | Multicolinearidade | Os dados, a estrutura do painel, a primeira estimação e o diagnóstico de multicolinearidade |
+| **2ª** | Heterocedasticidade e autocorrelação | Os testes, o que os resíduos revelam sobre a estrutura dos dados e a correção da inferência |
+| **3ª** | Especificação e dados em painel | O efeito municipal omitido, os estimadores de painel, o teste de Hausman e o modelo final |
+
+Cada etapa abaixo corresponde a uma dessas entregas. Este é o único projeto da lista em que os dados têm **duas dimensões** — município e ano — e é isso que vai mudar a história na 3ª apresentação.
+:::
+
+## O caso
+
+O crédito rural de custeio é a principal política agrícola do país: a cada Plano Safra, dezenas de bilhões de reais são emprestados a juros controlados para financiar insumos. A justificativa é que o crédito permite adubar melhor, tratar melhor e colher mais. Mas há uma dificuldade conhecida em medir esse efeito: **o crédito não é distribuído ao acaso**. Produtores mais organizados, com melhor solo e melhor gestão, tomam mais crédito — e também produziriam mais sem ele.
+
+Em uma regressão simples de produtividade sobre crédito, essas duas coisas se misturam. Separar o efeito do crédito do efeito de *quem toma o crédito* é o problema deste projeto, e os dados em painel oferecem uma saída que um corte transversal não oferece.
+
+A pergunta que você vai responder:
+
+> **O crédito de custeio aumenta a produtividade da soja — ou apenas vai para quem já produz mais?**
+
+## A base
+
+Os dados vêm do **Painel Municipal do Agronegócio de Mato Grosso — PMA-MT**, com **120 municípios produtores acompanhados por 8 safras, de 2016 a 2023** (960 observações).
+
+::: {.callout-note}
+## Sobre os dados
+
+Esta base é **sintética**: foi construída para a disciplina reproduzindo a estrutura, as variáveis e as ordens de grandeza de levantamentos reais do setor. Os municípios são identificados por código e não correspondem a municípios reais; os números **não devem ser citados como evidência empírica** em trabalhos acadêmicos.
+
+O que é real é o problema econométrico. As dificuldades que você vai encontrar aqui são as mesmas de uma base verdadeira.
+:::
+
+```{webr}
+municipios <- read.csv("dados/soja_municipios_mt.csv")
+head(municipios)
+summary(municipios)
+```
+
+| Variável | O que é | Unidade |
+|---|---|---|
+| `municipio` | Código do município | MT-001 a MT-120 |
+| `regiao` | Macrorregião do estado | 6 categorias |
+| `ano` | Safra (ano da colheita) | 2016 a 2023 |
+| `produtividade` | Produtividade média da soja | sacas/ha |
+| `credito_ha` | Crédito de custeio contratado por hectare de soja | R\$/ha |
+| `chuva_mm` | Precipitação acumulada no ciclo (out–fev) | mm |
+| `veranico_dias` | Maior sequência de dias sem chuva no ciclo | dias |
+| `area_soja` | Área plantada com soja | mil ha |
+| `argila_pct` | Teor médio de argila do solo agrícola | % |
+
+---
+
+# Etapa 1 — Conhecer os dados e especificar
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+library(plm)
+p <- pdata.frame(municipios, index = c("municipio", "ano"))
+pdim(p)
+```
+
+```{webr}
+# quanto cada variável varia ENTRE municípios e quanto varia DENTRO de cada município ao longo do tempo
+decompoe <- function(x, id) c(geral = sd(x), entre = sd(tapply(x, id, mean)), dentro = sd(x - ave(x, id)))
+round(sapply(municipios[, c("produtividade", "credito_ha", "chuva_mm", "veranico_dias", "argila_pct")],
+             decompoe, id = municipios$municipio), 2)
+```
+
+```{webr}
+library(ggplot2)
+ggplot(municipios, aes(credito_ha, produtividade)) +
+  geom_point(alpha = 0.4, colour = "#1E2761") +
+  labs(x = "Crédito de custeio (R$/ha)", y = "Produtividade (sc/ha)") + theme_minimal()
+```
+
+```{webr}
+# a trajetória de 8 municípios sorteados: cada linha é um município, cada ponto é uma safra
+set.seed(11)
+escolhidos <- sample(unique(municipios$municipio), 8)
+ggplot(subset(municipios, municipio %in% escolhidos),
+       aes(credito_ha, produtividade, colour = municipio)) +
+  geom_path(arrow = grid::arrow(length = grid::unit(0.15, "cm"))) +
+  geom_point() +
+  labs(x = "Crédito de custeio (R$/ha)", y = "Produtividade (sc/ha)", colour = NULL) + theme_minimal()
+```
+
+```{webr}
+# média estadual por safra
+medias <- aggregate(cbind(produtividade, credito_ha, chuva_mm) ~ ano, data = municipios, FUN = mean)
+round(medias, 1)
+ggplot(medias, aes(ano, produtividade)) +
+  geom_line(colour = "#1E2761") + geom_point(colour = "#1E2761", size = 2) +
+  labs(x = NULL, y = "Produtividade média (sc/ha)") + theme_minimal()
+```
+
+```{webr}
+round(cor(municipios[, c("produtividade", "credito_ha", "chuva_mm", "veranico_dias", "argila_pct")]), 3)
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Descreva o painel: quantos municípios, quantas safras, se é balanceado. Produtividade média, faixa de crédito por hectare.
+2. Olhe a decomposição da variação. Quais variáveis variam principalmente **entre** municípios? Quais variam principalmente **dentro** de cada município, de uma safra para outra? Há alguma que não varia no tempo? O que isso vai implicar mais adiante?
+3. No gráfico das trajetórias, compare a **inclinação dentro de cada município** com a inclinação que a nuvem inteira sugere. Elas parecem iguais?
+4. A produtividade média do estado oscila de safra para safra. O que pode causar um movimento comum a todos os municípios no mesmo ano?
+5. Escreva a equação que você vai estimar e justifique cada variável. Qual sinal você espera para cada uma?
+:::
+
+---
+
+# Etapa 2 — Estimar e diagnosticar multicolinearidade
+
+::: {.callout-tip}
+## Para a 1ª apresentação
+:::
+
+```{webr}
+modelo1 <- lm(produtividade ~ credito_ha + chuva_mm + veranico_dias + argila_pct, data = municipios)
+summary(modelo1)
+```
+
+```{webr}
+library(car)
+vif(modelo1)
+cor(municipios$chuva_mm, municipios$veranico_dias)
+```
+
+```{webr}
+# as duas variáveis de clima, cada uma sem a outra
+summary(lm(produtividade ~ credito_ha + chuva_mm + argila_pct, data = municipios))$coefficients
+summary(lm(produtividade ~ credito_ha + veranico_dias + argila_pct, data = municipios))$coefficients
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Apresente a tabela de resultados e interprete cada coeficiente, na unidade de cada variável. Quantas sacas por hectare estão associadas a R\$ 1.000 a mais de crédito por hectare?
+2. Reporte os VIF. Há multicolinearidade? Entre quais variáveis, e por quê — qual é a relação física entre chuva acumulada e veranico?
+3. Quando você retira uma das duas variáveis de clima, o coeficiente da outra muda muito. Isso é um problema de multicolinearidade ou de variável omitida? São a mesma coisa?
+4. Com VIF nessa faixa, você removeria alguma variável? Justifique com base no que o VIF mede — e no que ele não mede.
+5. O R² é alto. Isso significa que o modelo está bem especificado? Qual sua decisão sobre a especificação até aqui?
+:::
+
+---
+
+# Etapa 3 — Heterocedasticidade e autocorrelação
+
+::: {.callout-tip}
+## Para a 2ª apresentação
+:::
+
+```{webr}
+municipios$residuo  <- resid(modelo1)
+municipios$ajustado <- fitted(modelo1)
+ggplot(municipios, aes(ajustado, residuo)) +
+  geom_point(alpha = 0.4, colour = "#C0392B") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Valor ajustado", y = "Resíduo") + theme_minimal()
+```
+
+```{webr}
+library(lmtest)
+bptest(modelo1)                                        # contra os regressores do modelo
+bptest(modelo1, ~ log(area_soja), data = municipios)   # contra o tamanho do município
+```
+
+```{webr}
+# desvio-padrão dos resíduos por porte do município
+municipios$porte <- cut(municipios$area_soja, c(0, 30, 60, 120, Inf),
+                        labels = c("até 30 mil ha", "30 a 60", "60 a 120", "mais de 120"))
+round(tapply(municipios$residuo, municipios$porte, sd), 3)
+```
+
+```{webr}
+# os resíduos de 6 municípios ao longo das safras
+set.seed(11)
+escolhidos <- sample(unique(municipios$municipio), 8)
+ggplot(subset(municipios, municipio %in% escolhidos[1:6]), aes(ano, residuo, colour = municipio)) +
+  geom_line() + geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = NULL, y = "Resíduo do modelo 1", colour = NULL) + theme_minimal()
+```
+
+```{webr}
+# o resíduo de uma safra explica o resíduo da safra seguinte, no mesmo município?
+library(dplyr)
+res <- municipios |>
+  arrange(municipio, ano) |>
+  group_by(municipio) |>
+  mutate(residuo_anterior = lag(residuo)) |>
+  ungroup()
+summary(lm(residuo ~ residuo_anterior, data = res))$coefficients
+```
+
+```{webr}
+# quanto do resíduo é "permanente" (média do município) e quanto é oscilação de safra
+res <- res |> group_by(municipio) |> mutate(residuo_medio = mean(residuo)) |> ungroup()
+c(sd_da_parte_permanente = sd(tapply(res$residuo, res$municipio, mean)),
+  sd_da_oscilacao         = sd(res$residuo - res$residuo_medio))
+```
+
+```{webr}
+library(sandwich)
+coeftest(modelo1)                                                        # erros-padrão clássicos
+coeftest(modelo1, vcov = vcovHC(modelo1, type = "HC1"))                 # robustos a heterocedasticidade
+coeftest(modelo1, vcov = vcovCL(modelo1, cluster = municipios$municipio)) # agrupados por município
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. O Breusch-Pagan contra os regressores do modelo e o Breusch-Pagan contra o tamanho do município dão respostas diferentes. Por que o tamanho do município afetaria a variância do erro quando a observação é uma **média municipal**?
+2. Reporte os desvios-padrão dos resíduos por porte. O padrão confirma o teste?
+3. No gráfico dos resíduos por município, há municípios que ficam **sistematicamente acima ou abaixo de zero** em todas as safras? Isso é autocorrelação no sentido das séries temporais, ou é outra coisa? O que a decomposição em parte permanente e oscilação sugere?
+4. O coeficiente do resíduo defasado é positivo e significativo. Liste as duas explicações possíveis — persistência genuína dos choques e um fator fixo do município omitido do modelo — e diga como você distinguiria uma da outra.
+5. Compare os três conjuntos de erros-padrão. Qual coeficiente muda mais quando se agrupa por município, e por quê? A conclusão sobre o crédito se altera?
+:::
+
+---
+
+# Etapa 4 — Especificação e dados em painel
+
+::: {.callout-tip}
+## Para a 3ª apresentação
+:::
+
+```{webr}
+library(plm)
+p <- pdata.frame(municipios, index = c("municipio", "ano"))
+pooled <- plm(produtividade ~ credito_ha + chuva_mm + veranico_dias + argila_pct, data = p, model = "pooling")
+fd     <- plm(produtividade ~ credito_ha + chuva_mm + veranico_dias, data = p, model = "fd")
+fe     <- plm(produtividade ~ credito_ha + chuva_mm + veranico_dias, data = p, model = "within")
+re     <- plm(produtividade ~ credito_ha + chuva_mm + veranico_dias + argila_pct, data = p, model = "random")
+summary(fe)
+```
+
+```{webr}
+# o que a transformação within faz com uma variável que não muda no tempo
+summary(as.numeric(Within(p$argila_pct)))
+```
+
+```{webr}
+# há efeitos individuais? (H0: todos os efeitos municipais são iguais)
+pooled_sem_argila <- plm(produtividade ~ credito_ha + chuva_mm + veranico_dias, data = p, model = "pooling")
+pFtest(fe, pooled_sem_argila)
+```
+
+```{webr}
+summary(re)$coefficients
+summary(re)$ercomp
+```
+
+```{webr}
+phtest(fe, re)
+```
+
+```{webr}
+# efeitos de ano: os choques comuns a todos os municípios na mesma safra
+fe_ano <- plm(produtividade ~ credito_ha + chuva_mm + veranico_dias + factor(ano), data = p, model = "within")
+re_ano <- plm(produtividade ~ credito_ha + chuva_mm + veranico_dias + argila_pct + factor(ano), data = p, model = "random")
+summary(fe_ano)$coefficients
+pFtest(fe_ano, fe)      # H0: os efeitos de ano são conjuntamente nulos
+phtest(fe_ano, re_ano)
+```
+
+```{webr}
+# erros-padrão agrupados por município no modelo de efeitos fixos
+coeftest(fe_ano, vcov = vcovHC(fe_ano, type = "HC1", cluster = "group"))[1:3, ]
+```
+
+```{webr}
+# os efeitos fixos estimados: quem são os municípios "bons" e quanto crédito eles tomam
+efeitos <- fixef(fe_ano)
+credito_medio <- tapply(municipios$credito_ha, municipios$municipio, mean)
+cor(as.numeric(efeitos), credito_medio[names(efeitos)])
+ggplot(data.frame(efeito = as.numeric(efeitos), credito = credito_medio[names(efeitos)]),
+       aes(credito, efeito)) +
+  geom_point(colour = "#1E2761") +
+  labs(x = "Crédito médio do município (R$/ha)", y = "Efeito fixo estimado (sc/ha)") + theme_minimal()
+```
+
+```{webr}
+tabela <- data.frame(
+  modelo  = c("MQO agrupado", "Primeiras diferenças", "Efeitos fixos", "Efeitos fixos + ano",
+              "Efeitos aleatórios", "Efeitos aleatórios + ano"),
+  credito = c(coef(pooled)["credito_ha"], coef(fd)["credito_ha"], coef(fe)["credito_ha"],
+              coef(fe_ano)["credito_ha"], coef(re)["credito_ha"], coef(re_ano)["credito_ha"]))
+tabela$sacas_por_R1000 <- round(1000 * tabela$credito, 2)
+tabela
+```
+
+::: {.callout-note}
+## O que você precisa responder
+
+1. Por que `argila_pct` não aparece no modelo de efeitos fixos? Olhe o que a transformação within fez com ela. Isso é um defeito do estimador ou uma consequência lógica do que ele faz?
+2. O teste F de efeitos individuais rejeita a hipótese nula? O que isso diz sobre o MQO agrupado da Etapa 2?
+3. Reporte θ e as variâncias dos componentes do erro. Em que ponto entre o MQO agrupado (θ = 0) e os efeitos fixos (θ = 1) o estimador de efeitos aleatórios está?
+4. O teste de Hausman rejeita a hipótese nula? Qual estimador você escolhe e por quê? Relacione a decisão com o gráfico dos efeitos fixos contra o crédito médio: o que a correlação entre os dois significa para a hipótese do modelo de efeitos aleatórios?
+5. O coeficiente do crédito no modelo de efeitos fixos **cai** quando se incluem os efeitos de ano. O que estava acontecendo sem eles? (Dica: tanto o crédito quanto a produtividade crescem ao longo do período.)
+6. Monte a tabela final comparando os seis estimadores, em sacas por R\$ 1.000/ha. Escreva o parágrafo de resultados respondendo à pergunta do caso — o crédito aumenta a produtividade, ou vai para quem já produz mais? Quanto do coeficiente do MQO agrupado era "quem toma" e quanto era "o que o crédito faz"? Feche com as limitações, inclusive o que **nenhum** desses estimadores resolve.
+:::
+
+---
+
+## O que entregar
+
+Em cada apresentação, de 10 a 15 minutos:
+
+- **Slides**, não código. O R é a ferramenta, não o produto.
+- **Tabelas formatadas** com coeficiente, erro-padrão e significância — nunca o `summary()` colado.
+- **Gráficos** legendados, com eixos nomeados e unidades.
+- **Interpretação econômica** de cada resultado. Um coeficiente sem leitura econômica não conta como resultado apresentado.
+- Ao final da 3ª apresentação, um **documento de 4 a 6 páginas** reunindo tudo, no formato de um artigo curto: problema, dados, método, resultados, diagnóstico, conclusão.
+
+::: {.callout-important}
+## Como este projeto é avaliado
+
+Não se avalia se você rodou os comandos — eles estão prontos nesta página. Avalia-se:
+
+- se você **leu** corretamente cada saída;
+- se **justificou** cada decisão de modelagem com argumento econômico, e não com regra de bolso;
+- se **reconheceu os limites** do que os dados permitem concluir;
+- e se a conclusão final é **honesta** em relação aos problemas que sobraram sem solução.
+
+Um trabalho que termina admitindo um problema não resolvido vale mais do que um que o esconde.
+:::

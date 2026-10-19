@@ -26,6 +26,7 @@ website:
           - econ2-lab07.qmd
           - econ2-lab08.qmd
           - econ2-lab09.qmd
+          - econ2-lab10.qmd
       - text: "Aplicações"
         menu:
           - aplic-econ1-u1.qmd
@@ -37,12 +38,14 @@ website:
           - aplic-econ2-u1.qmd
           - aplic-econ2-u2.qmd
           - aplic-econ2-u3.qmd
+          - aplic-econ2-u4.qmd
       - text: "Teoria"
         menu:
           - teoria-modelo.qmd
           - teoria-nao-viesado.qmd
           - teoria-consistencia.qmd
           - teoria-eficiencia.qmd
+          - teoria-painel.qmd
       - text: "Projetos"
         menu:
           - proj-econ2-terras.qmd
@@ -55,6 +58,7 @@ website:
           - proj-econ2-exportacoes.qmd
           - proj-econ2-credito.qmd
           - proj-econ2-icms.qmd
+          - proj-econ2-painel.qmd
       - text: "Curso de R"
         menu:
           - r-aula01.qmd

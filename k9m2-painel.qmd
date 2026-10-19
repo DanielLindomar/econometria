@@ -1,0 +1,117 @@
+---
+title: "Projeto 11 — Crédito rural e produtividade da soja: um painel de municípios"
+subtitle: "Gabarito do professor — não divulgar aos alunos"
+format:
+  live-html:
+    toc: true
+    toc-title: "Nesta página"
+    number-sections: false
+    include-in-header:
+      text: '<meta name="robots" content="noindex, nofollow">'
+engine: knitr
+---
+
+::: {.callout-important}
+## Uso restrito
+
+Esta página é o gabarito de **Projeto 11** e existe para projeção em aula, depois que o aluno apresentar. Ela não está no menu do site e não é indexada por buscadores, mas **qualquer pessoa com o endereço a acessa** — não distribua o link.
+:::
+
+## Ficha do caso
+
+| | |
+|---|---|
+| Página do aluno | [`proj-econ2-painel.html`](proj-econ2-painel.html) |
+| Base | `dados/soja_municipios_mt.csv` — 120 municípios × 8 safras = 960 observações, painel balanceado |
+| Foco | heterogeneidade não observada correlacionada com o regressor; efeitos de tempo; erros agrupados |
+
+## Processo gerador dos dados
+
+::: {.callout-note}
+## A equação verdadeira
+
+produtividade = 30 + **0,006**·credito_ha + 0,012·chuva_mm − 0,25·veranico_dias + 0,15·argila_pct + α_i + λ_t + u_it
+
+- α_i ~ N(0; 4²) é o efeito do município (solo, gestão, assistência técnica — tudo o que é fixo e não observado)
+- **crédito correlacionado com α_i**: credito_base_i = 1.500 + 90·α_i + N(0; 250²), corr(α, crédito) ≈ 0,85 — bons gestores tomam mais crédito
+- crédito cresce 6% ao ano (nominal); produtividade tem choques comuns λ_t: 2016 −3,0 · 2017 +1,5 · 2018 0 · 2019 +1,0 · 2020 +2,0 · 2021 −2,5 · 2022 +3,0 · 2023 +4,0
+- u_it = 0,45·u_{i,t−1} + v_it, com **σ_v decrescente na área**: σ_v = 1,3 + 2,5·exp(−area/60) — médias de municípios pequenos oscilam mais
+- argila_pct é **fixa no tempo** (dentro de município, variação zero)
+- veranico_dias ≈ 22 − 0,045·(chuva − 1.120) + ruído → corr(chuva, veranico) = −0,81
+
+**Valor verdadeiro do efeito do crédito: 6,0 sacas/ha por R\$ 1.000/ha.**
+:::
+
+## Modelo 1 — o que o aluno estima primeiro (MQO agrupado)
+
+`produtividade ~ credito_ha + chuva_mm + veranico_dias + argila_pct`
+
+| Variável | Coef. | Erro-padrão | t | se HC1 | se agrupado | t agrupado |
+|---|---|---|---|---|---|---|
+| `const` | **19.176** | 2.256 | 8.50 | 2.168 | 2.518 | 7.61 |
+| `credito_ha` | **0.01171** | 0.00020 | 58.34 | 0.00020 | 0.00034 | 34.81 |
+| `chuva_mm` | **0.01403** | 0.00144 | 9.72 | 0.00139 | 0.00151 | 9.27 |
+| `veranico_dias` | **−0.2869** | 0.0274 | −10.47 | 0.0261 | 0.0292 | −9.81 |
+| `argila_pct` | **0.1331** | 0.0145 | 9.16 | 0.0151 | 0.0305 | 4.37 |
+
+- **R²** 0.8365 · **R² ajustado** 0.8359 · **σ** 3.811
+- **VIF** `credito_ha` 1.01, `chuva_mm` 2.97, `veranico_dias` 2.97, `argila_pct` 1.00 · corr(chuva, veranico) = −0.814
+- Sem veranico, chuva sobe para 0.0263; sem chuva, veranico vai a −0.5035 (variável omitida, não multicolinearidade)
+- **Breusch-Pagan contra os regressores** LM = 5.77, p = 0.217 (não rejeita) · **contra log(area_soja)** LM = 15.19, p = 9.7e-05 (rejeita)
+- sd dos resíduos por porte: até 30 mil ha 4.28 · 30–60 4.09 · 60–120 3.72 · mais de 120 3.42
+- Resíduo sobre resíduo defasado (mesmo município): **0.372**, t = 11.96
+- Decomposição do resíduo: parte permanente (média do município) sd 2.52 · oscilação de safra sd 2.85
+- Erro-padrão do crédito: clássico 0.00020 → HC1 0.00020 (não muda) → agrupado 0.00034 (+70%). O da argila dobra (0.0145 → 0.0305).
+
+**O crédito aparece com 11,7 sacas/ha por R\$ 1.000 — quase o dobro do verdadeiro.** Incluir dummies de ano no MQO agrupado não corrige nada: 0.01171 de novo. O viés é transversal.
+
+## Decomposição da variação
+
+| Variável | sd geral | sd entre municípios | sd dentro do município |
+|---|---|---|---|
+| `produtividade` | 9.41 | 7.25 | 6.02 |
+| `credito_ha` | 614.8 | 538.3 | 300.5 |
+| `chuva_mm` | 147.0 | 49.9 | 138.3 |
+| `veranico_dias` | 7.74 | 2.68 | 7.26 |
+| `argila_pct` | 8.48 | 8.51 | **0.00** |
+
+Crédito varia sobretudo entre municípios (o que o FE descarta); clima varia sobretudo dentro. Argila não varia no tempo: some no within.
+
+## Modelos de painel — coeficiente do crédito
+
+| Modelo | n | `credito_ha` | (ep) | sc/ha por R\$ 1.000 | `chuva_mm` | `veranico_dias` | `argila_pct` |
+|---|---|---|---|---|---|---|---|
+| MQO agrupado | 960 | 0.01171 | 0.00020 | 11.71 | 0.0140 | −0.287 | 0.133 |
+| MQO agrupado + ano | 960 | 0.01171 | 0.00019 | 11.71 | 0.0110 | −0.283 | 0.135 |
+| Primeiras diferenças | 840 | 0.00724 | 0.00049 | 7.24 | 0.0158 | −0.274 | — |
+| Primeiras diferenças + ano | 840 | 0.00607 | 0.00035 | 6.07 | 0.0116 | −0.257 | — |
+| Efeitos fixos | 960 | 0.00960 | 0.00033 | 9.60 | 0.0158 | −0.271 | — |
+| **Efeitos fixos + ano** | 960 | **0.00628** | 0.00039 | **6.28** | 0.0119 | −0.258 | — |
+| Efeitos fixos + ano, ep agrupado | 960 | 0.00628 | 0.00047 | 6.28 | 0.0119 | −0.258 | — |
+| Efeitos aleatórios | 960 | 0.01061 | 0.00026 | 10.61 | 0.0152 | −0.274 | 0.132 |
+| Efeitos aleatórios + ano | 960 | 0.00890 | 0.00031 | 8.90 | 0.0117 | −0.264 | 0.133 |
+
+Valores de MQO, FD e FE são exatos; os de efeitos aleatórios seguem Swamy-Arora (o padrão do `plm`) e podem diferir na 4ª casa.
+
+- **Componentes do erro (RE sem ano):** σ²_u = 8.88 · σ²_α = 5.32 · **θ = 0.585**. Com dummies de ano: σ²_u = 4.75 · σ²_α = 6.26 · θ = 0.706 — os choques de safra saem do erro idiossincrático e θ se aproxima de 1.
+- **pFtest efeitos individuais** (FE vs pooled sem argila): F(119; 837) = 7.24, p < 1e-15
+- **pFtest efeitos de ano** (FE + ano vs FE): F(7; 830) = 105.2, p < 1e-15
+- **Hausman** sem ano: H = 48.7, gl = 3, p = 1.5e-10 · com ano: H = 124.9, gl = 10, p ≈ 0 → **rejeita; RE inconsistente; usar FE**
+- **corr(efeito fixo estimado, crédito médio do município) = 0.76** — é a própria violação da hipótese do RE, visível num gráfico
+- Resíduo within defasado (FE + ano): 0.18 (sob H0 de ausência de autocorrelação seria −1/(T−1) = −0.14) → ainda há persistência genuína de u; os erros agrupados cuidam disso
+- Efeitos de ano estimados (FE, base 2016): 2017 +4.7 · 2018 +2.8 · 2019 +4.1 · 2020 +5.0 · 2021 +0.9 · 2022 +6.2 · 2023 +7.0
+
+## A resposta à pergunta do caso
+
+Dos 11,7 sc/ha por R\$ 1.000 do MQO agrupado, cerca de **5,4 são "quem toma"** (a heterogeneidade correlacionada) e **6,3 são "o que o crédito faz"** — bem perto do verdadeiro 6,0. O FE sem efeitos de ano (9,6) ainda confunde o crescimento conjunto de crédito e produtividade ao longo do período com efeito causal.
+
+O que nenhum estimador resolve: choques **variantes no tempo** correlacionados com o crédito (um município que recebe assistência técnica nova no mesmo ano em que amplia o crédito). FE elimina só o que é fixo.
+
+## Onde o aluno costuma errar
+
+1. Apresentar o FE **sem efeitos de ano** (9,6 sc/ha) como resposta final — o pFtest dos efeitos de ano rejeita com folga e o coeficiente cai um terço.
+2. Confundir a persistência dos resíduos do MQO agrupado com autocorrelação do tipo série temporal e "corrigir" com Newey-West ou Prais-Winsten, em vez de reconhecer o efeito municipal omitido.
+3. Reportar que "não há heterocedasticidade" porque o BP contra os regressores não rejeita, sem testar contra o tamanho do município — a observação é uma média, e médias de municípios pequenos são mais ruidosas.
+4. Tratar o sumiço de `argila_pct` no FE como defeito, ou tentar "resolver" voltando ao RE para poder estimá-la, depois de o Hausman ter rejeitado.
+5. Remover `veranico_dias` ou `chuva_mm` por causa do VIF ≈ 3 — e introduzir viés de variável omitida para resolver um problema que não existia.
+6. Ler o θ de 0,58 como "o RE está no meio do caminho, logo é um compromisso razoável" — o Hausman é que decide, não o θ.
