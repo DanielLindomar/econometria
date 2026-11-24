@@ -1,0 +1,63 @@
+---
+title: "Teste R (erros e funções)"
+engine: knitr
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+    - tidyr
+---
+
+Página de teste técnico. Não faz parte do curso.
+
+```{webr}
+preco <- 10
+Preco
+```
+
+```{webr}
+"a" + 1
+```
+
+```{webr}
+round(3.14159, digits = 2
+```
+
+```{webr}
+as.numeric("3,5")
+args(round)
+```
+
+```{webr}
+library(dplyr)
+d <- data.frame(g = c("a", "a", "b"), x = c(1, 2, 3), k = c("AGR", "IND", "AGR"))
+s <- data.frame(k = c("AGR", "IND"), nome = c("Agro", "Industria"))
+d |> left_join(s, by = "k") |> mutate(f = case_when(x < 2 ~ "baixo", x < 3 ~ "medio", TRUE ~ "alto"))
+d |> count(g)
+d |> group_by(g) |> summarise(n = n(), media = mean(x), .groups = "drop")
+```
+
+```{webr}
+library(tidyr)
+w <- d |> group_by(g, k) |> summarise(x = sum(x), .groups = "drop") |> pivot_wider(names_from = k, values_from = x)
+w
+w |> pivot_longer(cols = c(AGR, IND), names_to = "k", values_to = "x")
+```
+
+```{webr}
+library(ggplot2)
+ggplot(d, aes(g, x)) + geom_boxplot() + facet_wrap(~ k) + theme_minimal()
+```
+
+```{webr}
+write.csv(d, "minha_base.csv", row.names = FALSE)
+list.files()
+length(list.files("dados"))
+x <- as.Date("2024-03-15")
+format(x, "%d/%m/%Y"); format(x, "%B"); weekdays(x); months(x)
+Sys.getlocale()
+```
+
+```{webr}
+library(readxl)
+```
