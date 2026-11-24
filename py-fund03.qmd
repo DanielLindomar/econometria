@@ -1,0 +1,288 @@
+---
+title: "Aula 3 — Tabelas de dados"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- entender o que é um **DataFrame**, a tabela de dados do pandas;
+- importar um arquivo CSV — inclusive no padrão brasileiro, com ponto e vírgula;
+- inspecionar a base: tamanho, tipos, primeiras linhas e resumo;
+- acessar colunas e linhas, carregar **bibliotecas** e exportar resultados.
+:::
+
+Ninguém digita 600 rendas numa lista. Os dados chegam em arquivos, e o primeiro passo de qualquer análise é trazê-los para dentro do Python e conferir se chegaram inteiros.
+
+::: {.callout-note}
+## A base do curso
+
+Da Aula 3 à Aula 10 trabalharemos com a **Pesquisa de Emprego e Renda de Mato Grosso (PER-MT)**, uma amostra de 600 trabalhadores.
+
+A base é **simulada**: foi construída para o curso, com variáveis e ordens de grandeza plausíveis. As pessoas não existem, e os números não descrevem o mercado de trabalho real do estado. O que é real são as situações de análise que ela permite treinar.
+:::
+
+## Importando um arquivo CSV
+
+```{pyodide}
+import pandas as pd
+trab = pd.read_csv("dados/trabalhadores_mt.csv")
+print(trab.shape)
+print(trab.columns.tolist())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`pd.read_csv()` lê um arquivo **CSV** — texto simples em que as colunas são separadas por vírgula — e devolve um **DataFrame**: uma tabela com uma observação por linha e uma variável por coluna. Cada coluna do DataFrame é uma série, como as da Aula 2.
+
+`.shape` informa o tamanho: 600 linhas e 10 colunas. `.columns.tolist()` lista os nomes das colunas. Repare que `.shape` não leva parênteses: é um **atributo**, uma informação guardada no objeto, e não um método que executa alguma coisa.
+
+O texto `"dados/trabalhadores_mt.csv"` é o **caminho** do arquivo: a pasta `dados`, depois o nome. Aqui a pasta pertence ao site; no seu computador, será uma pasta do seu disco (Aula 10).
+:::
+
+| Variável | O que é |
+|---|---|
+| `id` | Número do entrevistado |
+| `regiao` | Região de Mato Grosso onde trabalha |
+| `sexo` | `F` ou `M` |
+| `idade` | Idade, em anos |
+| `escolaridade` | Anos de estudo |
+| `setor` | `AGR` agropecuária, `IND` indústria, `COM` comércio, `SER` serviços, `PUB` administração pública |
+| `vinculo` | `formal` ou `informal` |
+| `horas` | Horas trabalhadas por semana |
+| `renda` | Rendimento mensal do trabalho, em reais |
+| `data_admissao` | Data em que começou no trabalho atual |
+
+## A primeira inspeção
+
+```{pyodide}
+trab.info()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.info()` é o primeiro comando depois de qualquer importação. Ele mostra o tamanho da base e, para cada coluna, quantos valores estão preenchidos (`Non-Null Count`) e o **tipo** (`Dtype`): `int64` é número inteiro, `float64` é número com decimais, `object` é texto.
+
+É aqui que se descobre se um número veio como número. Se `renda` aparecesse como `object`, nenhuma conta funcionaria. É aqui também que aparecem os **ausentes**: `horas` tem 582 valores preenchidos em 600, e `renda`, 570. Faltam 18 respostas numa e 30 na outra.
+
+Repare que `data_admissao` veio como texto: datas pedem um tratamento próprio, que fica para a Aula 8.
+:::
+
+```{pyodide}
+trab.head()
+```
+
+```{pyodide}
+trab.tail(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.head()` mostra as cinco primeiras linhas e `.tail()`, as últimas — aqui, três. Olhar as pontas da tabela é a conferência mais simples de que a importação deu certo: os valores fazem sentido? O arquivo termina onde deveria?
+
+A coluna sem nome, à esquerda, é o **índice** do DataFrame: o número da linha, a partir de 0.
+:::
+
+```{pyodide}
+trab.describe()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.describe()` resume as colunas numéricas: quantidade de valores preenchidos (`count`), média (`mean`), desvio-padrão (`std`), mínimo, quartis (`25%`, `50%`, `75%`) e máximo. A linha `50%` é a mediana.
+
+Note a renda: a mediana é de R\$ 2.690 e a média, de R\$ 3.141. Quando a média fica bem acima da mediana, poucos valores altos a estão puxando para cima. A Aula 7 volta a isso.
+:::
+
+## Acessando colunas e linhas
+
+```{pyodide}
+print(trab["renda"].head())
+print(trab["renda"].mean())
+print(trab[["setor", "renda"]].head(3))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Colchetes com o nome da coluna extraem uma **série**: `trab["renda"]` tem as 600 rendas, e tudo o que valia para séries na Aula 2 vale aqui — `.head()`, `.mean()`, filtros. A média já desconsidera os 30 ausentes.
+
+Para ficar com **várias** colunas, passe uma lista de nomes — daí os colchetes duplos em `trab[["setor", "renda"]]`. O resultado é um DataFrame menor.
+:::
+
+```{pyodide}
+publico = trab[trab["setor"] == "PUB"]
+print(len(publico))
+print(publico["renda"].mean())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Uma condição dentro dos colchetes **filtra** as linhas: ficaram só os trabalhadores da administração pública, com todas as colunas.
+
+`len()` conta as linhas: são 75 pessoas, com renda média de R\$ 4.310 — acima dos R\$ 3.141 da amostra inteira. A Aula 4 aprofunda os filtros.
+:::
+
+### Exercício 1 — o setor agropecuário
+
+Crie um DataFrame só com os trabalhadores da agropecuária. Quantos são? Qual é a escolaridade média deles?
+
+```{pyodide}
+#| exercise: f3_ex1
+agro = trab[trab["setor"] == "______"]
+print(len(agro))
+print(agro["______"].mean())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O código do setor é `AGR`, e a coluna com os anos de estudo se chama `escolaridade`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+agro = trab[trab["setor"] == "AGR"]
+print(len(agro))
+print(agro["escolaridade"].mean())
+```
+
+São 161 trabalhadores, com 11,1 anos de estudo em média.
+:::
+
+## O padrão brasileiro: ponto e vírgula
+
+No CSV internacional, a vírgula separa as colunas e o ponto marca os decimais. No Brasil a vírgula **é** o separador decimal; por isso o Excel em português e os sistemas públicos gravam CSV com **ponto e vírgula** entre as colunas. O arquivo `trabalhadores_mt_bruto.csv` está nesse padrão. Veja o que acontece ao lê-lo sem avisar o pandas.
+
+```{pyodide}
+bruto = pd.read_csv("dados/trabalhadores_mt_bruto.csv")
+print(bruto.shape)
+bruto.head(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Não houve erro, e isso é o perigoso: a tabela chegou com **uma coluna só**, em que cada linha é um texto comprido cheio de pontos e vírgulas. O pandas procurou vírgulas para separar colunas e só as encontrou **dentro dos números**, como em `1568,38`.
+
+Sempre que uma importação devolver uma única coluna, desconfie do separador.
+:::
+
+```{pyodide}
+bruto = pd.read_csv("dados/trabalhadores_mt_bruto.csv", sep=";", decimal=",")
+print(bruto.shape)
+bruto.head(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Dois argumentos resolvem: `sep=";"` informa o separador de colunas e `decimal=","` informa o separador decimal. Agora são 10 colunas, e a renda chegou como número.
+
+Este arquivo tem 609 linhas e vários defeitos colocados de propósito: é a **base bruta** que você vai limpar na Aula 10.
+:::
+
+::: {.callout-note}
+## E as planilhas do Excel?
+
+Arquivos `.xlsx` são lidos com `pd.read_excel()`. No seu computador:
+
+```python
+dados = pd.read_excel("minha_planilha.xlsx", sheet_name=0)
+```
+
+O argumento `sheet_name` escolhe a aba, pelo número (a partir de 0) ou pelo nome. O resultado é um DataFrame como os desta aula.
+:::
+
+## Bibliotecas
+
+O Python que vem instalado traz o básico. Quase tudo o que se usa em análise de dados está em **bibliotecas**, escritas pela comunidade. Usar uma biblioteca tem dois passos: **instalar**, uma única vez, com `pip install pandas` (no terminal do seu computador); e **carregar**, em todo programa, com `import`. Nesta página as bibliotecas já estão instaladas; basta importar.
+
+```{pyodide}
+import numpy as np
+print(np.sqrt(144))
+print(trab.dtypes)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`import numpy as np` carrega o **NumPy**, a biblioteca de cálculo numérico sobre a qual o pandas é construído; o apelido `np` é universal. Dela vêm funções matemáticas como `np.sqrt()` e `np.log()`, que funcionam também sobre séries inteiras.
+
+`.dtypes` lista o tipo de cada coluna — uma versão resumida do `.info()`.
+
+Esquecer o `import` produz o erro de nome não definido, que você viu na Aula 1. As três bibliotecas que mais aparecem neste curso são o pandas (tabelas), o NumPy (contas) e o Matplotlib (gráficos, Aula 6).
+:::
+
+## Exportando
+
+```{pyodide}
+import os
+publico.to_csv("setor_publico.csv", index=False)
+print(os.path.exists("setor_publico.csv"))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.to_csv()` grava um DataFrame num arquivo CSV. O argumento `index=False` evita uma coluna extra com os números das linhas. `os.path.exists()` confirma que o arquivo foi criado.
+
+Aqui o arquivo vive na memória do navegador e some quando a página é fechada. No seu computador, ele vai para a pasta de trabalho. Para gravar no padrão brasileiro, acrescente `sep=";"` e `decimal=","`.
+:::
+
+### Exercício 2 — importar e conferir
+
+O arquivo `setores_mt.csv` traz o nome completo e o piso salarial de cada setor, com as colunas separadas por vírgula. Importe-o, veja a tabela e calcule o piso médio.
+
+```{pyodide}
+#| exercise: f3_ex2
+setores = pd.______("dados/setores_mt.csv")
+print(setores)
+print(setores["______"].mean())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A função de importação é `read_csv`, sem argumentos extras, porque o arquivo está no padrão internacional. Depois de ver a tabela, você descobre que a coluna do piso se chama `piso`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+setores = pd.read_csv("dados/setores_mt.csv")
+print(setores)
+print(setores["piso"].mean())
+```
+
+A tabela tem cinco linhas, uma por setor, e o piso médio é de R\$ 1.796.
+:::
+
+## Glossário da aula
+
+| Função, método ou atributo | O que faz |
+|---|---|
+| `pd.read_csv()` | Importa um CSV; com `sep=";"` e `decimal=","`, no padrão brasileiro. |
+| `.shape`, `len()`, `.columns` | Tamanho da tabela; número de linhas; nomes das colunas. |
+| `.info()`, `.dtypes`, `.describe()` | Estrutura e tipos; só os tipos; resumo das colunas numéricas. |
+| `.head()`, `.tail()` | Primeiras e últimas linhas. |
+| `tabela["coluna"]` | Extrai uma coluna como série. |
+| `tabela[["a", "b"]]` | Fica com várias colunas. |
+| `tabela[condição]` | Filtra linhas. |
+| `pip install`, `import` | Instala uma biblioteca (uma vez); carrega uma biblioteca (todo programa). |
+| `import numpy as np` | Carrega o NumPy. |
+| `.to_csv()`, `os.path.exists()` | Grava um CSV; verifica se um arquivo existe. |
+
+---
+
+Anterior: [Aula 2 — Séries e tipos de dados](py-fund02.qmd) · Próxima: [Aula 4 — Transformar dados I](py-fund04.qmd) · Esta aula em R: [Aula 3](r-fund03.qmd)

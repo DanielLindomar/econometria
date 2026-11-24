@@ -1,6 +1,6 @@
 ---
 title: "Econometria Interativa"
-subtitle: "Laboratórios e curso de R que rodam no seu navegador — UNEMAT, Campus de Sinop"
+subtitle: "Laboratórios e cursos de R e de Python que rodam no seu navegador — UNEMAT, Campus de Sinop"
 toc: false
 number-sections: false
 engine: knitr
@@ -10,7 +10,7 @@ engine: knitr
 ![](logo-unemat.png){width="110"}
 :::
 
-Bem-vindo! Nesta página estão os **laboratórios interativos** de Econometria I e II, as **aplicações** por unidade e o **curso de R** da disciplina. Em todas as páginas o R roda **no seu navegador** — nada precisa ser instalado.
+Bem-vindo! Nesta página estão os **laboratórios interativos** de Econometria I e II, as **aplicações** por unidade e os **cursos de R e de Python**, que partem do zero. Em todas as páginas o código roda **no seu navegador** — nada precisa ser instalado.
 
 ::: {.callout-tip}
 ## Laboratórios e Aplicações — qual é a diferença
@@ -105,7 +105,28 @@ Diferentemente dos laboratórios e das aplicações, aqui o código está pronto
 
 Os casos 1 a 5 são de **corte transversal**, os casos 6 a 10, de **série temporal**, e o caso 11 é um **painel** (municípios acompanhados ao longo dos anos) — a escolha determina quais diagnósticos fazem sentido no seu trabalho.
 
-## Curso de R — Unidade 7
+## Curso de R
+
+### Parte 1 — Fundamentos
+
+Para quem **nunca programou**. Dez aulas que partem da primeira conta e chegam à primeira regressão, com uma base de dados própria do curso: uma pesquisa simulada com 600 trabalhadores de Mato Grosso.
+
+| # | Aula | O que você aprende |
+|---|---|---|
+| 1 | [Primeiros passos](r-fund01.qmd) | Contas, objetos, funções e como ler mensagens de erro |
+| 2 | [Vetores e tipos de dados](r-fund02.qmd) | Vetores, condições, valores ausentes e categorias |
+| 3 | [Tabelas de dados](r-fund03.qmd) | Importar CSV, inspecionar a base, pacotes, exportar |
+| 4 | [Transformar dados I](r-fund04.qmd) | Pipe, selecionar, filtrar, ordenar e criar variáveis |
+| 5 | [Transformar dados II](r-fund05.qmd) | Resumos por grupo, junção de tabelas, formato longo e largo |
+| 6 | [Gráficos](r-fund06.qmd) | Dispersão, histograma, boxplot, barras e linha com o ggplot2 |
+| 7 | [Estatística descritiva](r-fund07.qmd) | Posição, dispersão, tabelas, correlação e teste t |
+| 8 | [Textos, datas e séries mensais](r-fund08.qmd) | Limpeza de textos, datas, variações percentuais e médias anuais |
+| 9 | [Programação básica](r-fund09.qmd) | Condições, repetições, funções próprias e simulação |
+| 10 | [Projeto guiado](r-fund10.qmd) | Da base bruta à primeira regressão; o R no seu computador |
+
+### Parte 2 — Econometria no R
+
+As aulas desta parte correspondem à Unidade 7 de Econometria I e mantêm, por enquanto, a numeração original. Quem concluiu a Parte 1 pode começar pela Aula 2.
 
 | # | Aula |
 |---|---|
@@ -120,6 +141,27 @@ Os casos 1 a 5 são de **corte transversal**, os casos 6 a 10, de **série tempo
 | 9 | [Especificação da regressão](r-aula09.qmd) |
 | 10 | [Séries de tempo](r-aula10.qmd) |
 | 11 | [Machine Learning](r-aula11.qmd) |
+
+## Curso de Python
+
+### Parte 1 — Fundamentos
+
+O mesmo curso, aula por aula, em Python. Os dados, os exemplos e os exercícios são os mesmos da versão em R, e cada página traz o link para a aula correspondente na outra linguagem.
+
+| # | Aula | O que você aprende |
+|---|---|---|
+| 1 | [Primeiros passos](py-fund01.qmd) | Contas, variáveis, funções e como ler mensagens de erro |
+| 2 | [Séries e tipos de dados](py-fund02.qmd) | Séries do pandas, condições, valores ausentes e categorias |
+| 3 | [Tabelas de dados](py-fund03.qmd) | Importar CSV, inspecionar a base, bibliotecas, exportar |
+| 4 | [Transformar dados I](py-fund04.qmd) | Selecionar, filtrar, ordenar, encadear métodos e criar colunas |
+| 5 | [Transformar dados II](py-fund05.qmd) | Resumos por grupo, junção de tabelas, formato longo e largo |
+| 6 | [Gráficos](py-fund06.qmd) | Dispersão, histograma, boxplot, barras e linha com o Matplotlib |
+| 7 | [Estatística descritiva](py-fund07.qmd) | Posição, dispersão, tabelas, correlação e teste t |
+| 8 | [Textos, datas e séries mensais](py-fund08.qmd) | Limpeza de textos, datas, variações percentuais e médias anuais |
+| 9 | [Programação básica](py-fund09.qmd) | Condições, repetições, funções próprias e simulação |
+| 10 | [Projeto guiado](py-fund10.qmd) | Da base bruta à primeira regressão; o Python no seu computador |
+
+A Parte 2 — Econometria no Python está em preparação.
 
 ::: {.callout-note}
 ## Como usar

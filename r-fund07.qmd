@@ -1,0 +1,263 @@
+---
+title: "Aula 7 — Estatística descritiva"
+subtitle: "Curso de R · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- resumir uma variável numérica: posição, quantis e dispersão;
+- construir tabelas de frequência, simples e cruzadas;
+- medir a associação entre duas variáveis com a correlação;
+- comparar dois grupos e ler o resultado de um **teste t**.
+:::
+
+As aulas anteriores ensinaram a mexer nos dados. Esta ensina a **descrevê-los** — o primeiro capítulo de qualquer trabalho empírico, e o vocabulário em que toda a econometria é escrita. Tudo aqui se faz com o R básico, sem pacotes.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega a base do curso.
+:::
+
+```{webr}
+trab <- read.csv("dados/trabalhadores_mt.csv")
+dim(trab)
+```
+
+## Onde está o centro: média e mediana
+
+```{webr}
+mean(trab$renda, na.rm = TRUE)
+median(trab$renda, na.rm = TRUE)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A **média** (R\$ 3.141) é a soma dividida pelo número de pessoas. A **mediana** (R\$ 2.690) é o valor do meio: metade ganha menos do que ela, metade ganha mais.
+
+A distância de R\$ 451 entre as duas não é acaso. Poucas rendas muito altas puxam a média para cima e não mexem na mediana — é a assimetria que o histograma da Aula 6 mostrou. Para variáveis assim, a mediana descreve melhor o trabalhador típico.
+:::
+
+## Quantis
+
+```{webr}
+quantile(trab$renda, probs = c(0.10, 0.25, 0.50, 0.75, 0.90), na.rm = TRUE)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O quantil de 25% é o valor abaixo do qual estão 25% das pessoas. A mediana é o quantil de 50%; os de 25% e 75% são o primeiro e o terceiro **quartis**.
+
+Um em cada dez trabalhadores ganha até R\$ 1.460, e um em cada dez ganha mais de R\$ 5.345. A metade central da amostra está entre R\$ 1.927 e R\$ 3.838.
+:::
+
+## Quanto os dados se espalham
+
+```{webr}
+var(trab$renda, na.rm = TRUE)
+sd(trab$renda, na.rm = TRUE)
+IQR(trab$renda, na.rm = TRUE)
+range(trab$renda, na.rm = TRUE)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A **variância** é a média dos quadrados dos desvios em relação à média (com *n* − 1 no denominador). Ela está em "reais ao quadrado", unidade que ninguém interpreta. O **desvio-padrão** é a raiz quadrada da variância e volta à unidade original: R\$ 1.767.
+
+O **intervalo interquartil** (`IQR`) é a largura da metade central: 3.838 − 1.927 = R\$ 1.911. Como a mediana, não é afetado pelos valores extremos. `range()` devolve o mínimo e o máximo.
+:::
+
+Desvios-padrão de variáveis diferentes não se comparam: o da renda está em reais; o das horas, em horas. O **coeficiente de variação** resolve isso.
+
+```{webr}
+cv_renda <- sd(trab$renda, na.rm = TRUE) / mean(trab$renda, na.rm = TRUE)
+cv_horas <- sd(trab$horas, na.rm = TRUE) / mean(trab$horas, na.rm = TRUE)
+round(c(renda = cv_renda, horas = cv_horas), 3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O coeficiente de variação divide o desvio-padrão pela média e não tem unidade. O desvio-padrão da renda equivale a 56% da média; o das horas, a 16%. A renda é muito mais desigual do que a jornada de trabalho.
+
+Repare no `c(renda = ..., horas = ...)`: os elementos de um vetor podem ter nomes, que aparecem na saída.
+:::
+
+### Exercício 1 — as horas trabalhadas
+
+Calcule a média, a mediana e o desvio-padrão das horas semanais.
+
+```{webr}
+#| exercise: f7_ex1
+mean(trab$horas, ______ = TRUE)
+______(trab$horas, na.rm = TRUE)
+sd(trab$______, na.rm = TRUE)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O argumento que descarta os ausentes é `na.rm`; a função da mediana é `median`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+mean(trab$horas, na.rm = TRUE)
+median(trab$horas, na.rm = TRUE)
+sd(trab$horas, na.rm = TRUE)
+```
+
+A média é de 40,8 horas, a mediana de 41 e o desvio-padrão de 6,7. Média e mediana quase iguais indicam uma distribuição simétrica — o oposto do que acontece com a renda.
+:::
+
+## Tabelas de frequência
+
+```{webr}
+table(trab$setor)
+round(100 * prop.table(table(trab$setor)), 1)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Para variáveis qualitativas não há média: descreve-se pela **frequência**. `table()` conta, e `prop.table()` transforma as contagens em proporções; multiplicadas por 100 e arredondadas, viram percentuais.
+
+A agropecuária emprega 26,8% da amostra; a administração pública, 12,5%.
+:::
+
+```{webr}
+tab <- table(trab$setor, trab$vinculo)
+tab
+round(100 * prop.table(tab, margin = 1), 1)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com duas variáveis, `table()` monta uma **tabela cruzada**: setores nas linhas, vínculos nas colunas.
+
+Em `prop.table()`, `margin = 1` pede percentuais **por linha**: cada setor soma 100. A informalidade vai de 4,0% na administração pública a 62,1% na agropecuária. Com `margin = 2` os percentuais seriam por coluna, e a pergunta respondida seria outra: de todos os informais, quantos estão em cada setor?
+:::
+
+## Associação entre duas variáveis: correlação
+
+```{webr}
+cor(trab$escolaridade, trab$renda, use = "complete.obs")
+```
+
+```{webr}
+numericas <- trab[, c("idade", "escolaridade", "horas", "renda")]
+round(cor(numericas, use = "pairwise.complete.obs"), 3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A **correlação** mede a força da relação linear entre duas variáveis, numa escala de −1 a 1: perto de 1, andam juntas; perto de −1, em sentidos opostos; perto de 0, não há relação linear. O argumento `use` diz o que fazer com os ausentes: usar só as observações completas.
+
+Entre escolaridade e renda a correlação é de 0,445: positiva e moderada, como sugeria a nuvem de pontos da Aula 6. Dada uma tabela, `cor()` devolve a **matriz de correlações**, com todos os pares. A diagonal é sempre 1. Note o −0,195 entre idade e escolaridade: nesta amostra, os mais velhos estudaram um pouco menos.
+
+Dois avisos. Correlação não é causalidade. E ela não diz **quanto** a renda muda a cada ano de estudo — essa é a pergunta que a regressão responde.
+:::
+
+## Comparar dois grupos
+
+```{webr}
+tapply(trab$renda, trab$vinculo, mean, na.rm = TRUE)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`tapply()` aplica uma função a uma variável, separadamente para cada grupo: aqui, a média da renda por vínculo. É o equivalente, no R básico, ao `group_by()` com `summarise()`.
+
+Os formais ganham em média R\$ 3.500; os informais, R\$ 2.598. A diferença é de R\$ 902,51.
+:::
+
+Mas a base é uma **amostra**. Outra amostra de 600 trabalhadores daria outra diferença. Será que esta é grande o bastante para não ser obra do acaso?
+
+```{webr}
+t.test(renda ~ vinculo, data = trab)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O **teste t** parte de uma hipótese: na população, formais e informais têm a mesma renda média. E pergunta: se isso fosse verdade, qual seria a chance de uma amostra mostrar uma diferença tão grande quanto a observada?
+
+Essa chance é o **valor-p** (`p-value`). Aqui ele vale `6.837e-11` — notação para 6,837 × 10⁻¹¹, um número com dez zeros depois da vírgula. Como é muito menor que 0,05, rejeita-se a hipótese de médias iguais: a diferença não se explica pelo acaso da amostragem.
+
+O **intervalo de confiança** de 95% diz mais: na população, a diferença deve estar entre R\$ 636 e R\$ 1.169.
+
+Hipótese, valor-p e intervalo de confiança são o coração da inferência estatística. Você vai reencontrá-los em cada regressão da Parte 2.
+:::
+
+## Uma transformação que volta sempre: o logaritmo
+
+```{webr}
+hist(log(trab$renda), breaks = 30, main = "Logaritmo da renda", xlab = "log(renda)")
+```
+
+```{webr}
+mean(log(trab$renda), na.rm = TRUE)
+exp(mean(log(trab$renda), na.rm = TRUE))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`log()` calcula o logaritmo natural. Ele comprime os valores altos e estica os baixos: a cauda longa da renda desaparece, e o histograma fica quase simétrico.
+
+A média do logaritmo é 7,918. `exp()` desfaz o logaritmo, e o resultado, R\$ 2.746, fica muito mais perto da mediana (R\$ 2.690) do que da média (R\$ 3.141).
+
+É por isso que os modelos de salário usam `log(renda)` como variável dependente — assunto da aula de formas funcionais, na Parte 2.
+:::
+
+### Exercício 2 — informalidade por região
+
+Monte a tabela cruzada de região e vínculo, com percentuais por linha. Em que região a informalidade é maior?
+
+```{webr}
+#| exercise: f7_ex2
+tab <- table(trab$______, trab$vinculo)
+round(100 * prop.table(tab, margin = ______), 1)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A variável das linhas é `regiao`. Percentuais por linha pedem `margin = 1`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+tab <- table(trab$regiao, trab$vinculo)
+round(100 * prop.table(tab, margin = 1), 1)
+```
+
+A informalidade é maior no Médio-Norte (45,1%) e no Oeste (44,6%), e menor no Leste (33,8%).
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `mean()`, `median()` | Média; mediana. |
+| `quantile()` | Quantis, nas probabilidades indicadas em `probs`. |
+| `var()`, `sd()` | Variância; desvio-padrão. |
+| `IQR()`, `range()` | Intervalo interquartil; mínimo e máximo. |
+| `table()`, `prop.table()` | Contagens; proporções (`margin = 1` por linha, `2` por coluna). |
+| `cor()` | Correlação entre duas variáveis, ou matriz de correlações. |
+| `tapply()` | Aplica uma função a cada grupo. |
+| `t.test()` | Teste t para a diferença entre duas médias. |
+| `log()`, `exp()` | Logaritmo natural; exponencial. |
+
+---
+
+Anterior: [Aula 6 — Gráficos](r-fund06.qmd) · Próxima: [Aula 8 — Textos, datas e séries mensais](r-fund08.qmd) · Esta aula em Python: [Aula 7](py-fund07.qmd)

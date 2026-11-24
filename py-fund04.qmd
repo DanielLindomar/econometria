@@ -1,0 +1,264 @@
+---
+title: "Aula 4 — Transformar dados I"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- escolher colunas, filtrar linhas e ordenar uma tabela;
+- **encadear métodos**, escrevendo uma operação depois da outra;
+- criar colunas novas, inclusive a partir de condições.
+:::
+
+Analisar dados é, na maior parte do tempo, transformar tabelas: ficar com parte das linhas, parte das colunas, criar variáveis novas. No pandas, cada uma dessas tarefas é um método do DataFrame, e os métodos se combinam como frases.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega as bibliotecas e a base do curso.
+:::
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+trab = pd.read_csv("dados/trabalhadores_mt.csv")
+print(trab.shape)
+```
+
+## Escolher colunas
+
+```{pyodide}
+trab[["id", "setor", "renda"]].head(4)
+```
+
+```{pyodide}
+trab.drop(columns=["id", "data_admissao"]).head(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Os colchetes duplos da Aula 3 ficam com as colunas que você nomear, na ordem em que nomear. `.drop(columns=...)` faz o contrário: **descarta** as colunas nomeadas e fica com as demais.
+
+Nenhum dos dois altera `trab`: cada um devolve uma tabela nova, que aqui só foi mostrada na tela. Repare também no `.head(4)` logo depois dos colchetes: o resultado de uma operação já recebe a seguinte. A aula volta a isso adiante.
+:::
+
+## Filtrar linhas
+
+```{pyodide}
+altos = trab[(trab["setor"] == "PUB") & (trab["renda"] > 8000)]
+altos[["id", "regiao", "escolaridade", "renda"]]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O filtro é o da Aula 3, agora com duas condições ligadas por `&` ("e"), cada uma entre parênteses.
+
+Só três servidores públicos da amostra ganham mais de R\$ 8.000, e os três têm 17 ou 18 anos de estudo. Note que as pessoas com renda ausente ficaram de fora sem que você pedisse: comparar um `NaN` com qualquer número resulta em `False`.
+:::
+
+Escrever `trab[...]` dentro de `trab[...]` cansa. O método `.query()` recebe a condição como um **texto**, em que as colunas aparecem só pelo nome.
+
+```{pyodide}
+trab.query('setor == "PUB" and renda > 8000')[["id", "regiao", "escolaridade", "renda"]]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O resultado é o mesmo. Dentro do `.query()`, escreve-se `and` e `or` no lugar de `&` e `|`, e os parênteses em volta de cada condição deixam de ser necessários.
+
+Atenção às aspas: a condição inteira está entre aspas **simples**, para que o texto `"PUB"` possa ficar entre aspas duplas dentro dela.
+:::
+
+```{pyodide}
+grupo = trab[trab["regiao"].isin(["Norte", "Oeste"]) | (trab["idade"] < 23)]
+print(len(grupo))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Para "ou", use a barra vertical. São 207 pessoas que trabalham no Norte ou no Oeste **ou** têm menos de 23 anos — basta uma das condições ser verdadeira.
+:::
+
+## Ordenar
+
+```{pyodide}
+trab[["id", "setor", "escolaridade", "renda"]].sort_values("renda", ascending=False).head(5)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.sort_values()` ordena as linhas pela coluna indicada, do menor para o maior; com `ascending=False`, do maior para o menor.
+
+A maior renda da amostra, R\$ 16.715, é de um trabalhador da indústria com 10 anos de estudo: escolaridade ajuda, mas não explica tudo. Os números à esquerda são o índice original de cada linha, que acompanha a linha na ordenação.
+:::
+
+## Encadear métodos
+
+A linha anterior fez três coisas em sequência. Quando a sequência cresce, vale escrever uma operação por linha, com tudo entre parênteses.
+
+```{pyodide}
+maiores = (
+    trab
+    .query('vinculo == "informal"')
+    .sort_values("renda", ascending=False)
+    .head(3)
+)
+maiores[["id", "setor", "vinculo", "renda"]]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Isso se chama **encadeamento de métodos**: cada método age sobre o resultado do anterior. Leia o ponto como "e então": *pegue `trab`, e então fique com os informais, e então ordene pela renda decrescente, e então mostre os três primeiros*.
+
+Os parênteses de fora servem só para permitir a quebra de linhas. O código passa a ser lido de cima para baixo, na ordem em que as coisas acontecem.
+:::
+
+### Exercício 1 — as maiores rendas da agropecuária
+
+Mostre `id`, `escolaridade` e `renda` dos três trabalhadores de maior renda da agropecuária.
+
+```{pyodide}
+#| exercise: f4_ex1
+agro = trab.query('setor == "______"')
+agro[["id", "escolaridade", "renda"]].sort_values("renda", ascending=______).head(3)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O código do setor é `AGR`. Para a ordem decrescente, `ascending` deve ser `False`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+agro = trab.query('setor == "AGR"')
+agro[["id", "escolaridade", "renda"]].sort_values("renda", ascending=False).head(3)
+```
+
+As três maiores rendas da agropecuária são R\$ 12.408, R\$ 10.523 e R\$ 8.974, de pessoas com 16, 14 e 10 anos de estudo.
+:::
+
+## Criar colunas
+
+```{pyodide}
+trab["renda_hora"] = trab["renda"] / (trab["horas"] * 4.33)
+trab["salarios_minimos"] = trab["renda"] / 1412
+
+trab[["id", "horas", "renda", "renda_hora", "salarios_minimos"]].head(4)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Atribuir a uma coluna que não existe **cria** a coluna. A renda por hora é a renda mensal dividida pelas horas do mês — as horas semanais vezes 4,33, o número médio de semanas num mês. A segunda coluna expressa a renda em salários mínimos de 2024.
+
+O primeiro entrevistado recebe R\$ 23,51 por hora, ou 3,5 salários mínimos por mês.
+
+Ao contrário das operações anteriores, esta **altera** `trab`: as colunas novas passam a fazer parte da tabela.
+:::
+
+Variáveis novas muitas vezes dependem de uma **condição**.
+
+```{pyodide}
+trab["acima_da_mediana"] = np.where(trab["renda"] > trab["renda"].median(), "sim", "não")
+print(trab["acima_da_mediana"].value_counts())
+```
+
+::: {.callout-warning}
+## Como ler essa saída — e um cuidado
+
+`np.where()` tem três argumentos: a condição, o valor quando ela é verdadeira e o valor quando é falsa.
+
+Mas repare na contagem: 285 "sim" e 315 "não". Por construção, metade dos que informaram renda deveria ficar de cada lado da mediana. Os 30 a mais são as pessoas **sem renda informada**: a comparação com `NaN` resulta em `False`, e o `np.where()` as classificou como "não".
+
+É um erro silencioso: o código roda, e o resultado está errado. Sempre que a condição envolver uma coluna com ausentes, devolva os ausentes ao lugar deles.
+:::
+
+```{pyodide}
+trab.loc[trab["renda"].isna(), "acima_da_mediana"] = None
+print(trab["acima_da_mediana"].value_counts())
+print(trab["acima_da_mediana"].isna().sum())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.loc[linhas, coluna]` aponta para um pedaço da tabela — aqui, as linhas em que a renda é ausente, na coluna `acima_da_mediana` — e a atribuição troca o valor só ali. `None` marca o valor como ausente.
+
+Agora são 285 de cada lado, e os 30 sem renda ficaram ausentes também na variável nova.
+:::
+
+Para mais de duas categorias a partir de um número, use `pd.cut()`.
+
+```{pyodide}
+trab["faixa_etaria"] = pd.cut(trab["idade"], bins=[0, 29, 44, 120],
+                              labels=["até 29", "30 a 44", "45 ou mais"])
+print(trab["faixa_etaria"].value_counts(sort=False))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`pd.cut()` corta uma variável numérica em faixas. `bins` dá os limites: de 0 a 29, de 29 a 44 e de 44 a 120. Cada faixa **inclui** o limite da direita e exclui o da esquerda; por isso quem tem 29 anos fica na primeira e quem tem 30, na segunda. `labels` dá os nomes das faixas.
+
+São 140 pessoas com até 29 anos, 326 de 30 a 44 e 134 com 45 ou mais. O `sort=False` mantém as faixas na ordem natural, em vez de ordená-las pela contagem.
+:::
+
+### Exercício 2 — jornadas longas
+
+Crie a variável `jornada`, que vale `"acima de 44h"` para quem trabalha mais de 44 horas por semana e `"até 44h"` para os demais. Quantas pessoas há em cada grupo? A segunda linha, já pronta, devolve os ausentes ao lugar deles.
+
+```{pyodide}
+#| exercise: f4_ex2
+trab["jornada"] = np.______(trab["horas"] > 44, "acima de 44h", "até 44h")
+trab.loc[trab["horas"].isna(), "jornada"] = None
+print(trab["jornada"].value_counts())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Duas categorias a partir de uma condição: é o caso do `where`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+trab["jornada"] = np.where(trab["horas"] > 44, "acima de 44h", "até 44h")
+trab.loc[trab["horas"].isna(), "jornada"] = None
+print(trab["jornada"].value_counts())
+```
+
+São 166 pessoas acima de 44 horas e 416 com até 44. A soma dá 582, e não 600: os 18 que não informaram as horas ficaram ausentes. Sem a segunda linha, eles teriam sido contados como "até 44h".
+:::
+
+## Glossário da aula
+
+| Método, função ou símbolo | O que faz |
+|---|---|
+| `tabela[["a", "b"]]`, `.drop(columns=...)` | Escolhe colunas; descarta colunas. |
+| `tabela[condição]` | Filtra linhas; condições ligadas por `&` ("e") ou <code>&#124;</code> ("ou"). |
+| `.query("...")` | Filtra linhas com a condição escrita como texto. |
+| `.sort_values()` | Ordena as linhas; `ascending=False` inverte a ordem. |
+| `( ... )` com um método por linha | Encadeamento: cada método age sobre o resultado do anterior. |
+| `tabela["nova"] = ...` | Cria ou altera uma coluna. |
+| `np.where()` | Um valor se a condição é verdadeira, outro se é falsa. |
+| `.loc[linhas, coluna] = valor` | Altera só um pedaço da tabela. |
+| `pd.cut()` | Corta um número em faixas. |
+| `.median()` | Mediana. |
+
+---
+
+Anterior: [Aula 3 — Tabelas de dados](py-fund03.qmd) · Próxima: [Aula 5 — Transformar dados II](py-fund05.qmd) · Esta aula em R: [Aula 4](r-fund04.qmd)

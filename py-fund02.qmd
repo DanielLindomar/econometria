@@ -1,0 +1,291 @@
+---
+title: "Aula 2 — Séries e tipos de dados"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- reconhecer os tipos básicos de dado: número, texto e lógico;
+- criar **séries** e fazer contas com todos os elementos de uma vez;
+- selecionar elementos por posição e por condição;
+- lidar com **valores ausentes** (`NaN`) e com categorias.
+:::
+
+Na Aula 1 cada variável guardava um valor só. Dados de verdade vêm em conjuntos: a renda de 600 pessoas, o preço de 216 meses. Para isso usaremos o **pandas**, a biblioteca de análise de dados do Python. No pandas, um conjunto de valores do mesmo tipo é uma **série** (`Series`) — e cada coluna de uma tabela de dados é uma série. Quem entende séries entende a maior parte do pandas.
+
+## Os tipos básicos de dado
+
+```{pyodide}
+renda = 2850.50
+idade = 34
+setor = "Comércio"
+formal = True
+print(type(renda))
+print(type(idade))
+print(type(setor))
+print(type(formal))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`type()` informa o tipo de um valor. `float` é número com casas decimais e `int` é número inteiro. `str` (de *string*) é texto, sempre escrito **entre aspas**. `bool` é um valor lógico: `True` (verdadeiro) ou `False` (falso), com a inicial maiúscula e **sem** aspas.
+
+O tipo define o que se pode fazer com o valor: números entram em contas, textos não. Foi o que causou o erro de `"10" + 5` na Aula 1.
+:::
+
+## Listas e séries
+
+Em Python, colchetes criam uma **lista**. A lista guarda valores, mas não faz contas com eles; para isso, transformamos a lista numa série do pandas.
+
+```{pyodide}
+import pandas as pd
+rendas = pd.Series([2850.50, 1412, 5200, 3100, 1980])
+print(rendas)
+print(len(rendas))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`import pandas as pd` carrega o pandas e lhe dá o apelido `pd`, usado por todo mundo. `pd.Series()` cria a série a partir da lista.
+
+A série aparece em duas colunas: à esquerda, o **índice**, que numera os elementos; à direita, os valores. Repare que o índice começa em **0**: o Python conta a partir do zero. A última linha, `dtype: float64`, é o tipo dos valores. `len()` conta os elementos: cinco.
+:::
+
+```{pyodide}
+print(rendas * 1.05)
+print(rendas - 1412)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Esta é a ideia mais importante da aula: a conta vale para **todos os elementos de uma vez**. `rendas * 1.05` aplica um reajuste de 5% a cada renda; `rendas - 1412` calcula quanto cada uma está acima do salário mínimo.
+
+Não foi preciso repetir a conta cinco vezes. Isso se chama **vetorização**, e é por causa dela que o código de análise de dados é curto.
+:::
+
+Uma série sabe resumir a si mesma. As funções que pertencem a um objeto se chamam **métodos** e são chamadas com um ponto depois do nome dele.
+
+```{pyodide}
+print(rendas.sum())
+print(rendas.mean())
+print(rendas.min())
+print(rendas.max())
+print(rendas.sort_values())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+As cinco rendas somam R\$ 14.542,50 e têm média de R\$ 2.908,50; a menor é o salário mínimo e a maior, R\$ 5.200. `sort_values()` devolve a série em ordem crescente — sem alterar `rendas`, que continua na ordem original. Note que cada valor carrega consigo o índice que tinha antes da ordenação.
+:::
+
+Há atalhos para criar listas regulares.
+
+```{pyodide}
+print(list(range(1, 11)))
+print(list(range(0, 101, 25)))
+print(["MT"] * 3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`range(1, 11)` gera os inteiros de 1 a 10: o primeiro número entra, o último **não**. O terceiro valor de `range()` é o passo. Multiplicar uma lista por 3 a repete três vezes.
+:::
+
+## Selecionando elementos
+
+```{pyodide}
+print(rendas.iloc[0])
+print(rendas.iloc[[0, 2]])
+print(rendas.iloc[1:])
+print(rendas[rendas > 2500])
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.iloc[]` seleciona por **posição**, contando a partir de 0: `rendas.iloc[0]` é o primeiro elemento. Uma lista de posições seleciona vários de uma vez (`[0, 2]`: o primeiro e o terceiro). `1:` significa "da posição 1 em diante", ou seja, tudo menos o primeiro.
+
+A última linha seleciona por **condição**: só as rendas maiores que 2.500. É a forma mais usada, e vale ver por dentro como funciona.
+:::
+
+```{pyodide}
+print(rendas > 2500)
+print((rendas > 2500).sum())
+print((rendas > 2500).mean())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A comparação devolve uma série **lógica**, com um `True` ou `False` para cada elemento. Dentro dos colchetes, o pandas fica só com as linhas em que há `True`.
+
+Nas contas, `True` vale 1 e `False` vale 0. Por isso `.sum()` de uma condição **conta** quantos elementos a satisfazem (3), e `.mean()` dá a **proporção** (0,6, ou 60%). Guarde esse truque: ele aparece em toda análise.
+:::
+
+As comparações disponíveis são `>`, `<`, `>=`, `<=`, `==` (igual) e `!=` (diferente). Para combinar condições em séries, `&` significa "e", e `|` significa "ou" — e cada condição precisa ficar **entre parênteses**.
+
+```{pyodide}
+setores = pd.Series(["AGR", "COM", "PUB", "COM", "IND"])
+print(setores == "COM")
+print(rendas[setores == "COM"])
+print(rendas[(rendas > 2000) & (setores != "PUB")])
+print(setores.isin(["AGR", "IND"]))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Igualdade se testa com **dois** sinais: `==`. Um sinal só (`=`) é atribuição.
+
+Uma série pode filtrar outra, desde que tenham o mesmo tamanho: `rendas[setores == "COM"]` devolve as rendas de quem trabalha no comércio (1.412 e 3.100). A linha seguinte combina duas condições: renda acima de 2.000 **e** setor diferente do público. Sem os parênteses em volta de cada condição, o Python devolve um erro.
+
+`.isin()` testa se cada elemento pertence a uma lista — mais prático do que encadear vários `|`.
+:::
+
+### Exercício 1 — reajuste e filtro
+
+Aplique um reajuste de 8% à série `rendas` e mostre apenas os valores reajustados que passam de R\$ 3.000.
+
+```{pyodide}
+#| exercise: f2_ex1
+reajustadas = rendas * ______
+reajustadas[reajustadas > ______]
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Reajuste de 8% é multiplicar por `1.08`. O limite é `3000`, sem ponto de milhar.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+reajustadas = rendas * 1.08
+reajustadas[reajustadas > 3000]
+```
+
+Três valores passam de R\$ 3.000 depois do reajuste: 3.078,54, 5.616,00 e 3.348,00.
+:::
+
+## Valores ausentes: `NaN`
+
+Em dados reais sempre falta alguma coisa: o entrevistado não respondeu, o registro se perdeu. O pandas marca o dado que falta com `NaN` (*not a number*).
+
+```{pyodide}
+horas = pd.Series([44, 40, None, 36, 44])
+print(horas)
+print(horas.mean())
+print(horas.mean(skipna=False))
+print(horas.isna().sum())
+print(horas.count())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O `None` da lista virou `NaN`, e os demais valores ganharam casa decimal: uma série com ausentes é guardada como `float`.
+
+Por padrão, o pandas **ignora** os ausentes: `horas.mean()` devolve 41, a média das quatro respostas. É conveniente, mas esconde o problema — a conta sai e você nem percebe que faltam dados. Com `skipna=False`, a média de uma série com ausentes é `nan`.
+
+`.isna().sum()` conta os ausentes (um) e `.count()` conta os valores presentes (quatro). Antes de analisar qualquer variável, **conte os ausentes**. Uma média calculada com metade das respostas não descreve a amostra inteira.
+:::
+
+## Texto que parece número
+
+<!-- erro-esperado -->
+```{pyodide}
+valor = "3,5"
+float(valor)
+```
+
+```{pyodide}
+print(float("3.5") * 2)
+print(float(valor.replace(",", ".")))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`float()` converte texto em número. Com **vírgula** decimal a conversão falha, e o Python acusa `could not convert string to float` (um `ValueError`). Com ponto, funciona. O método `.replace()` troca um trecho do texto por outro — aqui, a vírgula pelo ponto.
+
+Esse é o tropeço mais comum com planilhas brasileiras: números escritos com vírgula entram no Python como texto. A Aula 3 mostra como importar esses arquivos do jeito certo.
+:::
+
+## Categorias
+
+Variáveis como setor, sexo ou região assumem poucos valores, que se repetem.
+
+```{pyodide}
+vinculo = pd.Series(["formal", "informal", "formal", "formal", "informal"])
+print(vinculo.unique())
+print(vinculo.value_counts())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.unique()` lista as categorias existentes, e `.value_counts()` conta quantas vezes cada uma aparece: três vínculos formais e dois informais. O `dtype: int64` no fim se refere às contagens, que são números inteiros.
+
+O pandas tem também um tipo próprio para categorias (`category`), que voltará nas regressões com variáveis qualitativas da Parte 2.
+:::
+
+### Exercício 2 — horas com ausentes
+
+A série abaixo traz as horas semanais de oito trabalhadores. Descubra quantos não responderam, a média de quem respondeu e quantos trabalham 44 horas ou mais.
+
+```{pyodide}
+#| exercise: f2_ex2
+h = pd.Series([40, 44, None, 30, 48, None, 44, 36])
+print(h.______().sum())
+print(h.______())
+print((h >= 44).sum())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O método que identifica ausentes é `isna`; a média é `mean`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+h = pd.Series([40, 44, None, 30, 48, None, 44, 36])
+print(h.isna().sum())
+print(h.mean())
+print((h >= 44).sum())
+```
+
+Dois não responderam; a média dos seis que responderam é de 40,3 horas; três trabalham 44 horas ou mais.
+:::
+
+## Glossário da aula
+
+| Função, método ou símbolo | O que faz |
+|---|---|
+| `type()` | Informa o tipo de um valor. |
+| `[a, b, c]` | Cria uma lista. |
+| `import pandas as pd`, `pd.Series()` | Carrega o pandas; cria uma série. |
+| `len()`, `.sum()`, `.mean()`, `.min()`, `.max()`, `.sort_values()` | Tamanho, soma, média, mínimo, máximo, ordenação. |
+| `range()` | Sequência de inteiros. |
+| `.iloc[]` | Seleciona por posição, a partir de 0. |
+| `s[condição]` | Seleciona por condição. |
+| `>` `<` `>=` `<=` `==` `!=` | Comparações. |
+| `&`, <code>&#124;</code>, `.isin()` | "E", "ou", "pertence a". |
+| `NaN`, `.isna()`, `.count()` | Valor ausente; identifica ausentes; conta os presentes. |
+| `float()`, `.replace()` | Converte texto em número; troca trechos de um texto. |
+| `.unique()`, `.value_counts()` | Lista as categorias; conta ocorrências. |
+
+---
+
+Anterior: [Aula 1 — Primeiros passos](py-fund01.qmd) · Próxima: [Aula 3 — Tabelas de dados](py-fund03.qmd) · Esta aula em R: [Aula 2](r-fund02.qmd)

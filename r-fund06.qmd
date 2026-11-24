@@ -1,0 +1,323 @@
+---
+title: "Aula 6 — Gráficos"
+subtitle: "Curso de R · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - tidyr
+    - ggplot2
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- entender a lógica do **ggplot2**: dados, mapeamento e geometria;
+- fazer os cinco gráficos de todo dia: dispersão, histograma, boxplot, barras e linha;
+- acrescentar cor, rótulos e painéis por grupo;
+- escolher o gráfico pela pergunta que se quer responder.
+:::
+
+Um resumo numérico diz quanto; um gráfico mostra **como**. Antes de qualquer modelo, olha-se o dado — e boa parte dos erros de análise seria evitada com um gráfico feito a tempo.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega os pacotes e as duas bases da aula.
+:::
+
+```{webr}
+library(dplyr)
+library(ggplot2)
+trab <- read.csv("dados/trabalhadores_mt.csv")
+precos <- read.csv("dados/precos_agro.csv")
+precos$data <- as.Date(precos$data)
+dim(trab)
+dim(precos)
+```
+
+A segunda base, `precos_agro.csv`, traz 216 meses de preços, de março de 2006 a fevereiro de 2024: boi gordo e soja no Brasil, soja em Chicago e a ação PETR4. A linha com `as.Date()` avisa ao R que a coluna `data` é uma data, e não um texto; a Aula 8 explica.
+
+## A lógica do ggplot2
+
+```{webr}
+ggplot(trab, aes(x = escolaridade, y = renda)) +
+  geom_point()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Todo gráfico do ggplot2 tem três partes. Os **dados**: `trab`. O **mapeamento**, dentro de `aes()`: qual variável vai em cada eixo. E a **geometria**, que diz como desenhar: `geom_point()` põe um ponto por pessoa. As partes se somam com `+`.
+
+Esse é um gráfico de **dispersão**, o da relação entre duas variáveis numéricas. A nuvem sobe da esquerda para a direita: mais anos de estudo, renda maior — com muita variação em torno da tendência.
+
+O aviso `Removed 30 rows containing missing values` informa que 30 pessoas, as que não declararam renda, ficaram fora do gráfico.
+:::
+
+Para que o aviso não se repita a cada gráfico, o bloco abaixo cria uma versão da base só com quem informou a renda.
+
+```{webr}
+com_renda <- trab |> filter(!is.na(renda))
+nrow(com_renda)
+```
+
+## Cor, transparência e rótulos
+
+```{webr}
+ggplot(com_renda, aes(x = escolaridade, y = renda, color = vinculo)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Escolaridade e renda dos trabalhadores",
+       x = "Anos de estudo",
+       y = "Renda mensal (R$)",
+       color = "Vínculo") +
+  theme_minimal()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`color = vinculo`, dentro do `aes()`, mapeia uma terceira variável à cor dos pontos, e a legenda aparece sozinha. `alpha = 0.5` deixa os pontos semitransparentes: onde eles se acumulam, a cor escurece. `labs()` define título e rótulos, e `theme_minimal()` troca o fundo cinza por branco.
+
+A regra: dentro do `aes()` vai o que **depende dos dados** (a cor muda conforme o vínculo); fora dele, o que vale para todos os pontos (a transparência).
+
+Os pontos dos informais se concentram na parte de baixo da nuvem: para a mesma escolaridade, a renda tende a ser menor.
+:::
+
+## A distribuição de uma variável: histograma
+
+```{webr}
+ggplot(com_renda, aes(x = renda)) +
+  geom_histogram(bins = 30, fill = "steelblue", color = "white") +
+  labs(x = "Renda mensal (R$)", y = "Número de pessoas")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O histograma divide o eixo em faixas — aqui, 30 — e conta quantas pessoas caem em cada uma. Só o `x` é mapeado; a altura das barras é calculada. `fill` é a cor do preenchimento e `color`, a do contorno.
+
+A distribuição é **assimétrica à direita**: 85% das pessoas estão entre R\$ 1.000 e R\$ 5.000, e uma cauda longa se estende até R\$ 16.715. É o formato típico das distribuições de renda, e a razão de a média ficar acima da mediana.
+:::
+
+## Comparar grupos: boxplot
+
+```{webr}
+ggplot(com_renda, aes(x = setor, y = renda)) +
+  geom_boxplot() +
+  labs(x = "Setor", y = "Renda mensal (R$)")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Cada caixa resume a distribuição de um grupo. A linha do meio é a **mediana**. A caixa vai do primeiro ao terceiro quartil: metade das pessoas do grupo está dentro dela. As hastes alcançam os valores mais distantes que ainda não são extremos, e os pontos soltos são os valores atípicos (*outliers*).
+
+A caixa da administração pública está acima das demais (mediana de R\$ 3.955); as do comércio e dos serviços são as mais baixas (medianas perto de R\$ 2.400). Todos os setores têm pontos soltos na parte de cima: rendas muito altas existem em toda parte.
+:::
+
+## Barras: contagens e resumos
+
+```{webr}
+ggplot(trab, aes(x = setor)) +
+  geom_bar(fill = "steelblue") +
+  labs(x = "Setor", y = "Número de pessoas")
+```
+
+```{webr}
+medias <- com_renda |>
+  group_by(setor) |>
+  summarise(renda_media = mean(renda))
+
+ggplot(medias, aes(x = reorder(setor, renda_media), y = renda_media)) +
+  geom_col(fill = "steelblue") +
+  labs(x = "Setor", y = "Renda média (R$)")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Há duas geometrias de barras. `geom_bar()` **conta** as linhas de cada categoria: basta mapear o `x`. `geom_col()` desenha barras com as alturas que **você** fornece — aqui, as médias calculadas antes com `group_by()` e `summarise()`.
+
+`reorder(setor, renda_media)` transforma `setor` num fator (Aula 2) cujas categorias seguem a ordem da renda média. Assim as barras aparecem da menor para a maior, o que facilita a leitura; sem ele, a ordem seria a alfabética.
+:::
+
+### Exercício 1 — a renda por região
+
+Faça um boxplot da renda por região.
+
+```{webr}
+#| exercise: f6_ex1
+ggplot(com_renda, aes(x = ______, y = renda)) +
+  ______() +
+  labs(x = "Região", y = "Renda mensal (R$)")
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A variável do eixo horizontal é `regiao`, e a geometria é `geom_boxplot`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+ggplot(com_renda, aes(x = regiao, y = renda)) +
+  geom_boxplot() +
+  labs(x = "Região", y = "Renda mensal (R$)")
+```
+
+As cinco caixas se parecem: as medianas vão de R\$ 2.440 (Oeste) a R\$ 2.983 (Sul). A região separa as rendas bem menos do que o setor.
+:::
+
+## Séries no tempo: linha
+
+```{webr}
+ggplot(precos, aes(x = data, y = soja_br)) +
+  geom_line() +
+  labs(title = "Preço da soja", x = NULL, y = "R$ por saca")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`geom_line()` liga os pontos na ordem do eixo horizontal. É o gráfico das **séries temporais**: o tempo no eixo x, a variável no eixo y. `x = NULL` dispensa o rótulo do eixo, que seria óbvio.
+
+A saca de soja custava menos de R\$ 30 no início de 2006, ficou abaixo de R\$ 100 até 2019 e disparou em 2020, até o pico de R\$ 199,60 em março de 2022. Depois recuou: R\$ 117,64 em fevereiro de 2024.
+:::
+
+Para pôr **duas séries** no mesmo gráfico, com uma cor para cada, os dados precisam estar no formato longo da Aula 5.
+
+```{webr}
+longo <- precos |>
+  select(data, boi, soja_br) |>
+  tidyr::pivot_longer(cols = c(boi, soja_br),
+                      names_to = "produto",
+                      values_to = "preco")
+
+ggplot(longo, aes(x = data, y = preco, color = produto)) +
+  geom_line() +
+  labs(x = NULL, y = "Preço (R$)", color = "Produto")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Depois do `pivot_longer()`, cada linha da tabela é um preço de um produto num mês, e a coluna `produto` pode ser mapeada à cor. Escrever `tidyr::pivot_longer` usa a função sem carregar o pacote inteiro com `library()`.
+
+As duas séries sobem juntas a partir de 2020. Verificar se séries como essas caminham juntas no longo prazo é assunto da aula de séries de tempo, na Parte 2.
+:::
+
+## Um painel por grupo: facetas
+
+```{webr}
+ggplot(com_renda, aes(x = escolaridade, y = renda)) +
+  geom_point(alpha = 0.4) +
+  facet_wrap(~ setor) +
+  labs(x = "Anos de estudo", y = "Renda mensal (R$)")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`facet_wrap(~ setor)` repete o gráfico para cada setor, com os mesmos eixos, o que permite comparar os painéis de relance. O til (`~`) lê-se "por".
+
+A relação positiva entre escolaridade e renda aparece nos cinco painéis.
+:::
+
+## Os atalhos do R básico
+
+O R tem funções gráficas próprias, que dispensam pacotes. São menos flexíveis, mas imbatíveis para uma olhada rápida — e aparecem em várias aulas da Parte 2.
+
+```{webr}
+hist(trab$renda, breaks = 30, main = "Renda mensal", xlab = "R$")
+```
+
+```{webr}
+boxplot(renda ~ setor, data = trab)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`hist()` recebe um vetor; `breaks` faz o papel do `bins`. `plot(x, y)`, que você encontrará adiante, faz a dispersão.
+
+Em `boxplot(renda ~ setor, data = trab)`, a expressão com o til é uma **fórmula**: "renda por setor". É a mesma notação das regressões — `lm(renda ~ escolaridade)` —, e você vai escrevê-la muitas vezes.
+:::
+
+## Guardar um gráfico
+
+```{webr}
+g <- ggplot(com_renda, aes(x = renda)) +
+  geom_histogram(bins = 30)
+
+ggsave("histograma_renda.png", plot = g, width = 7, height = 4)
+file.exists("histograma_renda.png")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Um gráfico pode ser guardado num objeto, como qualquer resultado. `ggsave()` grava o gráfico num arquivo: a extensão escolhe o formato (`.png`, `.pdf`, `.jpg`), e `width` e `height` dão o tamanho, em polegadas.
+
+No seu computador, o arquivo vai para a pasta de trabalho, pronto para entrar num relatório.
+:::
+
+::: {.callout-note}
+## Qual gráfico usar?
+
+| Pergunta | Gráfico |
+|---|---|
+| Como uma variável numérica se distribui? | Histograma |
+| Como ela difere entre grupos? | Boxplot |
+| Quantos casos há em cada categoria? | Barras |
+| Duas variáveis numéricas andam juntas? | Dispersão |
+| Como a variável evolui no tempo? | Linha |
+:::
+
+### Exercício 2 — o preço do boi gordo
+
+Faça o gráfico de linha do preço do boi gordo (coluna `boi`).
+
+```{webr}
+#| exercise: f6_ex2
+ggplot(precos, aes(x = ______, y = ______)) +
+  geom_line() +
+  labs(title = "Preço do boi gordo", x = NULL, y = "R$ por arroba")
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O tempo está na coluna `data`; o preço, na coluna `boi`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+ggplot(precos, aes(x = data, y = boi)) +
+  geom_line() +
+  labs(title = "Preço do boi gordo", x = NULL, y = "R$ por arroba")
+```
+
+A arroba ficou entre R\$ 130 e R\$ 272 até 2019, chegou ao pico de R\$ 375,85 em abril de 2021 e recuou a R\$ 239,67 em fevereiro de 2024.
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `ggplot()`, `aes()` | Inicia o gráfico; mapeia variáveis a eixos, cores etc. |
+| `geom_point()` | Dispersão. |
+| `geom_histogram()` | Histograma. |
+| `geom_boxplot()` | Boxplot. |
+| `geom_bar()`, `geom_col()` | Barras de contagem; barras com alturas fornecidas. |
+| `geom_line()` | Linha. |
+| `labs()`, `theme_minimal()` | Título e rótulos; fundo branco. |
+| `facet_wrap()` | Um painel por grupo. |
+| `reorder()` | Ordena as categorias por um valor. |
+| `ggsave()` | Grava o gráfico num arquivo. |
+| `hist()`, `boxplot()`, `plot()` | Gráficos rápidos do R básico. |
+
+---
+
+Anterior: [Aula 5 — Transformar dados II](r-fund05.qmd) · Próxima: [Aula 7 — Estatística descritiva](r-fund07.qmd) · Esta aula em Python: [Aula 6](py-fund06.qmd)

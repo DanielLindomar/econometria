@@ -1,0 +1,274 @@
+---
+title: "Aula 5 — Transformar dados II"
+subtitle: "Curso de R · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - tidyr
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- resumir uma tabela com `summarise()`, no total e por grupos (`group_by()`);
+- contar observações com `count()`;
+- juntar duas tabelas com `left_join()`;
+- passar do formato longo ao largo, e de volta, com `pivot_wider()` e `pivot_longer()`.
+:::
+
+A Aula 4 transformou a tabela linha a linha. Esta aula muda de nível: de 600 pessoas para 5 setores, de duas tabelas para uma. São as operações que produzem as tabelas de um relatório.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega os pacotes e a base do curso.
+:::
+
+```{webr}
+library(dplyr)
+library(tidyr)
+trab <- read.csv("dados/trabalhadores_mt.csv")
+dim(trab)
+```
+
+## Resumir: `summarise()`
+
+```{webr}
+trab |>
+  summarise(n = n(),
+            renda_media = mean(renda, na.rm = TRUE),
+            renda_mediana = median(renda, na.rm = TRUE))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`summarise()` reduz a tabela a **uma linha**, com as colunas que você definir: cada uma é um resumo. `n()` conta as linhas, sem argumento algum.
+
+São 600 pessoas, com renda média de R\$ 3.141 e mediana de R\$ 2.690. Sozinho, o `summarise()` faz pouco além do que `mean()` já fazia. Ele ganha força com o verbo seguinte.
+:::
+
+## Resumir por grupo: `group_by()`
+
+```{webr}
+trab |>
+  group_by(setor) |>
+  summarise(n = n(),
+            renda_media = mean(renda, na.rm = TRUE),
+            escolaridade_media = mean(escolaridade)) |>
+  arrange(desc(renda_media))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`group_by()` não muda os dados: só avisa que as operações seguintes devem ser feitas **dentro de cada grupo**. O `summarise()` passa então a devolver uma linha por setor.
+
+O resultado vem num formato um pouco diferente, o **tibble** — a tabela do dplyr. A primeira linha informa o tamanho (5 linhas, 4 colunas), e sob cada nome aparece o tipo da coluna: `<chr>` texto, `<int>` inteiro, `<dbl>` número com decimais. O tibble arredonda o que mostra na tela, mas guarda os valores completos.
+
+A administração pública tem a maior renda média (R\$ 4.310) e a maior escolaridade (12,3 anos); o comércio, a menor renda (R\$ 2.572).
+:::
+
+## Contar: `count()`
+
+```{webr}
+trab |> count(regiao, sort = TRUE)
+trab |> count(setor, vinculo)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`count()` é um atalho para `group_by()` seguido de `summarise(n = n())`; com `sort = TRUE`, a tabela já vem da maior contagem para a menor. Médio-Norte e Sul empatam, com 164 entrevistados cada.
+
+Com duas variáveis, `count()` conta cada **combinação**. Na agropecuária, 100 dos 161 trabalhadores são informais; na administração pública, só 3 dos 75.
+:::
+
+## Mais de uma variável de grupo
+
+```{webr}
+trab |>
+  group_by(sexo, vinculo) |>
+  summarise(n = n(),
+            renda_media = mean(renda, na.rm = TRUE),
+            .groups = "drop")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com duas variáveis no `group_by()`, há uma linha para cada combinação de sexo e vínculo. O argumento `.groups = "drop"` pede que o resultado venha **sem** agrupamento; sem ele, o dplyr avisa que a tabela continua agrupada pela primeira variável.
+
+A renda média vai de R\$ 2.310 (mulheres com vínculo informal) a R\$ 3.753 (homens com vínculo formal). São médias simples: não descontam diferenças de escolaridade, setor ou horas trabalhadas. Separar esses efeitos é o trabalho da regressão múltipla, na Parte 2.
+:::
+
+### Exercício 1 — renda mediana por região
+
+Calcule, para cada região, o número de entrevistados e a renda mediana. Ordene da maior mediana para a menor.
+
+```{webr}
+#| exercise: f5_ex1
+trab |>
+  group_by(______) |>
+  summarise(n = n(),
+            renda_mediana = ______(renda, na.rm = TRUE)) |>
+  arrange(desc(renda_mediana))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A variável de grupo é `regiao`, e a função da mediana é `median`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+trab |>
+  group_by(regiao) |>
+  summarise(n = n(),
+            renda_mediana = median(renda, na.rm = TRUE)) |>
+  arrange(desc(renda_mediana))
+```
+
+O Sul tem a maior renda mediana (R\$ 2.983), seguido do Médio-Norte (R\$ 2.756), do Leste (R\$ 2.688), do Norte (R\$ 2.568) e do Oeste (R\$ 2.440).
+:::
+
+## Juntar tabelas: `left_join()`
+
+Nem tudo cabe numa tabela só. O nome completo e o piso salarial de cada setor estão em outro arquivo.
+
+```{webr}
+setores <- read.csv("dados/setores_mt.csv")
+setores
+```
+
+```{webr}
+trab2 <- trab |>
+  left_join(setores, by = "setor")
+
+dim(trab2)
+trab2 |>
+  select(id, setor, nome_setor, piso, renda) |>
+  head(4)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`left_join()` percorre a tabela da esquerda (`trab`) e, para cada linha, busca na da direita (`setores`) a linha com o mesmo valor em `setor`. Essa coluna em comum é a **chave** da junção. As colunas `nome_setor` e `piso` foram coladas à direita de cada trabalhador.
+
+Continuam 600 linhas, agora com 12 colunas. **Confira sempre o número de linhas depois de uma junção**: se ele aumentar, a chave se repete na tabela da direita, e linhas foram duplicadas sem aviso.
+:::
+
+Com as duas informações na mesma tabela, dá para compará-las.
+
+```{webr}
+trab2 |>
+  filter(!is.na(renda)) |>
+  mutate(abaixo_do_piso = renda < piso) |>
+  group_by(nome_setor) |>
+  summarise(n = n(),
+            proporcao = mean(abaixo_do_piso))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O bloco tem quatro passos. `filter(!is.na(renda))` fica só com quem informou a renda — o `!` significa "não". `mutate()` cria uma variável lógica: `TRUE` para quem ganha menos que o piso do seu setor. E a média de uma variável lógica é uma **proporção** (Aula 2).
+
+Cerca de um em cada cinco trabalhadores da agropecuária, do comércio, da indústria e dos serviços recebe menos que o piso do setor. Na administração pública, um em cada dez.
+:::
+
+## Formato longo e formato largo
+
+```{webr}
+medias <- trab |>
+  group_by(setor, vinculo) |>
+  summarise(renda_media = mean(renda, na.rm = TRUE), .groups = "drop")
+
+medias
+```
+
+```{webr}
+larga <- medias |>
+  pivot_wider(names_from = vinculo, values_from = renda_media)
+
+larga
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A tabela `medias` está no formato **longo**: uma linha para cada combinação de setor e vínculo, dez ao todo. `pivot_wider()` abre a coluna `vinculo` em duas — `formal` e `informal` — e preenche cada uma com a renda média. O resultado é o formato **largo**: uma linha por setor, fácil de ler e de comparar.
+
+Em quatro setores o vínculo formal paga mais. Na administração pública acontece o contrário — mas, antes de procurar uma explicação, volte à contagem: são só 3 informais nesse setor. Média de três pessoas não sustenta conclusão alguma. **Sempre que comparar médias de grupos, olhe o tamanho dos grupos.**
+:::
+
+```{webr}
+larga |>
+  pivot_longer(cols = c(formal, informal),
+               names_to = "vinculo",
+               values_to = "renda_media")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`pivot_longer()` faz o caminho de volta: empilha as colunas `formal` e `informal`, guardando o nome delas em `vinculo` e os valores em `renda_media`.
+
+Os dois formatos carregam a mesma informação. O largo é o das tabelas de relatório. O longo é o que os gráficos (Aula 6) e as regressões esperam: uma linha por observação, uma coluna por variável.
+:::
+
+### Exercício 2 — abaixo do piso, por vínculo
+
+Entre os trabalhadores formais e entre os informais, que proporção recebe menos que o piso do seu setor?
+
+```{webr}
+#| exercise: f5_ex2
+trab |>
+  ______(setores, by = "setor") |>
+  filter(!is.na(renda)) |>
+  mutate(abaixo_do_piso = renda < piso) |>
+  group_by(______) |>
+  summarise(n = n(),
+            proporcao = mean(abaixo_do_piso))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A junção é `left_join`, e a variável de grupo, `vinculo`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+trab |>
+  left_join(setores, by = "setor") |>
+  filter(!is.na(renda)) |>
+  mutate(abaixo_do_piso = renda < piso) |>
+  group_by(vinculo) |>
+  summarise(n = n(),
+            proporcao = mean(abaixo_do_piso))
+```
+
+Recebem menos que o piso 14,6% dos 343 formais e 27,3% dos 227 informais que informaram a renda.
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `summarise()`, `n()` | Reduz a tabela a resumos; conta as linhas. |
+| `group_by()` | Faz as operações seguintes valerem dentro de cada grupo. |
+| `count()` | Conta as linhas de cada grupo ou combinação de grupos. |
+| `.groups = "drop"` | Devolve o resumo sem agrupamento. |
+| `left_join()` | Cola as colunas de outra tabela, casando as linhas por uma chave. |
+| `!is.na()` | "Não é ausente": seleciona os valores preenchidos. |
+| `pivot_wider()` (tidyr) | Do formato longo para o largo. |
+| `pivot_longer()` (tidyr) | Do formato largo para o longo. |
+
+---
+
+Anterior: [Aula 4 — Transformar dados I](r-fund04.qmd) · Próxima: [Aula 6 — Gráficos](r-fund06.qmd) · Esta aula em Python: [Aula 5](py-fund05.qmd)

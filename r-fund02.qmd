@@ -1,0 +1,270 @@
+---
+title: "Aula 2 — Vetores e tipos de dados"
+subtitle: "Curso de R · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- reconhecer os três tipos básicos de dado: número, texto e lógico;
+- criar **vetores** e fazer contas com todos os elementos de uma vez;
+- selecionar elementos por posição e por condição;
+- lidar com **valores ausentes** (`NA`) e com categorias (**fatores**).
+:::
+
+Na Aula 1 cada objeto guardava um valor só. Dados de verdade vêm em conjuntos: a renda de 600 pessoas, o preço de 216 meses. No R, um conjunto de valores do mesmo tipo é um **vetor** — e cada coluna de uma tabela de dados é um vetor. Quem entende vetores entende a maior parte do R.
+
+## Três tipos de dado
+
+```{webr}
+renda <- 2850.50
+setor <- "Comércio"
+formal <- TRUE
+class(renda)
+class(setor)
+class(formal)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`class()` informa o tipo de um objeto. `numeric` é número. `character` é texto, sempre escrito **entre aspas**. `logical` é um valor lógico: `TRUE` (verdadeiro) ou `FALSE` (falso), em maiúsculas e **sem** aspas.
+
+O tipo define o que se pode fazer com o valor: números entram em contas, textos não. Foi o que causou o erro `"10" + 5` da Aula 1.
+:::
+
+## Vetores
+
+A função `c()` — de *combinar* — junta valores num vetor.
+
+```{webr}
+rendas <- c(2850.50, 1412, 5200, 3100, 1980)
+rendas
+length(rendas)
+rendas * 1.05
+rendas - 1412
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`length()` conta os elementos: cinco. As duas últimas linhas mostram a ideia mais importante da aula: a conta vale para **todos os elementos de uma vez**. `rendas * 1.05` aplica um reajuste de 5% a cada renda; `rendas - 1412` calcula quanto cada uma está acima do salário mínimo.
+
+Não foi preciso repetir a conta cinco vezes. Isso se chama **vetorização**, e é por causa dela que o código de análise de dados em R é curto.
+:::
+
+Muitas funções recebem um vetor e devolvem um resumo.
+
+```{webr}
+sum(rendas)
+mean(rendas)
+min(rendas)
+max(rendas)
+sort(rendas)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+As cinco rendas somam R\$ 14.542,50 e têm média de R\$ 2.908,50; a menor é o salário mínimo e a maior, R\$ 5.200. `sort()` devolve o vetor em ordem crescente — sem alterar o objeto `rendas`, que continua na ordem original.
+:::
+
+Há atalhos para criar vetores regulares.
+
+```{webr}
+1:10
+seq(0, 100, by = 25)
+rep("MT", 3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`1:10` gera os inteiros de 1 a 10. `seq()` gera uma sequência com o passo que você escolher. `rep()` repete um valor.
+:::
+
+## Selecionando elementos
+
+Os **colchetes** selecionam partes de um vetor.
+
+```{webr}
+rendas[1]
+rendas[c(1, 3)]
+rendas[-1]
+rendas[rendas > 2500]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O R conta as posições **a partir de 1**: `rendas[1]` é o primeiro elemento. Um vetor de posições seleciona vários de uma vez (`c(1, 3)`: o primeiro e o terceiro). O sinal de menos **exclui**: `rendas[-1]` é tudo, menos o primeiro.
+
+A última linha seleciona por **condição**: só as rendas maiores que 2.500. É a forma mais usada, e vale ver por dentro como funciona.
+:::
+
+```{webr}
+rendas > 2500
+sum(rendas > 2500)
+mean(rendas > 2500)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A comparação devolve um vetor **lógico**, com um `TRUE` ou `FALSE` para cada elemento. Dentro dos colchetes, o R fica só com as posições em que há `TRUE`.
+
+Nas contas, `TRUE` vale 1 e `FALSE` vale 0. Por isso `sum()` de uma condição **conta** quantos elementos a satisfazem (3), e `mean()` dá a **proporção** (0,6, ou 60%). Guarde esse truque: ele aparece em toda análise.
+:::
+
+As comparações disponíveis são `>`, `<`, `>=`, `<=`, `==` (igual) e `!=` (diferente). Para combinar condições, `&` significa "e", e `|` significa "ou".
+
+```{webr}
+setores <- c("AGR", "COM", "PUB", "COM", "IND")
+setores == "COM"
+rendas[setores == "COM"]
+rendas[rendas > 2000 & setores != "PUB"]
+setores %in% c("AGR", "IND")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Igualdade se testa com **dois** sinais: `==`. Um sinal só (`=`) serve para dar nome a argumentos de função, como em `digits = 1`.
+
+Um vetor pode filtrar outro, desde que tenham o mesmo tamanho: `rendas[setores == "COM"]` devolve as rendas de quem trabalha no comércio (1.412 e 3.100). A linha seguinte combina duas condições: renda acima de 2.000 **e** setor diferente do público.
+
+`%in%` testa se cada elemento pertence a uma lista — mais prático do que encadear vários `|`.
+:::
+
+### Exercício 1 — reajuste e filtro
+
+Aplique um reajuste de 8% ao vetor `rendas` e mostre apenas os valores reajustados que passam de R\$ 3.000.
+
+```{webr}
+#| exercise: f2_ex1
+reajustadas <- rendas * ______
+reajustadas[reajustadas > ______]
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Reajuste de 8% é multiplicar por `1.08`. O limite é `3000`, sem ponto de milhar.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+reajustadas <- rendas * 1.08
+reajustadas[reajustadas > 3000]
+```
+
+Três valores passam de R\$ 3.000 depois do reajuste: 3.078,54, 5.616,00 e 3.348,00.
+:::
+
+## Valores ausentes: `NA`
+
+Em dados reais sempre falta alguma coisa: o entrevistado não respondeu, o registro se perdeu. O R marca o dado que falta com `NA` (*not available*).
+
+```{webr}
+horas <- c(44, 40, NA, 36, 44)
+mean(horas)
+mean(horas, na.rm = TRUE)
+is.na(horas)
+sum(is.na(horas))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Qualquer conta que envolva um `NA` resulta em `NA`: o R se recusa a fingir que sabe o valor que falta. É um comportamento de segurança.
+
+O argumento `na.rm = TRUE` (*remove NA*) manda descartar os ausentes antes da conta: a média das quatro respostas é 41 horas. `is.na()` aponta onde estão os ausentes, e `sum(is.na())` os conta — aqui, um.
+
+Antes de analisar qualquer variável, **conte os ausentes**. Uma média calculada com metade das respostas não descreve a amostra inteira.
+:::
+
+## Texto que parece número
+
+```{webr}
+valor <- "3,5"
+as.numeric(valor)
+as.numeric("3.5")
+as.numeric("3.5") * 2
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`as.numeric()` converte texto em número. Com **vírgula** decimal a conversão falha: o resultado é `NA`, acompanhado do aviso `NAs introduced by coercion`. Com ponto, funciona.
+
+Esse é o tropeço mais comum com planilhas brasileiras: números escritos com vírgula entram no R como texto. A Aula 3 mostra como importar esses arquivos do jeito certo.
+:::
+
+## Categorias: fatores
+
+Variáveis como setor, sexo ou região assumem poucos valores, que se repetem. O R tem um tipo próprio para isso, o **fator**.
+
+```{webr}
+vinculo <- c("formal", "informal", "formal", "formal", "informal")
+vinculo_f <- factor(vinculo)
+levels(vinculo_f)
+table(vinculo_f)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`factor()` transforma o texto em categorias, e `levels()` lista as categorias existentes. `table()` conta quantas vezes cada uma aparece: três vínculos formais e dois informais.
+
+Fatores voltam nos gráficos da Aula 6 e nas regressões com variáveis qualitativas da Parte 2.
+:::
+
+### Exercício 2 — horas com ausentes
+
+O vetor abaixo traz as horas semanais de oito trabalhadores. Descubra quantos não responderam, a média de quem respondeu e quantos trabalham 44 horas ou mais.
+
+```{webr}
+#| exercise: f2_ex2
+h <- c(40, 44, NA, 30, 48, NA, 44, 36)
+sum(______(h))
+mean(h, ______ = TRUE)
+sum(h >= 44, na.rm = TRUE)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A função que identifica ausentes é `is.na`; o argumento que os descarta é `na.rm`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+h <- c(40, 44, NA, 30, 48, NA, 44, 36)
+sum(is.na(h))
+mean(h, na.rm = TRUE)
+sum(h >= 44, na.rm = TRUE)
+```
+
+Dois não responderam; a média dos seis que responderam é de 40,3 horas; três trabalham 44 horas ou mais.
+:::
+
+## Glossário da aula
+
+| Função ou símbolo | O que faz |
+|---|---|
+| `class()` | Informa o tipo de um objeto. |
+| `c()` | Combina valores num vetor. |
+| `length()`, `sum()`, `mean()`, `min()`, `max()`, `sort()` | Tamanho, soma, média, mínimo, máximo, ordenação. |
+| `1:10`, `seq()`, `rep()` | Sequências e repetições. |
+| `x[...]` | Seleciona elementos por posição ou por condição. |
+| `>` `<` `>=` `<=` `==` `!=` | Comparações. |
+| `&`, <code>&#124;</code>, `%in%` | "E", "ou", "pertence a". |
+| `NA`, `is.na()`, `na.rm = TRUE` | Valor ausente; identifica ausentes; descarta ausentes na conta. |
+| `as.numeric()` | Converte texto em número. |
+| `factor()`, `levels()`, `table()` | Cria categorias; lista as categorias; conta ocorrências. |
+
+---
+
+Anterior: [Aula 1 — Primeiros passos](r-fund01.qmd) · Próxima: [Aula 3 — Tabelas de dados](r-fund03.qmd) · Esta aula em Python: [Aula 2](py-fund02.qmd)

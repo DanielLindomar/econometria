@@ -1,0 +1,317 @@
+---
+title: "Aula 8 — Textos, datas e séries mensais"
+subtitle: "Curso de R · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- limpar e padronizar textos;
+- transformar textos em **datas** e fazer contas com elas;
+- criar variáveis a partir de datas: ano, tempo decorrido;
+- calcular variações percentuais e médias anuais numa série mensal.
+:::
+
+Números se comportam bem. Textos e datas, não: chegam com espaços sobrando, maiúsculas fora de lugar e formatos que mudam de um país para outro. Esta aula reúne as ferramentas para pô-los em ordem — e termina com as operações básicas sobre séries de preços.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega o dplyr e as duas bases da aula.
+:::
+
+```{webr}
+library(dplyr)
+trab <- read.csv("dados/trabalhadores_mt.csv")
+precos <- read.csv("dados/precos_agro.csv")
+dim(trab)
+dim(precos)
+```
+
+## Textos
+
+```{webr}
+nome <- "  Maria Souza "
+nchar(nome)
+trimws(nome)
+toupper(trimws(nome))
+tolower(trimws(nome))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`nchar()` conta os caracteres, **espaços inclusive**: são 14, embora só se vejam 11. `trimws()` remove os espaços das pontas. `toupper()` e `tolower()` passam tudo para maiúsculas ou minúsculas.
+
+Uma função pode receber o resultado de outra: em `toupper(trimws(nome))`, o R resolve primeiro a de dentro.
+:::
+
+Por que isso importa? Veja o que acontece com uma variável digitada por várias pessoas.
+
+```{webr}
+vinculo_bruto <- c("Formal", "formal ", "INFORMAL", "informal", " formal")
+table(vinculo_bruto)
+
+vinculo_limpo <- tolower(trimws(vinculo_bruto))
+table(vinculo_limpo)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Para o computador, `"Formal"`, `"formal "` e `" formal"` são três textos diferentes. A primeira tabela mostra cinco categorias onde só existem duas.
+
+Depois da padronização — espaços fora, tudo em minúsculas — a contagem fica correta: 3 formais e 2 informais. É o defeito mais comum das bases reais, e a base bruta da Aula 10 está cheia dele.
+:::
+
+```{webr}
+gsub(",", ".", "1568,38")
+as.numeric(gsub(",", ".", "1568,38"))
+paste("Setor:", "AGR")
+paste0("R$ ", 1412)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`gsub(procurar, trocar_por, texto)` substitui todas as ocorrências de um trecho. Trocar a vírgula pelo ponto é o que permite converter em número um valor escrito à brasileira — o problema da Aula 2, agora resolvido.
+
+`paste()` junta textos (e números) com um espaço entre eles; `paste0()`, sem espaço.
+:::
+
+```{webr}
+regioes <- c("Norte", "Médio-Norte", "Sul")
+grepl("Norte", regioes)
+substr("2024-03-15", 1, 4)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`grepl()` testa se cada texto **contém** o trecho procurado e devolve `TRUE` ou `FALSE`: serve para filtrar. `substr(texto, início, fim)` recorta um pedaço — aqui, os caracteres de 1 a 4.
+:::
+
+### Exercício 1 — limpar e contar
+
+Padronize o vetor abaixo, com tudo em maiúsculas e sem espaços, e conte quantas pessoas há de cada sexo.
+
+```{webr}
+#| exercise: f8_ex1
+sexo_bruto <- c("F", "m", "M ", "f", " F", "M", "f ")
+sexo_limpo <- ______(trimws(sexo_bruto))
+table(sexo_limpo)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A função que passa o texto para maiúsculas é `toupper`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+sexo_bruto <- c("F", "m", "M ", "f", " F", "M", "f ")
+sexo_limpo <- toupper(trimws(sexo_bruto))
+table(sexo_limpo)
+```
+
+São 4 mulheres e 3 homens. Sem a limpeza, a tabela teria sete categorias.
+:::
+
+## Datas
+
+```{webr}
+d <- as.Date("2024-03-15")
+class(d)
+d + 30
+as.Date("2024-12-31") - d
+format(d, "%d/%m/%Y")
+format(d, "%Y")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`as.Date()` transforma um texto em **data**. Para o R, uma data é um número de dias mostrado em forma de calendário; por isso dá para somar dias (`d + 30`) e subtrair uma data de outra: de 15 de março a 31 de dezembro de 2024 são 291 dias.
+
+`format()` faz o caminho inverso, da data para um texto, no formato que você descrever: `%d` é o dia, `%m` o mês e `%Y` o ano com quatro dígitos. Há também `%B`, o nome do mês por extenso, no idioma em que o computador estiver configurado (nesta página, inglês).
+:::
+
+O formato que o `as.Date()` entende sozinho é o internacional: ano-mês-dia. Com datas escritas à brasileira, é preciso avisar.
+
+```{webr}
+as.Date("15/03/2024")
+as.Date("15/03/2024", format = "%d/%m/%Y")
+```
+
+::: {.callout-warning}
+## Como ler essa saída — e um cuidado
+
+A primeira linha não deu erro: devolveu o dia 20 de março do **ano 15**. O R leu o texto como ano/mês/dia e fez o que pôde. É um erro silencioso, do tipo mais perigoso.
+
+O argumento `format` descreve como o texto está escrito, e a data sai certa. Depois de converter datas, confira sempre o resultado — o `range()` do próximo bloco é uma boa conferência.
+:::
+
+Na base do curso, a data de admissão chegou como texto. Convertida, ela rende variáveis novas.
+
+```{webr}
+trab$data_admissao <- as.Date(trab$data_admissao)
+range(trab$data_admissao)
+
+trab$ano_admissao <- as.numeric(format(trab$data_admissao, "%Y"))
+table(trab$ano_admissao)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+As admissões vão de 10 de fevereiro de 2005 a 10 de junho de 2024. `format(..., "%Y")` extrai o ano como texto, e `as.numeric()` o transforma em número.
+
+A tabela mostra uma amostra de contratações recentes: 449 das 600 pessoas (75%) foram admitidas de 2020 em diante.
+:::
+
+```{webr}
+referencia <- as.Date("2024-06-30")
+trab$tempo_casa <- as.numeric(referencia - trab$data_admissao) / 365.25
+summary(trab$tempo_casa)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A diferença entre duas datas vem em dias. `as.numeric()` fica só com o número, e a divisão por 365,25 o converte em anos.
+
+Em 30 de junho de 2024, o tempo médio no emprego era de 3,3 anos, e o mediano, de 2,2 anos. Média acima da mediana: outra distribuição assimétrica à direita.
+:::
+
+## Séries mensais
+
+A base `precos_agro.csv` tem uma linha por mês. Com a data convertida, o ano sai como antes — e o dplyr cuida do resto.
+
+```{webr}
+precos$data <- as.Date(precos$data)
+
+precos <- precos |>
+  mutate(ano = as.numeric(format(data, "%Y")),
+         var_soja = 100 * (soja_br / lag(soja_br) - 1))
+
+precos |>
+  select(data, soja_br, var_soja) |>
+  head(4)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`lag()` devolve a série **defasada**: em cada linha, o valor da linha anterior. Dividir o preço pelo do mês anterior, subtrair 1 e multiplicar por 100 dá a **variação percentual mensal**.
+
+A primeira linha fica `NA`: não há mês anterior a março de 2006. Em abril de 2006 a soja caiu 2,8%; em maio, subiu 6,1%.
+
+Tudo isso supõe que as linhas estejam em ordem de data. Se não estiverem, ordene antes com `arrange(data)`.
+:::
+
+```{webr}
+summary(precos$var_soja)
+
+precos |>
+  arrange(desc(var_soja)) |>
+  select(data, soja_br, var_soja) |>
+  head(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Em média, o preço da soja subiu 0,8% ao mês no período. Mas a média esconde muita oscilação: as variações mensais vão de −13,0% a +16,6%. A maior alta foi a de julho de 2012.
+:::
+
+Para passar de dados mensais a **anuais**, agrupa-se por ano.
+
+```{webr}
+anual <- precos |>
+  group_by(ano) |>
+  summarise(meses = n(),
+            soja = mean(soja_br),
+            boi = mean(boi))
+
+tail(anual, 6)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+É o `group_by()` com `summarise()` da Aula 5, agora com o ano como grupo. A coluna `meses` conta quantos meses entram em cada média: 2024 tem só 2 (e 2006, 10). Médias de anos incompletos não se comparam bem com as de anos cheios.
+
+A saca de soja custou em média R\$ 82 em 2019 e R\$ 189 em 2022: mais que o dobro em três anos.
+:::
+
+```{webr}
+precos <- precos |>
+  mutate(var12_soja = 100 * (soja_br / lag(soja_br, 12) - 1))
+
+precos |>
+  select(data, soja_br, var12_soja) |>
+  tail(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com `lag(soja_br, 12)`, a comparação é com o mesmo mês do ano anterior: é a **variação em 12 meses**, a forma usual de noticiar preços, que não sofre com as oscilações típicas de cada época do ano.
+
+Em fevereiro de 2024, a soja estava 31,8% mais barata do que um ano antes.
+:::
+
+### Exercício 2 — as maiores altas do boi gordo
+
+Calcule a variação percentual mensal do preço do boi gordo e mostre os três meses de maior alta.
+
+```{webr}
+#| exercise: f8_ex2
+precos |>
+  mutate(var_boi = 100 * (boi / ______(boi) - 1)) |>
+  arrange(______(var_boi)) |>
+  select(data, boi, var_boi) |>
+  head(3)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A função que defasa a série é `lag`; a que inverte a ordenação é `desc`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+precos |>
+  mutate(var_boi = 100 * (boi / lag(boi) - 1)) |>
+  arrange(desc(var_boi)) |>
+  select(data, boi, var_boi) |>
+  head(3)
+```
+
+A maior alta mensal foi a de novembro de 2019: 22,6%. Seguem novembro de 2007 (13,2%) e junho de 2008 (12,6%).
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `nchar()`, `trimws()` | Conta caracteres; remove espaços das pontas. |
+| `toupper()`, `tolower()` | Maiúsculas; minúsculas. |
+| `gsub()` | Substitui um trecho de texto por outro. |
+| `paste()`, `paste0()` | Junta textos, com e sem espaço. |
+| `grepl()`, `substr()` | Testa se o texto contém um trecho; recorta um pedaço. |
+| `as.Date()` | Converte texto em data; `format = "%d/%m/%Y"` para o padrão brasileiro. |
+| `format()` | Converte data em texto: `%d` dia, `%m` mês, `%Y` ano. |
+| `lag()` (dplyr) | Série defasada em um ou mais períodos. |
+| `summary()`, `tail()` | Resumo de uma variável; últimas linhas. |
+
+---
+
+Anterior: [Aula 7 — Estatística descritiva](r-fund07.qmd) · Próxima: [Aula 9 — Programação básica](r-fund09.qmd) · Esta aula em Python: [Aula 8](py-fund08.qmd)

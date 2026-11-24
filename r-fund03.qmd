@@ -1,0 +1,276 @@
+---
+title: "Aula 3 — Tabelas de dados"
+subtitle: "Curso de R · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- entender o que é um **data frame**, a tabela de dados do R;
+- importar um arquivo CSV — inclusive no padrão brasileiro, com ponto e vírgula;
+- inspecionar a base: tamanho, tipos, primeiras linhas e resumo;
+- acessar colunas e linhas, carregar **pacotes** e exportar resultados.
+:::
+
+Ninguém digita 600 rendas num vetor. Os dados chegam em arquivos, e o primeiro passo de qualquer análise é trazê-los para dentro do R e conferir se chegaram inteiros.
+
+::: {.callout-note}
+## A base do curso
+
+Da Aula 3 à Aula 10 trabalharemos com a **Pesquisa de Emprego e Renda de Mato Grosso (PER-MT)**, uma amostra de 600 trabalhadores.
+
+A base é **simulada**: foi construída para o curso, com variáveis e ordens de grandeza plausíveis. As pessoas não existem, e os números não descrevem o mercado de trabalho real do estado. O que é real são as situações de análise que ela permite treinar.
+:::
+
+## Importando um arquivo CSV
+
+```{webr}
+trab <- read.csv("dados/trabalhadores_mt.csv")
+dim(trab)
+names(trab)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`read.csv()` lê um arquivo **CSV** — texto simples em que as colunas são separadas por vírgula — e devolve um **data frame**: uma tabela com uma observação por linha e uma variável por coluna.
+
+`dim()` informa o tamanho: 600 linhas e 10 colunas. `names()` lista os nomes das colunas.
+
+O texto `"dados/trabalhadores_mt.csv"` é o **caminho** do arquivo: a pasta `dados`, depois o nome. Aqui a pasta pertence ao site; no seu computador, será uma pasta do seu disco (Aula 10).
+:::
+
+| Variável | O que é |
+|---|---|
+| `id` | Número do entrevistado |
+| `regiao` | Região de Mato Grosso onde trabalha |
+| `sexo` | `F` ou `M` |
+| `idade` | Idade, em anos |
+| `escolaridade` | Anos de estudo |
+| `setor` | `AGR` agropecuária, `IND` indústria, `COM` comércio, `SER` serviços, `PUB` administração pública |
+| `vinculo` | `formal` ou `informal` |
+| `horas` | Horas trabalhadas por semana |
+| `renda` | Rendimento mensal do trabalho, em reais |
+| `data_admissao` | Data em que começou no trabalho atual |
+
+## A primeira inspeção
+
+```{webr}
+str(trab)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`str()` (de *structure*) é o primeiro comando depois de qualquer importação. Ele mostra o tamanho da base e, para cada coluna, o **tipo** e os primeiros valores: `int` é número inteiro, `num` é número com decimais, `chr` é texto.
+
+É aqui que se descobre se um número veio como número. Se `renda` aparecesse como `chr`, nenhuma conta funcionaria. Repare que `data_admissao` veio como texto: datas pedem um tratamento próprio, que fica para a Aula 8.
+:::
+
+```{webr}
+head(trab)
+tail(trab, 3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`head()` mostra as seis primeiras linhas e `tail()`, as últimas — aqui, três. Olhar as pontas da tabela é a conferência mais simples de que a importação deu certo: os valores fazem sentido? O arquivo termina onde deveria?
+:::
+
+```{webr}
+summary(trab)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`summary()` resume cada coluna. Para as numéricas, mostra mínimo, quartis, mediana, média e máximo. Para as de texto, traz apenas informações gerais, como a quantidade de valores.
+
+Duas colunas trazem uma linha a mais, com a contagem de `NA`: faltam **18** respostas em `horas` e **30** em `renda`. São os valores ausentes da Aula 2, e vão exigir `na.rm = TRUE` nas contas.
+
+Note também a renda: a mediana é de R\$ 2.690 e a média, de R\$ 3.141. Quando a média fica bem acima da mediana, poucos valores altos a estão puxando para cima. A Aula 7 volta a isso.
+:::
+
+## Acessando colunas e linhas
+
+```{webr}
+trab$renda[1:5]
+mean(trab$renda, na.rm = TRUE)
+trab[1:3, c("setor", "renda")]
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O cifrão extrai uma coluna: `trab$renda` é um **vetor** com 600 rendas, e tudo o que valia para vetores na Aula 2 vale aqui — colchetes, `mean()`, `na.rm`.
+
+Com o data frame inteiro, os colchetes levam uma vírgula: `[linhas, colunas]`. `trab[1:3, c("setor", "renda")]` pede as linhas 1 a 3 e as colunas `setor` e `renda`.
+:::
+
+```{webr}
+publico <- trab[trab$setor == "PUB", ]
+nrow(publico)
+mean(publico$renda, na.rm = TRUE)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Uma condição no lugar das linhas **filtra** a tabela: ficaram só os trabalhadores da administração pública. O espaço vazio depois da vírgula significa "todas as colunas".
+
+`nrow()` conta as linhas: são 75 pessoas, com renda média de R\$ 4.310 — acima dos R\$ 3.141 da amostra inteira. A Aula 4 apresenta uma forma mais legível de escrever filtros como esse.
+:::
+
+### Exercício 1 — o setor agropecuário
+
+Crie um data frame só com os trabalhadores da agropecuária. Quantos são? Qual é a escolaridade média deles?
+
+```{webr}
+#| exercise: f3_ex1
+agro <- trab[trab$setor == "______", ]
+nrow(agro)
+mean(agro$______)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O código do setor é `AGR`, e a coluna com os anos de estudo se chama `escolaridade`. Como essa coluna não tem ausentes, `na.rm` é dispensável.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+agro <- trab[trab$setor == "AGR", ]
+nrow(agro)
+mean(agro$escolaridade)
+```
+
+São 161 trabalhadores, com 11,1 anos de estudo em média.
+:::
+
+## O padrão brasileiro: ponto e vírgula
+
+No CSV internacional, a vírgula separa as colunas e o ponto marca os decimais. No Brasil a vírgula **é** o separador decimal; por isso o Excel em português e os sistemas públicos gravam CSV com **ponto e vírgula** entre as colunas. O arquivo `trabalhadores_mt_bruto.csv` está nesse padrão. Veja o que acontece ao lê-lo com `read.csv()`.
+
+<!-- erro-esperado -->
+```{webr}
+bruto <- read.csv("dados/trabalhadores_mt_bruto.csv")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A mensagem é enigmática — `duplicate 'row.names' are not allowed` —, mas a causa é simples: o R procurou vírgulas para separar colunas e só as encontrou **dentro dos números**, como em `1568,38`. A tabela ficou sem pé nem cabeça.
+
+Com outros arquivos nesse padrão, o sintoma é diferente: nenhum erro, e uma tabela com **uma coluna só**. A cura é a mesma nos dois casos.
+:::
+
+```{webr}
+bruto <- read.csv2("dados/trabalhadores_mt_bruto.csv")
+dim(bruto)
+head(bruto, 3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`read.csv2()` é a versão para o padrão brasileiro: ponto e vírgula entre colunas, vírgula nos decimais. Agora são 10 colunas, e a renda chegou como número.
+
+Os nomes de coluna com espaço ganharam um ponto no lugar dele (`Renda.mensal`), porque nomes no R não podem ter espaço. Este arquivo tem 609 linhas e vários defeitos colocados de propósito: é a **base bruta** que você vai limpar na Aula 10.
+:::
+
+::: {.callout-note}
+## E as planilhas do Excel?
+
+Arquivos `.xlsx` são lidos com a função `read_excel()`, do pacote **readxl**. No seu computador:
+
+```r
+library(readxl)
+dados <- read_excel("minha_planilha.xlsx", sheet = 1)
+```
+
+O argumento `sheet` escolhe a aba. O resultado é uma tabela como as desta aula.
+:::
+
+## Pacotes
+
+O R que vem instalado traz algumas centenas de funções. Milhares de outras ficam em **pacotes**, escritos pela comunidade. Usar um pacote tem dois passos: **instalar**, uma única vez, com `install.packages("dplyr")`; e **carregar**, em toda sessão, com `library()`. Nesta página os pacotes já estão instalados; basta carregar.
+
+```{webr}
+library(dplyr)
+glimpse(trab)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`library(dplyr)` carrega o pacote **dplyr**, e a partir daí as funções dele ficam disponíveis. `glimpse()` é uma delas: faz o mesmo que `str()`, de forma mais compacta.
+
+Esquecer o `library()` produz o erro `could not find function`, que você viu na Aula 1. O dplyr é o pacote de manipulação de dados mais usado do R, e é o assunto das Aulas 4 e 5.
+:::
+
+## Exportando
+
+```{webr}
+write.csv(publico, "setor_publico.csv", row.names = FALSE)
+file.exists("setor_publico.csv")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`write.csv()` grava um data frame num arquivo CSV. O argumento `row.names = FALSE` evita uma coluna extra com os números das linhas. `file.exists()` confirma que o arquivo foi criado.
+
+Aqui o arquivo vive na memória do navegador e some quando a página é fechada. No seu computador, ele vai para a pasta de trabalho. Para gravar no padrão brasileiro, use `write.csv2()`.
+:::
+
+### Exercício 2 — importar e conferir
+
+O arquivo `setores_mt.csv` traz o nome completo e o piso salarial de cada setor, com as colunas separadas por vírgula. Importe-o com a função adequada, veja a tabela e calcule o piso médio.
+
+```{webr}
+#| exercise: f3_ex2
+setores <- ______("dados/setores_mt.csv")
+setores
+mean(setores$______)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Colunas separadas por vírgula pedem `read.csv`. Depois de ver a tabela, você descobre que a coluna do piso se chama `piso`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+setores <- read.csv("dados/setores_mt.csv")
+setores
+mean(setores$piso)
+```
+
+A tabela tem cinco linhas, uma por setor, e o piso médio é de R\$ 1.796.
+:::
+
+## Glossário da aula
+
+| Função ou símbolo | O que faz |
+|---|---|
+| `read.csv()`, `read.csv2()` | Importa CSV no padrão internacional; no padrão brasileiro. |
+| `dim()`, `nrow()`, `names()` | Tamanho da tabela; número de linhas; nomes das colunas. |
+| `str()`, `summary()` | Estrutura e tipos; resumo de cada coluna. |
+| `head()`, `tail()` | Primeiras e últimas linhas. |
+| `tabela$coluna` | Extrai uma coluna como vetor. |
+| `tabela[linhas, colunas]` | Seleciona linhas e colunas. |
+| `install.packages()`, `library()` | Instala um pacote (uma vez); carrega um pacote (toda sessão). |
+| `glimpse()` (dplyr) | Estrutura da tabela, em formato compacto. |
+| `write.csv()`, `file.exists()` | Grava um CSV; verifica se um arquivo existe. |
+
+---
+
+Anterior: [Aula 2 — Vetores e tipos de dados](r-fund02.qmd) · Próxima: [Aula 4 — Transformar dados I](r-fund04.qmd) · Esta aula em Python: [Aula 3](py-fund03.qmd)

@@ -1,0 +1,282 @@
+---
+title: "Aula 1 — Primeiros passos"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- rodar código Python nesta página e saber o que cada parte da tela faz;
+- usar o Python como calculadora e guardar resultados em **variáveis**;
+- chamar **funções** e entender seus **argumentos**;
+- ler uma **mensagem de erro** sem se assustar — e saber o que fazer com ela.
+:::
+
+Este curso começa do zero: não supõe que você já tenha programado. O Python é uma linguagem de uso geral que se tornou uma das mais usadas para analisar dados. O curso é espelho do Curso de R: as mesmas aulas, as mesmas bases, os mesmos exercícios. Nesta página, e em todo o curso, o Python roda **dentro do navegador** — nada precisa ser instalado. Na Aula 10 você aprende a levá-lo para o seu computador.
+
+::: {.callout-important}
+## Como usar esta página
+
+Cada caixa abaixo é um bloco de código de verdade. Clique em **Run Code** para executá-lo.
+
+Na primeira vez, a página demora cerca de meio minuto para responder: o navegador está baixando o Python. Depois fica rápido. Não é travamento.
+
+Você pode apagar, alterar e rodar de novo quantas vezes quiser; **Start Over** devolve o bloco ao texto original. Rode os blocos **na ordem**: os de baixo usam o que os de cima criaram.
+:::
+
+## O Python como calculadora
+
+```{pyodide}
+print(2 + 3)
+print(10 - 4)
+print(6 * 7)
+print(20 / 8)
+print(2 ** 10)
+print((1000 + 250) * 0.1)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`print()` mostra um resultado na tela; cada linha do bloco mostra uma conta.
+
+`*` multiplica e `/` divide. A potência é `**` — e não `^`, que em Python faz outra coisa. Os parênteses mandam na ordem das contas, como na matemática. E repare no `0.1`: o Python usa **ponto** como separador decimal, nunca vírgula.
+
+A divisão sempre devolve um número com casa decimal (`2.5`, `125.0`), mesmo quando o resultado é inteiro.
+:::
+
+Tudo o que vem depois de `#` é **comentário**: o Python ignora. Comentário serve para quem lê o código — inclusive você, daqui a um mês.
+
+```{pyodide}
+# Juros compostos: R$ 1.000 aplicados a 1% ao mês, por 12 meses
+1000 * (1 + 0.01) ** 12
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O montante é de R\$ 1.126,83. A linha de comentário não mudou a conta em nada; só explicou o que ela faz.
+
+Desta vez não houve `print()` e o resultado apareceu mesmo assim: o bloco mostra sozinho o valor da **última linha**. Para ver qualquer outra linha, use `print()`.
+:::
+
+## Variáveis: guardando resultados
+
+Refazer a conta inteira a cada mudança cansa. Melhor dar **nome** aos valores.
+
+```{pyodide}
+capital = 1000
+taxa = 0.01
+meses = 12
+montante = capital * (1 + taxa) ** meses
+montante
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O sinal `=` é o operador de **atribuição**; leia "recebe". A linha `capital = 1000` cria uma variável chamada `capital` que guarda o valor 1000. Não é o "igual" da matemática: é uma ordem para guardar.
+
+Criar uma variável não mostra nada na tela. Para ver o que ela guarda, escreva o nome dela sozinho na última linha — ou use `print()`.
+
+A vantagem aparece quando algo muda: troque `meses = 12` por `meses = 24`, rode de novo, e a conta inteira se atualiza.
+:::
+
+```{pyodide}
+salario_minimo = 1412
+Salario_minimo = 9999
+salario_minimo
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O Python diferencia **maiúsculas de minúsculas**: `salario_minimo` e `Salario_minimo` são duas variáveis diferentes, e a primeira continua valendo 1412.
+
+Nomes de variáveis não podem ter espaço nem começar com número. O costume é usar letras minúsculas, separar palavras com `_` e não usar acentos.
+:::
+
+### Exercício 1 — o rendimento de uma aplicação
+
+Você aplica R\$ 5.000 a 0,8% ao mês. Quanto terá depois de 36 meses? Complete as lacunas.
+
+```{pyodide}
+#| exercise: f1_ex1
+capital = ______
+taxa = ______
+meses = 36
+capital * (1 + taxa) ** meses
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O capital é `5000`. A taxa de 0,8% se escreve `0.008` — com ponto.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+capital = 5000
+taxa = 0.008
+meses = 36
+capital * (1 + taxa) ** meses
+```
+
+Cerca de R\$ 6.661. Os R\$ 1.661 de juros são mais do que 36 × 0,8% = 28,8% do capital, porque os juros rendem juros.
+:::
+
+## Funções e argumentos
+
+Quase tudo em Python se faz com **funções**: você entrega valores entre parênteses e a função devolve um resultado.
+
+```{pyodide}
+print(abs(-7.5))
+print(round(montante, 2))
+print(round(montante))
+print(round(montante, ndigits=1))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`abs()` devolve o valor absoluto e recebe um valor só. `round()` arredonda e recebe dois: o número e a quantidade de casas decimais. Esses valores entregues à função se chamam **argumentos**.
+
+Quando você não informa as casas, a função arredonda para o inteiro mais próximo: `round(montante)` devolve 1127.
+
+O argumento pode ser dado pela **posição** (`round(montante, 2)`: o segundo valor é o número de casas) ou pelo **nome** (`ndigits=1`). Pelo nome o código fica mais fácil de ler.
+:::
+
+O Python básico traz poucas funções matemáticas. As demais ficam em **módulos**, que precisam ser carregados com `import` antes do uso.
+
+```{pyodide}
+import math
+print(math.sqrt(144))
+print(round(math.sqrt(2), 3))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`import math` carrega o módulo de matemática; `math.sqrt()` é a função raiz quadrada **dentro** dele — o ponto liga o módulo à função. Esquecer o `import` é uma das causas mais comuns de erro.
+
+Uma função pode ir dentro de outra, e o Python resolve de dentro para fora: primeiro `math.sqrt(2)`, depois o arredondamento para 3 casas. Quando não souber usar uma função, pesquise o nome dela com a palavra "Python": a documentação e os exemplos estão a uma busca de distância.
+:::
+
+## Mensagens de erro: leia, não tema
+
+Quem programa todos os dias vê dezenas de mensagens de erro por dia. Um erro não quebra nada: é só o Python dizendo que não entendeu. A habilidade que importa é **ler a mensagem**. Os cinco blocos abaixo têm, cada um, um erro colocado de propósito. Rode e leia.
+
+Nesta página o erro aparece resumido a uma linha. No seu computador o Python mostra mais: um *Traceback*, que é o caminho percorrido até o erro, e, na **última linha**, o **tipo** do erro seguido dessa mesma mensagem — por exemplo, `NameError: name 'Preco' is not defined`. O tipo de cada erro está indicado abaixo, porque é por ele que se pesquisa.
+
+<!-- erro-esperado -->
+```{pyodide}
+preco = 10
+Preco * 2
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+**`name 'Preco' is not defined`** — nome não definido; o tipo deste erro é `NameError`. O Python procurou uma variável com exatamente esse nome e não achou. Quase sempre é erro de digitação ou de maiúscula; às vezes é o bloco que cria a variável que ainda não foi rodado.
+:::
+
+<!-- erro-esperado -->
+```{pyodide}
+raiz(144)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O mesmo tipo de erro, `NameError`, agora com uma função: `raiz` não existe. Ou o nome está errado, ou a função mora num módulo que precisa de `import` — aqui, o certo é `math.sqrt(144)`.
+:::
+
+<!-- erro-esperado -->
+```{pyodide}
+round(3.14159, 2
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+**`'(' was never closed`** — o parêntese nunca foi fechado. É um `SyntaxError`, erro de escrita: parêntese, aspas ou vírgula faltando ou sobrando. Nesse tipo de erro o Python nem tenta executar o bloco.
+:::
+
+<!-- erro-esperado -->
+```{pyodide}
+"10" + 5
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+**`can only concatenate str (not "int") to str`** — só é possível juntar texto com texto. É um `TypeError`, erro de tipo: o `"10"` entre aspas é um **texto**, não um número, e texto não se soma com número. Tipos de dados são o assunto da Aula 2.
+:::
+
+<!-- erro-esperado -->
+```{pyodide}
+preco = 10
+  total = preco * 2
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+**`unexpected indent`** — recuo inesperado. É um `IndentationError`. Em Python, os espaços no **começo da linha** têm significado: servem para marcar blocos, como você verá na Aula 9. Uma linha comum não pode começar com espaços sobrando.
+:::
+
+::: {.callout-important}
+## Roteiro para qualquer erro
+
+1. Leia a mensagem até o fim: a **última linha** traz o tipo do erro e a causa.
+2. Confira os nomes: digitação, maiúsculas e minúsculas.
+3. Conte parênteses e aspas: cada um que abre precisa fechar.
+4. Verifique se os blocos anteriores (e os `import`) foram rodados.
+5. Copie a mensagem e pesquise. Alguém já teve o mesmo erro.
+:::
+
+### Exercício 2 — conserte o código
+
+O bloco abaixo deveria mostrar 121, mas tem **três erros**. Rode, leia a mensagem, corrija um erro e rode de novo — até funcionar.
+
+<!-- erro-esperado -->
+```{pyodide}
+#| exercise: f1_ex2
+Base = 11
+resultado = base ** 2
+Round(resultado
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A primeira mensagem reclama de um parêntese que não foi fechado. Depois aparecem, um de cada vez, uma variável com maiúscula trocada e uma função com maiúscula trocada.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+base = 11
+resultado = base ** 2
+round(resultado)
+```
+
+Três correções: `Base` virou `base`, `Round` virou `round`, e o parêntese foi fechado.
+:::
+
+## Glossário da aula
+
+| Função ou símbolo | O que faz |
+|---|---|
+| `+` `-` `*` `/` `**` | Soma, subtração, multiplicação, divisão, potência. |
+| `#` | Começa um comentário, que o Python ignora. |
+| `=` | Atribuição: guarda um valor numa variável. |
+| `print()` | Mostra um valor na tela. |
+| `abs()`, `round(x, ndigits)` | Valor absoluto; arredondamento. |
+| `import math`, `math.sqrt()` | Carrega o módulo de matemática; raiz quadrada. |
+| `NameError`, `SyntaxError`, `TypeError`, `IndentationError` | Os quatro erros mais comuns de quem começa. |
+
+---
+
+Próxima: [Aula 2 — Séries e tipos de dados](py-fund02.qmd) · Esta aula em R: [Aula 1](r-fund01.qmd)

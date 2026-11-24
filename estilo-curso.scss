@@ -13,3 +13,6 @@ a:hover { text-decoration: underline; }
 .callout { border-radius: 8px; }
 div.sourceCode { border-radius: 8px; }
 .logo-topo { text-align: right; margin: -0.5rem 0 1rem 0; }
+/* menus longos (cursos de R e de Python): rolagem interna e cabecalhos de parte */
+.navbar .dropdown-menu { max-height: 78vh; overflow-y: auto; }
+.navbar .dropdown-header { font-weight: 700; color: #1E2761; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.03em; }

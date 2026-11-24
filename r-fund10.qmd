@@ -1,0 +1,372 @@
+---
+title: "Aula 10 — Projeto guiado"
+subtitle: "Curso de R · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+webr:
+  packages:
+    - dplyr
+    - ggplot2
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- percorrer, do início ao fim, o fluxo de uma análise: importar, diagnosticar, limpar, conferir, descrever, visualizar e modelar;
+- limpar uma base bruta e registrar as decisões tomadas;
+- estimar a sua primeira regressão;
+- instalar o R no seu computador e organizar um projeto.
+:::
+
+Esta aula quase não traz função nova. Ela junta as nove anteriores num trabalho completo, do arquivo bruto ao primeiro resultado — o caminho que todo projeto de econometria percorre.
+
+A matéria-prima é o arquivo `trabalhadores_mt_bruto.csv`: a mesma pesquisa das outras aulas, mas como teria chegado do campo, antes de qualquer tratamento.
+
+| Etapa | O que se faz | Onde você aprendeu |
+|---|---|---|
+| 1. Importar | Ler o arquivo e dar nomes simples às colunas | Aula 3 |
+| 2. Diagnosticar | Procurar valores impossíveis, textos despadronizados, duplicatas | Aulas 3 e 7 |
+| 3. Limpar | Corrigir o que o diagnóstico encontrou | Aulas 4 e 8 |
+| 4. Conferir | Verificar se a limpeza fez o que devia | Aulas 3 e 7 |
+| 5. Descrever | Montar a tabela-resumo | Aula 5 |
+| 6. Visualizar | Olhar a relação de interesse | Aula 6 |
+| 7. Modelar | Estimar a primeira regressão | **novo** |
+| 8. Exportar | Guardar a base tratada | Aula 3 |
+
+## Etapa 1 — Importar
+
+```{webr}
+library(dplyr)
+library(ggplot2)
+
+bruto <- read.csv2("dados/trabalhadores_mt_bruto.csv")
+dim(bruto)
+names(bruto)
+```
+
+```{webr}
+names(bruto) <- c("id", "regiao", "sexo", "idade", "escolaridade",
+                  "setor", "vinculo", "horas", "renda", "data_admissao")
+str(bruto)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O arquivo está no padrão brasileiro, e por isso a leitura é com `read.csv2()`. São 609 linhas — nove a mais que as 600 da base que você conhece. Já é um sinal de que há algo a limpar.
+
+Nomes com acento, espaço e maiúsculas dão trabalho em cada linha de código. Atribuir um vetor a `names()` troca todos de uma vez, na ordem das colunas. O `str()` confirma os tipos: números como números, e a data ainda como texto.
+:::
+
+## Etapa 2 — Diagnosticar
+
+Antes de corrigir, é preciso saber o que está errado.
+
+```{webr}
+summary(bruto[, c("idade", "escolaridade", "horas", "renda")])
+```
+
+```{webr}
+unique(bruto$vinculo)
+table(bruto$sexo)
+sum(duplicated(bruto))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O diagnóstico encontra quatro problemas:
+
+1. **Idades impossíveis.** O mínimo é 3 anos e o máximo, 190.
+2. **Renda negativa.** O mínimo é −1.800.
+3. **Texto despadronizado.** `unique()` lista os valores distintos de uma coluna: são oito grafias para dois vínculos, com maiúsculas e espaços sobrando. No sexo, quatro grafias para duas categorias.
+4. **Linhas repetidas.** `duplicated()` marca com `TRUE` cada linha idêntica a uma anterior: são 6.
+
+Há ainda os ausentes (18 em `horas`, 31 em `renda`), que não são erro: são entrevistados que não responderam.
+:::
+
+## Etapa 3 — Limpar
+
+```{webr}
+limpa <- bruto |>
+  distinct() |>
+  mutate(vinculo = tolower(trimws(vinculo)),
+         sexo = toupper(sexo),
+         data_admissao = as.Date(data_admissao, format = "%d/%m/%Y")) |>
+  filter(idade >= 18, idade <= 64,
+         renda > 0 | is.na(renda)) |>
+  arrange(id)
+
+dim(limpa)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Cada linha do encadeamento resolve um item do diagnóstico:
+
+- `distinct()` elimina as linhas repetidas: de 609 para 603;
+- `mutate()` padroniza os textos e converte a data, que está no padrão brasileiro;
+- `filter()` mantém as idades de 18 a 64 anos, a faixa etária que a pesquisa cobre, e as rendas positivas;
+- `arrange()` reordena pelo número do entrevistado.
+
+Sobram 600 linhas. Atenção ao trecho `| is.na(renda)`: sem ele, o filtro `renda > 0` jogaria fora, junto com a renda negativa, todas as pessoas que **não informaram** a renda. Ausente não é erro.
+
+Limpar é tomar decisões. Aqui, as três linhas com valor impossível foram excluídas; outra saída seria manter a pessoa e trocar só o valor errado por `NA`. Não há regra universal. O que não pode faltar é o **registro** do que foi feito — e o código é esse registro.
+:::
+
+### Exercício 1 — o filtro que joga fora o que não devia
+
+Refaça a limpeza com o filtro `renda > 0`, sem o trecho `| is.na(renda)`. Quantas linhas sobram? Quantas delas têm renda ausente?
+
+```{webr}
+#| exercise: f10_ex1
+teste <- bruto |>
+  ______() |>
+  filter(idade >= 18, idade <= 64, renda > 0)
+
+nrow(teste)
+sum(______(teste$renda))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As linhas repetidas saem com `distinct`; os ausentes são identificados com `is.na`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+teste <- bruto |>
+  distinct() |>
+  filter(idade >= 18, idade <= 64, renda > 0)
+
+nrow(teste)
+sum(is.na(teste$renda))
+```
+
+Sobram 570 linhas, nenhuma com renda ausente: o filtro eliminou, sem aviso, as 30 pessoas que não informaram a renda. Para o `filter()`, uma condição que resulta em `NA` é tratada como falsa.
+:::
+
+## Etapa 4 — Conferir
+
+Nenhuma limpeza está terminada antes de ser conferida.
+
+```{webr}
+table(limpa$vinculo)
+table(limpa$sexo)
+range(limpa$idade)
+range(limpa$data_admissao)
+```
+
+```{webr}
+oficial <- read.csv("dados/trabalhadores_mt.csv")
+oficial$data_admissao <- as.Date(oficial$data_admissao)
+
+all.equal(limpa, oficial)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Duas categorias de vínculo, duas de sexo, idades de 21 a 64 anos, datas de 2005 a 2024: tudo no lugar.
+
+`all.equal()` compara dois objetos e responde `TRUE` quando são iguais. A base que você acabou de limpar é **idêntica** à `trabalhadores_mt.csv` usada da Aula 3 à Aula 9. Foi assim que ela nasceu.
+:::
+
+## Etapa 5 — Descrever
+
+```{webr}
+limpa |>
+  group_by(setor) |>
+  summarise(n = n(),
+            renda_media = mean(renda, na.rm = TRUE),
+            renda_mediana = median(renda, na.rm = TRUE),
+            escolaridade = mean(escolaridade),
+            informalidade = 100 * mean(vinculo == "informal")) |>
+  arrange(desc(renda_media))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+É a tabela que abre qualquer trabalho empírico: quem está na amostra e como os grupos diferem. A coluna `informalidade` usa o truque da Aula 2 — a média de uma condição é uma proporção.
+
+A administração pública reúne a maior renda, a maior escolaridade e a menor informalidade (4%). A agropecuária tem a maior informalidade (62%), mas não a menor renda. Três variáveis mudam juntas de um setor para outro, e a tabela não consegue dizer quanto da diferença de renda se deve a cada uma. É para isso que serve a regressão.
+:::
+
+## Etapa 6 — Visualizar
+
+```{webr}
+com_renda <- limpa |> filter(!is.na(renda))
+
+ggplot(com_renda, aes(x = escolaridade, y = log(renda))) +
+  geom_point(alpha = 0.4) +
+  labs(x = "Anos de estudo", y = "Logaritmo da renda")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+No eixo vertical está o **logaritmo** da renda (Aula 7). Com ele, a nuvem fica mais regular: os pontos se espalham de modo parecido ao longo de todo o eixo horizontal, em torno de uma tendência que lembra uma reta.
+:::
+
+## Etapa 7 — A primeira regressão
+
+```{webr}
+modelo <- lm(log(renda) ~ escolaridade, data = limpa)
+
+coef(modelo)
+summary(modelo)$r.squared
+```
+
+```{webr}
+ggplot(com_renda, aes(x = escolaridade, y = log(renda))) +
+  geom_point(alpha = 0.4) +
+  geom_abline(intercept = coef(modelo)[1], slope = coef(modelo)[2],
+              color = "red", linewidth = 1) +
+  labs(x = "Anos de estudo", y = "Logaritmo da renda")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`lm()` (de *linear model*) estima a **reta** que melhor resume a nuvem de pontos. A fórmula `log(renda) ~ escolaridade` lê-se "logaritmo da renda explicado pela escolaridade" — a notação com til que você viu no boxplot e no teste t. As 30 pessoas sem renda são descartadas automaticamente.
+
+`coef()` devolve os dois números que definem a reta: o **intercepto** (7,04), que é a altura dela quando a escolaridade vale zero, e a **inclinação** (0,0776). `geom_abline()` desenha essa reta sobre os pontos.
+
+A inclinação é o resultado que interessa. Como a renda está em logaritmo, ela se lê em termos percentuais: **cada ano adicional de estudo está associado a uma renda cerca de 8% maior**.
+
+O `r.squared` (R²) vale 0,249: a escolaridade, sozinha, dá conta de um quarto da variação do logaritmo da renda. Os outros três quartos se devem a tudo o que ficou fora do modelo.
+:::
+
+::: {.callout-warning}
+## O que essa regressão ainda não diz
+
+"Associado" não é "causado". Quem estuda mais também difere em setor, vínculo, idade e em muitas características que a pesquisa nem mediu. A reta resume uma relação nos dados; não prova que um ano a mais de estudo **produz** 8% a mais de renda.
+
+Como a reta é calculada, quão precisa é a estimativa, o que muda quando outras variáveis entram no modelo e quando se pode falar em causa: esse é o programa da Parte 2.
+:::
+
+### Exercício 2 — o modelo em reais
+
+Estime o mesmo modelo com a renda em nível, sem o logaritmo. Como se lê a inclinação agora?
+
+```{webr}
+#| exercise: f10_ex2
+modelo_nivel <- ______(renda ~ ______, data = limpa)
+coef(modelo_nivel)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A função é `lm`, e a variável explicativa, `escolaridade`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+modelo_nivel <- lm(renda ~ escolaridade, data = limpa)
+coef(modelo_nivel)
+```
+
+A inclinação é 237: com a renda em nível, o coeficiente se lê em reais. Cada ano adicional de estudo está associado a R\$ 237 a mais de renda mensal. No modelo com logaritmo, a leitura era percentual. São duas **formas funcionais** para a mesma relação, e escolher entre elas é assunto da Parte 2.
+:::
+
+## Etapa 8 — Exportar
+
+```{webr}
+write.csv2(limpa, "trabalhadores_limpa.csv", row.names = FALSE)
+file.exists("trabalhadores_limpa.csv")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A base tratada fica guardada num arquivo novo. **Nunca grave por cima do arquivo bruto**: ele é a prova de onde os dados vieram, e o código é a prova do que foi feito com eles. Quem tiver os dois refaz a análise inteira.
+:::
+
+::: {.callout-note collapse="true" title="O script completo"}
+Todo o trabalho desta aula cabe em poucas linhas. É assim que fica um script de análise:
+
+```r
+# Projeto: emprego e renda em Mato Grosso
+library(dplyr)
+library(ggplot2)
+
+# 1. Importar
+bruto <- read.csv2("dados/trabalhadores_mt_bruto.csv")
+names(bruto) <- c("id", "regiao", "sexo", "idade", "escolaridade",
+                  "setor", "vinculo", "horas", "renda", "data_admissao")
+
+# 2. Limpar: sem duplicatas, textos padronizados, idades de 18 a 64, renda positiva
+limpa <- bruto |>
+  distinct() |>
+  mutate(vinculo = tolower(trimws(vinculo)),
+         sexo = toupper(sexo),
+         data_admissao = as.Date(data_admissao, format = "%d/%m/%Y")) |>
+  filter(idade >= 18, idade <= 64,
+         renda > 0 | is.na(renda)) |>
+  arrange(id)
+
+# 3. Descrever
+limpa |>
+  group_by(setor) |>
+  summarise(n = n(), renda_media = mean(renda, na.rm = TRUE))
+
+# 4. Modelar
+modelo <- lm(log(renda) ~ escolaridade, data = limpa)
+summary(modelo)
+
+# 5. Exportar
+write.csv2(limpa, "trabalhadores_limpa.csv", row.names = FALSE)
+```
+:::
+
+## Leve para o seu computador
+
+Tudo o que você fez neste curso rodou dentro do navegador. Para trabalhar com os seus próprios dados — e nos trabalhos das disciplinas —, instale o R no seu computador. É gratuito.
+
+1. **Instale o R**, em [cran.r-project.org](https://cran.r-project.org), escolhendo o seu sistema operacional.
+2. **Instale o RStudio Desktop**, em [posit.co/download/rstudio-desktop](https://posit.co/download/rstudio-desktop/). O R é o motor; o RStudio é o painel, com editor de código, console, gráficos e arquivos numa janela só.
+3. **Crie um projeto.** No RStudio, vá em *File > New Project > New Directory*. O projeto é uma pasta, e tudo o que pertence ao trabalho fica dentro dela. Crie ali uma subpasta `dados` e ponha nela os arquivos: assim `read.csv("dados/arquivo.csv")` funciona como nesta página.
+4. **Escreva num script.** Em *File > New File > R Script*, você ganha um arquivo `.R`. Cada linha roda com Ctrl + Enter. Salve sempre: o script é o registro do que foi feito.
+5. **Instale os pacotes**, uma única vez:
+
+```r
+install.packages(c("dplyr", "tidyr", "ggplot2"))
+```
+
+As bases do curso podem ser lidas direto do site, sem baixar nada:
+
+```r
+trab <- read.csv("https://daniellindomar.github.io/econometria/dados/trabalhadores_mt.csv")
+```
+
+Se preferir guardar os arquivos, aqui estão: [trabalhadores_mt.csv](dados/trabalhadores_mt.csv) · [trabalhadores_mt_bruto.csv](dados/trabalhadores_mt_bruto.csv) · [setores_mt.csv](dados/setores_mt.csv) · [precos_agro.csv](dados/precos_agro.csv).
+
+::: {.callout-tip}
+## Quando travar
+
+- A ajuda de qualquer função está a um comando de distância: `?mean` ou `help(mean)`.
+- Leia a mensagem de erro e siga o roteiro da Aula 1.
+- Rode o código linha por linha, olhando o resultado de cada passo. Quase sempre o erro está uma linha antes de onde aparece.
+:::
+
+## Glossário da aula
+
+| Função | O que faz |
+|---|---|
+| `names(x) <- ...` | Troca os nomes das colunas. |
+| `unique()` | Lista os valores distintos. |
+| `duplicated()` | Marca as linhas repetidas. |
+| `distinct()` (dplyr) | Elimina as linhas repetidas. |
+| `all.equal()` | Verifica se dois objetos são iguais. |
+| `lm()` | Estima uma regressão linear. |
+| `coef()` | Extrai os coeficientes do modelo. |
+| `geom_abline()` | Desenha uma reta, dados o intercepto e a inclinação. |
+| `write.csv2()` | Grava um CSV no padrão brasileiro. |
+
+---
+
+Você concluiu a Parte 1. Anterior: [Aula 9 — Programação básica](r-fund09.qmd) · Próxima etapa: [Parte 2 — Econometria no R](r-aula02.qmd) · Esta aula em Python: [Aula 10](py-fund10.qmd)

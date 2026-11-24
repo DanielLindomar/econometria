@@ -1,0 +1,383 @@
+---
+title: "Aula 10 — Projeto guiado"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - matplotlib
+    - statsmodels
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- percorrer, do início ao fim, o fluxo de uma análise: importar, diagnosticar, limpar, conferir, descrever, visualizar e modelar;
+- limpar uma base bruta e registrar as decisões tomadas;
+- estimar a sua primeira regressão;
+- levar o Python para o seu computador e organizar um projeto.
+:::
+
+Esta aula quase não traz método novo. Ela junta as nove anteriores num trabalho completo, do arquivo bruto ao primeiro resultado — o caminho que todo projeto de econometria percorre.
+
+A matéria-prima é o arquivo `trabalhadores_mt_bruto.csv`: a mesma pesquisa das outras aulas, mas como teria chegado do campo, antes de qualquer tratamento.
+
+| Etapa | O que se faz | Onde você aprendeu |
+|---|---|---|
+| 1. Importar | Ler o arquivo e dar nomes simples às colunas | Aula 3 |
+| 2. Diagnosticar | Procurar valores impossíveis, textos despadronizados, duplicatas | Aulas 3 e 7 |
+| 3. Limpar | Corrigir o que o diagnóstico encontrou | Aulas 4 e 8 |
+| 4. Conferir | Verificar se a limpeza fez o que devia | Aulas 3 e 7 |
+| 5. Descrever | Montar a tabela-resumo | Aula 5 |
+| 6. Visualizar | Olhar a relação de interesse | Aula 6 |
+| 7. Modelar | Estimar a primeira regressão | **novo** |
+| 8. Exportar | Guardar a base tratada | Aula 3 |
+
+## Etapa 1 — Importar
+
+```{pyodide}
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.formula.api as smf
+
+bruto = pd.read_csv("dados/trabalhadores_mt_bruto.csv", sep=";", decimal=",")
+print(bruto.shape)
+print(bruto.columns.tolist())
+```
+
+```{pyodide}
+bruto.columns = ["id", "regiao", "sexo", "idade", "escolaridade",
+                 "setor", "vinculo", "horas", "renda", "data_admissao"]
+bruto.info()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O arquivo está no padrão brasileiro, e por isso a leitura leva `sep=";"` e `decimal=","`. São 609 linhas — nove a mais que as 600 da base que você conhece. Já é um sinal de que há algo a limpar.
+
+Nomes com acento, espaço e maiúsculas dão trabalho em cada linha de código. Atribuir uma lista a `.columns` troca todos de uma vez, na ordem das colunas. O `.info()` confirma os tipos: números como números, e a data ainda como texto (`object`).
+
+A última linha do `import` carrega a **statsmodels**, a biblioteca de modelos estatísticos, que entra em cena na Etapa 7.
+:::
+
+## Etapa 2 — Diagnosticar
+
+Antes de corrigir, é preciso saber o que está errado.
+
+```{pyodide}
+bruto[["idade", "escolaridade", "horas", "renda"]].describe().round(1)
+```
+
+```{pyodide}
+print(bruto["vinculo"].unique())
+print(bruto["sexo"].value_counts())
+print(bruto.duplicated().sum())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O diagnóstico encontra quatro problemas:
+
+1. **Idades impossíveis.** O mínimo é 3 anos e o máximo, 190.
+2. **Renda negativa.** O mínimo é −1.800.
+3. **Texto despadronizado.** `.unique()` lista os valores distintos de uma coluna: são oito grafias para dois vínculos, com maiúsculas e espaços sobrando. No sexo, quatro grafias para duas categorias.
+4. **Linhas repetidas.** `.duplicated()` marca com `True` cada linha idêntica a uma anterior: são 6.
+
+Há ainda os ausentes — a linha `count` mostra 591 valores em `horas` e 578 em `renda`, de 609 —, que não são erro: são entrevistados que não responderam.
+:::
+
+## Etapa 3 — Limpar
+
+```{pyodide}
+limpa = bruto.drop_duplicates().copy()
+
+limpa["vinculo"] = limpa["vinculo"].str.strip().str.lower()
+limpa["sexo"] = limpa["sexo"].str.upper()
+limpa["data_admissao"] = pd.to_datetime(limpa["data_admissao"], format="%d/%m/%Y")
+
+idade_ok = (limpa["idade"] >= 18) & (limpa["idade"] <= 64)
+renda_ok = (limpa["renda"] > 0) | limpa["renda"].isna()
+limpa = limpa[idade_ok & renda_ok].sort_values("id").reset_index(drop=True)
+
+print(limpa.shape)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Cada trecho resolve um item do diagnóstico:
+
+- `.drop_duplicates()` elimina as linhas repetidas: de 609 para 603;
+- as três linhas seguintes padronizam os textos e convertem a data, que está no padrão brasileiro;
+- as condições `idade_ok` e `renda_ok`, guardadas em variáveis para deixar o filtro legível, mantêm as idades de 18 a 64 anos — a faixa etária que a pesquisa cobre — e as rendas positivas;
+- `.sort_values("id")` reordena pelo número do entrevistado, e `.reset_index(drop=True)` renumera as linhas a partir de 0.
+
+Sobram 600 linhas. Atenção ao trecho `| limpa["renda"].isna()`: sem ele, a condição `renda > 0` jogaria fora, junto com a renda negativa, todas as pessoas que **não informaram** a renda. Ausente não é erro.
+
+Limpar é tomar decisões. Aqui, as três linhas com valor impossível foram excluídas; outra saída seria manter a pessoa e trocar só o valor errado por ausente. Não há regra universal. O que não pode faltar é o **registro** do que foi feito — e o código é esse registro.
+:::
+
+### Exercício 1 — o filtro que joga fora o que não devia
+
+Refaça a limpeza com a condição `renda > 0`, sem o trecho da renda ausente. Quantas linhas sobram? Quantas delas têm renda ausente?
+
+```{pyodide}
+#| exercise: f10_ex1
+teste = bruto.______()
+teste = teste[(teste["idade"] >= 18) & (teste["idade"] <= 64) & (teste["renda"] > 0)]
+
+print(len(teste))
+print(teste["renda"].______().sum())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As linhas repetidas saem com `drop_duplicates`; os ausentes são identificados com `isna`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+teste = bruto.drop_duplicates()
+teste = teste[(teste["idade"] >= 18) & (teste["idade"] <= 64) & (teste["renda"] > 0)]
+
+print(len(teste))
+print(teste["renda"].isna().sum())
+```
+
+Sobram 570 linhas, nenhuma com renda ausente: o filtro eliminou, sem aviso, as 30 pessoas que não informaram a renda. A comparação de um `NaN` com qualquer número resulta em `False`.
+:::
+
+## Etapa 4 — Conferir
+
+Nenhuma limpeza está terminada antes de ser conferida.
+
+```{pyodide}
+print(limpa["vinculo"].value_counts())
+print(limpa["sexo"].value_counts())
+print(limpa["idade"].min(), limpa["idade"].max())
+print(limpa["data_admissao"].min(), limpa["data_admissao"].max())
+```
+
+```{pyodide}
+oficial = pd.read_csv("dados/trabalhadores_mt.csv", parse_dates=["data_admissao"])
+print(limpa.equals(oficial))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Duas categorias de vínculo, duas de sexo, idades de 21 a 64 anos, datas de 2005 a 2024: tudo no lugar.
+
+`.equals()` compara duas tabelas e responde `True` quando são iguais, valor por valor. A base que você acabou de limpar é **idêntica** à `trabalhadores_mt.csv` usada da Aula 3 à Aula 9. Foi assim que ela nasceu.
+:::
+
+## Etapa 5 — Descrever
+
+```{pyodide}
+limpa["informal"] = limpa["vinculo"] == "informal"
+
+tabela = limpa.groupby("setor").agg(
+    n=("id", "size"),
+    renda_media=("renda", "mean"),
+    renda_mediana=("renda", "median"),
+    escolaridade=("escolaridade", "mean"),
+    informalidade=("informal", "mean"),
+)
+tabela["informalidade"] = 100 * tabela["informalidade"]
+
+tabela.sort_values("renda_media", ascending=False).round(1)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+É a tabela que abre qualquer trabalho empírico: quem está na amostra e como os grupos diferem. A coluna `informal` é lógica, e a média dela é uma proporção — o truque da Aula 2 —, depois convertida em percentual.
+
+A administração pública reúne a maior renda, a maior escolaridade e a menor informalidade (4%). A agropecuária tem a maior informalidade (62%), mas não a menor renda. Três variáveis mudam juntas de um setor para outro, e a tabela não consegue dizer quanto da diferença de renda se deve a cada uma. É para isso que serve a regressão.
+:::
+
+## Etapa 6 — Visualizar
+
+```{pyodide}
+com_renda = limpa.dropna(subset=["renda"])
+
+fig, ax = plt.subplots()
+ax.scatter(com_renda["escolaridade"], np.log(com_renda["renda"]), alpha=0.4)
+ax.set_xlabel("Anos de estudo")
+ax.set_ylabel("Logaritmo da renda")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+No eixo vertical está o **logaritmo** da renda (Aula 7). Com ele, a nuvem fica mais regular: os pontos se espalham de modo parecido ao longo de todo o eixo horizontal, em torno de uma tendência que lembra uma reta.
+:::
+
+## Etapa 7 — A primeira regressão
+
+```{pyodide}
+modelo = smf.ols("np.log(renda) ~ escolaridade", data=limpa).fit()
+
+print(modelo.params)
+print(modelo.rsquared)
+```
+
+```{pyodide}
+anos = np.array([1, 18])
+reta = modelo.params["Intercept"] + modelo.params["escolaridade"] * anos
+
+fig, ax = plt.subplots()
+ax.scatter(com_renda["escolaridade"], np.log(com_renda["renda"]), alpha=0.4)
+ax.plot(anos, reta, color="red", linewidth=2)
+ax.set_xlabel("Anos de estudo")
+ax.set_ylabel("Logaritmo da renda")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`smf.ols()` monta o modelo de **mínimos quadrados ordinários** (*ordinary least squares*), e `.fit()` o estima: o resultado é a **reta** que melhor resume a nuvem de pontos. A fórmula, escrita como texto, lê-se "logaritmo da renda explicado pela escolaridade"; o til separa a variável explicada da explicativa. As 30 pessoas sem renda são descartadas automaticamente.
+
+`.params` devolve os dois números que definem a reta: o **intercepto** (7,04), que é a altura dela quando a escolaridade vale zero, e a **inclinação** (0,0776). No segundo bloco, a reta é desenhada a partir de dois pontos: a renda prevista para 1 e para 18 anos de estudo.
+
+A inclinação é o resultado que interessa. Como a renda está em logaritmo, ela se lê em termos percentuais: **cada ano adicional de estudo está associado a uma renda cerca de 8% maior**.
+
+O `.rsquared` (R²) vale 0,249: a escolaridade, sozinha, dá conta de um quarto da variação do logaritmo da renda. Os outros três quartos se devem a tudo o que ficou fora do modelo.
+:::
+
+::: {.callout-warning}
+## O que essa regressão ainda não diz
+
+"Associado" não é "causado". Quem estuda mais também difere em setor, vínculo, idade e em muitas características que a pesquisa nem mediu. A reta resume uma relação nos dados; não prova que um ano a mais de estudo **produz** 8% a mais de renda.
+
+Como a reta é calculada, quão precisa é a estimativa, o que muda quando outras variáveis entram no modelo e quando se pode falar em causa: esse é o programa da Parte 2.
+:::
+
+### Exercício 2 — o modelo em reais
+
+Estime o mesmo modelo com a renda em nível, sem o logaritmo. Como se lê a inclinação agora?
+
+```{pyodide}
+#| exercise: f10_ex2
+modelo_nivel = smf.______("renda ~ ______", data=limpa).fit()
+print(modelo_nivel.params)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A função é `ols`, e a variável explicativa, `escolaridade`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+modelo_nivel = smf.ols("renda ~ escolaridade", data=limpa).fit()
+print(modelo_nivel.params)
+```
+
+A inclinação é 237: com a renda em nível, o coeficiente se lê em reais. Cada ano adicional de estudo está associado a R\$ 237 a mais de renda mensal. No modelo com logaritmo, a leitura era percentual. São duas **formas funcionais** para a mesma relação, e escolher entre elas é assunto da Parte 2.
+:::
+
+## Etapa 8 — Exportar
+
+```{pyodide}
+limpa.drop(columns="informal").to_csv("trabalhadores_limpa.csv", sep=";", decimal=",", index=False)
+print(os.path.exists("trabalhadores_limpa.csv"))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A base tratada fica guardada num arquivo novo, sem a coluna auxiliar `informal`. **Nunca grave por cima do arquivo bruto**: ele é a prova de onde os dados vieram, e o código é a prova do que foi feito com eles. Quem tiver os dois refaz a análise inteira.
+:::
+
+::: {.callout-note collapse="true" title="O script completo"}
+Todo o trabalho desta aula cabe em poucas linhas. É assim que fica um script de análise:
+
+```python
+# Projeto: emprego e renda em Mato Grosso
+import pandas as pd
+import numpy as np
+import statsmodels.formula.api as smf
+
+# 1. Importar
+bruto = pd.read_csv("dados/trabalhadores_mt_bruto.csv", sep=";", decimal=",")
+bruto.columns = ["id", "regiao", "sexo", "idade", "escolaridade",
+                 "setor", "vinculo", "horas", "renda", "data_admissao"]
+
+# 2. Limpar: sem duplicatas, textos padronizados, idades de 18 a 64, renda positiva
+limpa = bruto.drop_duplicates().copy()
+limpa["vinculo"] = limpa["vinculo"].str.strip().str.lower()
+limpa["sexo"] = limpa["sexo"].str.upper()
+limpa["data_admissao"] = pd.to_datetime(limpa["data_admissao"], format="%d/%m/%Y")
+idade_ok = (limpa["idade"] >= 18) & (limpa["idade"] <= 64)
+renda_ok = (limpa["renda"] > 0) | limpa["renda"].isna()
+limpa = limpa[idade_ok & renda_ok].sort_values("id").reset_index(drop=True)
+
+# 3. Descrever
+print(limpa.groupby("setor").agg(n=("id", "size"), renda_media=("renda", "mean")))
+
+# 4. Modelar
+modelo = smf.ols("np.log(renda) ~ escolaridade", data=limpa).fit()
+print(modelo.summary())
+
+# 5. Exportar
+limpa.to_csv("trabalhadores_limpa.csv", sep=";", decimal=",", index=False)
+```
+:::
+
+## Leve para o seu computador
+
+Tudo o que você fez neste curso rodou dentro do navegador. Para trabalhar com os seus próprios dados — e nos trabalhos das disciplinas —, há dois caminhos, ambos gratuitos.
+
+**Sem instalar nada: Google Colab.** Em [colab.research.google.com](https://colab.research.google.com), com uma conta Google, você cria um *notebook*: um documento com blocos de código que rodam um a um, como os desta página. O pandas, o Matplotlib e a statsmodels já vêm instalados.
+
+**No seu computador.** Instale o Python a partir de [python.org/downloads](https://www.python.org/downloads/) — no Windows, marque a opção de adicionar o Python ao PATH durante a instalação. Depois, no terminal, instale as bibliotecas, uma única vez:
+
+```
+pip install pandas matplotlib statsmodels jupyterlab
+```
+
+O comando `jupyter lab`, digitado no terminal dentro da pasta do seu trabalho, abre os notebooks no navegador. Quem preferir um pacote único pode instalar a [Anaconda Distribution](https://www.anaconda.com/download), que reúne o Python, essas bibliotecas e o Jupyter.
+
+Nos dois caminhos, as bases do curso podem ser lidas direto do site, sem baixar nada:
+
+```python
+trab = pd.read_csv("https://daniellindomar.github.io/econometria/dados/trabalhadores_mt.csv")
+```
+
+Se preferir guardar os arquivos, aqui estão: [trabalhadores_mt.csv](dados/trabalhadores_mt.csv) · [trabalhadores_mt_bruto.csv](dados/trabalhadores_mt_bruto.csv) · [setores_mt.csv](dados/setores_mt.csv) · [precos_agro.csv](dados/precos_agro.csv). No computador, mantenha cada trabalho numa pasta, com os dados numa subpasta `dados`: assim `pd.read_csv("dados/arquivo.csv")` funciona como nesta página.
+
+::: {.callout-tip}
+## Quando travar
+
+- A ajuda de qualquer função está a um comando de distância: `help(pd.read_csv)`.
+- Leia a mensagem de erro, de baixo para cima, e siga o roteiro da Aula 1.
+- Rode o código bloco por bloco, olhando o resultado de cada passo. Quase sempre o erro está uma linha antes de onde aparece.
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `tabela.columns = [...]` | Troca os nomes das colunas. |
+| `.unique()` | Lista os valores distintos. |
+| `.duplicated()`, `.drop_duplicates()` | Marca as linhas repetidas; elimina-as. |
+| `.reset_index(drop=True)` | Renumera as linhas a partir de 0. |
+| `.equals()` | Verifica se duas tabelas são iguais. |
+| `smf.ols("y ~ x", data=...).fit()` | Estima uma regressão linear. |
+| `.params`, `.rsquared` | Coeficientes do modelo; R². |
+| `.to_csv(sep=";", decimal=",")` | Grava um CSV no padrão brasileiro. |
+
+---
+
+Você concluiu a Parte 1. Anterior: [Aula 9 — Programação básica](py-fund09.qmd) · A Parte 2 — Econometria no Python está em preparação · Esta aula em R: [Aula 10](r-fund10.qmd)

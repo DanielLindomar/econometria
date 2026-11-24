@@ -1,0 +1,279 @@
+---
+title: "Aula 5 — Transformar dados II"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- resumir uma coluna com `.agg()`, no total e por grupos (`.groupby()`);
+- contar observações com `.value_counts()` e `.size()`;
+- juntar duas tabelas com `.merge()`;
+- passar do formato longo ao largo, e de volta, com `.pivot()` e `.melt()`.
+:::
+
+A Aula 4 transformou a tabela linha a linha. Esta aula muda de nível: de 600 pessoas para 5 setores, de duas tabelas para uma. São as operações que produzem as tabelas de um relatório.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega o pandas e a base do curso.
+:::
+
+```{pyodide}
+import pandas as pd
+trab = pd.read_csv("dados/trabalhadores_mt.csv")
+print(trab.shape)
+```
+
+## Resumir: `.agg()`
+
+```{pyodide}
+print(trab["renda"].agg(["count", "mean", "median"]))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.agg()` (de *aggregate*) aplica uma ou mais funções de resumo a uma coluna; os nomes das funções vão numa lista, entre aspas. `count` conta os valores **preenchidos**.
+
+São 570 pessoas com renda informada, média de R\$ 3.141 e mediana de R\$ 2.690. Sozinho, o `.agg()` faz pouco além do que `.mean()` já fazia. Ele ganha força com o método seguinte.
+:::
+
+## Resumir por grupo: `.groupby()`
+
+```{pyodide}
+print(trab.groupby("setor")["renda"].mean())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Leia da esquerda para a direita: `.groupby("setor")` separa as linhas em grupos, um por setor; `["renda"]` escolhe a coluna; `.mean()` resume **cada grupo**. O resultado é uma série com uma média por setor.
+:::
+
+```{pyodide}
+resumo = trab.groupby("setor").agg(
+    n=("id", "size"),
+    renda_media=("renda", "mean"),
+    escolaridade_media=("escolaridade", "mean"),
+)
+resumo.sort_values("renda_media", ascending=False)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Para vários resumos de uma vez, o `.agg()` recebe uma linha por coluna nova, no formato `nome_novo=("coluna", "função")`. A função `"size"` conta as linhas do grupo.
+
+A administração pública tem a maior renda média (R\$ 4.310) e a maior escolaridade (12,3 anos); o comércio, a menor renda (R\$ 2.572).
+
+Repare que `setor` aparece em destaque, à esquerda: os grupos viraram o **índice** da tabela, no lugar dos números de linha.
+:::
+
+## Contar
+
+```{pyodide}
+print(trab["regiao"].value_counts())
+print(trab.groupby(["setor", "vinculo"]).size())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.value_counts()`, da Aula 2, conta as ocorrências de cada categoria, da mais frequente para a menos frequente. Médio-Norte e Sul empatam, com 164 entrevistados cada.
+
+Para contar **combinações**, agrupe por uma lista de colunas e peça `.size()`. Na agropecuária, 100 dos 161 trabalhadores são informais; na administração pública, só 3 dos 75.
+:::
+
+## Mais de uma variável de grupo
+
+```{pyodide}
+trab.groupby(["sexo", "vinculo"]).agg(
+    n=("id", "size"),
+    renda_media=("renda", "mean"),
+).reset_index()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com duas colunas no `.groupby()`, há uma linha para cada combinação de sexo e vínculo. O `.reset_index()` no final devolve os grupos à condição de colunas comuns e recoloca os números de linha no índice — o formato mais prático para continuar trabalhando com a tabela.
+
+A renda média vai de R\$ 2.310 (mulheres com vínculo informal) a R\$ 3.753 (homens com vínculo formal). São médias simples: não descontam diferenças de escolaridade, setor ou horas trabalhadas. Separar esses efeitos é o trabalho da regressão múltipla, na Parte 2.
+:::
+
+### Exercício 1 — renda mediana por região
+
+Calcule, para cada região, o número de entrevistados e a renda mediana. Ordene da maior mediana para a menor.
+
+```{pyodide}
+#| exercise: f5_ex1
+por_regiao = trab.groupby("______").agg(
+    n=("id", "size"),
+    renda_mediana=("renda", "______"),
+)
+por_regiao.sort_values("renda_mediana", ascending=False)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A variável de grupo é `regiao`, e a função da mediana se chama `median`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+por_regiao = trab.groupby("regiao").agg(
+    n=("id", "size"),
+    renda_mediana=("renda", "median"),
+)
+por_regiao.sort_values("renda_mediana", ascending=False)
+```
+
+O Sul tem a maior renda mediana (R\$ 2.983), seguido do Médio-Norte (R\$ 2.756), do Leste (R\$ 2.688), do Norte (R\$ 2.568) e do Oeste (R\$ 2.440).
+:::
+
+## Juntar tabelas: `.merge()`
+
+Nem tudo cabe numa tabela só. O nome completo e o piso salarial de cada setor estão em outro arquivo.
+
+```{pyodide}
+setores = pd.read_csv("dados/setores_mt.csv")
+setores
+```
+
+```{pyodide}
+trab2 = trab.merge(setores, on="setor", how="left")
+print(trab2.shape)
+trab2[["id", "setor", "nome_setor", "piso", "renda"]].head(4)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.merge()` percorre a tabela da esquerda (`trab`) e, para cada linha, busca na da direita (`setores`) a linha com o mesmo valor em `setor`. Essa coluna em comum, indicada em `on=`, é a **chave** da junção. O argumento `how="left"` garante que todas as linhas da esquerda sejam mantidas. As colunas `nome_setor` e `piso` foram coladas à direita de cada trabalhador.
+
+Continuam 600 linhas, agora com 12 colunas. **Confira sempre o número de linhas depois de uma junção**: se ele aumentar, a chave se repete na tabela da direita, e linhas foram duplicadas sem aviso.
+:::
+
+Com as duas informações na mesma tabela, dá para compará-las.
+
+```{pyodide}
+com_renda = trab2.dropna(subset=["renda"]).copy()
+com_renda["abaixo_do_piso"] = com_renda["renda"] < com_renda["piso"]
+
+com_renda.groupby("nome_setor").agg(
+    n=("id", "size"),
+    proporcao=("abaixo_do_piso", "mean"),
+)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.dropna(subset=["renda"])` descarta as linhas sem renda — o cuidado da Aula 4, para que os ausentes não sejam contados como "não". O `.copy()` cria uma tabela independente; sem ele, o pandas avisa, na linha seguinte, que você pode estar alterando um pedaço de outra tabela.
+
+A coluna nova é lógica: `True` para quem ganha menos que o piso do seu setor. E a média de uma coluna lógica é uma **proporção** (Aula 2).
+
+Cerca de um em cada cinco trabalhadores da agropecuária, do comércio, da indústria e dos serviços recebe menos que o piso do setor. Na administração pública, um em cada dez.
+:::
+
+## Formato longo e formato largo
+
+```{pyodide}
+medias = trab.groupby(["setor", "vinculo"]).agg(renda_media=("renda", "mean")).reset_index()
+medias
+```
+
+```{pyodide}
+larga = medias.pivot(index="setor", columns="vinculo", values="renda_media").reset_index()
+larga
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A tabela `medias` está no formato **longo**: uma linha para cada combinação de setor e vínculo, dez ao todo. `.pivot()` abre a coluna `vinculo` em duas — `formal` e `informal` — e preenche cada uma com a renda média. O resultado é o formato **largo**: uma linha por setor, fácil de ler e de comparar. O nome `vinculo`, no canto, só lembra de onde vieram as colunas.
+
+Em quatro setores o vínculo formal paga mais. Na administração pública acontece o contrário — mas, antes de procurar uma explicação, volte à contagem: são só 3 informais nesse setor. Média de três pessoas não sustenta conclusão alguma. **Sempre que comparar médias de grupos, olhe o tamanho dos grupos.**
+:::
+
+```{pyodide}
+larga.melt(id_vars="setor", value_vars=["formal", "informal"],
+           var_name="vinculo", value_name="renda_media")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.melt()` faz o caminho de volta: empilha as colunas `formal` e `informal`, guardando o nome delas em `vinculo` e os valores em `renda_media`. A coluna indicada em `id_vars` fica como está.
+
+Os dois formatos carregam a mesma informação. O largo é o das tabelas de relatório. O longo é o que as regressões e boa parte das ferramentas de gráfico esperam: uma linha por observação, uma coluna por variável.
+:::
+
+::: {.callout-note}
+## Um atalho
+
+`trab.pivot_table(index="setor", columns="vinculo", values="renda", aggfunc="mean")` faz o resumo por grupo e a abertura em colunas num passo só.
+:::
+
+### Exercício 2 — abaixo do piso, por vínculo
+
+Entre os trabalhadores formais e entre os informais, que proporção recebe menos que o piso do seu setor?
+
+```{pyodide}
+#| exercise: f5_ex2
+junta = trab.______(setores, on="setor", how="left")
+junta = junta.dropna(subset=["renda"]).copy()
+junta["abaixo_do_piso"] = junta["renda"] < junta["piso"]
+
+junta.groupby("______").agg(
+    n=("id", "size"),
+    proporcao=("abaixo_do_piso", "mean"),
+)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A junção é `merge`, e a variável de grupo, `vinculo`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+junta = trab.merge(setores, on="setor", how="left")
+junta = junta.dropna(subset=["renda"]).copy()
+junta["abaixo_do_piso"] = junta["renda"] < junta["piso"]
+
+junta.groupby("vinculo").agg(
+    n=("id", "size"),
+    proporcao=("abaixo_do_piso", "mean"),
+)
+```
+
+Recebem menos que o piso 14,6% dos 343 formais e 27,3% dos 227 informais que informaram a renda.
+:::
+
+## Glossário da aula
+
+| Método | O que faz |
+|---|---|
+| `.agg()` | Aplica funções de resumo; por grupo, no formato `nome=("coluna", "função")`. |
+| `.groupby()` | Faz o resumo seguinte valer dentro de cada grupo. |
+| `.value_counts()`, `.size()` | Conta as ocorrências de cada categoria; conta as linhas de cada grupo. |
+| `.reset_index()` | Devolve os grupos à condição de colunas comuns. |
+| `.merge()` | Cola as colunas de outra tabela, casando as linhas por uma chave. |
+| `.dropna(subset=...)`, `.copy()` | Descarta linhas com ausentes nas colunas indicadas; cria uma tabela independente. |
+| `.pivot()` | Do formato longo para o largo. |
+| `.melt()` | Do formato largo para o longo. |
+| `.pivot_table()` | Resume por grupo e abre em colunas, num passo só. |
+
+---
+
+Anterior: [Aula 4 — Transformar dados I](py-fund04.qmd) · Próxima: [Aula 6 — Gráficos](py-fund06.qmd) · Esta aula em R: [Aula 5](r-fund05.qmd)

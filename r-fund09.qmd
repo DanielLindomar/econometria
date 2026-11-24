@@ -1,0 +1,329 @@
+---
+title: "Aula 9 — Programação básica"
+subtitle: "Curso de R · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- tomar decisões no código com `if` e `else`;
+- repetir operações com `for` e `while`;
+- escrever as suas próprias **funções**;
+- aplicar uma função a várias colunas com `sapply()`;
+- simular sorteios e ver, na prática, o que é um **erro-padrão**.
+:::
+
+Até aqui você usou funções escritas por outras pessoas. Programar é escrever as suas — e mandar o computador repetir, quantas vezes for preciso, o que você faria uma vez. Ninguém precisa virar programador para fazer econometria. Mas três ideias simples — condição, repetição e função — poupam horas de trabalho e muitos erros de copiar e colar.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega a base do curso.
+:::
+
+```{webr}
+trab <- read.csv("dados/trabalhadores_mt.csv")
+dim(trab)
+```
+
+## Decisões: `if` e `else`
+
+```{webr}
+renda <- 2100
+salario_minimo <- 1412
+
+if (renda >= 2 * salario_minimo) {
+  print("Dois salários mínimos ou mais")
+} else {
+  print("Menos de dois salários mínimos")
+}
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O `if` avalia a condição entre parênteses. Se ela for verdadeira, roda o bloco entre as primeiras chaves; se não, roda o bloco depois do `else`. Como 2.100 é menos que 2.824, saiu a segunda mensagem. Troque a renda por 3000 e rode de novo.
+
+O `if` decide com base em **um** valor. Para uma coluna inteira, o instrumento é o `ifelse()` da Aula 4, que testa elemento por elemento.
+:::
+
+```{webr}
+idade <- 37
+
+if (idade < 30) {
+  faixa <- "até 29"
+} else if (idade < 45) {
+  faixa <- "30 a 44"
+} else {
+  faixa <- "45 ou mais"
+}
+
+faixa
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com `else if`, as condições são testadas em ordem, e só o bloco da primeira verdadeira é executado. Aos 37 anos, a primeira condição falha, a segunda vale, e o resultado é `"30 a 44"`.
+:::
+
+## Repetições: `for`
+
+```{webr}
+for (i in 1:5) {
+  print(i^2)
+}
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O `for` repete o bloco entre chaves uma vez para cada elemento do vetor que vem depois de `in`. A cada volta, `i` assume um valor: 1, depois 2, até 5. Dentro de um laço, é preciso usar `print()` para mostrar resultados.
+:::
+
+O vetor percorrido não precisa ser de números.
+
+```{webr}
+for (s in c("AGR", "IND", "COM", "SER", "PUB")) {
+  media <- mean(trab$renda[trab$setor == s], na.rm = TRUE)
+  cat(s, ":", round(media, 2), "\n")
+}
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A cada volta, `s` é um setor; o bloco filtra as rendas daquele setor, calcula a média e a escreve. `cat()` mostra vários valores na mesma linha, e `"\n"` é a quebra de linha.
+
+Você já sabe fazer essa tabela de um jeito mais curto, com `group_by()` e `summarise()`. O `for` se torna insubstituível quando cada volta faz algo mais elaborado: um gráfico, uma regressão, uma simulação.
+:::
+
+## Repetir até uma condição: `while`
+
+Em quantos meses um capital dobra, rendendo 1% ao mês?
+
+```{webr}
+saldo <- 1000
+meses <- 0
+
+while (saldo < 2000) {
+  saldo <- saldo * 1.01
+  meses <- meses + 1
+}
+
+meses
+saldo
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O `while` repete o bloco **enquanto** a condição for verdadeira. A cada volta o saldo cresce 1% e o contador de meses avança. O laço para na primeira vez em que o saldo passa de R\$ 2.000: depois de 70 meses, com R\$ 2.006,76.
+
+Use `for` quando souber quantas voltas são; `while`, quando só souber a condição de parada. E cuidado: se a condição nunca se tornar falsa, o laço não termina.
+:::
+
+## As suas próprias funções
+
+Na Aula 7, o coeficiente de variação foi calculado duas vezes, com a mesma fórmula copiada. Uma função dá **nome** à fórmula.
+
+```{webr}
+cv <- function(x) {
+  sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE)
+}
+
+cv(trab$renda)
+cv(trab$horas)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`function(x)` declara uma função com um argumento, chamado `x` — nome que só existe dentro dela. O corpo vai entre chaves, e o valor da última linha é o resultado. Guardada em `cv`, a função é usada como qualquer outra.
+
+A vantagem não é só digitar menos. Se a fórmula precisar mudar, muda num lugar só.
+:::
+
+```{webr}
+reajustar <- function(valor, taxa = 0.05) {
+  round(valor * (1 + taxa), 2)
+}
+
+reajustar(1412)
+reajustar(1412, taxa = 0.10)
+reajustar(c(1412, 2000, 3500))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Uma função pode ter vários argumentos, e um argumento pode ter **valor padrão**: `taxa = 0.05` vale sempre que você não disser outra coisa. Foi assim que você usou `round()`, `head()` e tantas outras.
+
+Como as contas do R são vetorizadas, a função aceita um vetor inteiro sem mudança alguma.
+:::
+
+## Aplicar a várias colunas: `sapply()`
+
+```{webr}
+numericas <- trab[, c("idade", "escolaridade", "horas", "renda")]
+round(sapply(numericas, cv), 3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`sapply(tabela, função)` aplica a função a cada coluna e junta os resultados num vetor. É um `for` escrito numa linha só. Note que a função vai **sem parênteses**: você entrega a função, não o resultado dela.
+
+A renda é, de longe, a variável mais dispersa: o desvio-padrão equivale a 56% da média, contra 16% nas horas.
+:::
+
+### Exercício 1 — uma função para a amplitude
+
+Escreva a função `amplitude()`, que devolve a diferença entre o maior e o menor valor de um vetor, ignorando os ausentes. Aplique-a às horas semanais.
+
+```{webr}
+#| exercise: f9_ex1
+amplitude <- ______(x) {
+  max(x, na.rm = TRUE) - ______(x, na.rm = TRUE)
+}
+
+amplitude(trab$horas)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Uma função se declara com a palavra `function`. O menor valor vem de `min`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+amplitude <- function(x) {
+  max(x, na.rm = TRUE) - min(x, na.rm = TRUE)
+}
+
+amplitude(trab$horas)
+```
+
+A amplitude das horas é de 44: a jornada vai de 16 a 60 horas semanais. Experimente também `amplitude(trab$renda)`.
+:::
+
+## Simulação: o acaso sob controle
+
+```{webr}
+set.seed(123)
+sample(1:6, size = 10, replace = TRUE)
+rnorm(3, mean = 100, sd = 15)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`sample()` sorteia elementos de um vetor: aqui, dez lançamentos de um dado (`replace = TRUE` permite repetições). `rnorm()` gera valores de uma distribuição normal com a média e o desvio-padrão indicados.
+
+`set.seed()` fixa a **semente** do gerador de números aleatórios. Com a mesma semente, os mesmos números saem toda vez que o bloco roda — é o que torna uma simulação reproduzível.
+:::
+
+Agora, a simulação mais importante do curso. Imagine que as 570 rendas informadas sejam a população inteira, e que você só possa entrevistar 50 pessoas.
+
+```{webr}
+rendas <- trab$renda[!is.na(trab$renda)]
+
+set.seed(2026)
+medias <- numeric(1000)
+
+for (i in 1:1000) {
+  amostra <- sample(rendas, size = 50)
+  medias[i] <- mean(amostra)
+}
+
+mean(medias)
+sd(medias)
+```
+
+```{webr}
+hist(medias, breaks = 30,
+     main = "Médias de 1.000 amostras de 50 pessoas",
+     xlab = "Renda média da amostra")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`numeric(1000)` cria um vetor de mil zeros. A cada volta, o laço sorteia 50 pessoas, calcula a renda média da amostra e a guarda na posição `i`. No fim, `medias` tem mil médias amostrais.
+
+Três coisas a notar:
+
+1. **Cada amostra dá uma média diferente.** A média de uma amostra é, ela mesma, uma variável aleatória.
+2. **As médias se concentram em torno do valor verdadeiro.** A média das mil médias (perto de R\$ 3.141) praticamente coincide com a média da população.
+3. **O histograma tem forma de sino**, embora a renda seja fortemente assimétrica. É o Teorema Central do Limite em ação.
+
+O desvio-padrão das médias, cerca de R\$ 240, tem nome próprio: **erro-padrão**. Ele mede quanto uma estimativa oscila de uma amostra para outra. Todo erro-padrão de uma tabela de regressão responde a essa mesma pergunta.
+:::
+
+### Exercício 2 — amostras maiores
+
+Repita a simulação com amostras de 200 pessoas. O que acontece com o erro-padrão?
+
+```{webr}
+#| exercise: f9_ex2
+set.seed(2026)
+medias200 <- numeric(1000)
+
+for (i in ______) {
+  medias200[i] <- mean(sample(rendas, size = ______))
+}
+
+sd(medias200)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+São mil voltas: `1:1000`. O tamanho de cada amostra agora é `200`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```r
+set.seed(2026)
+medias200 <- numeric(1000)
+
+for (i in 1:1000) {
+  medias200[i] <- mean(sample(rendas, size = 200))
+}
+
+sd(medias200)
+```
+
+O erro-padrão cai para cerca de R\$ 100, menos da metade do anterior. Amostras maiores produzem estimativas mais precisas — e é por isso que o tamanho da amostra aparece em toda fórmula de erro-padrão.
+:::
+
+::: {.callout-note}
+## Boas práticas, desde já
+
+- **Comente o porquê**, não o óbvio: `# exclui quem não informou a renda` ajuda; `# calcula a média` não.
+- **Dê nomes que digam o que o objeto guarda**: `renda_media`, e não `x2`.
+- **Copiou e colou três vezes? Escreva uma função.**
+- **O código deve rodar de cima para baixo**, do início ao fim, sem depender de algo que você fez à mão.
+- **Fixe a semente** de toda simulação.
+:::
+
+## Glossário da aula
+
+| Função ou comando | O que faz |
+|---|---|
+| `if`, `else if`, `else` | Executa um bloco conforme uma condição. |
+| `for (i in vetor)` | Repete o bloco para cada elemento do vetor. |
+| `while (condição)` | Repete o bloco enquanto a condição for verdadeira. |
+| `function()` | Cria uma função. |
+| `cat()` | Escreve vários valores na mesma linha; `"\n"` quebra a linha. |
+| `sapply()` | Aplica uma função a cada coluna (ou elemento). |
+| `numeric()` | Cria um vetor de zeros, para guardar resultados. |
+| `set.seed()` | Fixa a semente dos números aleatórios. |
+| `sample()`, `rnorm()` | Sorteia elementos; gera valores de uma normal. |
+
+---
+
+Anterior: [Aula 8 — Textos, datas e séries mensais](r-fund08.qmd) · Próxima: [Aula 10 — Projeto guiado](r-fund10.qmd) · Esta aula em Python: [Aula 9](py-fund09.qmd)

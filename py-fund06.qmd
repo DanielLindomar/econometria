@@ -1,0 +1,352 @@
+---
+title: "Aula 6 — Gráficos"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - matplotlib
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- entender a lógica do **Matplotlib**: figura, eixos e desenho;
+- fazer os cinco gráficos de todo dia: dispersão, histograma, boxplot, barras e linha;
+- acrescentar cor, rótulos e painéis por grupo;
+- escolher o gráfico pela pergunta que se quer responder.
+:::
+
+Um resumo numérico diz quanto; um gráfico mostra **como**. Antes de qualquer modelo, olha-se o dado — e boa parte dos erros de análise seria evitada com um gráfico feito a tempo.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega as bibliotecas e as duas bases da aula.
+:::
+
+```{pyodide}
+import pandas as pd
+import matplotlib.pyplot as plt
+
+trab = pd.read_csv("dados/trabalhadores_mt.csv")
+precos = pd.read_csv("dados/precos_agro.csv", parse_dates=["data"])
+com_renda = trab.dropna(subset=["renda"])
+print(trab.shape, precos.shape, com_renda.shape)
+```
+
+A segunda base, `precos_agro.csv`, traz 216 meses de preços, de março de 2006 a fevereiro de 2024: boi gordo e soja no Brasil, soja em Chicago e a ação PETR4. O argumento `parse_dates=["data"]` avisa ao pandas que a coluna `data` é uma data, e não um texto; a Aula 8 explica.
+
+A terceira linha cria `com_renda`, só com as 570 pessoas que informaram a renda: parte dos gráficos não aceita valores ausentes.
+
+## A lógica do Matplotlib
+
+```{pyodide}
+fig, ax = plt.subplots()
+ax.scatter(com_renda["escolaridade"], com_renda["renda"])
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`plt.subplots()` cria duas coisas de uma vez: a **figura** (`fig`), que é a folha em branco, e os **eixos** (`ax`), que são o gráfico dentro dela. Os métodos de `ax` desenham: `ax.scatter(x, y)` põe um ponto por pessoa. `plt.show()` exibe o resultado.
+
+Esse é um gráfico de **dispersão**, o da relação entre duas variáveis numéricas. A nuvem sobe da esquerda para a direita: mais anos de estudo, renda maior — com muita variação em torno da tendência.
+:::
+
+## Cor, transparência e rótulos
+
+```{pyodide}
+formais = com_renda[com_renda["vinculo"] == "formal"]
+informais = com_renda[com_renda["vinculo"] == "informal"]
+
+fig, ax = plt.subplots()
+ax.scatter(formais["escolaridade"], formais["renda"], alpha=0.5, label="formal")
+ax.scatter(informais["escolaridade"], informais["renda"], alpha=0.5, label="informal")
+ax.set_title("Escolaridade e renda dos trabalhadores")
+ax.set_xlabel("Anos de estudo")
+ax.set_ylabel("Renda mensal (R$)")
+ax.legend(title="Vínculo")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Cada chamada a `ax.scatter()` acrescenta uma **camada** ao mesmo gráfico, e o Matplotlib dá uma cor a cada uma. Para colorir por grupo, portanto, desenha-se um grupo de cada vez. O `label` é o nome que aparece na legenda, criada por `ax.legend()`.
+
+`alpha=0.5` deixa os pontos semitransparentes: onde eles se acumulam, a cor escurece. Os métodos que começam com `set_` definem título e rótulos.
+
+Os pontos dos informais se concentram na parte de baixo da nuvem: para a mesma escolaridade, a renda tende a ser menor.
+:::
+
+## A distribuição de uma variável: histograma
+
+```{pyodide}
+fig, ax = plt.subplots()
+ax.hist(com_renda["renda"], bins=30, color="steelblue", edgecolor="white")
+ax.set_xlabel("Renda mensal (R$)")
+ax.set_ylabel("Número de pessoas")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O histograma divide o eixo em faixas — aqui, 30 — e conta quantas pessoas caem em cada uma. Só uma variável é informada; a altura das barras é calculada. `color` é a cor do preenchimento e `edgecolor`, a do contorno.
+
+A distribuição é **assimétrica à direita**: 85% das pessoas estão entre R\$ 1.000 e R\$ 5.000, e uma cauda longa se estende até R\$ 16.715. É o formato típico das distribuições de renda, e a razão de a média ficar acima da mediana.
+
+Se você trocar `com_renda` por `trab`, o histograma falha: os ausentes impedem o cálculo das faixas.
+:::
+
+## Comparar grupos: boxplot
+
+```{pyodide}
+ax = com_renda.boxplot(column="renda", by="setor", grid=False)
+ax.set_title("")
+plt.suptitle("")
+ax.set_xlabel("Setor")
+ax.set_ylabel("Renda mensal (R$)")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O pandas tem métodos de gráfico próprios, construídos sobre o Matplotlib. `.boxplot(column=..., by=...)` desenha uma caixa por grupo e devolve os eixos (`ax`), que você ajusta como antes. As duas linhas com `""` apagam os títulos automáticos.
+
+Cada caixa resume a distribuição de um grupo. A linha do meio é a **mediana**. A caixa vai do primeiro ao terceiro quartil: metade das pessoas do grupo está dentro dela. As hastes alcançam os valores mais distantes que ainda não são extremos, e os pontos soltos são os valores atípicos (*outliers*).
+
+A caixa da administração pública está acima das demais (mediana de R\$ 3.955); as do comércio e dos serviços são as mais baixas (medianas perto de R\$ 2.400). Todos os setores têm pontos soltos na parte de cima: rendas muito altas existem em toda parte.
+:::
+
+## Barras: contagens e resumos
+
+```{pyodide}
+contagem = trab["setor"].value_counts()
+
+fig, ax = plt.subplots()
+ax.bar(contagem.index, contagem.values, color="steelblue")
+ax.set_xlabel("Setor")
+ax.set_ylabel("Número de pessoas")
+plt.show()
+```
+
+```{pyodide}
+medias = com_renda.groupby("setor")["renda"].mean().sort_values()
+
+fig, ax = plt.subplots()
+ax.bar(medias.index, medias.values, color="steelblue")
+ax.set_xlabel("Setor")
+ax.set_ylabel("Renda média (R$)")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Ao contrário do histograma, `ax.bar()` não calcula nada: você entrega as categorias e as alturas. Por isso o resumo vem antes — a contagem, com `.value_counts()`; a média, com `.groupby()`. Em ambos os casos o resultado é uma série: `.index` traz os nomes dos setores e `.values`, os números.
+
+`.sort_values()` ordena as barras pela altura, o que facilita a leitura.
+:::
+
+### Exercício 1 — a renda por região
+
+Faça um boxplot da renda por região.
+
+```{pyodide}
+#| exercise: f6_ex1
+ax = com_renda.______(column="renda", by="______", grid=False)
+ax.set_title("")
+plt.suptitle("")
+ax.set_xlabel("Região")
+ax.set_ylabel("Renda mensal (R$)")
+plt.show()
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O método é `boxplot`, e a variável de grupo, `regiao`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+ax = com_renda.boxplot(column="renda", by="regiao", grid=False)
+ax.set_title("")
+plt.suptitle("")
+ax.set_xlabel("Região")
+ax.set_ylabel("Renda mensal (R$)")
+plt.show()
+```
+
+As cinco caixas se parecem: as medianas vão de R\$ 2.440 (Oeste) a R\$ 2.983 (Sul). A região separa as rendas bem menos do que o setor.
+:::
+
+## Séries no tempo: linha
+
+```{pyodide}
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(precos["data"], precos["soja_br"])
+ax.set_title("Preço da soja")
+ax.set_ylabel("R$ por saca")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`ax.plot(x, y)` liga os pontos na ordem em que aparecem. É o gráfico das **séries temporais**: o tempo no eixo x, a variável no eixo y. `figsize=(8, 4)` define a largura e a altura da figura, em polegadas.
+
+A saca de soja custava menos de R\$ 30 no início de 2006, ficou abaixo de R\$ 100 até 2019 e disparou em 2020, até o pico de R\$ 199,60 em março de 2022. Depois recuou: R\$ 117,64 em fevereiro de 2024.
+:::
+
+Para pôr **duas séries** no mesmo gráfico, basta mais uma camada.
+
+```{pyodide}
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(precos["data"], precos["boi"], label="Boi gordo (R$ por arroba)")
+ax.plot(precos["data"], precos["soja_br"], label="Soja (R$ por saca)")
+ax.legend()
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Cada `ax.plot()` desenha uma linha, com a cor e o `label` próprios.
+
+As duas séries sobem juntas a partir de 2020. Verificar se séries como essas caminham juntas no longo prazo é assunto da aula de séries de tempo, na Parte 2.
+:::
+
+## Um painel por grupo
+
+```{pyodide}
+fig, axs = plt.subplots(1, 2, figsize=(9, 4), sharey=True)
+
+axs[0].scatter(formais["escolaridade"], formais["renda"], alpha=0.4)
+axs[0].set_title("Formal")
+axs[0].set_ylabel("Renda mensal (R$)")
+
+axs[1].scatter(informais["escolaridade"], informais["renda"], alpha=0.4)
+axs[1].set_title("Informal")
+
+fig.supxlabel("Anos de estudo")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`plt.subplots(1, 2)` cria uma figura com uma linha e duas colunas de gráficos. Agora `axs` guarda **dois** eixos: `axs[0]` é o painel da esquerda e `axs[1]`, o da direita. `sharey=True` faz os dois usarem a mesma escala vertical, o que permite compará-los de relance.
+
+A relação positiva entre escolaridade e renda aparece nos dois painéis; o dos formais alcança rendas mais altas.
+:::
+
+## Os atalhos do pandas
+
+Para uma olhada rápida, séries e DataFrames têm o método `.plot()`, que monta a figura sozinho.
+
+```{pyodide}
+com_renda["renda"].plot(kind="hist", bins=30)
+plt.show()
+```
+
+```{pyodide}
+precos.plot(x="data", y=["boi", "soja_br"], figsize=(8, 4))
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Em `.plot()`, o argumento `kind` escolhe o tipo de gráfico: `"hist"`, `"bar"`, `"box"`, `"scatter"` ou, se omitido, linha. No DataFrame, `x` e `y` indicam as colunas, e a legenda vem pronta.
+
+É menos flexível do que montar o gráfico peça por peça, mas imbatível para explorar os dados.
+:::
+
+## Guardar um gráfico
+
+```{pyodide}
+import os
+
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.hist(com_renda["renda"], bins=30)
+fig.savefig("histograma_renda.png", dpi=150)
+print(os.path.exists("histograma_renda.png"))
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`fig.savefig()` grava a figura num arquivo: a extensão escolhe o formato (`.png`, `.pdf`, `.jpg`), e `dpi` controla a resolução. O tamanho vem do `figsize`.
+
+No seu computador, o arquivo vai para a pasta de trabalho, pronto para entrar num relatório.
+:::
+
+::: {.callout-note}
+## Qual gráfico usar?
+
+| Pergunta | Gráfico |
+|---|---|
+| Como uma variável numérica se distribui? | Histograma |
+| Como ela difere entre grupos? | Boxplot |
+| Quantos casos há em cada categoria? | Barras |
+| Duas variáveis numéricas andam juntas? | Dispersão |
+| Como a variável evolui no tempo? | Linha |
+:::
+
+### Exercício 2 — o preço do boi gordo
+
+Faça o gráfico de linha do preço do boi gordo (coluna `boi`).
+
+```{pyodide}
+#| exercise: f6_ex2
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.______(precos["data"], precos["______"])
+ax.set_title("Preço do boi gordo")
+ax.set_ylabel("R$ por arroba")
+plt.show()
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O método da linha é `plot`; o preço está na coluna `boi`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(precos["data"], precos["boi"])
+ax.set_title("Preço do boi gordo")
+ax.set_ylabel("R$ por arroba")
+plt.show()
+```
+
+A arroba ficou entre R\$ 130 e R\$ 272 até 2019, chegou ao pico de R\$ 375,85 em abril de 2021 e recuou a R\$ 239,67 em fevereiro de 2024.
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `plt.subplots()` | Cria a figura e os eixos; com `(1, 2)`, dois painéis. |
+| `ax.scatter()` | Dispersão. |
+| `ax.hist()` | Histograma. |
+| `.boxplot(column=..., by=...)` (pandas) | Boxplot por grupo. |
+| `ax.bar()` | Barras, com as alturas fornecidas. |
+| `ax.plot()` | Linha. |
+| `ax.set_title()`, `ax.set_xlabel()`, `ax.set_ylabel()` | Título e rótulos dos eixos. |
+| `label=...`, `ax.legend()` | Nome de cada camada; legenda. |
+| `plt.show()` | Exibe a figura. |
+| `fig.savefig()` | Grava a figura num arquivo. |
+| `.plot(kind=...)` (pandas) | Gráfico rápido a partir de uma série ou tabela. |
+
+---
+
+Anterior: [Aula 5 — Transformar dados II](py-fund05.qmd) · Próxima: [Aula 7 — Estatística descritiva](py-fund07.qmd) · Esta aula em R: [Aula 6](r-fund06.qmd)

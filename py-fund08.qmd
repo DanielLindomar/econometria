@@ -1,0 +1,307 @@
+---
+title: "Aula 8 — Textos, datas e séries mensais"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- limpar e padronizar textos;
+- transformar textos em **datas** e fazer contas com elas;
+- criar variáveis a partir de datas: ano, tempo decorrido;
+- calcular variações percentuais e médias anuais numa série mensal.
+:::
+
+Números se comportam bem. Textos e datas, não: chegam com espaços sobrando, maiúsculas fora de lugar e formatos que mudam de um país para outro. Esta aula reúne as ferramentas para pô-los em ordem — e termina com as operações básicas sobre séries de preços.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega o pandas e as duas bases da aula.
+:::
+
+```{pyodide}
+import pandas as pd
+trab = pd.read_csv("dados/trabalhadores_mt.csv")
+precos = pd.read_csv("dados/precos_agro.csv")
+print(trab.shape, precos.shape)
+```
+
+## Textos
+
+```{pyodide}
+nome = "  Maria Souza "
+print(len(nome))
+print(nome.strip())
+print(nome.strip().upper())
+print(nome.strip().lower())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`len()` conta os caracteres, **espaços inclusive**: são 14, embora só se vejam 11. O método `.strip()` remove os espaços das pontas. `.upper()` e `.lower()` passam tudo para maiúsculas ou minúsculas.
+
+Os métodos se encadeiam: em `nome.strip().upper()`, o segundo age sobre o resultado do primeiro.
+:::
+
+Por que isso importa? Veja o que acontece com uma variável digitada por várias pessoas.
+
+```{pyodide}
+vinculo_bruto = pd.Series(["Formal", "formal ", "INFORMAL", "informal", " formal"])
+print(vinculo_bruto.value_counts())
+
+vinculo_limpo = vinculo_bruto.str.strip().str.lower()
+print(vinculo_limpo.value_counts())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Para o computador, `"Formal"`, `"formal "` e `" formal"` são três textos diferentes. A primeira contagem mostra cinco categorias onde só existem duas.
+
+Numa série, os métodos de texto ficam atrás de `.str`: `.str.strip()` aplica o `.strip()` a cada elemento. Depois da padronização — espaços fora, tudo em minúsculas — a contagem fica correta: 3 formais e 2 informais. É o defeito mais comum das bases reais, e a base bruta da Aula 10 está cheia dele.
+:::
+
+```{pyodide}
+print("1568,38".replace(",", "."))
+print(float("1568,38".replace(",", ".")))
+print("Setor: " + "AGR")
+
+salario = 1412
+media = 3140.657894
+print(f"O salário mínimo é de R$ {salario}")
+print(f"A renda média é de R$ {media:.2f}")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.replace(procurar, trocar_por)` substitui todas as ocorrências de um trecho. Trocar a vírgula pelo ponto é o que permite converter em número um valor escrito à brasileira — o problema da Aula 2. Numa série, a versão é `.str.replace()`.
+
+O sinal `+` junta textos. Para misturar texto e valores, o melhor caminho é a **f-string**: um texto precedido de `f`, em que tudo o que está entre chaves é substituído pelo valor da variável. O `:.2f` depois do nome pede duas casas decimais.
+:::
+
+```{pyodide}
+regioes = pd.Series(["Norte", "Médio-Norte", "Sul"])
+print(regioes.str.contains("Norte"))
+print("2024-03-15"[0:4])
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.str.contains()` testa se cada texto **contém** o trecho procurado e devolve `True` ou `False`: serve para filtrar. Os colchetes recortam um pedaço do texto: `[0:4]` são os caracteres das posições 0 a 3 — o fim do intervalo não entra.
+:::
+
+### Exercício 1 — limpar e contar
+
+Padronize a série abaixo, com tudo em maiúsculas e sem espaços, e conte quantas pessoas há de cada sexo.
+
+```{pyodide}
+#| exercise: f8_ex1
+sexo_bruto = pd.Series(["F", "m", "M ", "f", " F", "M", "f "])
+sexo_limpo = sexo_bruto.str.strip().str.______()
+print(sexo_limpo.value_counts())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O método que passa o texto para maiúsculas é `upper`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+sexo_bruto = pd.Series(["F", "m", "M ", "f", " F", "M", "f "])
+sexo_limpo = sexo_bruto.str.strip().str.upper()
+print(sexo_limpo.value_counts())
+```
+
+São 4 mulheres e 3 homens. Sem a limpeza, a contagem teria sete categorias.
+:::
+
+## Datas
+
+```{pyodide}
+d = pd.Timestamp("2024-03-15")
+print(d)
+print(d + pd.Timedelta(days=30))
+print(pd.Timestamp("2024-12-31") - d)
+print(d.strftime("%d/%m/%Y"))
+print(d.year, d.month, d.day)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`pd.Timestamp()` transforma um texto em **data** — com hora incluída, que aqui fica em zero. Datas aceitam contas: somar um intervalo (`pd.Timedelta(days=30)`) ou subtrair uma data de outra. De 15 de março a 31 de dezembro de 2024 são 291 dias.
+
+`.strftime()` faz o caminho inverso, da data para um texto, no formato que você descrever: `%d` é o dia, `%m` o mês e `%Y` o ano com quatro dígitos. Os atributos `.year`, `.month` e `.day` devolvem cada parte como número. Há também `.month_name()`, que dá o nome do mês — em inglês, por padrão.
+:::
+
+Para converter uma coluna inteira, a função é `pd.to_datetime()`. O formato que ela entende sem ambiguidade é o internacional: ano-mês-dia. Com datas escritas à brasileira, é preciso avisar.
+
+```{pyodide}
+print(pd.to_datetime("05/03/2024"))
+print(pd.to_datetime("05/03/2024", format="%d/%m/%Y"))
+```
+
+::: {.callout-warning}
+## Como ler essa saída — e um cuidado
+
+A primeira linha não deu erro: devolveu o dia **3 de maio**. Sem instrução, o pandas lê a data à americana, com o mês na frente. É um erro silencioso, do tipo mais perigoso.
+
+O argumento `format` descreve como o texto está escrito, e a data sai certa: 5 de março. Depois de converter datas, confira sempre o resultado — o mínimo e o máximo do próximo bloco são uma boa conferência.
+:::
+
+Na base do curso, a data de admissão chegou como texto. Convertida, ela rende variáveis novas.
+
+```{pyodide}
+trab["data_admissao"] = pd.to_datetime(trab["data_admissao"])
+print(trab["data_admissao"].min(), trab["data_admissao"].max())
+
+trab["ano_admissao"] = trab["data_admissao"].dt.year
+print(trab["ano_admissao"].value_counts().sort_index())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+As admissões vão de 10 de fevereiro de 2005 a 10 de junho de 2024. Numa série de datas, as partes ficam atrás de `.dt`: `.dt.year`, `.dt.month`, `.dt.day`. O `.sort_index()` ordena a contagem pelo ano, e não pela frequência.
+
+A tabela mostra uma amostra de contratações recentes: 449 das 600 pessoas (75%) foram admitidas de 2020 em diante.
+:::
+
+```{pyodide}
+referencia = pd.Timestamp("2024-06-30")
+trab["tempo_casa"] = (referencia - trab["data_admissao"]).dt.days / 365.25
+print(trab["tempo_casa"].describe())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A diferença entre duas datas é um intervalo. `.dt.days` fica só com o número de dias, e a divisão por 365,25 o converte em anos.
+
+Em 30 de junho de 2024, o tempo médio no emprego era de 3,3 anos, e o mediano, de 2,2 anos. Média acima da mediana: outra distribuição assimétrica à direita.
+:::
+
+## Séries mensais
+
+A base `precos_agro.csv` tem uma linha por mês. Com a data convertida, o ano sai como antes.
+
+```{pyodide}
+precos["data"] = pd.to_datetime(precos["data"])
+precos["ano"] = precos["data"].dt.year
+precos["var_soja"] = 100 * (precos["soja_br"] / precos["soja_br"].shift(1) - 1)
+
+precos[["data", "soja_br", "var_soja"]].head(4)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.shift(1)` devolve a série **defasada**: em cada linha, o valor da linha anterior. Dividir o preço pelo do mês anterior, subtrair 1 e multiplicar por 100 dá a **variação percentual mensal**. O método `.pct_change()` faz a mesma conta num passo só, sem o "vezes 100".
+
+A primeira linha fica `NaN`: não há mês anterior a março de 2006. Em abril de 2006 a soja caiu 2,8%; em maio, subiu 6,1%.
+
+Tudo isso supõe que as linhas estejam em ordem de data. Se não estiverem, ordene antes com `.sort_values("data")`.
+:::
+
+```{pyodide}
+print(precos["var_soja"].describe())
+
+precos.sort_values("var_soja", ascending=False)[["data", "soja_br", "var_soja"]].head(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Em média, o preço da soja subiu 0,8% ao mês no período. Mas a média esconde muita oscilação: as variações mensais vão de −13,0% a +16,6%. A maior alta foi a de julho de 2012.
+:::
+
+Para passar de dados mensais a **anuais**, agrupa-se por ano.
+
+```{pyodide}
+anual = precos.groupby("ano").agg(
+    meses=("soja_br", "size"),
+    soja=("soja_br", "mean"),
+    boi=("boi", "mean"),
+)
+
+anual.tail(6).round(2)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+É o `.groupby()` com `.agg()` da Aula 5, agora com o ano como grupo. A coluna `meses` conta quantos meses entram em cada média: 2024 tem só 2 (e 2006, 10). Médias de anos incompletos não se comparam bem com as de anos cheios.
+
+A saca de soja custou em média R\$ 82 em 2019 e R\$ 189 em 2022: mais que o dobro em três anos.
+:::
+
+```{pyodide}
+precos["var12_soja"] = 100 * (precos["soja_br"] / precos["soja_br"].shift(12) - 1)
+
+precos[["data", "soja_br", "var12_soja"]].tail(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com `.shift(12)`, a comparação é com o mesmo mês do ano anterior: é a **variação em 12 meses**, a forma usual de noticiar preços, que não sofre com as oscilações típicas de cada época do ano.
+
+Em fevereiro de 2024, a soja estava 31,8% mais barata do que um ano antes.
+:::
+
+### Exercício 2 — as maiores altas do boi gordo
+
+Calcule a variação percentual mensal do preço do boi gordo e mostre os três meses de maior alta.
+
+```{pyodide}
+#| exercise: f8_ex2
+precos["var_boi"] = 100 * (precos["boi"] / precos["boi"].______(1) - 1)
+
+precos.sort_values("var_boi", ascending=______)[["data", "boi", "var_boi"]].head(3)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O método que defasa a série é `shift`. Para a ordem decrescente, `ascending` deve ser `False`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+precos["var_boi"] = 100 * (precos["boi"] / precos["boi"].shift(1) - 1)
+
+precos.sort_values("var_boi", ascending=False)[["data", "boi", "var_boi"]].head(3)
+```
+
+A maior alta mensal foi a de novembro de 2019: 22,6%. Seguem novembro de 2007 (13,2%) e junho de 2008 (12,6%).
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `len()`, `.strip()` | Conta caracteres; remove espaços das pontas. |
+| `.upper()`, `.lower()` | Maiúsculas; minúsculas. |
+| `.replace()` | Substitui um trecho de texto por outro. |
+| `.str` | Dá acesso aos métodos de texto numa série: `.str.strip()`, `.str.lower()`, `.str.contains()`. |
+| `f"... {x:.2f}"` | f-string: insere valores num texto, com formato. |
+| `pd.Timestamp()`, `pd.Timedelta()` | Uma data; um intervalo de tempo. |
+| `pd.to_datetime()` | Converte texto em data; `format="%d/%m/%Y"` para o padrão brasileiro. |
+| `.strftime()` | Converte data em texto: `%d` dia, `%m` mês, `%Y` ano. |
+| `.dt` | Dá acesso às partes de uma série de datas: `.dt.year`, `.dt.month`, `.dt.days`. |
+| `.shift()`, `.pct_change()` | Série defasada; variação proporcional. |
+
+---
+
+Anterior: [Aula 7 — Estatística descritiva](py-fund07.qmd) · Próxima: [Aula 9 — Programação básica](py-fund09.qmd) · Esta aula em R: [Aula 8](r-fund08.qmd)

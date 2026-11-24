@@ -1,0 +1,292 @@
+---
+title: "Aula 7 — Estatística descritiva"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - scipy
+    - matplotlib
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- resumir uma variável numérica: posição, quantis e dispersão;
+- construir tabelas de frequência, simples e cruzadas;
+- medir a associação entre duas variáveis com a correlação;
+- comparar dois grupos e ler o resultado de um **teste t**.
+:::
+
+As aulas anteriores ensinaram a mexer nos dados. Esta ensina a **descrevê-los** — o primeiro capítulo de qualquer trabalho empírico, e o vocabulário em que toda a econometria é escrita.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega as bibliotecas e a base do curso.
+:::
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+trab = pd.read_csv("dados/trabalhadores_mt.csv")
+print(trab.shape)
+```
+
+A linha `from scipy import stats` carrega o módulo de estatística da biblioteca **SciPy**, de onde virá o teste t.
+
+## Onde está o centro: média e mediana
+
+```{pyodide}
+print(trab["renda"].mean())
+print(trab["renda"].median())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A **média** (R\$ 3.141) é a soma dividida pelo número de pessoas. A **mediana** (R\$ 2.690) é o valor do meio: metade ganha menos do que ela, metade ganha mais.
+
+A distância de R\$ 451 entre as duas não é acaso. Poucas rendas muito altas puxam a média para cima e não mexem na mediana — é a assimetria que o histograma da Aula 6 mostrou. Para variáveis assim, a mediana descreve melhor o trabalhador típico.
+:::
+
+## Quantis
+
+```{pyodide}
+print(trab["renda"].quantile([0.10, 0.25, 0.50, 0.75, 0.90]))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O quantil de 25% é o valor abaixo do qual estão 25% das pessoas. A mediana é o quantil de 50%; os de 25% e 75% são o primeiro e o terceiro **quartis**.
+
+Um em cada dez trabalhadores ganha até R\$ 1.460, e um em cada dez ganha mais de R\$ 5.345. A metade central da amostra está entre R\$ 1.927 e R\$ 3.838.
+:::
+
+## Quanto os dados se espalham
+
+```{pyodide}
+print(trab["renda"].var())
+print(trab["renda"].std())
+print(trab["renda"].quantile(0.75) - trab["renda"].quantile(0.25))
+print(trab["renda"].min(), trab["renda"].max())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A **variância** é a média dos quadrados dos desvios em relação à média (com *n* − 1 no denominador). Ela está em "reais ao quadrado", unidade que ninguém interpreta. O **desvio-padrão** é a raiz quadrada da variância e volta à unidade original: R\$ 1.767.
+
+O **intervalo interquartil** é a largura da metade central: 3.838 − 1.927 = R\$ 1.911. Como a mediana, não é afetado pelos valores extremos.
+:::
+
+::: {.callout-warning}
+## Um cuidado: `n` ou `n − 1`?
+
+O método `.std()` do pandas divide por *n* − 1, a fórmula amostral usada em estatística e econometria. Já a função `np.std()`, do NumPy, divide por *n*, a menos que você escreva `np.std(x, ddof=1)`. A diferença é pequena em amostras grandes, mas existe: use sempre o método do pandas.
+:::
+
+Desvios-padrão de variáveis diferentes não se comparam: o da renda está em reais; o das horas, em horas. O **coeficiente de variação** resolve isso.
+
+```{pyodide}
+cv_renda = trab["renda"].std() / trab["renda"].mean()
+cv_horas = trab["horas"].std() / trab["horas"].mean()
+print(round(cv_renda, 3), round(cv_horas, 3))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O coeficiente de variação divide o desvio-padrão pela média e não tem unidade. O desvio-padrão da renda equivale a 56% da média; o das horas, a 16%. A renda é muito mais desigual do que a jornada de trabalho.
+:::
+
+### Exercício 1 — as horas trabalhadas
+
+Calcule a média, a mediana e o desvio-padrão das horas semanais.
+
+```{pyodide}
+#| exercise: f7_ex1
+print(trab["horas"].______())
+print(trab["horas"].______())
+print(trab["______"].std())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Os métodos são `mean` e `median`; a coluna é `horas`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+print(trab["horas"].mean())
+print(trab["horas"].median())
+print(trab["horas"].std())
+```
+
+A média é de 40,8 horas, a mediana de 41 e o desvio-padrão de 6,7. Média e mediana quase iguais indicam uma distribuição simétrica — o oposto do que acontece com a renda.
+:::
+
+## Tabelas de frequência
+
+```{pyodide}
+print(trab["setor"].value_counts())
+print((100 * trab["setor"].value_counts(normalize=True)).round(1))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Para variáveis qualitativas não há média: descreve-se pela **frequência**. `.value_counts()` conta; com `normalize=True`, devolve proporções, que multiplicadas por 100 e arredondadas viram percentuais.
+
+A agropecuária emprega 26,8% da amostra; a administração pública, 12,5%.
+:::
+
+```{pyodide}
+print(pd.crosstab(trab["setor"], trab["vinculo"]))
+print((100 * pd.crosstab(trab["setor"], trab["vinculo"], normalize="index")).round(1))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`pd.crosstab()` monta uma **tabela cruzada**: setores nas linhas, vínculos nas colunas.
+
+`normalize="index"` pede percentuais **por linha**: cada setor soma 100. A informalidade vai de 4,0% na administração pública a 62,1% na agropecuária. Com `normalize="columns"` os percentuais seriam por coluna, e a pergunta respondida seria outra: de todos os informais, quantos estão em cada setor?
+:::
+
+## Associação entre duas variáveis: correlação
+
+```{pyodide}
+print(trab["escolaridade"].corr(trab["renda"]))
+```
+
+```{pyodide}
+trab[["idade", "escolaridade", "horas", "renda"]].corr().round(3)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A **correlação** mede a força da relação linear entre duas variáveis, numa escala de −1 a 1: perto de 1, andam juntas; perto de −1, em sentidos opostos; perto de 0, não há relação linear. O pandas descarta sozinho os pares com valores ausentes.
+
+Entre escolaridade e renda a correlação é de 0,445: positiva e moderada, como sugeria a nuvem de pontos da Aula 6. Aplicado a uma tabela, `.corr()` devolve a **matriz de correlações**, com todos os pares. A diagonal é sempre 1. Note o −0,195 entre idade e escolaridade: nesta amostra, os mais velhos estudaram um pouco menos.
+
+Dois avisos. Correlação não é causalidade. E ela não diz **quanto** a renda muda a cada ano de estudo — essa é a pergunta que a regressão responde.
+:::
+
+## Comparar dois grupos
+
+```{pyodide}
+print(trab.groupby("vinculo")["renda"].mean())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+É o `.groupby()` da Aula 5. Os formais ganham em média R\$ 3.500; os informais, R\$ 2.598. A diferença é de R\$ 902,51.
+:::
+
+Mas a base é uma **amostra**. Outra amostra de 600 trabalhadores daria outra diferença. Será que esta é grande o bastante para não ser obra do acaso?
+
+```{pyodide}
+formais = trab.loc[trab["vinculo"] == "formal", "renda"].dropna()
+informais = trab.loc[trab["vinculo"] == "informal", "renda"].dropna()
+
+teste = stats.ttest_ind(formais, informais, equal_var=False)
+print(teste.statistic)
+print(teste.pvalue)
+
+ic = teste.confidence_interval()
+print(ic.low, ic.high)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+As duas primeiras linhas separam as rendas de cada grupo, sem os ausentes. `stats.ttest_ind()` faz o **teste t** para duas amostras independentes; `equal_var=False` dispensa a suposição de que os dois grupos têm a mesma variância.
+
+O teste parte de uma hipótese: na população, formais e informais têm a mesma renda média. E pergunta: se isso fosse verdade, qual seria a chance de uma amostra mostrar uma diferença tão grande quanto a observada?
+
+Essa chance é o **valor-p** (`pvalue`). Aqui ele é da ordem de `6.8e-11` — notação para 6,8 × 10⁻¹¹, um número com dez zeros depois da vírgula. Como é muito menor que 0,05, rejeita-se a hipótese de médias iguais: a diferença não se explica pelo acaso da amostragem.
+
+O **intervalo de confiança** de 95% diz mais: na população, a diferença deve estar entre R\$ 636 e R\$ 1.169.
+
+Hipótese, valor-p e intervalo de confiança são o coração da inferência estatística. Você vai reencontrá-los em cada regressão da Parte 2.
+:::
+
+## Uma transformação que volta sempre: o logaritmo
+
+```{pyodide}
+log_renda = np.log(trab["renda"])
+
+fig, ax = plt.subplots()
+ax.hist(log_renda.dropna(), bins=30)
+ax.set_title("Logaritmo da renda")
+ax.set_xlabel("log(renda)")
+plt.show()
+```
+
+```{pyodide}
+print(log_renda.mean())
+print(np.exp(log_renda.mean()))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`np.log()` calcula o logaritmo natural de cada elemento da série. Ele comprime os valores altos e estica os baixos: a cauda longa da renda desaparece, e o histograma fica quase simétrico.
+
+A média do logaritmo é 7,918. `np.exp()` desfaz o logaritmo, e o resultado, R\$ 2.746, fica muito mais perto da mediana (R\$ 2.690) do que da média (R\$ 3.141).
+
+É por isso que os modelos de salário usam o logaritmo da renda como variável dependente — assunto da aula de formas funcionais, na Parte 2.
+:::
+
+### Exercício 2 — informalidade por região
+
+Monte a tabela cruzada de região e vínculo, com percentuais por linha. Em que região a informalidade é maior?
+
+```{pyodide}
+#| exercise: f7_ex2
+tab = pd.crosstab(trab["______"], trab["vinculo"], normalize="______")
+print((100 * tab).round(1))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A variável das linhas é `regiao`. Percentuais por linha pedem `normalize="index"`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+tab = pd.crosstab(trab["regiao"], trab["vinculo"], normalize="index")
+print((100 * tab).round(1))
+```
+
+A informalidade é maior no Médio-Norte (45,1%) e no Oeste (44,6%), e menor no Leste (33,8%).
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `.mean()`, `.median()` | Média; mediana. |
+| `.quantile()` | Quantis, nas probabilidades indicadas. |
+| `.var()`, `.std()` | Variância; desvio-padrão (com *n* − 1). |
+| `.value_counts(normalize=True)` | Proporção de cada categoria. |
+| `pd.crosstab()` | Tabela cruzada; `normalize="index"` dá percentuais por linha. |
+| `.corr()` | Correlação entre duas séries, ou matriz de correlações. |
+| `.groupby()` | Resumo por grupo. |
+| `stats.ttest_ind()` | Teste t para a diferença entre duas médias. |
+| `np.log()`, `np.exp()` | Logaritmo natural; exponencial. |
+
+---
+
+Anterior: [Aula 6 — Gráficos](py-fund06.qmd) · Próxima: [Aula 8 — Textos, datas e séries mensais](py-fund08.qmd) · Esta aula em R: [Aula 7](r-fund07.qmd)

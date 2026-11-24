@@ -61,6 +61,19 @@ website:
           - proj-econ2-painel.qmd
       - text: "Curso de R"
         menu:
+          - text: "Parte 1 — Fundamentos (novo)"
+          - r-fund01.qmd
+          - r-fund02.qmd
+          - r-fund03.qmd
+          - r-fund04.qmd
+          - r-fund05.qmd
+          - r-fund06.qmd
+          - r-fund07.qmd
+          - r-fund08.qmd
+          - r-fund09.qmd
+          - r-fund10.qmd
+          - text: "---"
+          - text: "Parte 2 — Econometria no R (numeração atual)"
           - r-aula01.qmd
           - r-aula02.qmd
           - r-aula03.qmd
@@ -72,6 +85,19 @@ website:
           - r-aula09.qmd
           - r-aula10.qmd
           - r-aula11.qmd
+      - text: "Curso de Python"
+        menu:
+          - text: "Parte 1 — Fundamentos (novo)"
+          - py-fund01.qmd
+          - py-fund02.qmd
+          - py-fund03.qmd
+          - py-fund04.qmd
+          - py-fund05.qmd
+          - py-fund06.qmd
+          - py-fund07.qmd
+          - py-fund08.qmd
+          - py-fund09.qmd
+          - py-fund10.qmd
   page-footer:
     center: "Econometria I e II · Prof. Dr. Lindomar Pegorini Daniel · UNEMAT — Campus de Sinop"
 

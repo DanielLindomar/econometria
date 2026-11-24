@@ -1,0 +1,334 @@
+---
+title: "Aula 9 — Programação básica"
+subtitle: "Curso de Python · Parte 1 — Fundamentos"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - matplotlib
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- tomar decisões no código com `if`, `elif` e `else`;
+- repetir operações com `for` e `while`;
+- escrever as suas próprias **funções**;
+- aplicar uma função a várias colunas com `.apply()`;
+- simular sorteios e ver, na prática, o que é um **erro-padrão**.
+:::
+
+Até aqui você usou funções escritas por outras pessoas. Programar é escrever as suas — e mandar o computador repetir, quantas vezes for preciso, o que você faria uma vez. Ninguém precisa virar programador para fazer econometria. Mas três ideias simples — condição, repetição e função — poupam horas de trabalho e muitos erros de copiar e colar.
+
+::: {.callout-important}
+## Comece por aqui
+
+Rode este bloco primeiro: ele carrega as bibliotecas e a base do curso.
+:::
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+trab = pd.read_csv("dados/trabalhadores_mt.csv")
+print(trab.shape)
+```
+
+## Decisões: `if` e `else`
+
+```{pyodide}
+renda = 2100
+salario_minimo = 1412
+
+if renda >= 2 * salario_minimo:
+    print("Dois salários mínimos ou mais")
+else:
+    print("Menos de dois salários mínimos")
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O `if` avalia a condição. Se ela for verdadeira, roda o bloco logo abaixo; se não, roda o bloco do `else`. Como 2.100 é menos que 2.824, saiu a segunda mensagem. Troque a renda por 3000 e rode de novo.
+
+No Python, o bloco é definido pela **indentação**: pertencem ao `if` as linhas recuadas (quatro espaços) que vêm depois dos dois-pontos. O recuo não é enfeite — sem ele, ou com ele fora de lugar, o código não roda.
+
+O `if` decide com base em **um** valor. Para uma coluna inteira, o instrumento é o `np.where()` da Aula 4, que testa elemento por elemento.
+:::
+
+```{pyodide}
+idade = 37
+
+if idade < 30:
+    faixa = "até 29"
+elif idade < 45:
+    faixa = "30 a 44"
+else:
+    faixa = "45 ou mais"
+
+print(faixa)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com `elif` (de *else if*), as condições são testadas em ordem, e só o bloco da primeira verdadeira é executado. Aos 37 anos, a primeira condição falha, a segunda vale, e o resultado é `"30 a 44"`.
+:::
+
+## Repetições: `for`
+
+```{pyodide}
+for i in range(1, 6):
+    print(i ** 2)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O `for` repete o bloco recuado uma vez para cada elemento da sequência que vem depois de `in`. A cada volta, `i` assume um valor: 1, depois 2, até 5 — lembre que `range(1, 6)` não inclui o 6.
+:::
+
+A sequência percorrida não precisa ser de números.
+
+```{pyodide}
+for s in ["AGR", "IND", "COM", "SER", "PUB"]:
+    media = trab.loc[trab["setor"] == s, "renda"].mean()
+    print(s, ":", round(media, 2))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A cada volta, `s` é um setor; o bloco filtra as rendas daquele setor, calcula a média e a escreve.
+
+Você já sabe fazer essa tabela de um jeito mais curto, com `.groupby()`. O `for` se torna insubstituível quando cada volta faz algo mais elaborado: um gráfico, uma regressão, uma simulação.
+:::
+
+## Repetir até uma condição: `while`
+
+Em quantos meses um capital dobra, rendendo 1% ao mês?
+
+```{pyodide}
+saldo = 1000
+meses = 0
+
+while saldo < 2000:
+    saldo = saldo * 1.01
+    meses = meses + 1
+
+print(meses)
+print(round(saldo, 2))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O `while` repete o bloco **enquanto** a condição for verdadeira. A cada volta o saldo cresce 1% e o contador de meses avança. O laço para na primeira vez em que o saldo passa de R\$ 2.000: depois de 70 meses, com R\$ 2.006,76.
+
+Use `for` quando souber quantas voltas são; `while`, quando só souber a condição de parada. E cuidado: se a condição nunca se tornar falsa, o laço não termina.
+:::
+
+## As suas próprias funções
+
+Na Aula 7, o coeficiente de variação foi calculado duas vezes, com a mesma fórmula copiada. Uma função dá **nome** à fórmula.
+
+```{pyodide}
+def cv(x):
+    return x.std() / x.mean()
+
+print(cv(trab["renda"]))
+print(cv(trab["horas"]))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`def cv(x):` define uma função chamada `cv`, com um argumento, `x` — nome que só existe dentro dela. O corpo vem recuado, e o `return` indica o resultado. Depois de definida, a função é usada como qualquer outra.
+
+Não esqueça o `return`: sem ele, a função faz a conta e não devolve nada (o resultado é `None`).
+
+A vantagem não é só digitar menos. Se a fórmula precisar mudar, muda num lugar só.
+:::
+
+```{pyodide}
+def reajustar(valor, taxa=0.05):
+    return round(valor * (1 + taxa), 2)
+
+print(reajustar(1412))
+print(reajustar(1412, taxa=0.10))
+print(reajustar(pd.Series([1412, 2000, 3500])))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Uma função pode ter vários argumentos, e um argumento pode ter **valor padrão**: `taxa=0.05` vale sempre que você não disser outra coisa. Foi assim que você usou `.head()`, `.sort_values()` e tantas outras.
+
+Como as contas do pandas são vetorizadas, a função aceita uma série inteira sem mudança alguma.
+:::
+
+## Aplicar a várias colunas: `.apply()`
+
+```{pyodide}
+numericas = trab[["idade", "escolaridade", "horas", "renda"]]
+print(numericas.apply(cv).round(3))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.apply(função)` aplica a função a cada coluna da tabela e junta os resultados numa série. É um `for` escrito numa linha só. Note que a função vai **sem parênteses**: você entrega a função, não o resultado dela.
+
+A renda é, de longe, a variável mais dispersa: o desvio-padrão equivale a 56% da média, contra 16% nas horas.
+:::
+
+### Exercício 1 — uma função para a amplitude
+
+Escreva a função `amplitude()`, que devolve a diferença entre o maior e o menor valor de uma série. Aplique-a às horas semanais.
+
+```{pyodide}
+#| exercise: f9_ex1
+______ amplitude(x):
+    return x.max() - x.______()
+
+print(amplitude(trab["horas"]))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Uma função se define com a palavra `def`. O menor valor vem do método `min`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+def amplitude(x):
+    return x.max() - x.min()
+
+print(amplitude(trab["horas"]))
+```
+
+A amplitude das horas é de 44: a jornada vai de 16 a 60 horas semanais. Experimente também `amplitude(trab["renda"])`.
+:::
+
+## Simulação: o acaso sob controle
+
+```{pyodide}
+rng = np.random.default_rng(123)
+print(rng.integers(1, 7, size=10))
+print(rng.normal(100, 15, size=3))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`np.random.default_rng()` cria um **gerador** de números aleatórios, e os sorteios são métodos dele. `rng.integers(1, 7, size=10)` simula dez lançamentos de um dado — o 7 não entra. `rng.normal(100, 15, size=3)` gera três valores de uma distribuição normal com média 100 e desvio-padrão 15.
+
+O número entre parênteses, 123, é a **semente**. Com a mesma semente, os mesmos números saem toda vez que o bloco roda — é o que torna uma simulação reproduzível.
+:::
+
+Agora, a simulação mais importante do curso. Imagine que as 570 rendas informadas sejam a população inteira, e que você só possa entrevistar 50 pessoas.
+
+```{pyodide}
+rendas = trab["renda"].dropna()
+
+rng = np.random.default_rng(2026)
+medias = []
+
+for i in range(1000):
+    amostra = rng.choice(rendas, size=50, replace=False)
+    medias.append(amostra.mean())
+
+medias = pd.Series(medias)
+print(medias.mean())
+print(medias.std())
+```
+
+```{pyodide}
+fig, ax = plt.subplots()
+ax.hist(medias, bins=30)
+ax.set_title("Médias de 1.000 amostras de 50 pessoas")
+ax.set_xlabel("Renda média da amostra")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`medias = []` cria uma lista vazia. A cada volta, o laço sorteia 50 pessoas (`replace=False`: sem repetir ninguém), calcula a renda média da amostra e a acrescenta à lista com `.append()`. No fim, a lista — convertida em série — tem mil médias amostrais.
+
+Três coisas a notar:
+
+1. **Cada amostra dá uma média diferente.** A média de uma amostra é, ela mesma, uma variável aleatória.
+2. **As médias se concentram em torno do valor verdadeiro.** A média das mil médias (perto de R\$ 3.141) praticamente coincide com a média da população.
+3. **O histograma tem forma de sino**, embora a renda seja fortemente assimétrica. É o Teorema Central do Limite em ação.
+
+O desvio-padrão das médias, cerca de R\$ 240, tem nome próprio: **erro-padrão**. Ele mede quanto uma estimativa oscila de uma amostra para outra. Todo erro-padrão de uma tabela de regressão responde a essa mesma pergunta.
+:::
+
+### Exercício 2 — amostras maiores
+
+Repita a simulação com amostras de 200 pessoas. O que acontece com o erro-padrão?
+
+```{pyodide}
+#| exercise: f9_ex2
+rng = np.random.default_rng(2026)
+medias200 = []
+
+for i in range(______):
+    amostra = rng.choice(rendas, size=______, replace=False)
+    medias200.append(amostra.mean())
+
+print(pd.Series(medias200).std())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+São mil voltas: `range(1000)`. O tamanho de cada amostra agora é `200`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+rng = np.random.default_rng(2026)
+medias200 = []
+
+for i in range(1000):
+    amostra = rng.choice(rendas, size=200, replace=False)
+    medias200.append(amostra.mean())
+
+print(pd.Series(medias200).std())
+```
+
+O erro-padrão cai para cerca de R\$ 100, menos da metade do anterior. Amostras maiores produzem estimativas mais precisas — e é por isso que o tamanho da amostra aparece em toda fórmula de erro-padrão.
+:::
+
+::: {.callout-note}
+## Boas práticas, desde já
+
+- **Comente o porquê**, não o óbvio: `# exclui quem não informou a renda` ajuda; `# calcula a média` não.
+- **Dê nomes que digam o que a variável guarda**: `renda_media`, e não `x2`.
+- **Copiou e colou três vezes? Escreva uma função.**
+- **O código deve rodar de cima para baixo**, do início ao fim, sem depender de algo que você fez à mão.
+- **Fixe a semente** de toda simulação.
+:::
+
+## Glossário da aula
+
+| Função ou comando | O que faz |
+|---|---|
+| `if`, `elif`, `else` | Executa um bloco conforme uma condição. |
+| `for x in sequência:` | Repete o bloco para cada elemento da sequência. |
+| `while condição:` | Repete o bloco enquanto a condição for verdadeira. |
+| `def`, `return` | Define uma função; indica o resultado dela. |
+| `.apply()` | Aplica uma função a cada coluna de uma tabela. |
+| `[]`, `.append()` | Lista vazia; acrescenta um elemento à lista. |
+| `np.random.default_rng()` | Cria um gerador de números aleatórios, com semente. |
+| `rng.integers()`, `rng.normal()`, `rng.choice()` | Sorteia inteiros; gera valores de uma normal; sorteia elementos. |
+
+---
+
+Anterior: [Aula 8 — Textos, datas e séries mensais](py-fund08.qmd) · Próxima: [Aula 10 — Projeto guiado](py-fund10.qmd) · Esta aula em R: [Aula 9](r-fund09.qmd)
