@@ -168,3 +168,5 @@ A Parte 2 — Econometria no Python está em preparação.
 
 Cada página tem blocos de código com o botão **Run Code**. Rode os blocos **na ordem**: os primeiros carregam os dados usados pelos seguintes. Exercícios têm **Dica** e **Solução** — tente antes de abrir a solução.
 :::
+
+<!-- cursos de R e de Python (Parte 1): atualizado em 24/11/2026 -->
