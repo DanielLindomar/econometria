@@ -1,16 +1,22 @@
 ---
-title: "Aula 4 — Regressão múltipla"
-subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+title: "Aula 13 — Regressão múltipla"
+subtitle: "Curso de R · Parte 2 — Econometria no R"
 author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
 webr:
   packages:
     - dplyr
     - car
+aliases:
+  - r-aula04.html
 engine: knitr
 ---
 
 ::: {.logo-topo}
 ![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note appearance="minimal"}
+Esta aula era a **Aula 4** do Curso de R (Unidade 7 de Econometria I). O conteúdo é o mesmo; mudou a numeração, porque o curso agora começa pela Parte 1 — Fundamentos.
 :::
 
 ::: {.callout-note}
@@ -115,3 +121,7 @@ linearHypothesis(m4, c("genero = 0", "civil = 0"))
 |---|---|
 | `anova(m1, m2)` | Teste F parcial entre modelos aninhados. |
 | `linearHypothesis()` (car) | Testa restrições lineares nos coeficientes. |
+
+---
+
+Anterior: [Aula 12 — Regressão linear simples](r-econ12.qmd) · Próxima: [Aula 14 — Formas funcionais](r-econ14.qmd) · Esta aula em Python: [Aula 13](py-econ13.qmd)

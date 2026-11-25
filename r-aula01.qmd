@@ -12,6 +12,12 @@ engine: knitr
 ![](logo-unemat.png){width="110"}
 :::
 
+::: {.callout-important}
+## Esta aula foi substituída
+
+O Curso de R agora começa pela **Parte 1 — Fundamentos**, que trata deste conteúdo com mais calma, em dez aulas. Comece pela [Aula 1 — Primeiros passos](r-fund01.qmd). Esta página continua disponível para quem já a estava usando.
+:::
+
 ::: {.callout-note}
 ## Objetivos da aula
 

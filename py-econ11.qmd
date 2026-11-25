@@ -1,0 +1,170 @@
+---
+title: "Aula 11 — Estrutura dos dados"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - matplotlib
+    - statsmodels
+    - wooldridge
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- distinguir os três formatos de dados da econometria: **corte transversal**, **série de tempo** e **painel**;
+- criar as variáveis transformadas que os modelos vão pedir;
+- fazer os primeiros gráficos exploratórios de cada formato.
+:::
+
+Toda base econométrica cai num de três formatos — e o formato determina os métodos. Nesta aula, um exemplo de cada. As ferramentas são as da Parte 1; o que muda é o olhar.
+
+## Corte transversal: muitos indivíduos, um momento
+
+A base salarial: 1.289 trabalhadores observados **uma única vez**.
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.formula.api as smf
+
+salario = pd.read_csv("dados/salario_hora.csv")
+salario["ln_salario"] = np.log(salario["salario"])
+salario["esc2"] = salario["escolaridade"] ** 2
+salario[["salario", "ln_salario", "escolaridade", "esc2"]].info()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Criamos o logaritmo do salário e a escolaridade ao quadrado — transformações que usaremos nas próximas aulas. Em corte transversal a ordem das linhas **não importa**: cada linha é um indivíduo independente.
+:::
+
+```{pyodide}
+reta = smf.ols("salario ~ escolaridade", data=salario).fit()
+x = np.array([0, 20])
+
+fig, ax = plt.subplots()
+ax.scatter(salario["escolaridade"], salario["salario"], alpha=0.3)
+ax.plot(x, reta.params["Intercept"] + reta.params["escolaridade"] * x,
+        color="#B85042", linewidth=2)
+ax.set_xlabel("Escolaridade (anos)")
+ax.set_ylabel("Salário/hora")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`smf.ols()`, da Aula 10, estima a reta; com os dois números de `.params`, ela é desenhada sobre os pontos, de 0 a 20 anos de estudo. A nuvem em faixas verticais é típica de escolaridade (anos inteiros); a reta sobe — a relação que estimaremos na Aula 12.
+:::
+
+## Série de tempo: uma unidade, muitos momentos
+
+O PIB real: **um país**, 48 anos. Aqui a ordem das linhas é tudo.
+
+```{pyodide}
+pib = pd.read_csv("dados/pib_real.csv")
+pib.info()
+
+fig, ax = plt.subplots()
+ax.plot(pib["ano"], pib["pib_real"])
+ax.set_xlabel("Ano")
+ax.set_ylabel("PIB real (US$ bi)")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A linha liga os pontos — o que só faz sentido porque as observações têm **ordem temporal**. Em séries, vizinhos são parecidos (autocorrelação): a Aula 17 trata das consequências.
+:::
+
+### Exercício 1 — explorando a série
+
+Calcule a taxa de crescimento anual do PIB com o método `.shift()`, da Aula 8 (o valor da linha anterior).
+
+```{pyodide}
+#| exercise: a11_ex1
+pib["crescimento"] = (pib["pib_real"] / pib["pib_real"].______(1) - 1) * 100
+print(pib.head())
+print(pib["crescimento"].mean())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `shift`. A média já descarta o primeiro ano, que não tem anterior. Ela deve ficar perto de 3,3% a.a. (média aritmética das taxas anuais).
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+pib["crescimento"] = (pib["pib_real"] / pib["pib_real"].shift(1) - 1) * 100
+print(pib.head())
+print(pib["crescimento"].mean())
+```
+:::
+
+## Painel: muitas unidades, muitos momentos
+
+O painel combina os dois: as **mesmas** unidades acompanhadas no tempo. Usamos `wagepan`, uma das bases do livro de Wooldridge (545 trabalhadores × 8 anos). A biblioteca **wooldridge** distribui todas elas: `woo.data()` (nova) carrega uma base pelo nome.
+
+```{pyodide}
+import wooldridge as woo
+
+wagepan = woo.data("wagepan")
+wagepan[["nr", "year", "lwage", "educ", "union"]].head(10)
+```
+
+```{pyodide}
+print(wagepan["nr"].nunique(), wagepan["year"].nunique(), len(wagepan))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O trabalhador `nr = 13` aparece 8 vezes — uma por ano. São 545 × 8 = 4.360 observações. `.nunique()` (novo) conta os valores distintos de uma coluna. O painel permite controlar o que não muda em cada indivíduo — a grande vantagem que motiva métodos próprios (efeitos fixos, assunto de Econometria II).
+:::
+
+### Exercício 2 — identificando o formato
+
+A base de vendas de roupas (`vendas_roupas.csv`) tem 28 trimestres de **uma** rede de lojas. Importe e classifique: corte, série ou painel?
+
+```{pyodide}
+#| exercise: a11_ex2
+roupas = pd.read_csv("dados/______")
+roupas.info()
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O arquivo é `vendas_roupas.csv`. Uma unidade, vários períodos ordenados…
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+roupas = pd.read_csv("dados/vendas_roupas.csv")
+roupas.info()
+# Série de tempo: uma unidade (a rede), 28 trimestres ordenados.
+```
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `np.log()`, `** 2` | Logaritmo e quadrado de uma coluna. |
+| `smf.ols().fit()`, `.params` | Estima a reta; devolve intercepto e inclinação. |
+| `ax.scatter()`, `ax.plot()` | Nuvem de pontos; linha (reta ajustada ou série no tempo). |
+| `.shift()` | Valor da linha anterior. |
+| `woo.data()` (wooldridge) | Carrega uma base do livro de Wooldridge. |
+| `.nunique()` | Conta os valores distintos. |
+
+---
+
+Anterior: [Aula 10 — Projeto guiado](py-fund10.qmd) · Próxima: [Aula 12 — Regressão linear simples](py-econ12.qmd) · Esta aula em R: [Aula 11](r-econ11.qmd)

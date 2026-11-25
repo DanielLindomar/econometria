@@ -1,16 +1,22 @@
 ---
-title: "Aula 2 — Estrutura dos dados"
-subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+title: "Aula 11 — Estrutura dos dados"
+subtitle: "Curso de R · Parte 2 — Econometria no R"
 author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
 webr:
   packages:
     - dplyr
     - wooldridge
+aliases:
+  - r-aula02.html
 engine: knitr
 ---
 
 ::: {.logo-topo}
 ![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note appearance="minimal"}
+Esta aula era a **Aula 2** do Curso de R (Unidade 7 de Econometria I). O conteúdo é o mesmo; mudou a numeração, porque o curso agora começa pela Parte 1 — Fundamentos.
 :::
 
 ::: {.callout-note}
@@ -25,7 +31,7 @@ Toda base econométrica cai num de três formatos — e o formato determina os m
 
 ## Corte transversal: muitos indivíduos, um momento
 
-A base salarial: 1.289 trabalhadores observados **uma única vez**. Novidades do pacote **dplyr**: o pipe `|>` encadeia operações; `mutate()` cria variáveis; `select()` escolhe colunas.
+A base salarial: 1.289 trabalhadores observados **uma única vez**. As ferramentas são as do pacote **dplyr**, vistas na Aula 4: o pipe `|>` encadeia operações; `mutate()` cria variáveis; `select()` escolhe colunas.
 
 ```{webr}
 library(dplyr)
@@ -50,7 +56,7 @@ abline(lm(salario ~ escolaridade, data = salario), col = "#B85042", lwd = 2)
 ::: {.callout-tip}
 ## Como ler essa saída
 
-`plot()` é o gráfico do R base (rápido para explorar) e `abline()` (nova) sobrepõe a reta de um modelo. A nuvem em faixas verticais é típica de escolaridade (anos inteiros); a reta sobe — a relação que estimaremos na Aula 3.
+`plot()` é o gráfico do R base (rápido para explorar) e `abline()` (nova) sobrepõe a reta de um modelo. A nuvem em faixas verticais é típica de escolaridade (anos inteiros); a reta sobe — a relação que estimaremos na Aula 12.
 :::
 
 ## Série de tempo: uma unidade, muitos momentos
@@ -67,12 +73,12 @@ plot(pib$ano, pib$pib_real, type = "l",
 ::: {.callout-tip}
 ## Como ler essa saída
 
-`type = "l"` liga os pontos — só faz sentido porque as observações têm **ordem temporal**. Em séries, vizinhos são parecidos (autocorrelação): a Aula 8 trata das consequências.
+`type = "l"` liga os pontos — só faz sentido porque as observações têm **ordem temporal**. Em séries, vizinhos são parecidos (autocorrelação): a Aula 17 trata das consequências.
 :::
 
 ### Exercício 1 — explorando a série
 
-Calcule a taxa de crescimento anual do PIB com a função nova `lag()` do dplyr (o valor da linha anterior).
+Calcule a taxa de crescimento anual do PIB com a função `lag()` do dplyr, da Aula 8 (o valor da linha anterior).
 
 ```{webr}
 #| exercise: a2_ex1
@@ -112,7 +118,7 @@ c(trabalhadores = length(unique(wagepan$nr)),
 ::: {.callout-tip}
 ## Como ler essa saída
 
-O trabalhador `nr = 13` aparece 8 vezes — uma por ano. São 545 × 8 = 4.360 observações. `unique()` (nova) lista os valores distintos; `length()`, quantos são. O painel permite controlar o que não muda em cada indivíduo — a grande vantagem que motiva métodos próprios (efeitos fixos, tema de cursos avançados).
+O trabalhador `nr = 13` aparece 8 vezes — uma por ano. São 545 × 8 = 4.360 observações. `unique()` lista os valores distintos; `length()`, quantos são. O painel permite controlar o que não muda em cada indivíduo — a grande vantagem que motiva métodos próprios (efeitos fixos, tema de cursos avançados).
 :::
 
 ### Exercício 2 — identificando o formato
@@ -141,8 +147,12 @@ str(roupas)
 
 | Função | O que faz |
 |---|---|
-| `\|>`, `mutate()`, `select()` | Encadeia, cria e escolhe colunas. |
+| <code>&#124;&gt;</code>, `mutate()`, `select()` | Encadeia, cria e escolhe colunas. |
 | `plot()` / `abline()` | Gráfico base / reta sobreposta. |
 | `lag()` (dplyr) | Valor da linha anterior. |
 | `data()` | Carrega base embutida num pacote. |
 | `unique()` / `length()` | Valores distintos / contagem. |
+
+---
+
+Anterior: [Aula 10 — Projeto guiado](r-fund10.qmd) · Próxima: [Aula 12 — Regressão linear simples](r-econ12.qmd) · Esta aula em Python: [Aula 11](py-econ11.qmd)

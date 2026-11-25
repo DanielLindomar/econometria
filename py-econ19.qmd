@@ -1,0 +1,211 @@
+---
+title: "Aula 19 — Análise de séries de tempo"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - matplotlib
+    - statsmodels
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- percorrer o fluxo completo de séries: decompor → testar raiz unitária → modelar → prever;
+- estimar um ARIMA, escolher a ordem pelo AIC e validar com Ljung-Box;
+- estimar um VAR e testar **causalidade de Granger**.
+:::
+
+Esta aula reúne num único fluxo os preços mensais de `series_tempo.csv`: boi gordo, soja e PETR4.
+
+## Preparar e decompor
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+precos = pd.read_csv("dados/series_tempo.csv")
+precos.index = pd.date_range("2006-03-01", periods=len(precos), freq="MS")
+soja = precos["soja_br"]
+
+seasonal_decompose(soja, model="additive", period=12).plot()
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+No arquivo, os meses estão escritos como texto (`mar/06`). `pd.date_range()` (nova) cria as 216 datas mensais a partir de março de 2006 — `freq="MS"` significa "início de cada mês" —, e elas passam a ser o **índice** da tabela. É pelo índice de datas que o statsmodels reconhece uma série temporal.
+
+`seasonal_decompose()` (nova) separa a série em tendência, sazonalidade (`period=12`: um ciclo por ano) e resíduo, um painel para cada componente.
+:::
+
+## Estacionariedade
+
+```{pyodide}
+from statsmodels.tsa.stattools import adfuller
+
+nivel = adfuller(soja)
+retorno = adfuller(np.log(soja).diff().dropna())
+print("Nível:         ADF =", round(nivel[0], 2), "| valor-p =", round(nivel[1], 4))
+print("Log-diferença: ADF =", round(retorno[0], 2), "| valor-p =", round(retorno[1], 4))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`adfuller()` (nova) faz o teste de Dickey-Fuller aumentado; os dois primeiros resultados são a estatística e o valor-p, e a hipótese nula é a de raiz unitária. `.diff()` (novo) subtrai de cada valor o anterior: aplicado ao log, dá a variação percentual aproximada.
+
+Nível: não estacionário (I(1)); log-diferença: estacionária (I(0)). Todo o restante da aula trabalha com séries transformadas ou modelos que absorvem a raiz unitária (o "d" do ARIMA).
+:::
+
+## ARIMA com diagnóstico
+
+```{pyodide}
+from statsmodels.tsa.arima.model import ARIMA
+
+for p in range(2):
+    for q in range(2):
+        candidato = ARIMA(soja, order=(p, 1, q)).fit()
+        print(f"ARIMA({p},1,{q})  AIC = {candidato.aic:.1f}")
+```
+
+```{pyodide}
+from statsmodels.stats.diagnostic import acorr_ljungbox
+
+mod = ARIMA(soja, order=(0, 1, 1)).fit()
+print(mod.summary().tables[1])
+print(acorr_ljungbox(mod.resid.iloc[1:], lags=[12, 24]))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`ARIMA(serie, order=(p, d, q))` estima o modelo. O laço da Aula 9 compara quatro candidatos pelo critério de informação de Akaike (AIC): quanto menor, melhor. Vence o ARIMA(0,1,1).
+
+O Ljung-Box testa se os resíduos são ruído branco (H0: sem autocorrelação). Os valores-p — 0,36 com 12 defasagens e 0,08 com 24 — ficam acima de 0,05, o segundo por pouco: o modelo passa, sem folga. O `.iloc[1:]` descarta o primeiro resíduo, que num modelo em diferenças não tem interpretação.
+:::
+
+```{pyodide}
+previsao = mod.get_forecast(6).summary_frame()
+print(previsao.round(2))
+
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(soja.iloc[-36:], label="Observado")
+ax.plot(previsao["mean"], color="#B85042", label="Previsão")
+ax.fill_between(previsao.index, previsao["mean_ci_lower"], previsao["mean_ci_upper"],
+                color="#B85042", alpha=0.2)
+ax.set_title("Previsão — soja (6 meses)")
+ax.legend()
+plt.show()
+
+print("RMSE dentro da amostra:", round(np.sqrt((mod.resid.iloc[1:] ** 2).mean()), 2))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.get_forecast(6)` projeta seis meses, e `.summary_frame()` organiza a previsão (`mean`) e o intervalo de confiança de 95%. O gráfico mostra os últimos 36 meses e o leque de previsão, que alarga com o horizonte: de cerca de ±9 reais no primeiro mês para ±28 no sexto.
+
+A previsão pontual é a mesma nos seis meses: num ARIMA(0,1,1), depois do primeiro passo, o melhor palpite é o último nível estimado. O ciclo identificar–estimar–diagnosticar–prever, em poucas linhas.
+:::
+
+### Exercício 1 — ARIMA do boi
+
+Rode o fluxo para o **boi gordo**: estime o ARIMA(0,1,1), aplique o Ljung-Box e preveja 6 meses.
+
+```{pyodide}
+#| exercise: a19_ex1
+boi = precos["______"]
+mod_boi = ______(boi, order=(0, 1, 1)).fit()
+print(acorr_ljungbox(mod_boi.resid.iloc[1:], lags=[12, 24]))
+print(mod_boi.get_forecast(6).summary_frame().round(2))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A coluna é `boi`; o modelo, `ARIMA`. A ordem (0,1,1) também é a de menor AIC para o boi — confira com o laço, se quiser.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+boi = precos["boi"]
+mod_boi = ARIMA(boi, order=(0, 1, 1)).fit()
+print(acorr_ljungbox(mod_boi.resid.iloc[1:], lags=[12, 24]))
+print(mod_boi.get_forecast(6).summary_frame().round(2))
+```
+
+Os valores-p do Ljung-Box (0,65 e 0,77) não acusam autocorrelação nos resíduos.
+:::
+
+## VAR e causalidade de Granger
+
+No VAR, cada série responde às defasagens de todas. A pergunta de Granger: o passado de X ajuda a prever Y **além** do próprio passado de Y? O método `.test_causality()` (novo) responde.
+
+```{pyodide}
+from statsmodels.tsa.api import VAR
+
+sistema = pd.DataFrame({"br": np.log(precos["soja_br"]).diff(),
+                        "us": np.log(precos["soja_us"]).diff()}).dropna()
+var1 = VAR(sistema).fit(2)
+
+print(var1.test_causality("br", ["us"], kind="f").summary())
+print(var1.test_causality("us", ["br"], kind="f").summary())
+print(sistema.corr().round(2))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`VAR(sistema).fit(2)` estima o sistema com duas defasagens. Os dois testes são espelhados: "Chicago Granger-causa Brasil?" e o inverso. O padrão esperado — e o achado clássico da literatura de transmissão de preços — é a causalidade **de fora para dentro**: o mercado americano prevê o brasileiro, não o contrário.
+
+Nesta amostra mensal, porém, **nenhum dos dois testes rejeita H0** (valores-p de 0,76 e 0,65). A transmissão entre os dois mercados acontece dentro do próprio mês, e por isso aparece como correlação contemporânea — 0,75 entre as duas variações —, não como precedência.
+
+Atenção ao nome: causalidade de Granger é **precedência preditiva**, não causalidade estrutural.
+:::
+
+### Exercício 2 — diagnóstico do VAR
+
+Valide o VAR: `.test_whiteness()` checa a autocorrelação residual do sistema (H0: sem autocorrelação).
+
+```{pyodide}
+#| exercise: a19_ex2
+print(var1.______(nlags=12).summary())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O método é `test_whiteness`. Valor-p alto = sistema bem especificado; baixo = aumente o número de defasagens do VAR.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+print(var1.test_whiteness(nlags=12).summary())
+```
+
+Com valor-p de 0,77, o teste não rejeita a ausência de autocorrelação: duas defasagens bastam.
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `pd.date_range()` | Cria uma sequência de datas (aqui, o índice mensal). |
+| `seasonal_decompose()` | Decompõe em tendência, sazonalidade e resíduo. |
+| `adfuller()` | Teste de raiz unitária (Dickey-Fuller aumentado). |
+| `ARIMA(...).fit()`, `.aic` | Estima o ARIMA; critério de informação. |
+| `acorr_ljungbox()` | Teste de ruído branco nos resíduos. |
+| `.get_forecast().summary_frame()` | Previsão com intervalo de confiança. |
+| `VAR(...).fit()`, `.test_causality()` | Estima o VAR; teste de causalidade de Granger. |
+| `.test_whiteness()` | Autocorrelação residual do VAR. |
+
+---
+
+Anterior: [Aula 18 — Especificação da regressão](py-econ18.qmd) · Próxima: [Aula 20 — Machine Learning no Python](py-econ20.qmd) · Esta aula em R: [Aula 19](r-econ19.qmd)

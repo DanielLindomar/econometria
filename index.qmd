@@ -126,21 +126,20 @@ Para quem **nunca programou**. Dez aulas que partem da primeira conta e chegam �
 
 ### Parte 2 — Econometria no R
 
-As aulas desta parte correspondem à Unidade 7 de Econometria I e mantêm, por enquanto, a numeração original. Quem concluiu a Parte 1 pode começar pela Aula 2.
+Da estrutura dos dados ao machine learning, com os métodos das disciplinas de Econometria. Estas aulas eram as Aulas 2 a 11 do antigo Curso de R (Unidade 7 de Econometria I): o conteúdo é o mesmo, a numeração mudou e os endereços antigos levam às páginas novas. A antiga [Aula 1 — Introdução ao R](r-aula01.qmd), substituída pela Parte 1, continua disponível.
 
-| # | Aula |
-|---|---|
-| 1 | [Introdução ao R](r-aula01.qmd) |
-| 2 | [Estrutura dos dados](r-aula02.qmd) |
-| 3 | [Regressão linear simples](r-aula03.qmd) |
-| 4 | [Regressão múltipla](r-aula04.qmd) |
-| 5 | [Formas funcionais](r-aula05.qmd) |
-| 6 | [Variáveis qualitativas](r-aula06.qmd) |
-| 7 | [Heterocedasticidade](r-aula07.qmd) |
-| 8 | [Autocorrelação](r-aula08.qmd) |
-| 9 | [Especificação da regressão](r-aula09.qmd) |
-| 10 | [Séries de tempo](r-aula10.qmd) |
-| 11 | [Machine Learning](r-aula11.qmd) |
+| # | Aula | Tema |
+|---|---|---|
+| 11 | [Estrutura dos dados](r-econ11.qmd) | Corte transversal, série de tempo e painel |
+| 12 | [Regressão linear simples](r-econ12.qmd) | Estimação, leitura da saída e previsão |
+| 13 | [Regressão múltipla](r-econ13.qmd) | Ceteris paribus, teste F parcial e restrições lineares |
+| 14 | [Formas funcionais](r-econ14.qmd) | Equação minceriana, termos quadráticos e modelo de crescimento |
+| 15 | [Variáveis qualitativas](r-econ15.qmd) | Dummies, categorias de referência e interações |
+| 16 | [Heterocedasticidade](r-econ16.qmd) | Diagnóstico, erros-padrão robustos e mínimos quadrados ponderados |
+| 17 | [Autocorrelação](r-econ17.qmd) | Durbin-Watson, Breusch-Godfrey e correções |
+| 18 | [Especificação da regressão](r-econ18.qmd) | Variável omitida, teste RESET e variáveis proxy |
+| 19 | [Análise de séries de tempo](r-econ19.qmd) | Raiz unitária, ARIMA, VAR e causalidade de Granger |
+| 20 | [Machine Learning no R](r-econ20.qmd) | Treino e teste, LASSO e random forest |
 
 ## Curso de Python
 
@@ -161,7 +160,22 @@ O mesmo curso, aula por aula, em Python. Os dados, os exemplos e os exercícios 
 | 9 | [Programação básica](py-fund09.qmd) | Condições, repetições, funções próprias e simulação |
 | 10 | [Projeto guiado](py-fund10.qmd) | Da base bruta à primeira regressão; o Python no seu computador |
 
-A Parte 2 — Econometria no Python está em preparação.
+### Parte 2 — Econometria no Python
+
+As mesmas dez aulas de econometria, com as bibliotecas statsmodels e scikit-learn.
+
+| # | Aula | Tema |
+|---|---|---|
+| 11 | [Estrutura dos dados](py-econ11.qmd) | Corte transversal, série de tempo e painel |
+| 12 | [Regressão linear simples](py-econ12.qmd) | Estimação, leitura da saída e previsão |
+| 13 | [Regressão múltipla](py-econ13.qmd) | Ceteris paribus, teste F parcial e restrições lineares |
+| 14 | [Formas funcionais](py-econ14.qmd) | Equação minceriana, termos quadráticos e modelo de crescimento |
+| 15 | [Variáveis qualitativas](py-econ15.qmd) | Dummies, categorias de referência e interações |
+| 16 | [Heterocedasticidade](py-econ16.qmd) | Diagnóstico, erros-padrão robustos e mínimos quadrados ponderados |
+| 17 | [Autocorrelação](py-econ17.qmd) | Durbin-Watson, Breusch-Godfrey e correções |
+| 18 | [Especificação da regressão](py-econ18.qmd) | Variável omitida, teste RESET e variáveis proxy |
+| 19 | [Análise de séries de tempo](py-econ19.qmd) | Raiz unitária, ARIMA, VAR e causalidade de Granger |
+| 20 | [Machine Learning no Python](py-econ20.qmd) | Treino e teste, LASSO e random forest |
 
 ::: {.callout-note}
 ## Como usar
@@ -169,4 +183,4 @@ A Parte 2 — Econometria no Python está em preparação.
 Cada página tem blocos de código com o botão **Run Code**. Rode os blocos **na ordem**: os primeiros carregam os dados usados pelos seguintes. Exercícios têm **Dica** e **Solução** — tente antes de abrir a solução.
 :::
 
-<!-- cursos de R e de Python (Parte 1): atualizado em 24/11/2026 -->
+<!-- cursos de R e de Python (Partes 1 e 2): atualizado em 24/11/2026 -->

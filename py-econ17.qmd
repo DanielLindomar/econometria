@@ -1,0 +1,141 @@
+---
+title: "Aula 17 — Autocorrelação"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - matplotlib
+    - statsmodels
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- visualizar a autocorrelação nos resíduos de uma série;
+- testar com Durbin-Watson e Breusch-Godfrey;
+- corrigir com mínimos quadrados generalizados e com Newey-West.
+:::
+
+## O modelo de consumo
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+consumo = pd.read_csv("dados/consumo.csv")
+modelo = smf.ols("consumo ~ renda + riqueza + juros", data=consumo).fit()
+print(modelo.summary().tables[1])
+
+fig, ax = plt.subplots()
+ax.plot(consumo["year"], modelo.resid, marker="o")
+ax.axhline(0, linestyle="--", color="#B85042")
+ax.set_xlabel("Ano")
+ax.set_ylabel("Resíduo")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`marker="o"` marca cada ponto da linha: os resíduos **passeiam** — sequências acima e abaixo de zero, em vez de alternância aleatória. Resíduo de hoje parecido com o de ontem = autocorrelação positiva.
+:::
+
+## Os testes
+
+```{pyodide}
+from statsmodels.stats.stattools import durbin_watson
+from statsmodels.stats.diagnostic import acorr_breusch_godfrey
+
+print("Durbin-Watson:", round(durbin_watson(modelo.resid), 2))
+
+bg = acorr_breusch_godfrey(modelo, nlags=2)
+print("Breusch-Godfrey: LM =", round(bg[0], 2), "| valor-p =", round(bg[1], 4))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`durbin_watson()` devolve só a estatística: perto de 2, não há autocorrelação de primeira ordem; perto de 0, ela é positiva e forte. `acorr_breusch_godfrey()` testa até a defasagem pedida em `nlags`, e a hipótese nula é a ausência de autocorrelação.
+
+DW ≈ 1,3 (longe de 2) e BG com valor-p < 0,05: autocorrelação confirmada nas duas versões. Consequência típica em séries macro: t **inflados** — significâncias que podem ser ilusão.
+:::
+
+## As correções
+
+```{pyodide}
+mqg = sm.GLSAR.from_formula("consumo ~ renda + riqueza + juros", data=consumo, rho=1)
+res_mqg = mqg.iterative_fit(maxiter=50)
+print("rho estimado:", mqg.rho)
+print(res_mqg.summary().tables[1])
+```
+
+```{pyodide}
+nw = modelo.get_robustcov_results(cov_type="HAC", maxlags=3)
+print(nw.summary().tables[1])
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`sm.GLSAR` estima, por **mínimos quadrados generalizados**, um modelo com erro autorregressivo: `rho=1` pede um AR de ordem 1, e `.iterative_fit()` alterna entre estimar o **rho** e reestimar o modelo transformado, até estabilizar (é o procedimento de Cochrane-Orcutt, parente próximo do Prais-Winsten).
+
+O Newey-West (`cov_type="HAC"`) mantém o MQO e blinda os erros-padrão; `maxlags` é o número de defasagens consideradas — aqui 3, pela regra prática 4·(T/100)^(2/9).
+
+Compare os t das três versões (MQO, MQG, NW): a história da significância muda. O caso mais claro é o dos juros, significativos no MQO e não no MQG.
+:::
+
+### Exercício — construções
+
+Aplique o protocolo completo (Durbin-Watson, Breusch-Godfrey, Newey-West) ao modelo de construções habitacionais.
+
+```{pyodide}
+#| exercise: a17_ex1
+constr = pd.read_csv("dados/construcoes.csv")
+m = smf.ols("construcoes ~ hipoteca + pibr", data=constr).fit()
+
+print("Durbin-Watson:", round(______(m.resid), 2))
+bg = acorr_breusch_godfrey(m, nlags=2)
+print("Breusch-Godfrey: valor-p =", round(bg[1], 6))
+print(m.get_robustcov_results(cov_type="______", maxlags=3).summary().tables[1])
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `durbin_watson` e `HAC`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+constr = pd.read_csv("dados/construcoes.csv")
+m = smf.ols("construcoes ~ hipoteca + pibr", data=constr).fit()
+
+print("Durbin-Watson:", round(durbin_watson(m.resid), 2))
+bg = acorr_breusch_godfrey(m, nlags=2)
+print("Breusch-Godfrey: valor-p =", round(bg[1], 6))
+print(m.get_robustcov_results(cov_type="HAC", maxlags=3).summary().tables[1])
+```
+
+O Durbin-Watson de 0,43 e o valor-p praticamente nulo do Breusch-Godfrey indicam autocorrelação forte.
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `ax.plot(x, y, marker="o")` | Série de resíduos ligada por linhas. |
+| `durbin_watson()`, `acorr_breusch_godfrey()` | Testes de autocorrelação. |
+| `sm.GLSAR`, `.iterative_fit()` | Correção por mínimos quadrados generalizados. |
+| `.get_robustcov_results(cov_type="HAC")` | Erros-padrão de Newey-West. |
+
+---
+
+Anterior: [Aula 16 — Heterocedasticidade](py-econ16.qmd) · Próxima: [Aula 18 — Especificação da regressão](py-econ18.qmd) · Esta aula em R: [Aula 17](r-econ17.qmd)

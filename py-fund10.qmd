@@ -380,4 +380,4 @@ Se preferir guardar os arquivos, aqui estão: [trabalhadores_mt.csv](dados/traba
 
 ---
 
-Você concluiu a Parte 1. Anterior: [Aula 9 — Programação básica](py-fund09.qmd) · A Parte 2 — Econometria no Python está em preparação · Esta aula em R: [Aula 10](r-fund10.qmd)
+Você concluiu a Parte 1. Anterior: [Aula 9 — Programação básica](py-fund09.qmd) · Próxima: [Aula 11 — Estrutura dos dados](py-econ11.qmd), a primeira da Parte 2 · Esta aula em R: [Aula 10](r-fund10.qmd)

@@ -1,0 +1,135 @@
+---
+title: "Aula 15 — Variáveis qualitativas"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - statsmodels
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- incluir dummies e variáveis **categóricas** com várias categorias na regressão;
+- mudar a categoria de referência;
+- estimar interações e ler diferenciais por grupo.
+:::
+
+## Dummies simples
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import statsmodels.formula.api as smf
+
+salario = pd.read_csv("dados/salario_hora2.csv")
+m1 = smf.ols("np.log(salhora) ~ esc + exp + genero", data=salario).fit()
+print(m1.summary())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Com y em log, o coeficiente da dummy `genero` × 100 é o **diferencial percentual** entre os grupos, mantidos escolaridade e experiência. (Para dummies grandes, o exato é `np.exp(b) − 1`.)
+
+Nesta base, `genero` vale 1 para as mulheres. O coeficiente de −0,26 corresponde a um salário cerca de 23% menor que o dos homens de mesma escolaridade e experiência.
+:::
+
+## Declarando uma variável como categórica
+
+Em `salario_hora2.csv` a variável `regiao` é binária (1 = Sul, 0 = demais). Na fórmula, `C()` (nova) declara a variável como **categórica**: o statsmodels cria automaticamente uma dummy por categoria, omitindo a primeira como referência. Com duas categorias sai uma única dummy; com três ou mais, sairia uma linha para cada categoria além da referência.
+
+```{pyodide}
+m2 = smf.ols("np.log(salhora) ~ esc + exp + C(regiao)", data=salario).fit()
+print(m2.summary())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A linha `C(regiao)[T.1]` compara a região 1 (Sul) com a **referência** (a categoria 0, ausente da tabela). O coeficiente é o diferencial regional de salário, controladas educação e experiência.
+:::
+
+### Exercício 1 — trocando a referência
+
+Dentro do `C()`, `Treatment(reference=...)` (novo) muda a categoria-base. Refaça tomando a categoria 1 como referência e veja o coeficiente trocar de sinal.
+
+```{pyodide}
+#| exercise: a15_ex1
+m2b = smf.ols("np.log(salhora) ~ esc + exp + C(regiao, Treatment(reference=______))",
+              data=salario).fit()
+print(m2b.summary())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As categorias de `regiao` são 0 e 1 (confira com `salario["regiao"].unique()`). Use `reference=1`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+m2b = smf.ols("np.log(salhora) ~ esc + exp + C(regiao, Treatment(reference=1))",
+              data=salario).fit()
+print(m2b.summary())
+```
+
+O coeficiente passa de −0,13 para +0,13: é o mesmo diferencial, visto do outro lado.
+:::
+
+## Interações
+
+O retorno da educação difere por gênero? A interação `esc:genero` responde.
+
+```{pyodide}
+m3 = smf.ols("np.log(salhora) ~ esc + exp + genero + esc:genero", data=salario).fit()
+print(m3.summary())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`esc` é o retorno do grupo-base; `esc:genero`, a **diferença** de retorno do outro grupo. Interação significativa = retas com inclinações distintas — o diferencial cresce (ou encolhe) com a escolaridade, em vez de ser constante.
+
+Aqui o valor-p da interação é 0,052, no limite dos 5%: a evidência de que o retorno da educação difere entre homens e mulheres é fraca.
+:::
+
+### Exercício 2 — sindicato e experiência
+
+Teste se o prêmio sindical (`sind`) varia com a experiência.
+
+```{pyodide}
+#| exercise: a15_ex2
+m4 = smf.ols("np.log(salhora) ~ esc + exp + sind + ______:______", data=salario).fit()
+print(m4.summary())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A interação é `sind:exp` (ou `exp:sind` — a ordem não importa).
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+m4 = smf.ols("np.log(salhora) ~ esc + exp + sind + sind:exp", data=salario).fit()
+print(m4.summary())
+```
+
+O valor-p da interação (0,38) não permite dizer que o prêmio sindical muda com a experiência.
+:::
+
+## Glossário da aula
+
+| Função ou símbolo | O que faz |
+|---|---|
+| `C(x)` | Declara a variável como categórica (uma dummy por categoria). |
+| `C(x, Treatment(reference=k))` | Muda a categoria de referência. |
+| `a:b` | Interação na fórmula. |
+
+---
+
+Anterior: [Aula 14 — Formas funcionais](py-econ14.qmd) · Próxima: [Aula 16 — Heterocedasticidade](py-econ16.qmd) · Esta aula em R: [Aula 15](r-econ15.qmd)

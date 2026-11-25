@@ -241,7 +241,7 @@ print(vinculo.value_counts())
 
 `.unique()` lista as categorias existentes, e `.value_counts()` conta quantas vezes cada uma aparece: três vínculos formais e dois informais. O `dtype: int64` no fim se refere às contagens, que são números inteiros.
 
-O pandas tem também um tipo próprio para categorias (`category`), que voltará nas regressões com variáveis qualitativas da Parte 2.
+O pandas tem também um tipo próprio para categorias (`category`). As variáveis categóricas voltam nas regressões com variáveis qualitativas da Parte 2.
 :::
 
 ## Outras estruturas: dicionários e arrays

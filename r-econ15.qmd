@@ -1,16 +1,22 @@
 ---
-title: "Aula 6 — Variáveis qualitativas"
-subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+title: "Aula 15 — Variáveis qualitativas"
+subtitle: "Curso de R · Parte 2 — Econometria no R"
 author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
 webr:
   packages:
     - dplyr
     - ggplot2
+aliases:
+  - r-aula06.html
 engine: knitr
 ---
 
 ::: {.logo-topo}
 ![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note appearance="minimal"}
+Esta aula era a **Aula 6** do Curso de R (Unidade 7 de Econometria I). O conteúdo é o mesmo; mudou a numeração, porque o curso agora começa pela Parte 1 — Fundamentos.
 :::
 
 ::: {.callout-note}
@@ -119,3 +125,7 @@ summary(m4)
 | `factor()` | Converte em fator (uma dummy por nível). |
 | `levels()` / `relevel(ref =)` | Lista níveis / muda a referência. |
 | `a:b` | Interação na fórmula. |
+
+---
+
+Anterior: [Aula 14 — Formas funcionais](r-econ14.qmd) · Próxima: [Aula 16 — Heterocedasticidade](r-econ16.qmd) · Esta aula em Python: [Aula 15](py-econ15.qmd)

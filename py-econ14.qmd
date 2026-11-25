@@ -1,0 +1,138 @@
+---
+title: "Aula 14 — Formas funcionais"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - statsmodels
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- estimar a equação **minceriana** (log-lin) e ler retornos percentuais;
+- modelar **não linearidade** com termos quadráticos;
+- estimar o modelo de **crescimento** do PIB (log-lin com tendência).
+:::
+
+## A equação minceriana
+
+Com o salário em log, o coeficiente da escolaridade vira **retorno percentual** — a forma padrão da economia do trabalho.
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import statsmodels.formula.api as smf
+
+salario = pd.read_csv("dados/salario_hora2.csv")
+minc = smf.ols("np.log(salhora) ~ esc + exp", data=salario).fit()
+print(minc.summary())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A transformação vai dentro da própria fórmula: `np.log(salhora)`. O coeficiente de `esc` multiplicado por 100 é o **retorno da educação**: cada ano de estudo eleva o salário em cerca de 10%, mantida a experiência. É a leitura log-lin: variações absolutas em x, percentuais em y.
+:::
+
+## Experiência ao quadrado: o ciclo da vida
+
+Salários sobem com a experiência, mas a taxas decrescentes. O termo `I(exp**2)` captura a concavidade: dentro da fórmula, `I(...)` (novo) protege uma conta, para que ela seja feita antes da estimação.
+
+```{pyodide}
+minc2 = smf.ols("np.log(salhora) ~ esc + exp + I(exp**2)", data=salario).fit()
+print(minc2.summary())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Sinal positivo em `exp` e **negativo** em `I(exp ** 2)`: o perfil é uma parábola côncava. O pico ocorre em exp* = b₁/(2·|b₂|) anos — calcule com os coeficientes: é a experiência em que o salário esperado atinge o máximo.
+:::
+
+### Exercício 1 — o pico da parábola
+
+Extraia os coeficientes e calcule a experiência do pico salarial.
+
+```{pyodide}
+#| exercise: a14_ex1
+b = minc2.params
+pico = b["exp"] / (2 * abs(b["______"]))
+print(pico)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+O nome do coeficiente quadrático é o que aparece na tabela: `I(exp ** 2)`, com um espaço de cada lado dos asteriscos.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+b = minc2.params
+pico = b["exp"] / (2 * abs(b["I(exp ** 2)"]))
+print(pico)
+```
+
+O salário esperado atinge o máximo perto dos 30 anos de experiência.
+:::
+
+## O modelo de crescimento
+
+```{pyodide}
+pib = pd.read_csv("dados/pib_real.csv")
+pib["t"] = np.arange(1, len(pib) + 1)
+
+cresc = smf.ols("np.log(pib_real) ~ t", data=pib).fit()
+print(cresc.summary())
+print(np.exp(cresc.params["t"]) - 1)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`np.arange(1, len(pib) + 1)` cria a tendência: 1, 2, 3… até o número de anos. O coeficiente de `t` (~0,0315) é a taxa de crescimento contínua; `np.exp(b) − 1` converte para a taxa anual composta (~3,2% a.a.). Uma linha final de código transformou o coeficiente em número de manchete.
+:::
+
+### Exercício 2 — semielasticidade exata
+
+No modelo minceriano, converta o retorno da escolaridade para o percentual **exato** com `np.exp(b) − 1`.
+
+```{pyodide}
+#| exercise: a14_ex2
+b_esc = minc.params["______"]
+print((np.exp(______) - 1) * 100)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `esc` e `b_esc`. Para coeficientes pequenos, aproximação e valor exato quase coincidem.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+b_esc = minc.params["esc"]
+print((np.exp(b_esc) - 1) * 100)
+```
+
+O retorno exato é de 10,6% por ano de estudo, contra 10,1% da leitura aproximada.
+:::
+
+## Glossário da aula
+
+| Função ou símbolo | O que faz |
+|---|---|
+| `np.log(y) ~ x` | Variável dependente em logaritmo, direto na fórmula. |
+| `I(x**2)` | Termo quadrático na fórmula. |
+| `.params["nome"]` | Extrai um coeficiente pelo nome. |
+| `abs()` | Valor absoluto. |
+| `np.arange()` | Sequência de inteiros (aqui, a tendência). |
+| `np.exp()` | Exponencial: desfaz o logaritmo. |
+
+---
+
+Anterior: [Aula 13 — Regressão múltipla](py-econ13.qmd) · Próxima: [Aula 15 — Variáveis qualitativas](py-econ15.qmd) · Esta aula em R: [Aula 14](r-econ14.qmd)

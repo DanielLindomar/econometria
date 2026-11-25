@@ -1,0 +1,133 @@
+---
+title: "Aula 13 — Regressão múltipla"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - statsmodels
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- estimar modelos com várias explicativas e interpretar *ceteris paribus*;
+- comparar modelos aninhados com o teste **F parcial**;
+- testar restrições lineares sobre coeficientes.
+:::
+
+## Do simples ao múltiplo
+
+```{pyodide}
+import pandas as pd
+import statsmodels.formula.api as smf
+
+salario = pd.read_csv("dados/salario_hora2.csv")
+m1 = smf.ols("salhora ~ esc", data=salario).fit()
+m2 = smf.ols("salhora ~ esc + exp", data=salario).fit()
+m3 = smf.ols("salhora ~ esc + exp + sind", data=salario).fit()
+print(m3.summary())
+```
+
+```{pyodide}
+print(m1.params["esc"], m2.params["esc"], m3.params["esc"])
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Na fórmula, o sinal `+` acrescenta explicativas. Cada coeficiente agora é um efeito **mantido o resto constante**: `esc` é o retorno da educação para trabalhadores de mesma experiência e situação sindical; `sind` é o prêmio sindical para iguais educação e experiência.
+
+O segundo bloco põe lado a lado o coeficiente de `esc` nos três modelos: 0,81, 0,98 e 0,98. Ele muda quando a experiência entra — é o viés de variável omitida em ação.
+:::
+
+## Comparando modelos: o teste F parcial
+
+`anova_lm()` (nova) compara dois modelos **aninhados**: H0 = as variáveis extras não acrescentam nada.
+
+```{pyodide}
+from statsmodels.stats.anova import anova_lm
+
+print(anova_lm(m1, m3))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+A linha `1` traz o teste: o F mede a contribuição **conjunta** de `exp` e `sind` além da escolaridade, e `Pr(>F)` é o valor-p. Valor-p pequeno → as adições valem a pena. É o teste certo para blocos de variáveis (dummies sazonais, grupos de controles).
+:::
+
+### Exercício 1 — mais controles
+
+Adicione `genero` e `civil` ao modelo e teste, com `anova_lm()`, se o bloco contribui.
+
+```{pyodide}
+#| exercise: a13_ex1
+m4 = smf.ols("salhora ~ esc + exp + sind + ______ + ______", data=salario).fit()
+print(anova_lm(m3, ______))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As variáveis são `genero` e `civil`; compare `anova_lm(m3, m4)`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+m4 = smf.ols("salhora ~ esc + exp + sind + genero + civil", data=salario).fit()
+print(anova_lm(m3, m4))
+```
+:::
+
+## Testando restrições lineares
+
+O retorno de um ano de escolaridade é **igual** ao de um ano de experiência? O método `.f_test()` (novo) testa qualquer restrição escrita como texto.
+
+```{pyodide}
+print(m3.f_test("esc = exp"))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+H0: os dois coeficientes são iguais. A saída traz a estatística F, o valor-p (`p`) e os graus de liberdade. A rejeição (valor-p < 0,05) confirma o que os pontos já sugeriam: um ano de escola vale mais que um ano de experiência no mercado.
+
+O mesmo método testa somas (`"esc + exp = 1"`) e várias restrições de uma vez, separadas por vírgula.
+:::
+
+### Exercício 2 — restrição conjunta
+
+Teste a hipótese conjunta de que `genero` **e** `civil` têm coeficiente zero no modelo `m4`.
+
+Complete e rode o Exercício 1 antes deste: é lá que `m4` é criado.
+
+```{pyodide}
+#| exercise: a13_ex2
+print(m4.f_test("______ = 0, ______ = 0"))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+As duas restrições são `genero = 0` e `civil = 0`. Compare com o resultado do `anova_lm()` do Exercício 1 — deve coincidir.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+print(m4.f_test("genero = 0, civil = 0"))
+```
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `y ~ x1 + x2` | Fórmula com várias explicativas. |
+| `anova_lm(m1, m2)` | Teste F parcial entre modelos aninhados. |
+| `.f_test("...")` | Testa restrições lineares nos coeficientes. |
+
+---
+
+Anterior: [Aula 12 — Regressão linear simples](py-econ12.qmd) · Próxima: [Aula 14 — Formas funcionais](py-econ14.qmd) · Esta aula em R: [Aula 13](r-econ13.qmd)

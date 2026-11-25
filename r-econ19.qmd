@@ -1,6 +1,6 @@
 ---
-title: "Aula 10 — Análise de séries de tempo"
-subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+title: "Aula 19 — Análise de séries de tempo"
+subtitle: "Curso de R · Parte 2 — Econometria no R"
 author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
 webr:
   packages:
@@ -9,11 +9,17 @@ webr:
     - aTSA
     - forecast
     - vars
+aliases:
+  - r-aula10.html
 engine: knitr
 ---
 
 ::: {.logo-topo}
 ![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note appearance="minimal"}
+Esta aula era a **Aula 10** do Curso de R (Unidade 7 de Econometria I). O conteúdo é o mesmo; mudou a numeração, porque o curso agora começa pela Parte 1 — Fundamentos.
 :::
 
 ::: {.callout-note}
@@ -66,7 +72,7 @@ accuracy(forecast(mod, h = 6))
 ::: {.callout-tip}
 ## Como ler essa saída
 
-`auto.arima` escolheu a ordem pelos critérios de informação; o Ljung-Box com valor-p alto valida os resíduos como ruído branco; e o leque de previsão alarga com o horizonte. O ciclo identificar–estimar–diagnosticar–prever, em quatro linhas.
+`auto.arima` escolheu a ordem pelos critérios de informação; o Ljung-Box, com valor-p acima de 0,05 (por pouco), não rejeita a hipótese de resíduos ruído branco; e o leque de previsão alarga com o horizonte. O ciclo identificar–estimar–diagnosticar–prever, em quatro linhas.
 :::
 
 ### Exercício 1 — ARIMA do boi
@@ -110,7 +116,7 @@ causality(var1, cause = "br")$Granger
 ::: {.callout-tip}
 ## Como ler essa saída
 
-Dois testes espelhados: "Chicago Granger-causa Brasil?" e o inverso. O padrão esperado — e o achado clássico da literatura de transmissão de preços — é a causalidade **de fora para dentro**: o mercado americano prevê o brasileiro, não o contrário. Atenção ao nome: causalidade de Granger é **precedência preditiva**, não causalidade estrutural.
+Dois testes espelhados: "Chicago Granger-causa Brasil?" e o inverso. O padrão esperado — e o achado clássico da literatura de transmissão de preços — é a causalidade **de fora para dentro**: o mercado americano prevê o brasileiro, não o contrário. Nesta amostra mensal, porém, **nenhum dos dois testes rejeita H0** (valores-p de 0,76 e 0,65): a transmissão entre os dois mercados acontece dentro do próprio mês e aparece como correlação contemporânea, não como precedência. Atenção ao nome: causalidade de Granger é **precedência preditiva**, não causalidade estrutural.
 :::
 
 ### Exercício 2 — diagnóstico do VAR
@@ -139,3 +145,7 @@ serial.test(var1, lags.pt = 12)
 | `auto.arima` / `checkresiduals` | Ordem automática / diagnóstico. |
 | `causality()` (vars) | Teste de causalidade de Granger. |
 | `serial.test()` (vars) | Autocorrelação residual do VAR. |
+
+---
+
+Anterior: [Aula 18 — Especificação da regressão](r-econ18.qmd) · Próxima: [Aula 20 — Machine Learning no R](r-econ20.qmd) · Esta aula em Python: [Aula 19](py-econ19.qmd)

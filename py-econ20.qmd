@@ -1,0 +1,199 @@
+---
+title: "Aula 20 — Machine Learning no Python"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - matplotlib
+    - scikit-learn
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- entender a lógica **treino/teste** e a avaliação por RMSE;
+- estimar um **LASSO** e ler a seleção de variáveis;
+- estimar uma **random forest** e comparar com a regressão linear.
+:::
+
+Econometria pergunta "qual o efeito de x sobre y?"; *machine learning* pergunta "**qual a melhor previsão de y?**". Nesta aula, os dois mundos competem para prever o preço do boi gordo a partir de soja (BR e EUA) e PETR4. A biblioteca é o **scikit-learn**, o padrão do Python para machine learning.
+
+## Treino e teste
+
+A regra de ouro do ML: avaliar o modelo em dados que ele **não viu**. `train_test_split()` sorteia 80% das linhas para treino e 20% para teste.
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
+precos = pd.read_csv("dados/series_tempo.csv")
+ml = precos[["boi", "soja_br", "soja_us", "petr4"]].dropna()
+
+X = ml.drop(columns="boi")
+y = ml["boi"]
+X_treino, X_teste, y_treino, y_teste = train_test_split(X, y, test_size=0.2, random_state=123)
+print(len(X_treino), len(X_teste))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Por convenção, as explicativas ficam numa tabela `X` e a variável a prever, numa série `y`. `train_test_split()` devolve quatro pedaços de uma vez — treino e teste de cada uma —, e `random_state` é a semente do sorteio. Ficaram 172 meses para treino e 44 para teste.
+:::
+
+## O ponto de partida: regressão linear
+
+```{pyodide}
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import root_mean_squared_error
+
+rl = LinearRegression().fit(X_treino, y_treino)
+pred_rl = rl.predict(X_teste)
+print(root_mean_squared_error(y_teste, pred_rl))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Todo modelo do scikit-learn segue o mesmo roteiro: criar, ajustar com `.fit(X, y)` e prever com `.predict()`. `root_mean_squared_error()` mede o erro de previsão **fora da amostra** — a métrica que importa em ML. Este número é a régua: os modelos seguintes precisam batê-lo.
+:::
+
+## LASSO: regressão com seleção automática
+
+O LASSO penaliza coeficientes grandes e pode **zerá-los** — seleção de variáveis embutida. `LassoCV` escolhe a penalidade por validação cruzada (`cv=10`: dez partições do treino).
+
+```{pyodide}
+from sklearn.linear_model import LassoCV
+
+lasso = LassoCV(cv=10, random_state=123).fit(X_treino, y_treino)
+print(pd.Series(lasso.coef_, index=X.columns))
+print(root_mean_squared_error(y_teste, lasso.predict(X_teste)))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.coef_` guarda os coeficientes; um zero significa variável **descartada** pelo LASSO. Aqui ele dispensou a soja de Chicago (`soja_us`), cuja informação já está no preço brasileiro. Com poucas explicativas o ganho é pequeno; o brilho do LASSO aparece com dezenas ou centenas de candidatas, onde o MQO tropeça.
+
+Um cuidado: o scikit-learn não padroniza as variáveis por conta própria. Quando as escalas são muito diferentes, padronize antes de aplicar o LASSO.
+:::
+
+## Random forest: o comitê de árvores
+
+A floresta aleatória tira a média de centenas de árvores de decisão — captura **não linearidades e interações** sem que ninguém as especifique.
+
+```{pyodide}
+from sklearn.ensemble import RandomForestRegressor
+
+rf = RandomForestRegressor(n_estimators=500, random_state=123).fit(X_treino, y_treino)
+
+importancia = pd.Series(rf.feature_importances_, index=X.columns).sort_values()
+fig, ax = plt.subplots()
+ax.barh(importancia.index, importancia.values, color="steelblue")
+ax.set_xlabel("Importância")
+plt.show()
+
+print(root_mean_squared_error(y_teste, rf.predict(X_teste)))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`n_estimators=500` é o número de árvores. `.feature_importances_` ranqueia a **importância** de cada variável para a previsão — o análogo em ML da significância —, e `ax.barh()` desenha as barras na horizontal. O preço da soja no Brasil domina, com cerca de 90% da importância.
+
+Compare o RMSE dos três modelos: em relações suaves, o linear compete bem; quando há não linearidade escondida, a floresta dispara na frente. Aqui ela vence, com erro perto de 20, contra 22 do modelo linear.
+:::
+
+### Exercício 1 — placar final
+
+Monte o quadro comparativo dos três RMSE.
+
+```{pyodide}
+#| exercise: a20_ex1
+print(pd.Series({
+    "linear": root_mean_squared_error(y_teste, pred_rl),
+    "lasso": root_mean_squared_error(y_teste, lasso.predict(X_teste)),
+    "floresta": root_mean_squared_error(y_teste, rf.______(X_teste)),
+}))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `predict`. Menor RMSE vence.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+print(pd.Series({
+    "linear": root_mean_squared_error(y_teste, pred_rl),
+    "lasso": root_mean_squared_error(y_teste, lasso.predict(X_teste)),
+    "floresta": root_mean_squared_error(y_teste, rf.predict(X_teste)),
+}))
+```
+:::
+
+### Exercício 2 — outra semente
+
+Troque a semente do sorteio, refaça a divisão e o placar. As conclusões mudam?
+
+```{pyodide}
+#| exercise: a20_ex2
+X_tr2, X_te2, y_tr2, y_te2 = train_test_split(X, y, test_size=0.2, random_state=______)
+rl2 = LinearRegression().fit(X_tr2, y_tr2)
+rf2 = RandomForestRegressor(n_estimators=500, random_state=123).fit(X_tr2, y_tr2)
+print(pd.Series({
+    "linear": root_mean_squared_error(y_te2, rl2.predict(X_te2)),
+    "floresta": root_mean_squared_error(y_te2, rf2.predict(X_te2)),
+}))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Qualquer número inteiro serve (por exemplo, 2026). Resultados que dependem muito da semente pedem validação cruzada.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+X_tr2, X_te2, y_tr2, y_te2 = train_test_split(X, y, test_size=0.2, random_state=2026)
+rl2 = LinearRegression().fit(X_tr2, y_tr2)
+rf2 = RandomForestRegressor(n_estimators=500, random_state=123).fit(X_tr2, y_tr2)
+print(pd.Series({
+    "linear": root_mean_squared_error(y_te2, rl2.predict(X_te2)),
+    "floresta": root_mean_squared_error(y_te2, rf2.predict(X_te2)),
+}))
+```
+
+A floresta continua na frente, mas os números mudam com o sorteio.
+:::
+
+## Econometria × Machine Learning
+
+| | Econometria | Machine Learning |
+|---|---|---|
+| Pergunta | Efeito causal de x sobre y | Melhor previsão de y |
+| Validação | Testes de hipóteses, diagnóstico | Erro fora da amostra (RMSE) |
+| Modelo | Especificado pela teoria | Aprendido dos dados |
+| Quando usar | Políticas, interpretação | Previsão, triagem, dados largos |
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `train_test_split()` | Sorteia a divisão treino/teste. |
+| `.dropna()` | Remove linhas com ausentes. |
+| `.fit(X, y)`, `.predict(X)` | Ajusta o modelo; prevê. |
+| `root_mean_squared_error()` | Raiz do erro quadrático médio de previsão. |
+| `LassoCV(cv=10)`, `.coef_` | LASSO com validação cruzada; coeficientes. |
+| `RandomForestRegressor()`, `.feature_importances_` | Floresta aleatória; importância das variáveis. |
+| `ax.barh()` | Barras horizontais. |
+
+---
+
+Você concluiu o curso. Anterior: [Aula 19 — Análise de séries de tempo](py-econ19.qmd) · Esta aula em R: [Aula 20](r-econ20.qmd)

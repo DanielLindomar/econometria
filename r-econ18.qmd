@@ -1,17 +1,23 @@
 ---
-title: "Aula 9 — Especificação da regressão"
-subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+title: "Aula 18 — Especificação da regressão"
+subtitle: "Curso de R · Parte 2 — Econometria no R"
 author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
 webr:
   packages:
     - dplyr
     - lmtest
     - wooldridge
+aliases:
+  - r-aula09.html
 engine: knitr
 ---
 
 ::: {.logo-topo}
 ![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note appearance="minimal"}
+Esta aula era a **Aula 9** do Curso de R (Unidade 7 de Econometria I). O conteúdo é o mesmo; mudou a numeração, porque o curso agora começa pela Parte 1 — Fundamentos.
 :::
 
 ::: {.callout-note}
@@ -71,7 +77,7 @@ summary(mod3)
 ```
 
 ::: {.callout-tip collapse="true" title="Dica"}
-Complete com `exper^2` e `mod3` — a minceriana completa da Aula 5.
+Complete com `exper^2` e `mod3` — a minceriana completa da Aula 14.
 :::
 
 ::: {.callout-note collapse="true" title="Solução"}
@@ -84,7 +90,7 @@ summary(mod3)
 
 ### Exercício 2 — a proxy em ação
 
-Em `wage2`, acrescente também a educação dos pais (`meduc`) como segunda proxy de background e compare o retorno de `educ`.
+Em `wage2`, acrescente também a educação da mãe (`meduc`) como segunda proxy de background e compare o retorno de `educ`.
 
 ```{webr}
 #| exercise: a9_ex2
@@ -113,3 +119,7 @@ rbind(so_educ = coef(sem_qi)["educ"],
 |---|---|
 | `resettest()` | RESET de Ramsey (forma funcional). |
 | Proxy | Variável observável que substitui uma não observável. |
+
+---
+
+Anterior: [Aula 17 — Autocorrelação](r-econ17.qmd) · Próxima: [Aula 19 — Análise de séries de tempo](r-econ19.qmd) · Esta aula em Python: [Aula 18](py-econ18.qmd)

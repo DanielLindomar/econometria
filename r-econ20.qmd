@@ -1,6 +1,6 @@
 ---
-title: "Aula 11 — Machine Learning no R"
-subtitle: "Curso de R · Unidade 7 — Pacote estatístico R"
+title: "Aula 20 — Machine Learning no R"
+subtitle: "Curso de R · Parte 2 — Econometria no R"
 author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
 webr:
   packages:
@@ -9,11 +9,17 @@ webr:
     - glmnet
     - randomForest
     - Metrics
+aliases:
+  - r-aula11.html
 engine: knitr
 ---
 
 ::: {.logo-topo}
 ![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note appearance="minimal"}
+Esta aula era a **Aula 11** do Curso de R (Unidade 7 de Econometria I). O conteúdo é o mesmo; mudou a numeração, porque o curso agora começa pela Parte 1 — Fundamentos.
 :::
 
 ::: {.callout-note}
@@ -166,3 +172,7 @@ c(linear = rmse(te2$boi, predict(rl2, te2)),
 | `cv.glmnet(alpha = 1)` | LASSO com validação cruzada. |
 | `randomForest()` / `varImpPlot()` | Floresta aleatória / importância. |
 | `y ~ .` | Fórmula com todas as demais variáveis. |
+
+---
+
+Você concluiu o curso. Anterior: [Aula 19 — Análise de séries de tempo](r-econ19.qmd) · Esta aula em Python: [Aula 20](py-econ20.qmd)

@@ -1,0 +1,132 @@
+---
+title: "Aula 18 — Especificação da regressão"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - statsmodels
+    - wooldridge
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- ver o viés de variável omitida num experimento com dados reais;
+- aplicar o teste **RESET** de forma funcional;
+- usar uma **proxy** (QI) para habilidade não observada.
+:::
+
+Usamos as bases clássicas de Wooldridge — `wage1` e `wage2` — direto da biblioteca **wooldridge**, sem precisar de arquivo externo.
+
+## O experimento da variável omitida
+
+Em `wage2` há uma medida rara: o **QI** do trabalhador. O que acontece com o retorno da educação quando a "habilidade" entra no modelo?
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import statsmodels.formula.api as smf
+import wooldridge as woo
+
+wage2 = woo.data("wage2")
+sem_qi = smf.ols("np.log(wage) ~ educ", data=wage2).fit()
+com_qi = smf.ols("np.log(wage) ~ educ + IQ", data=wage2).fit()
+print(pd.Series({"sem_QI": sem_qi.params["educ"], "com_QI": com_qi.params["educ"]}))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+O retorno da educação **cai** quando o QI entra, de 6,0% para 3,9% por ano de estudo: parte do que parecia efeito da escola era habilidade prévia — pessoas de QI alto estudam mais *e* ganham mais. Omitir habilidade **superestima** o retorno da educação: o viés de variável omitida com direção previsível (correlações positivas → viés para cima).
+:::
+
+## RESET: a forma funcional
+
+```{pyodide}
+from statsmodels.stats.diagnostic import linear_reset
+
+wage1 = woo.data("wage1")
+linear = smf.ols("wage ~ educ + exper", data=wage1).fit()
+loglin = smf.ols("np.log(wage) ~ educ + exper", data=wage1).fit()
+print(linear_reset(linear, power=3, use_f=True))
+print(linear_reset(loglin, power=3, use_f=True))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`linear_reset()` (nova) acrescenta ao modelo potências dos valores ajustados — com `power=3`, o quadrado e o cubo — e testa, com um F, se elas ajudam. A hipótese nula é a de que a forma funcional está adequada.
+
+O RESET rejeita com força a forma **linear** (F = 14,5) e é bem mais brando com a **log-lin** (F = 6,7): os dados pedem log. O valor-p continua abaixo de 0,05 nos dois casos, o que indica que a forma log-lin ainda não captura tudo — o Exercício 1 testa um candidato. Teste de especificação não escolhe o modelo por você, mas elimina os claramente errados.
+:::
+
+### Exercício 1 — quadrático ajuda?
+
+Adicione `I(exper**2)` à forma log e rode o RESET de novo.
+
+```{pyodide}
+#| exercise: a18_ex1
+mod3 = smf.ols("np.log(wage) ~ educ + exper + I(______)", data=wage1).fit()
+print(linear_reset(______, power=3, use_f=True))
+print(mod3.summary().tables[1])
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `exper**2` e `mod3` — a minceriana completa da Aula 14.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+mod3 = smf.ols("np.log(wage) ~ educ + exper + I(exper**2)", data=wage1).fit()
+print(linear_reset(mod3, power=3, use_f=True))
+print(mod3.summary().tables[1])
+```
+
+O termo quadrático é significativo, e o F do RESET recua um pouco (6,1), mas o teste continua rejeitando: ainda há não linearidade que o modelo não captura.
+:::
+
+### Exercício 2 — a proxy em ação
+
+Em `wage2`, acrescente também a educação da mãe (`meduc`) como segunda proxy de background e compare o retorno de `educ`.
+
+```{pyodide}
+#| exercise: a18_ex2
+com_tudo = smf.ols("np.log(wage) ~ educ + IQ + ______", data=wage2).fit()
+print(pd.Series({"so_educ": sem_qi.params["educ"],
+                 "com_QI": com_qi.params["educ"],
+                 "com_QI_meduc": ______.params["educ"]}))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A variável é `meduc`; o modelo final é `com_tudo`.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+com_tudo = smf.ols("np.log(wage) ~ educ + IQ + meduc", data=wage2).fit()
+print(pd.Series({"so_educ": sem_qi.params["educ"],
+                 "com_QI": com_qi.params["educ"],
+                 "com_QI_meduc": com_tudo.params["educ"]}))
+```
+
+O retorno recua mais um pouco, para 3,5%. Um cuidado: `meduc` tem 78 ausentes, e o terceiro modelo usa 857 das 935 observações — parte da diferença pode vir da mudança de amostra.
+:::
+
+## Glossário da aula
+
+| Função ou termo | O que faz |
+|---|---|
+| `woo.data()` (wooldridge) | Carrega uma base do livro de Wooldridge. |
+| `linear_reset()` | RESET de Ramsey (forma funcional). |
+| Proxy | Variável observável que substitui uma não observável. |
+
+---
+
+Anterior: [Aula 17 — Autocorrelação](py-econ17.qmd) · Próxima: [Aula 19 — Análise de séries de tempo](py-econ19.qmd) · Esta aula em R: [Aula 18](r-econ18.qmd)

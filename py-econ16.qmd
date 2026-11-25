@@ -1,0 +1,131 @@
+---
+title: "Aula 16 — Heterocedasticidade"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - matplotlib
+    - statsmodels
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- diagnosticar heterocedasticidade no gráfico e nos testes de Breusch-Pagan e White;
+- corrigir com erros-padrão robustos;
+- estimar por **mínimos quadrados ponderados** (MQP).
+:::
+
+## O diagnóstico
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.formula.api as smf
+
+salario = pd.read_csv("dados/salario_hora2.csv")
+modelo = smf.ols("salhora ~ esc + exp", data=salario).fit()
+print(modelo.summary().tables[1])
+
+fig, ax = plt.subplots()
+ax.scatter(modelo.fittedvalues, modelo.resid, alpha=0.5, color="#1E2761")
+ax.axhline(0, linestyle="--", color="#B85042")
+ax.set_xlabel("Ajustados")
+ax.set_ylabel("Resíduos")
+plt.show()
+```
+
+```{pyodide}
+from statsmodels.stats.diagnostic import het_breuschpagan, het_white
+
+bp = het_breuschpagan(modelo.resid, modelo.model.exog)
+white = het_white(modelo.resid, modelo.model.exog)
+print("Breusch-Pagan: LM =", round(bp[0], 2), "| valor-p =", round(bp[1], 4))
+print("White:         LM =", round(white[0], 2), "| valor-p =", round(white[1], 4))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.summary().tables[1]` mostra só a tabela de coeficientes — guarde-a para comparar adiante. `.fittedvalues` (novo) são os valores ajustados, e `ax.axhline(0)` traça a linha horizontal do zero.
+
+As duas funções de teste recebem os resíduos e a matriz das explicativas (`modelo.model.exog`) e devolvem várias estatísticas; as duas primeiras são a estatística LM e o seu valor-p. A hipótese nula é a de variância constante.
+
+O funil no gráfico e o valor-p abaixo de 0,05 nos dois testes apontam o mesmo: a variância do erro **cresce com o salário previsto**. Os coeficientes de MQO seguem não viesados; os erros-padrão, não confiáveis.
+:::
+
+## Correção 1: erros-padrão robustos
+
+```{pyodide}
+robusto = modelo.get_robustcov_results(cov_type="HC1")
+print(robusto.summary().tables[1])
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.get_robustcov_results(cov_type="HC1")` (novo) refaz a tabela com erros-padrão robustos à heterocedasticidade. Os coeficientes são os mesmos do MQO; mudam os erros-padrão e, com eles, as estatísticas t e os intervalos de confiança.
+:::
+
+## Correção 2: mínimos quadrados ponderados
+
+Se conhecemos a forma da variância, o MQP pesa cada observação pelo inverso dela — observações "barulhentas" pesam menos. A função é `smf.wls()`, e o argumento novo, `weights`.
+
+```{pyodide}
+mqp = smf.wls("salhora ~ esc + exp", data=salario,
+              weights=1 / modelo.fittedvalues**2).fit()
+print(mqp.summary().tables[1])
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Compare com o MQO: os coeficientes mudam um pouco (o de `esc` passa de 0,98 para 0,86) e os erros-padrão diminuem. O robusto (HC1) é a rota "não sei a forma da variância"; o MQP, a rota "modelo a variância" — mais eficiente quando o palpite é bom. Na prática moderna, os robustos dominam pela simplicidade.
+:::
+
+### Exercício — o log resolve?
+
+A forma log frequentemente **atenua** a heterocedasticidade. Reestime em log e rode o teste de Breusch-Pagan.
+
+```{pyodide}
+#| exercise: a16_ex1
+modelo_log = smf.ols("np.______(salhora) ~ esc + exp", data=salario).fit()
+bp_log = ______(modelo_log.resid, modelo_log.model.exog)
+print("LM =", round(bp_log[0], 2), "| valor-p =", round(bp_log[1], 4))
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Use `np.log(salhora)` e `het_breuschpagan`. O teste deve enfraquecer bastante.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+modelo_log = smf.ols("np.log(salhora) ~ esc + exp", data=salario).fit()
+bp_log = het_breuschpagan(modelo_log.resid, modelo_log.model.exog)
+print("LM =", round(bp_log[0], 2), "| valor-p =", round(bp_log[1], 4))
+```
+
+Com o salário em log, o valor-p sobe para 0,15: o teste deixa de rejeitar a variância constante.
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `.fittedvalues`, `.resid` | Valores ajustados; resíduos. |
+| `het_breuschpagan()`, `het_white()` | Testes de heterocedasticidade. |
+| `.get_robustcov_results(cov_type="HC1")` | Erros-padrão robustos. |
+| `smf.wls(..., weights=w)` | Mínimos quadrados ponderados. |
+| `ax.axhline()` | Linha horizontal no gráfico. |
+
+---
+
+Anterior: [Aula 15 — Variáveis qualitativas](py-econ15.qmd) · Próxima: [Aula 17 — Autocorrelação](py-econ17.qmd) · Esta aula em R: [Aula 16](r-econ16.qmd)

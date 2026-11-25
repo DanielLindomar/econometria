@@ -1,0 +1,143 @@
+---
+title: "Aula 12 — Regressão linear simples"
+subtitle: "Curso de Python · Parte 2 — Econometria no Python"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+pyodide:
+  packages:
+    - pandas
+    - numpy
+    - matplotlib
+    - statsmodels
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+::: {.callout-note}
+## Objetivos da aula
+
+- estimar a regressão simples com `smf.ols()` e ler a saída completa;
+- interpretar intercepto, inclinação, R² e os testes t;
+- visualizar o ajuste e usar o modelo para prever.
+:::
+
+A base da unidade: `salario_hora2.csv` — 528 trabalhadores com salário-hora (`salhora`), escolaridade (`esc`), experiência (`exp`) e características pessoais.
+
+## Estimando
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.formula.api as smf
+
+salario = pd.read_csv("dados/salario_hora2.csv")
+modelo = smf.ols("salhora ~ esc", data=salario).fit()
+print(modelo.summary())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.summary()` (novo) mostra a tabela completa da regressão, em três blocos. No de cima, à direita, estão o **R²** (`R-squared`) e o teste **F** com o seu valor-p (`Prob (F-statistic)`). No do meio, a tabela de **coeficientes**: estimativa (`coef`), erro-padrão (`std err`), estatística t, valor-p (`P>|t|`) e intervalo de confiança de 95%. O de baixo traz diagnósticos dos resíduos, que as próximas aulas vão usar.
+
+O coeficiente de `esc` diz quantos dólares o salário-hora sobe por ano de estudo: US\$ 0,81, com valor-p praticamente nulo. O R² de 0,155 indica que a escolaridade, sozinha, dá conta de 15,5% da variação dos salários.
+:::
+
+## Visualizando o ajuste
+
+```{pyodide}
+grade = pd.DataFrame({"esc": np.arange(6, 19)})
+previsto = modelo.get_prediction(grade).summary_frame()
+
+fig, ax = plt.subplots()
+ax.scatter(salario["esc"], salario["salhora"], alpha=0.5, color="#1E2761")
+ax.plot(grade["esc"], previsto["mean"], color="#B85042")
+ax.fill_between(grade["esc"], previsto["mean_ci_lower"], previsto["mean_ci_upper"],
+                color="grey", alpha=0.4)
+ax.set_xlabel("Escolaridade (anos)")
+ax.set_ylabel("Salário por hora (US$)")
+plt.show()
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`grade` é uma tabela com os anos de estudo de 6 a 18. Para cada um deles, `.get_prediction()` calcula o salário previsto (`mean`) e o **intervalo de confiança da reta** (`mean_ci_lower` e `mean_ci_upper`). `ax.fill_between()` (novo) pinta a faixa entre os dois limites — mais estreita no centro dos dados, mais larga nas pontas.
+
+Note a dispersão crescendo com a escolaridade: guarde essa imagem para a Aula 16 (heterocedasticidade).
+:::
+
+### Exercício 1 — outra explicativa
+
+Estime o salário em função da **experiência** e compare o R² com o do modelo da escolaridade.
+
+```{pyodide}
+#| exercise: a12_ex1
+modelo_exp = smf.ols("______ ~ ______", data=salario).fit()
+print(modelo_exp.summary())
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+A fórmula é `salhora ~ exp`. Qual das duas variáveis explica mais?
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+modelo_exp = smf.ols("salhora ~ exp", data=salario).fit()
+print(modelo_exp.summary())
+```
+:::
+
+## Extraindo e prevendo
+
+```{pyodide}
+print(modelo.params)
+print(modelo.conf_int())
+print(modelo.predict(pd.DataFrame({"esc": [8, 12, 16]})))
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`.params` devolve os coeficientes e `.conf_int()`, os intervalos de confiança (a coluna `0` é o limite inferior; a `1`, o superior). `.predict()` recebe uma tabela com os valores da explicativa e devolve os salários previstos para o fundamental (8), o médio (12) e o superior (16): US\$ 4,91, US\$ 8,16 e US\$ 11,42.
+
+A diferença entre 12 e 16 anos é o "prêmio universitário" implícito na reta — quatro vezes o coeficiente.
+:::
+
+### Exercício 2 — resíduos
+
+Guarde os resíduos e ache o trabalhador **mais subestimado** pelo modelo (maior resíduo positivo).
+
+```{pyodide}
+#| exercise: a12_ex2
+salario["residuo"] = modelo.______
+salario.sort_values("______", ascending=False)[["esc", "exp", "salhora", "residuo"]].head(3)
+```
+
+::: {.callout-tip collapse="true" title="Dica"}
+Complete com `resid` e `residuo`. O `ascending=False` ordena do maior para o menor.
+:::
+
+::: {.callout-note collapse="true" title="Solução"}
+```python
+salario["residuo"] = modelo.resid
+salario.sort_values("residuo", ascending=False)[["esc", "exp", "salhora", "residuo"]].head(3)
+```
+:::
+
+## Glossário da aula
+
+| Função ou método | O que faz |
+|---|---|
+| `smf.ols("y ~ x", data=...).fit()` | Estima a regressão por MQO. |
+| `.summary()` | Tabela completa da regressão. |
+| `.params`, `.conf_int()`, `.resid`, `.predict()` | Extraem partes do modelo. |
+| `.get_prediction().summary_frame()` | Previsões com intervalo de confiança. |
+| `ax.fill_between()` | Pinta a faixa entre duas curvas. |
+
+---
+
+Anterior: [Aula 11 — Estrutura dos dados](py-econ11.qmd) · Próxima: [Aula 13 — Regressão múltipla](py-econ13.qmd) · Esta aula em R: [Aula 12](r-econ12.qmd)
