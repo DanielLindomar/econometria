@@ -195,7 +195,7 @@ O **teste t** parte de uma hipótese: na população, formais e informais têm a
 
 Essa chance é o **valor-p** (`p-value`). Aqui ele vale `6.837e-11` — notação para 6,837 × 10⁻¹¹, um número com dez zeros depois da vírgula. Como é muito menor que 0,05, rejeita-se a hipótese de médias iguais: a diferença não se explica pelo acaso da amostragem.
 
-O **intervalo de confiança** de 95% diz mais: na população, a diferença deve estar entre R\$ 636 e R\$ 1.169.
+O **intervalo de confiança** diz mais: com 95% de confiança, a diferença na população está entre R\$ 636 e R\$ 1.169.
 
 Hipótese, valor-p e intervalo de confiança são o coração da inferência estatística. Você vai reencontrá-los em cada regressão da Parte 2.
 :::

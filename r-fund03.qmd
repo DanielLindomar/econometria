@@ -15,13 +15,34 @@ engine: knitr
 ::: {.callout-note}
 ## Objetivos da aula
 
-- entender o que é um **data frame**, a tabela de dados do R;
+- entender o que é um **data frame**, a tabela de dados do R, e montar um à mão;
 - importar um arquivo CSV — inclusive no padrão brasileiro, com ponto e vírgula;
 - inspecionar a base: tamanho, tipos, primeiras linhas e resumo;
 - acessar colunas e linhas, carregar **pacotes** e exportar resultados.
 :::
 
-Ninguém digita 600 rendas num vetor. Os dados chegam em arquivos, e o primeiro passo de qualquer análise é trazê-los para dentro do R e conferir se chegaram inteiros.
+Na Aula 2, cada variável morava num vetor separado. Numa análise de verdade as variáveis andam juntas, numa **tabela**: uma linha para cada pessoa, uma coluna para cada variável.
+
+## Uma tabela feita à mão
+
+```{webr}
+pessoas <- data.frame(
+  setor = c("AGR", "COM", "PUB", "COM", "IND"),
+  renda = c(2850.50, 1412, 5200, 3100, 1980),
+  horas = c(44, 40, NA, 36, 44)
+)
+
+pessoas
+nrow(pessoas)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`data.frame()` junta vetores do mesmo tamanho como colunas de uma tabela — aqui, os três vetores da Aula 2. O resultado é um **data frame**: cada linha é uma **observação** (uma pessoa), cada coluna é uma **variável**, e colunas diferentes podem ter tipos diferentes. `nrow()` conta as linhas.
+
+É assim que se monta uma tabela pequena. Mas ninguém digita 600 rendas: os dados chegam em arquivos, e o primeiro passo de qualquer análise é trazê-los para dentro do R e conferir se chegaram inteiros.
+:::
 
 ::: {.callout-note}
 ## A base do curso
@@ -42,7 +63,7 @@ names(trab)
 ::: {.callout-tip}
 ## Como ler essa saída
 
-`read.csv()` lê um arquivo **CSV** — texto simples em que as colunas são separadas por vírgula — e devolve um **data frame**: uma tabela com uma observação por linha e uma variável por coluna.
+`read.csv()` lê um arquivo **CSV** — texto simples em que as colunas são separadas por vírgula — e devolve um data frame, como o que você montou à mão.
 
 `dim()` informa o tamanho: 600 linhas e 10 colunas. `names()` lista os nomes das colunas.
 
@@ -261,6 +282,7 @@ A tabela tem cinco linhas, uma por setor, e o piso médio é de R\$ 1.796.
 
 | Função ou símbolo | O que faz |
 |---|---|
+| `data.frame()` | Monta uma tabela a partir de vetores. |
 | `read.csv()`, `read.csv2()` | Importa CSV no padrão internacional; no padrão brasileiro. |
 | `dim()`, `nrow()`, `names()` | Tamanho da tabela; número de linhas; nomes das colunas. |
 | `str()`, `summary()` | Estrutura e tipos; resumo de cada coluna. |

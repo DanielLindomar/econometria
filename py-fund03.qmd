@@ -16,13 +16,36 @@ engine: knitr
 ::: {.callout-note}
 ## Objetivos da aula
 
-- entender o que é um **DataFrame**, a tabela de dados do pandas;
+- entender o que é um **DataFrame**, a tabela de dados do pandas, e montar um à mão;
 - importar um arquivo CSV — inclusive no padrão brasileiro, com ponto e vírgula;
 - inspecionar a base: tamanho, tipos, primeiras linhas e resumo;
 - acessar colunas e linhas, carregar **bibliotecas** e exportar resultados.
 :::
 
-Ninguém digita 600 rendas numa lista. Os dados chegam em arquivos, e o primeiro passo de qualquer análise é trazê-los para dentro do Python e conferir se chegaram inteiros.
+Na Aula 2, cada variável morava numa série separada. Numa análise de verdade as variáveis andam juntas, numa **tabela**: uma linha para cada pessoa, uma coluna para cada variável.
+
+## Uma tabela feita à mão
+
+```{pyodide}
+import pandas as pd
+
+pessoas = pd.DataFrame({
+    "setor": ["AGR", "COM", "PUB", "COM", "IND"],
+    "renda": [2850.50, 1412, 5200, 3100, 1980],
+    "horas": [44, 40, None, 36, 44],
+})
+
+print(len(pessoas))
+pessoas
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+`pd.DataFrame()` recebe um dicionário (Aula 2) em que cada chave é o nome de uma coluna e cada valor é a lista com os dados dela — aqui, os mesmos números da aula passada. O resultado é um **DataFrame**: cada linha é uma **observação** (uma pessoa), cada coluna é uma **variável**, e colunas diferentes podem ter tipos diferentes. `len()` conta as linhas.
+
+É assim que se monta uma tabela pequena. Mas ninguém digita 600 rendas: os dados chegam em arquivos, e o primeiro passo de qualquer análise é trazê-los para dentro do Python e conferir se chegaram inteiros.
+:::
 
 ::: {.callout-note}
 ## A base do curso
@@ -35,7 +58,6 @@ A base é **simulada**: foi construída para o curso, com variáveis e ordens de
 ## Importando um arquivo CSV
 
 ```{pyodide}
-import pandas as pd
 trab = pd.read_csv("dados/trabalhadores_mt.csv")
 print(trab.shape)
 print(trab.columns.tolist())
@@ -44,7 +66,7 @@ print(trab.columns.tolist())
 ::: {.callout-tip}
 ## Como ler essa saída
 
-`pd.read_csv()` lê um arquivo **CSV** — texto simples em que as colunas são separadas por vírgula — e devolve um **DataFrame**: uma tabela com uma observação por linha e uma variável por coluna. Cada coluna do DataFrame é uma série, como as da Aula 2.
+`pd.read_csv()` lê um arquivo **CSV** — texto simples em que as colunas são separadas por vírgula — e devolve um DataFrame, como o que você montou à mão. Cada coluna do DataFrame é uma série, como as da Aula 2.
 
 `.shape` informa o tamanho: 600 linhas e 10 colunas. `.columns.tolist()` lista os nomes das colunas. Repare que `.shape` não leva parênteses: é um **atributo**, uma informação guardada no objeto, e não um método que executa alguma coisa.
 
@@ -220,7 +242,7 @@ print(trab.dtypes)
 ::: {.callout-tip}
 ## Como ler essa saída
 
-`import numpy as np` carrega o **NumPy**, a biblioteca de cálculo numérico sobre a qual o pandas é construído; o apelido `np` é universal. Dela vêm funções matemáticas como `np.sqrt()` e `np.log()`, que funcionam também sobre séries inteiras.
+`import numpy as np` carrega o **NumPy**, a biblioteca de cálculo numérico que você conheceu na Aula 2 e sobre a qual o pandas é construído; o apelido `np` é universal. Dela vêm funções matemáticas como `np.sqrt()` e `np.log()`, que funcionam também sobre séries inteiras.
 
 `.dtypes` lista o tipo de cada coluna — uma versão resumida do `.info()`.
 
@@ -272,6 +294,7 @@ A tabela tem cinco linhas, uma por setor, e o piso médio é de R\$ 1.796.
 
 | Função, método ou atributo | O que faz |
 |---|---|
+| `pd.DataFrame()` | Monta uma tabela a partir de um dicionário de listas. |
 | `pd.read_csv()` | Importa um CSV; com `sep=";"` e `decimal=","`, no padrão brasileiro. |
 | `.shape`, `len()`, `.columns` | Tamanho da tabela; número de linhas; nomes das colunas. |
 | `.info()`, `.dtypes`, `.describe()` | Estrutura e tipos; só os tipos; resumo das colunas numéricas. |

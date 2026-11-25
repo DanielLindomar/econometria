@@ -15,7 +15,8 @@ engine: knitr
 - reconhecer os três tipos básicos de dado: número, texto e lógico;
 - criar **vetores** e fazer contas com todos os elementos de uma vez;
 - selecionar elementos por posição e por condição;
-- lidar com **valores ausentes** (`NA`) e com categorias (**fatores**).
+- lidar com **valores ausentes** (`NA`) e com categorias (**fatores**);
+- reconhecer duas outras estruturas: **listas** e **matrizes**.
 :::
 
 Na Aula 1 cada objeto guardava um valor só. Dados de verdade vêm em conjuntos: a renda de 600 pessoas, o preço de 216 meses. No R, um conjunto de valores do mesmo tipo é um **vetor** — e cada coluna de uma tabela de dados é um vetor. Quem entende vetores entende a maior parte do R.
@@ -223,6 +224,43 @@ table(vinculo_f)
 Fatores voltam nos gráficos da Aula 6 e nas regressões com variáveis qualitativas da Parte 2.
 :::
 
+## Outras estruturas: listas e matrizes
+
+Vetores guardam valores de um tipo só. Duas outras estruturas aparecem o tempo todo, mesmo quando não é você quem as cria.
+
+```{webr}
+pessoa <- list(nome = "Ana", idade = 34, rendas = c(2850.50, 3100))
+pessoa$idade
+mean(pessoa$rendas)
+names(pessoa)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Uma **lista** junta elementos de tipos e tamanhos diferentes, cada um com o seu nome: aqui, um texto, um número e um vetor. O cifrão (`$`) acessa um elemento pelo nome, e `names()` mostra os nomes existentes.
+
+Você vai criar poucas listas, mas vai usá-las sempre: a tabela de dados da Aula 3 é uma lista de colunas, e o resultado de uma regressão é uma lista com os coeficientes, os resíduos e muito mais.
+:::
+
+```{webr}
+m <- matrix(1:6, nrow = 2)
+m
+dim(m)
+m[2, 3]
+t(m)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Uma **matriz** é um conjunto de valores do mesmo tipo arrumado em linhas e colunas. `matrix(1:6, nrow = 2)` distribui os números de 1 a 6 em duas linhas, preenchendo **coluna por coluna**. `dim()` informa o tamanho: 2 linhas e 3 colunas.
+
+Os colchetes agora levam dois números, `[linha, coluna]`: o elemento da linha 2, coluna 3, é o 6. `t()` troca linhas por colunas — é a matriz transposta.
+
+As matrizes são a linguagem em que a econometria é escrita, e é com elas que as páginas de Teoria deste site fazem as contas.
+:::
+
 ### Exercício 2 — horas com ausentes
 
 O vetor abaixo traz as horas semanais de oito trabalhadores. Descubra quantos não responderam, a média de quem respondeu e quantos trabalham 44 horas ou mais.
@@ -264,6 +302,8 @@ Dois não responderam; a média dos seis que responderam é de 40,3 horas; três
 | `NA`, `is.na()`, `na.rm = TRUE` | Valor ausente; identifica ausentes; descarta ausentes na conta. |
 | `as.numeric()` | Converte texto em número. |
 | `factor()`, `levels()`, `table()` | Cria categorias; lista as categorias; conta ocorrências. |
+| `list()`, `$`, `names()` | Cria uma lista; acessa um elemento pelo nome; mostra os nomes. |
+| `matrix()`, `dim()`, `t()` | Cria uma matriz; informa o tamanho; transpõe. |
 
 ---
 

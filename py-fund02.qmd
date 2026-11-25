@@ -5,6 +5,7 @@ author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
 pyodide:
   packages:
     - pandas
+    - numpy
 engine: knitr
 ---
 
@@ -18,7 +19,8 @@ engine: knitr
 - reconhecer os tipos básicos de dado: número, texto e lógico;
 - criar **séries** e fazer contas com todos os elementos de uma vez;
 - selecionar elementos por posição e por condição;
-- lidar com **valores ausentes** (`NaN`) e com categorias.
+- lidar com **valores ausentes** (`NaN`) e com categorias;
+- reconhecer duas outras estruturas: **dicionários** e **arrays**.
 :::
 
 Na Aula 1 cada variável guardava um valor só. Dados de verdade vêm em conjuntos: a renda de 600 pessoas, o preço de 216 meses. Para isso usaremos o **pandas**, a biblioteca de análise de dados do Python. No pandas, um conjunto de valores do mesmo tipo é uma **série** (`Series`) — e cada coluna de uma tabela de dados é uma série. Quem entende séries entende a maior parte do pandas.
@@ -242,6 +244,45 @@ print(vinculo.value_counts())
 O pandas tem também um tipo próprio para categorias (`category`), que voltará nas regressões com variáveis qualitativas da Parte 2.
 :::
 
+## Outras estruturas: dicionários e arrays
+
+Listas e séries guardam uma sequência de valores. Duas outras estruturas aparecem o tempo todo, mesmo quando não é você quem as cria.
+
+```{pyodide}
+pessoa = {"nome": "Ana", "idade": 34, "rendas": [2850.50, 3100]}
+print(pessoa["idade"])
+print(sum(pessoa["rendas"]) / len(pessoa["rendas"]))
+print(pessoa.keys())
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Um **dicionário** junta valores de tipos diferentes, cada um com o seu nome, chamado de **chave**. Ele se escreve entre chaves, em pares `chave: valor` — aqui, um texto, um número e uma lista. Colchetes com a chave acessam o valor, e `.keys()` mostra as chaves existentes.
+
+Você vai usar dicionários principalmente para montar tabelas, como na Aula 3, e para passar opções a funções.
+:::
+
+```{pyodide}
+import numpy as np
+
+m = np.array([[1, 3, 5], [2, 4, 6]])
+print(m)
+print(m.shape)
+print(m[1, 2])
+print(m.T)
+```
+
+::: {.callout-tip}
+## Como ler essa saída
+
+Um **array** do NumPy — a biblioteca de cálculo numérico do Python — é um conjunto de números arrumado em linhas e colunas: uma **matriz**. `np.array()` recebe uma lista de listas, uma para cada linha. `.shape` informa o tamanho: 2 linhas e 3 colunas.
+
+Os colchetes agora levam dois números, `[linha, coluna]`, sempre contando do zero: `m[1, 2]` é o elemento da segunda linha, terceira coluna — o 6. `.T` troca linhas por colunas: é a matriz transposta.
+
+As matrizes são a linguagem em que a econometria é escrita. E, por baixo de cada série e de cada tabela do pandas, quem guarda os números é um array do NumPy.
+:::
+
 ### Exercício 2 — horas com ausentes
 
 A série abaixo traz as horas semanais de oito trabalhadores. Descubra quantos não responderam, a média de quem respondeu e quantos trabalham 44 horas ou mais.
@@ -285,6 +326,8 @@ Dois não responderam; a média dos seis que responderam é de 40,3 horas; três
 | `NaN`, `.isna()`, `.count()` | Valor ausente; identifica ausentes; conta os presentes. |
 | `float()`, `.replace()` | Converte texto em número; troca trechos de um texto. |
 | `.unique()`, `.value_counts()` | Lista as categorias; conta ocorrências. |
+| `{"chave": valor}`, `d["chave"]`, `.keys()` | Cria um dicionário; acessa um valor; mostra as chaves. |
+| `np.array()`, `.shape`, `.T` | Cria um array (matriz); informa o tamanho; transpõe. |
 
 ---
 

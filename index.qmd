@@ -114,8 +114,8 @@ Para quem **nunca programou**. Dez aulas que partem da primeira conta e chegam �
 | # | Aula | O que você aprende |
 |---|---|---|
 | 1 | [Primeiros passos](r-fund01.qmd) | Contas, objetos, funções e como ler mensagens de erro |
-| 2 | [Vetores e tipos de dados](r-fund02.qmd) | Vetores, condições, valores ausentes e categorias |
-| 3 | [Tabelas de dados](r-fund03.qmd) | Importar CSV, inspecionar a base, pacotes, exportar |
+| 2 | [Vetores e tipos de dados](r-fund02.qmd) | Vetores, condições, valores ausentes, listas e matrizes |
+| 3 | [Tabelas de dados](r-fund03.qmd) | Montar e importar tabelas, inspecionar a base, pacotes, exportar |
 | 4 | [Transformar dados I](r-fund04.qmd) | Pipe, selecionar, filtrar, ordenar e criar variáveis |
 | 5 | [Transformar dados II](r-fund05.qmd) | Resumos por grupo, junção de tabelas, formato longo e largo |
 | 6 | [Gráficos](r-fund06.qmd) | Dispersão, histograma, boxplot, barras e linha com o ggplot2 |
@@ -151,8 +151,8 @@ O mesmo curso, aula por aula, em Python. Os dados, os exemplos e os exercícios 
 | # | Aula | O que você aprende |
 |---|---|---|
 | 1 | [Primeiros passos](py-fund01.qmd) | Contas, variáveis, funções e como ler mensagens de erro |
-| 2 | [Séries e tipos de dados](py-fund02.qmd) | Séries do pandas, condições, valores ausentes e categorias |
-| 3 | [Tabelas de dados](py-fund03.qmd) | Importar CSV, inspecionar a base, bibliotecas, exportar |
+| 2 | [Séries e tipos de dados](py-fund02.qmd) | Séries do pandas, condições, valores ausentes, dicionários e arrays |
+| 3 | [Tabelas de dados](py-fund03.qmd) | Montar e importar tabelas, inspecionar a base, bibliotecas, exportar |
 | 4 | [Transformar dados I](py-fund04.qmd) | Selecionar, filtrar, ordenar, encadear métodos e criar colunas |
 | 5 | [Transformar dados II](py-fund05.qmd) | Resumos por grupo, junção de tabelas, formato longo e largo |
 | 6 | [Gráficos](py-fund06.qmd) | Dispersão, histograma, boxplot, barras e linha com o Matplotlib |
