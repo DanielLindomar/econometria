@@ -341,13 +341,13 @@ Tudo o que você fez neste curso rodou dentro do navegador. Para trabalhar com o
 
 **Sem instalar nada: Google Colab.** Em [colab.research.google.com](https://colab.research.google.com), com uma conta Google, você cria um *notebook*: um documento com blocos de código que rodam um a um, como os desta página. O pandas, o Matplotlib e a statsmodels já vêm instalados.
 
-**No seu computador.** Instale o Python a partir de [python.org/downloads](https://www.python.org/downloads/) — no Windows, marque a opção de adicionar o Python ao PATH durante a instalação. Depois, no terminal, instale as bibliotecas, uma única vez:
+**No seu computador.** Instale o Python a partir de [python.org/downloads](https://www.python.org/downloads/). Depois, no Terminal do Windows, instale as bibliotecas, uma única vez:
 
 ```
-pip install pandas matplotlib statsmodels jupyterlab
+py -m pip install pandas matplotlib statsmodels jupyterlab
 ```
 
-O comando `jupyter lab`, digitado no terminal dentro da pasta do seu trabalho, abre os notebooks no navegador. Quem preferir um pacote único pode instalar a [Anaconda Distribution](https://www.anaconda.com/download), que reúne o Python, essas bibliotecas e o Jupyter.
+O comando `py -m jupyterlab`, digitado no Terminal dentro da pasta do seu trabalho, abre os notebooks no navegador. A página [Instalar o Python e o JupyterLab](py-instalar.qmd) mostra a instalação passo a passo, com vídeo. Quem preferir um pacote único pode instalar a [Anaconda Distribution](https://www.anaconda.com/download), que reúne o Python, essas bibliotecas e o Jupyter.
 
 Nos dois caminhos, as bases do curso podem ser lidas direto do site, sem baixar nada:
 

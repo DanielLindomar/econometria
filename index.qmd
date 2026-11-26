@@ -107,6 +107,8 @@ Os casos 1 a 5 são de **corte transversal**, os casos 6 a 10, de **série tempo
 
 ## Curso de R
 
+**No seu computador:** [Instalar o R e o RStudio](r-instalar.qmd), com um vídeo de um minuto e meio e o passo a passo.
+
 ### Parte 1 — Fundamentos
 
 Para quem **nunca programou**. Dez aulas que partem da primeira conta e chegam à primeira regressão, com uma base de dados própria do curso: uma pesquisa simulada com 600 trabalhadores de Mato Grosso.
@@ -142,6 +144,8 @@ Da estrutura dos dados ao machine learning, com os métodos das disciplinas de E
 | 20 | [Machine Learning no R](r-econ20.qmd) | Treino e teste, LASSO e random forest |
 
 ## Curso de Python
+
+**No seu computador:** [Instalar o Python e o JupyterLab](py-instalar.qmd), com um vídeo de um minuto e meio e o passo a passo.
 
 ### Parte 1 — Fundamentos
 
@@ -183,4 +187,4 @@ As mesmas dez aulas de econometria, com as bibliotecas statsmodels e scikit-lear
 Cada página tem blocos de código com o botão **Run Code**. Rode os blocos **na ordem**: os primeiros carregam os dados usados pelos seguintes. Exercícios têm **Dica** e **Solução** — tente antes de abrir a solução.
 :::
 
-<!-- cursos de R e de Python (Partes 1 e 2): atualizado em 24/11/2026 -->
+<!-- cursos de R e de Python (Partes 1 e 2): atualizado em 24/11/2026; paginas de instalacao com video: 25/11/2026 -->

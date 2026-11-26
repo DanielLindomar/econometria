@@ -61,6 +61,9 @@ website:
           - proj-econ2-painel.qmd
       - text: "Curso de R"
         menu:
+          - text: "Instalar no seu computador (vídeo)"
+            href: r-instalar.qmd
+          - text: "---"
           - text: "Parte 1 — Fundamentos"
           - r-fund01.qmd
           - r-fund02.qmd
@@ -86,6 +89,9 @@ website:
           - r-econ20.qmd
       - text: "Curso de Python"
         menu:
+          - text: "Instalar no seu computador (vídeo)"
+            href: py-instalar.qmd
+          - text: "---"
           - text: "Parte 1 — Fundamentos"
           - py-fund01.qmd
           - py-fund02.qmd
@@ -127,4 +133,5 @@ engine: knitr
 
 resources:
   - dados/
+  - videos/
   - logo-unemat.png

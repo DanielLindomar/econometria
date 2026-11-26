@@ -325,7 +325,7 @@ write.csv2(limpa, "trabalhadores_limpa.csv", row.names = FALSE)
 
 ## Leve para o seu computador
 
-Tudo o que você fez neste curso rodou dentro do navegador. Para trabalhar com os seus próprios dados — e nos trabalhos das disciplinas —, instale o R no seu computador. É gratuito.
+Tudo o que você fez neste curso rodou dentro do navegador. Para trabalhar com os seus próprios dados — e nos trabalhos das disciplinas —, instale o R no seu computador. É gratuito. A página [Instalar o R e o RStudio](r-instalar.qmd) mostra a instalação passo a passo, com vídeo.
 
 1. **Instale o R**, em [cran.r-project.org](https://cran.r-project.org), escolhendo o seu sistema operacional.
 2. **Instale o RStudio Desktop**, em [posit.co/download/rstudio-desktop](https://posit.co/download/rstudio-desktop/). O R é o motor; o RStudio é o painel, com editor de código, console, gráficos e arquivos numa janela só.

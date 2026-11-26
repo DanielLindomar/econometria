@@ -1,0 +1,95 @@
+---
+title: "Instalar o Python e o JupyterLab"
+subtitle: "Curso de Python · No seu computador"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+number-sections: false
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+Neste site o Python roda dentro do navegador, e nada precisa ser instalado para seguir as aulas. Para trabalhar com os seus próprios dados, e nos trabalhos das disciplinas, instale o Python no seu computador. São dois programas gratuitos: o **Python**, que faz as contas, e o **JupyterLab**, onde você escreve o código e vê os resultados em *notebooks*, documentos com blocos de código parecidos com os deste site.
+
+::: {.callout-tip}
+## Sem instalar nada
+
+No [Google Colab](https://colab.research.google.com), com uma conta Google, você cria um notebook que roda no navegador. O pandas, o Matplotlib e a statsmodels já vêm instalados, e o teste do fim desta página funciona lá do mesmo jeito.
+:::
+
+## O vídeo
+
+```{=html}
+<video controls playsinline preload="metadata" poster="videos/instalacao-python-capa.jpg" style="width:100%; height:auto; border:1px solid #d1d5db; border-radius:8px; background:#1E2761;">
+  <source src="videos/instalacao-python.mp4" type="video/mp4">
+  Seu navegador não reproduz este vídeo. <a href="videos/instalacao-python.mp4">Baixe o arquivo</a>.
+</video>
+```
+
+O vídeo tem 1 min 30 s, com narração e legendas, e mostra o caminho no Windows. As telas são ilustrativas: os nomes dos botões e os comandos são os verdadeiros, mas o desenho das janelas foi simplificado.
+
+::: {.callout-note collapse="true" title="Texto da narração"}
+Vamos levar o Python do navegador para o seu computador.
+
+São dois programas gratuitos. O Python faz as contas. O JupyterLab é onde você escreve o código e vê os resultados. Se não quiser instalar nada, use o Google Colab.
+
+Passo um. No navegador, abra o endereço que aparece na tela. Clique no botão de download e guarde o arquivo.
+
+Passo dois. Abra o arquivo que você baixou e clique em Instalar. Se aparecerem perguntas, aceite as sugestões.
+
+Passo três. Abra o Terminal do Windows. Digite o primeiro comando da tela. Ele baixa o Python, se ainda faltar, as bibliotecas do curso e o JupyterLab. Na primeira vez, pode demorar alguns minutos. Depois, digite o segundo comando. O JupyterLab abre no navegador.
+
+Passo quatro: o teste. No JupyterLab, crie um notebook. Digite estas cinco linhas. Rode com Shift Enter. Se aparecerem a média de três mil cento e quarenta e o histograma, está tudo funcionando.
+
+Pronto. Python e JupyterLab instalados. O curso continua no site.
+:::
+
+## Passo a passo
+
+1. **Baixe o Python.** Abra [python.org/downloads](https://www.python.org/downloads/) e clique em *Download Python install manager*.
+2. **Instale.** Abra o arquivo baixado e clique em *Instalar*. Se aparecerem perguntas, aceite as sugestões.
+3. **Instale as bibliotecas e o JupyterLab.** Abra o menu Iniciar, digite *Terminal* e abra o aplicativo (no Windows 10, procure por *PowerShell*). Digite o comando abaixo e tecle Enter. Ele baixa as bibliotecas do curso e o JupyterLab e, na primeira vez, também o próprio Python, se ainda faltar. Pode demorar alguns minutos.
+
+    ```
+    py -m pip install pandas matplotlib statsmodels jupyterlab
+    ```
+
+    Depois, no mesmo Terminal, abra o JupyterLab, que aparece no navegador:
+
+    ```
+    py -m jupyterlab
+    ```
+
+4. **Teste.** No JupyterLab, clique em *Python 3 (ipykernel)*, abaixo de *Notebook*, digite as cinco linhas abaixo numa célula e rode com Shift + Enter.
+
+```python
+import pandas as pd
+site = "https://daniellindomar.github.io/econometria/dados/"
+trab = pd.read_csv(site + "trabalhadores_mt.csv")
+print(trab["renda"].mean())
+trab["renda"].hist()
+```
+
+Se aparecerem `3140.657894736842` e um histograma, está tudo funcionando. O teste lê a base do curso direto do site, então precisa de internet.
+
+## Depois de instalar
+
+- **Para voltar ao JupyterLab**, abra o Terminal e digite `py -m jupyterlab`. Deixe o Terminal aberto enquanto estiver usando: ao fechá-lo, o JupyterLab para.
+- **Os notebooks ficam na pasta em que o Terminal estava** quando você digitou o comando; em geral, a sua pasta de usuário.
+- **Para a Parte 2 do curso**, instale também duas bibliotecas, uma única vez: `py -m pip install scikit-learn wooldridge`.
+- **As versões mudam.** As aulas do site foram testadas com as versões que rodam no navegador, como o pandas 2.3. O comando acima instala as mais novas (hoje, o pandas 3), e a saída de alguns comandos pode aparecer um pouco diferente da que está nas aulas.
+
+Como organizar o trabalho em pastas e ler os dados do curso está na seção "Leve para o seu computador" da [Aula 10 — Projeto guiado](py-fund10.qmd).
+
+## Se algo não funcionar
+
+- **O Terminal diz que `py` não é reconhecido.** Feche o Terminal e abra de novo. Se continuar, repita os passos 1 e 2.
+- **O comando `python` abre a Microsoft Store.** Use `py`, como nesta página.
+- **O navegador não abriu sozinho.** O Terminal mostra um endereço que começa com `http://localhost:8888/lab`. Copie o endereço inteiro e cole no navegador.
+- **A linha do `read_csv` dá erro.** Confira a conexão com a internet e o endereço digitado: as aspas, as barras e a barra no final de `dados/`.
+- **macOS e Linux.** O vídeo mostra o Windows. No macOS, baixe o instalador na mesma página e troque `py` por `python3` nos comandos. No Linux, o Python costuma vir instalado; siga a documentação da sua distribuição.
+
+---
+
+Comece o curso pela [Aula 1 — Primeiros passos](py-fund01.qmd) · Esta página em R: [Instalar o R e o RStudio](r-instalar.qmd)

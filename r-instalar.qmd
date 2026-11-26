@@ -1,0 +1,71 @@
+---
+title: "Instalar o R e o RStudio"
+subtitle: "Curso de R · No seu computador"
+author: "Prof. Dr. Lindomar Pegorini Daniel — UNEMAT, Campus de Sinop"
+number-sections: false
+engine: knitr
+---
+
+::: {.logo-topo}
+![](logo-unemat.png){width="110"}
+:::
+
+Neste site o R roda dentro do navegador, e nada precisa ser instalado para seguir as aulas. Para trabalhar com os seus próprios dados, e nos trabalhos das disciplinas, instale o R no seu computador. São dois programas gratuitos: o **R**, que faz as contas, e o **RStudio**, onde você escreve o código e vê os resultados. Instale nessa ordem.
+
+## O vídeo
+
+```{=html}
+<video controls playsinline preload="metadata" poster="videos/instalacao-r-capa.jpg" style="width:100%; height:auto; border:1px solid #d1d5db; border-radius:8px; background:#1E2761;">
+  <source src="videos/instalacao-r.mp4" type="video/mp4">
+  Seu navegador não reproduz este vídeo. <a href="videos/instalacao-r.mp4">Baixe o arquivo</a>.
+</video>
+```
+
+O vídeo tem 1 min 24 s, com narração e legendas, e mostra o caminho no Windows. As telas são ilustrativas: os nomes dos links são os verdadeiros, mas o desenho das páginas foi simplificado.
+
+::: {.callout-note collapse="true" title="Texto da narração"}
+Vamos levar o R do navegador para o seu computador.
+
+São dois programas gratuitos. O R faz as contas. O RStudio é onde você escreve o código e vê os resultados. Instale primeiro o R e, depois, o RStudio.
+
+Passo um. No navegador, abra o site do CRAN, no endereço que aparece na tela. Clique no link para Windows. Na página seguinte, clique no link para instalar o R pela primeira vez. Por fim, clique no link de download e guarde o instalador.
+
+Passo dois. Abra o instalador e aceite as opções sugeridas: é só clicar em Avançar até aparecer Concluir.
+
+Passo três. Agora, o RStudio. Abra o endereço que está na tela e baixe o instalador do seu sistema. Depois, instale do mesmo jeito, sem mudar as opções.
+
+Passo quatro: o teste. Abra o RStudio, crie um script e digite estas quatro linhas. Rode uma por vez, com Control Enter. Se aparecerem a média de três mil cento e quarenta e o histograma, está tudo funcionando.
+
+Pronto. R e RStudio instalados. O curso continua no site.
+:::
+
+## Passo a passo
+
+1. **Baixe o R.** Abra [cran.r-project.org](https://cran.r-project.org) e clique em *Download R for Windows*. Na página seguinte, clique em *install R for the first time* e, por fim, em *Download R-4.x.x for Windows* (o número muda a cada versão). No macOS e no Linux, escolha o link do seu sistema já na primeira página.
+2. **Instale o R.** Abra o arquivo baixado e aceite as opções sugeridas, clicando em *Avançar* até aparecer *Concluir*.
+3. **Baixe e instale o RStudio.** Em [posit.co/download/rstudio-desktop](https://posit.co/download/rstudio-desktop/), baixe o instalador do seu sistema e instale do mesmo jeito, sem mudar as opções.
+4. **Teste.** Abra o RStudio, crie um script em *File > New File > R Script*, digite as quatro linhas abaixo e rode uma por vez, com Ctrl + Enter.
+
+```r
+site <- "https://daniellindomar.github.io/econometria/dados/"
+trab <- read.csv(paste0(site, "trabalhadores_mt.csv"))
+mean(trab$renda, na.rm = TRUE)
+hist(trab$renda)
+```
+
+Se o console mostrar `[1] 3140.658` e um histograma aparecer na aba *Plots*, está tudo funcionando. O teste lê a base do curso direto do site, então precisa de internet.
+
+## Depois de instalar
+
+Nas próximas vezes, basta abrir o RStudio. Como organizar o trabalho numa pasta de projeto, guardar o código num script e instalar os pacotes do curso está na seção "Leve para o seu computador" da [Aula 10 — Projeto guiado](r-fund10.qmd).
+
+## Se algo não funcionar
+
+- **O RStudio abre, mas não encontra o R.** O RStudio depende do R, que precisa ser instalado antes. Instale o R e abra o RStudio de novo.
+- **O instalador do RStudio não roda no seu computador.** A página de download lista os sistemas aceitos pela versão atual e traz um link para versões anteriores, que servem a computadores mais antigos.
+- **A linha do `read.csv` dá erro.** Confira a conexão com a internet e o endereço digitado: as aspas, as barras e a barra no final de `dados/`.
+- **Apareceu outra mensagem de erro.** Leia a mensagem e siga o roteiro da [Aula 1 — Primeiros passos](r-fund01.qmd).
+
+---
+
+Comece o curso pela [Aula 1 — Primeiros passos](r-fund01.qmd) · Esta página em Python: [Instalar o Python e o JupyterLab](py-instalar.qmd)
